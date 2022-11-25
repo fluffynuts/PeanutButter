@@ -205,6 +205,8 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
     /// </summary>
     public class FakeModelMetadata : ModelMetadata, IFakeModelMetadata
     {
+        private ModelMetadata _overrideContainerMetadata;
+
         /// <inheritdoc />
         public FakeModelMetadata(ModelMetadataIdentity identity) : base(identity)
         {
@@ -239,6 +241,21 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
             _PropertySetter = (_, _) =>
             {
             };
+        }
+
+        /// <inheritdoc />
+        public override ModelMetadata ContainerMetadata
+        {
+            get => _overrideContainerMetadata;
+        }
+
+        /// <summary>
+        /// Provides a mechanism for overriding the container metadata
+        /// </summary>
+        /// <param name="value"></param>
+        public void SetContainerMetadata(ModelMetadata value)
+        {
+            _overrideContainerMetadata = value;
         }
 
         /// <inheritdoc />

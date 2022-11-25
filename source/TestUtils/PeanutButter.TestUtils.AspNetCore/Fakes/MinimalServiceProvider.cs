@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.Extensions.Options;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
@@ -61,11 +63,26 @@ public interface IMinimalServiceProvider : IServiceProvider
     void RegisterSingleton<TService>(Func<TService> factory);
 }
 
+internal class DefaultJsonOptions : IOptions<JsonOptions>
+{
+    public JsonOptions Value { get; }
+        = new JsonOptions();
+}
+
 /// <summary>
 /// Provides a very minimal service provider
 /// </summary>
 public class MinimalServiceProvider : IFake, IMinimalServiceProvider
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    public MinimalServiceProvider()
+    {
+        // To do WriteJsonAsync, the writer needs to know about json options...
+        RegisterInstance<IOptions<JsonOptions>>(new DefaultJsonOptions());
+    }
+
     /// <inheritdoc />
     public object GetService(Type serviceType)
     {

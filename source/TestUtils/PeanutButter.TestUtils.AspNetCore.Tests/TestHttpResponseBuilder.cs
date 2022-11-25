@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
@@ -280,5 +281,44 @@ public class TestHttpResponseBuilder
         // // Assert
         Expect(result1)
             .Not.To.Deep.Equal(result2);
+    }
+
+    [Test]
+    public async Task ShouldBeAbleTo_Response_WriteAsync()
+    {
+        // Arrange
+        var sut = HttpResponseBuilder.BuildDefault();
+        var expected = GetRandomWords();
+        // Act
+        await sut.WriteAsync(expected);
+        var result = await sut.Body.ReadAllTextAsync();
+        // Assert
+        Expect(result)
+            .To.Equal(expected);
+    }
+
+    [Test]
+    public async Task ShouldBeAbleTo_Response_WriteJsonAsync()
+    {
+        // Arrange
+        var sut = HttpResponseBuilder.BuildDefault();
+        var obj = new Data
+        {
+            Id = 1,
+            Name = "bob"
+        };
+        // Act
+        await sut.WriteAsJsonAsync(obj);
+        var jsonResult = await sut.Body.ReadAllTextAsync();
+        var objResult = JsonConvert.DeserializeObject<Data>(jsonResult);
+        // Assert
+        Expect(objResult)
+            .To.Deep.Equal(obj);
+    }
+
+    public class Data
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }

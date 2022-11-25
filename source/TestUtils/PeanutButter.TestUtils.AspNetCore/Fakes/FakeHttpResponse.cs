@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipelines;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewEngines;
+using PeanutButter.TestUtils.AspNetCore.Fakes.Internal;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -55,7 +56,22 @@ public class FakeHttpResponse : HttpResponse, IFake
     private IHeaderDictionary _headers = new FakeHeaderDictionary();
 
     /// <inheritdoc />
-    public override Stream Body { get; set; } = new MemoryStream();
+    public override Stream Body
+    {
+        get => _body;
+        set
+        {
+            if (object.ReferenceEquals(_body, value))
+            {
+                return;
+            }
+            
+            _body = value;
+            _pipeWriter = new FakeResponsePipeWriter(this);
+        }
+    }
+
+    private Stream _body = new MemoryStream();
 
     /// <inheritdoc />
     public override long? ContentLength
@@ -69,11 +85,19 @@ public class FakeHttpResponse : HttpResponse, IFake
 
     /// <inheritdoc />
     public override IResponseCookies Cookies => _cookies;
+
     private IResponseCookies _cookies;
 
     /// <inheritdoc />
     public override bool HasStarted => _hasStarted;
+
     private bool _hasStarted;
+
+    /// <inheritdoc />
+    public override PipeWriter BodyWriter =>
+        _pipeWriter ??= new FakeResponsePipeWriter(this);
+
+    private PipeWriter _pipeWriter;
 
     /// <summary>
     /// Set the http context accessor
@@ -163,5 +187,78 @@ public class FakeHttpResponse : HttpResponse, IFake
         // TODO: invoke OnCompleted handlers?
         SetHasStarted(true);
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Does nothing, really
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public override Task StartAsync(CancellationToken cancellationToken = new CancellationToken())
+    {
+        SetHasStarted(true);
+        return Task.CompletedTask;
+    }
+}
+
+/// <inheritdoc />
+public class FakeResponsePipeWriter
+    : PipeWriter
+{
+    private readonly FakeHttpResponse _response;
+    private readonly StreamPipeWriter _streamPipeWriter;
+
+    /// <inheritdoc />
+    public FakeResponsePipeWriter(
+        FakeHttpResponse response
+    )
+    {
+        _response = response;
+        _streamPipeWriter = new StreamPipeWriter(
+            _response.Body,
+            new StreamPipeWriterOptions()
+        );
+    }
+
+    /// <inheritdoc />
+    public override void Advance(int bytes)
+    {
+        _streamPipeWriter.Advance(bytes);
+    }
+
+    /// <inheritdoc />
+    public override Memory<byte> GetMemory(int sizeHint = 0)
+    {
+        return _streamPipeWriter.GetMemory(sizeHint);
+    }
+
+    /// <inheritdoc />
+    public override Span<byte> GetSpan(int sizeHint = 0)
+    {
+        return _streamPipeWriter.GetSpan(sizeHint);
+    }
+
+    /// <inheritdoc />
+    public override void CancelPendingFlush()
+    {
+        _streamPipeWriter.CancelPendingFlush();
+    }
+
+    /// <inheritdoc />
+    public override void Complete(Exception exception = null)
+    {
+        _streamPipeWriter.Complete(exception);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public override ValueTask<FlushResult> FlushAsync(
+        CancellationToken cancellationToken = new CancellationToken()
+    )
+    {
+        return _streamPipeWriter.FlushAsync(cancellationToken);
     }
 }

@@ -100,7 +100,9 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
                     .Not.To.Equal(expectedMetaData.BindingSource.Id,
                         () => "should have unique-ish ids for binding sources");
                 // shortcut for deep equality testing
-                (expectedMetaData as FakeModelMetadata)!._BindingSource = metaData.BindingSource;
+                var fake = expectedMetaData as FakeModelMetadata;
+                fake!._BindingSource = metaData.BindingSource;
+                fake!.SetContainerMetadata(metaData.ContainerMetadata);
                 Expect(metaData)
                     .To.Deep.Equal(
                         expectedMetaData
