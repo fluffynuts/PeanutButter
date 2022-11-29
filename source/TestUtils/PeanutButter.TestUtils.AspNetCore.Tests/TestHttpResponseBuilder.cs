@@ -316,6 +316,23 @@ public class TestHttpResponseBuilder
             .To.Deep.Equal(obj);
     }
 
+    [Test]
+    public async Task ShouldBeAbleToClear()
+    {
+        // Arrange
+        var sut = HttpResponseBuilder.BuildDefault();
+        
+        // Act
+        await sut.Body.WriteAsync(GetRandomBytes());
+        sut.StatusCode = (int)HttpStatusCode.Found;
+        sut.Clear();
+        // Assert
+        Expect(sut.StatusCode)
+            .To.Equal((int)HttpStatusCode.OK);
+        Expect(await sut.Body.ReadAllBytesAsync())
+            .To.Be.Empty();
+    }
+
     public class Data
     {
         public int Id { get; set; }
