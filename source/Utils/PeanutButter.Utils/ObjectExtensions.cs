@@ -855,6 +855,14 @@ namespace PeanutButter.Utils
         )
         {
             var valueAsObject = GetPropertyValue(src, propertyPath);
+            return RetrieveTypedValue<T>(type, valueAsObject, propertyPath, out typeWasConverted);
+        }
+
+        private static T RetrieveTypedValue<T>(Type type,
+            object valueAsObject,
+            string propertyPath,
+            out bool typeWasConverted)
+        {
             if (valueAsObject is null)
             {
                 if (type.IsNullableType())
@@ -1047,6 +1055,26 @@ namespace PeanutButter.Utils
             string propertyPath,
             params Func<Type, PropertyOrField[]>[] fetchers)
         {
+            return FindPropertyOrField(
+                src,
+                propertyPath,
+                throwIfNotFound: true,
+                fetchers
+            );
+        }
+
+        private static TrailingMember FindPropertyOrField(
+            object src,
+            string propertyPath,
+            bool throwIfNotFound,
+            params Func<Type, PropertyOrField[]>[] fetchers
+        )
+        {
+            if (src is null)
+            {
+                return Fail(null, propertyPath);
+            }
+
             var queue = new Queue<string>(propertyPath.Split('.'));
             var result = new TrailingMember();
             while (queue.Count > 0)
@@ -1067,7 +1095,7 @@ namespace PeanutButter.Utils
                 );
                 if (memberInfo == null)
                 {
-                    throw new MemberNotFoundException(type, name);
+                    return Fail(type, name);
                 }
 
                 if (queue.Count == 0)
@@ -1085,6 +1113,13 @@ namespace PeanutButter.Utils
             }
 
             return result;
+
+            TrailingMember Fail(Type type, string name)
+            {
+                return throwIfNotFound
+                    ? throw new MemberNotFoundException(type, name)
+                    : new TrailingMember();
+            }
         }
 
         private static bool ParseIndexes(
@@ -1412,6 +1447,127 @@ namespace PeanutButter.Utils
             return objType is not null &&
                 objType.Name == "RuntimeType" &&
                 objType.Namespace == "System";
+        }
+
+        /// <summary>
+        /// Tests if the object has the requested property by path
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        public static bool HasProperty(
+            this object obj,
+            string prop
+        )
+        {
+            var trailingMember = FindPropertyOrFieldForHasProperty(
+                obj,
+                prop
+            );
+            return trailingMember.Found;
+        }
+
+        /// <summary>
+        /// Tests whether the object has the named property with the type T
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="prop"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool HasProperty<T>(
+            this object obj,
+            string prop
+        )
+        {
+            return obj.HasProperty(prop, typeof(T));
+        }
+
+        /// <summary>
+        /// Tests if the object has the named property with the expected type
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="prop"></param>
+        /// <param name="propertyType"></param>
+        /// <returns></returns>
+        public static bool HasProperty(
+            this object obj,
+            string prop,
+            Type propertyType
+        )
+        {
+            var member = FindPropertyOrFieldForHasProperty(
+                obj,
+                prop
+            );
+            return member.Found && member.Member.Type == propertyType;
+        }
+
+        private static TrailingMember FindPropertyOrFieldForHasProperty(
+            object obj,
+            string prop
+        )
+        {
+            return FindPropertyOrField(
+                obj,
+                prop,
+                throwIfNotFound: false,
+                AnyInstanceProperty
+            );
+        }
+
+        /// <summary>
+        /// Attempt to retrieve the named property with the given type
+        /// off of the provided object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="propertyPath"></param>
+        /// <param name="result"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool TryGet<T>(
+            this object obj,
+            string propertyPath,
+            out T result
+        )
+        {
+            var member = FindPropertyOrField(
+                obj,
+                propertyPath,
+                throwIfNotFound: false,
+                AnyInstanceProperty,
+                AnyInstanceField
+            );
+            var outputType = typeof(T);
+            var memberType = member.Member?.Type;
+            var canRetrieveValue =
+                member.Found &&
+                (
+                    memberType == outputType ||
+                    outputType.IsAssignableFrom(memberType) ||
+                    (memberType.IsNumericType() && outputType.IsNumericType())
+                );
+            if (!canRetrieveValue)
+            {
+                result = default;
+                return false;
+            }
+
+            var objectResult = member.Member!.GetValue(obj);
+            try
+            {
+                result = RetrieveTypedValue<T>(
+                    typeof(T),
+                    objectResult,
+                    propertyPath,
+                    out _
+                );
+                return true;
+            }
+            catch
+            {
+                result = default;
+                return false;
+            }
         }
     }
 }

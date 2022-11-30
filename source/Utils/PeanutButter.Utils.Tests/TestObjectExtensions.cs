@@ -1575,7 +1575,7 @@ namespace PeanutButter.Utils.Tests
                     // Arrange
                     var dt = GetRandomDate().TruncateMilliseconds();
                     var obj = new { dt = dt.ToString() };
-                    
+
                     // Act
                     var result = obj.Get<DateTime>("dt");
                     // Assert
@@ -1628,27 +1628,6 @@ namespace PeanutButter.Utils.Tests
                     Expect(() => data.Set("MooCows", 123))
                         .To.Throw();
                     // Assert
-                }
-
-                [TestFixture]
-                public class OperatingOnArrayIndex
-                {
-                    public class Poco
-                    {
-                        public int[] Numbers { get; set; }
-                            = new[] { 1, 2, 3 };
-                    }
-
-                    // [Test]
-                    // public void ShouldBeAbleToSetAtIndex()
-                    // {
-                    //     // Arrange
-                    //     var expected = GetRandomInt(5, 10);
-                    //     var data = new Poco();
-                    //     // Act
-                    //     data.Set("Numbers", 1, expected);
-                    //     // Assert
-                    // }
                 }
             }
 
@@ -2852,6 +2831,153 @@ namespace PeanutButter.Utils.Tests
         [TestFixture]
         public class HasProperty
         {
+            [TestFixture]
+            public class WithoutType
+            {
+                public static IEnumerable<(string, object)> PositiveTestCases()
+                {
+                    yield return ("prop", new { prop = 1 });
+                    yield return ("prop", new { prop = "123" });
+                    yield return ("prop", new { prop = true });
+                    yield return ("prop", new { prop = new DateTime() });
+                    yield return ("prop", new { prop = new { } });
+                    yield return ("prop.id", new { prop = new { id = 1 } });
+                }
+
+                [TestCaseSource(nameof(PositiveTestCases))]
+                public void ShouldReturnTrueFor_((string, object) testCase)
+                {
+                    // Arrange
+                    var (prop, data) = testCase;
+                    // Act
+                    var result = data.HasProperty(prop);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                public static IEnumerable<(string, object)> NegativeTestCases()
+                {
+                    yield return ("prop", new { });
+                    yield return ("prop", new { id = 1 });
+                    yield return ("prop.name", new { prop = new { id = 2 } });
+                }
+
+                [TestCaseSource(nameof(NegativeTestCases))]
+                public void ShouldReturnFalseFor_((string, object) testCase)
+                {
+                    // Arrange
+                    var (prop, data) = testCase;
+                    // Act
+                    var result = data.HasProperty(prop);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldAlwaysReturnNullWhenDataIsNull()
+                {
+                    // Arrange
+                    var data = null as object;
+                    // Act
+                    var result = data.HasProperty("id");
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class WithType
+            {
+                [Test]
+                public void ShouldOnlyReturnTrueWhenPropFoundAndTypeMatches()
+                {
+                    // Arrange
+                    var data = new { id = 1 };
+                    // Act
+                    Expect(data.HasProperty<int>("id"))
+                        .To.Be.True();
+                    Expect(data.HasProperty<string>("id"))
+                        .To.Be.False();
+                    // Assert
+                }
+            }
+        }
+
+        [TestFixture]
+        public class TryGetValue
+        {
+            [TestFixture]
+            public class WhenPropertyDoesNotExistByName
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    // Arrange
+                    var obj = new { };
+                    // Act
+                    var result = obj.TryGet<int>("id", out _);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class WhenPropertyExistsByAnotherType
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    // Arrange
+                    var obj = new { id = "abcde" };
+                    // Act
+                    var result = obj.TryGet<int>("id", out _);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class WhenPropertyExistsWithRequiredType
+            {
+                [Test]
+                public void ShouldReturnTrueAndSetResult()
+                {
+                    // Arrange
+                    var expected = GetRandomInt();
+                    var obj = new { id = expected };
+                    // Act
+                    var result = obj.TryGet<int>("id", out var value);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                    Expect(value)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenPropertyExistsWithCompatibleNumericType
+            {
+                [Test]
+                public void ShouldReturnTrueAndSetResult()
+                {
+                    // Arrange
+                    var expected = GetRandomInt();
+                    var obj = new { id = expected };
+                    // Act
+                    var result = obj.TryGet<long>("id", out var value);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                    Expect(value)
+                        .To.Equal(expected);
+                }
+            }
         }
 
 
