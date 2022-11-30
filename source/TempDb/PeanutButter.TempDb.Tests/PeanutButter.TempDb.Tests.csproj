@@ -81,7 +81,7 @@
     <PackageReference Include="EntityFramework" Version="6.4.4" />
     <PackageReference Include="Microsoft.SqlServer.Compact" Version="4.0.8876.1" />
     <PackageReference Include="MySql.Data" Version="8.0.31" Aliases="mysql_data" />
-    <PackageReference Include="NExpect" Version="2.0.7" />
+    <PackageReference Include="NExpect" Version="2.0.19" />
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.116" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.116" />
