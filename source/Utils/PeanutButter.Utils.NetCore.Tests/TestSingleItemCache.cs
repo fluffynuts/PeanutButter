@@ -10,6 +10,29 @@ namespace PeanutButter.Utils.NetCore.Tests
     [TestFixture]
     public class TestSingleItemCache
     {
+        [Test]
+        public void ShouldExposeSetupForTesting()
+        {
+            // Arrange
+            var expected = GetRandomInt();
+            var callCount = 0;
+            var ttl = TimeSpan.FromSeconds(GetRandomInt(10, 20));
+            var sut = Create(() =>
+            {
+                callCount++;
+                return expected;
+            }, ttl);
+            // Act
+            var result = sut.Generator();
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+            Expect(callCount)
+                .To.Equal(1);
+            Expect(sut.TimeToLive)
+                .To.Equal(ttl);
+        }
+
         [TestFixture]
         public class WhenNoPriorCalls
         {
