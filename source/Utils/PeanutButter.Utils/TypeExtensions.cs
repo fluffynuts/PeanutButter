@@ -897,15 +897,19 @@ namespace PeanutButter.Utils
             );
         }
 
-        private static readonly Type[] NumericTypes =
-        {
-            typeof(int),
-            typeof(short),
-            typeof(byte),
-            typeof(double),
-            typeof(float),
-            typeof(decimal)
-        };
+        private static readonly HashSet<Type> NumericTypes = new(
+            new[]
+            {
+                typeof(byte),
+                typeof(short),
+                typeof(int),
+                typeof(long),
+                typeof(ulong),
+                typeof(float),
+                typeof(double),
+                typeof(decimal)
+            }
+        );
 
 
         private static readonly MethodInfo TryConvertGeneric =
