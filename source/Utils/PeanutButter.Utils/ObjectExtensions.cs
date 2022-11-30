@@ -746,7 +746,28 @@ namespace PeanutButter.Utils
             string propertyPath)
         {
             var type = src.GetType();
-            return ResolvePropertyValueFor<T>(src, propertyPath, type);
+            return ResolvePropertyValueFor<T>(src, propertyPath, type, out _);
+        }
+
+        /// <summary>
+        /// Provides a non-generic interface to Get&lt;T&gt;
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="propertyPath"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static object Get(
+            this object src,
+            string propertyPath,
+            Type type
+        )
+        {
+            var result = ResolvePropertyValueFor<object>(src, propertyPath, type, out var typeWasConverted);
+            return typeWasConverted || result?.GetType() == type
+                ? result
+                // result could be assignable, but the requester has specifically
+                // asked for a type
+                : Convert.ChangeType(result, type);
         }
 
         /// <summary>
@@ -795,7 +816,8 @@ namespace PeanutButter.Utils
         /// <param name="input">The item to wrap</param>
         /// <typeparam name="T">The type of the object</typeparam>
         /// <returns>A single-element array containing the input object</returns>
-        [Obsolete("This method was poorly-named and will be removed at some point. Please rather use .InArray() to avoid confusion with the IEnumerable<T> extension AsArray")]
+        [Obsolete(
+            "This method was poorly-named and will be removed at some point. Please rather use .InArray() to avoid confusion with the IEnumerable<T> extension AsArray")]
         public static T[] AsArray<T>(this T input)
         {
             return new[] { input };
@@ -828,13 +850,16 @@ namespace PeanutButter.Utils
         private static T ResolvePropertyValueFor<T>(
             object src,
             string propertyPath,
-            Type type)
+            Type type,
+            out bool typeWasConverted
+        )
         {
             var valueAsObject = GetPropertyValue(src, propertyPath);
             if (valueAsObject is null)
             {
                 if (type.IsNullableType())
                 {
+                    typeWasConverted = false;
                     return default;
                 }
 
@@ -845,19 +870,36 @@ namespace PeanutButter.Utils
 
             var valueType = valueAsObject.GetType();
             if (!valueType.IsAssignableTo<T>())
-                throw new ArgumentException(
-                    "Get<> must be invoked with a type to which the property value could be assigned (" +
-                    type.Name +
-                    "." +
-                    propertyPath +
-                    " has type '" +
-                    valueType.Name +
-                    "', but expected '" +
-                    typeof(T).Name +
-                    "' or derivative");
+            {
+                if (type == typeof(string))
+                {
+                    typeWasConverted = true;
+                    return (T) (object) valueAsObject?.ToString();
+                }
+
+                try
+                {
+                    typeWasConverted = true;
+                    return (T) Convert.ChangeType(valueAsObject, typeof(T));
+                }
+                catch
+                {
+                    throw new ArgumentException(
+                        "Get<> must be invoked with a type to which the property value could be assigned (" +
+                        type.Name +
+                        "." +
+                        propertyPath +
+                        " has type '" +
+                        valueType.Name +
+                        "', but expected '" +
+                        typeof(T).Name +
+                        "' or derivative");
+                }
+            }
+
+            typeWasConverted = false;
             return (T) valueAsObject;
         }
-
 
         /// <summary>
         /// Gets a property value by name from an object

@@ -1194,7 +1194,8 @@ namespace PeanutButter.Utils.Tests
                     //---------------Assert Precondition----------------
 
                     //---------------Execute Test ----------------------
-                    Assert.Throws<MemberNotFoundException>(() => o.Get<bool>("prop"));
+                    Expect(() => o.Get<bool>("prop"))
+                        .To.Throw<MemberNotFoundException>();
 
                     //---------------Test Result -----------------------
                 }
@@ -1212,19 +1213,21 @@ namespace PeanutButter.Utils.Tests
                     var result = o.GetOrDefault("prop", 1);
 
                     //---------------Test Result -----------------------
-                    Assert.AreEqual(2, result);
+                    Expect(result)
+                        .To.Equal(2);
                 }
 
                 [Test]
-                public void WhenGivenNamefPropertyWhichDoesExistAndIncorrectType_ShouldThrow()
+                public void WhenGivenNameOfPropertyWhichDoesExistAndUnconvertableType_ShouldThrow()
                 {
                     //---------------Set up test pack-------------------
-                    var o = new { prop = 2 };
+                    var o = new { prop = "abcd" };
 
                     //---------------Assert Precondition----------------
 
                     //---------------Execute Test ----------------------
-                    Assert.Throws<ArgumentException>(() => o.GetOrDefault<string>("prop"));
+                    Expect(() => o.GetOrDefault<bool>("prop"))
+                        .To.Throw<ArgumentException>();
 
                     //---------------Test Result -----------------------
                 }
@@ -1289,6 +1292,50 @@ namespace PeanutButter.Utils.Tests
                     // Assert
                     Expect(result)
                         .To.Be.Null();
+                }
+
+                [Test]
+                public void ShouldResolveAssignableType()
+                {
+                    // Arrange
+                    var foo = new { bar = new { id = 1 } };
+                    // Act
+                    var result = foo.Get<object>("bar");
+                    // Assert
+                    Expect(result)
+                        .Not.To.Be.Null();
+                }
+
+                [Test]
+                public void ShouldResolveStringValue()
+                {
+                    // Arrange
+                    var foo = new { id = 1 };
+                    // Act
+                    var result = foo.Get<string>("id");
+                    // Assert
+                    Expect(result)
+                        .To.Equal("1");
+                }
+
+                [TestCase(1L, typeof(int), 1)]
+                [TestCase(1, typeof(long), 1)]
+                [TestCase("12", typeof(int), 12)]
+                public void ShouldBeAbleToCast(
+                    object value,
+                    Type expected,
+                    object expectedValue
+                )
+                {
+                    // Arrange
+                    var data = new { prop = value };
+                    // Act
+                    var result = data.Get("prop", expected);
+                    // Assert
+                    Expect(result)
+                        .To.Have.Type(expected);
+                    Expect(result)
+                        .To.Equal(expectedValue);
                 }
             }
 
@@ -1484,6 +1531,59 @@ namespace PeanutButter.Utils.Tests
 
                     //---------------Test Result -----------------------
                     Assert.AreEqual(expected, obj.Parent.Child.Name);
+                }
+
+                [Test]
+                public void ShouldAttemptCastToString()
+                {
+                    // Arrange
+                    var foo = new { id = 123 };
+                    // Act
+                    var result = foo.Get<string>("id");
+                    // Assert
+                    Expect(result)
+                        .To.Equal("123");
+                }
+
+                [Test]
+                public void ShouldUpCastNumeric()
+                {
+                    // Arrange
+                    var foo = new { id = 123 };
+                    // Act
+                    var result = foo.Get<long>("id");
+                    // Assert
+                    Expect(result)
+                        .To.Equal(123);
+                }
+
+                [Test]
+                public void ShouldDownCastNumericWherePossible()
+                {
+                    // Arrange
+                    var foo = new { id = 123M };
+                    // Act
+                    var result = foo.Get<int>("id");
+                    // Assert
+                    Expect(result)
+                        .To.Equal(123);
+                }
+
+                [Test]
+                public void ShouldAttemptApproximateDateConversion()
+                {
+                    // Arrange
+                    var dt = GetRandomDate().TruncateMilliseconds();
+                    var obj = new { dt = dt.ToString() };
+                    
+                    // Act
+                    var result = obj.Get<DateTime>("dt");
+                    // Assert
+                    Expect(result.Kind)
+                        .To.Equal(DateTimeKind.Unspecified);
+                    var withSameKind = result.ToKind(DateTimeKind.Local);
+                    Expect(withSameKind)
+                        .To.Equal(dt);
                 }
             }
 
@@ -2747,6 +2847,11 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Be.True();
             }
+        }
+
+        [TestFixture]
+        public class HasProperty
+        {
         }
 
 
