@@ -24,13 +24,13 @@
         <dependency id="PeanutButter.TempDb" version="3.0.94" />
         <dependency id="PeanutButter.Utils" version="3.0.94" />
         <dependency id="PeanutButter.INI" version="3.0.94" />
-        <dependency id="MySqlConnector" version="0.56.0" />
+        <dependency id="MySqlConnector" version="2.2.1" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="PeanutButter.TempDb" version="3.0.94" />
         <dependency id="PeanutButter.Utils" version="3.0.94" />
         <dependency id="PeanutButter.INI" version="3.0.94" />
-        <dependency id="MySqlConnector" version="0.56.0" />
+        <dependency id="MySqlConnector" version="2.2.1" />
       </group>
     </dependencies>
     <references></references>
