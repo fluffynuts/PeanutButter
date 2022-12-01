@@ -90,7 +90,8 @@ namespace PeanutButter.TempDb.MySql.Connector
                 SslMode = MySqlSslMode.None,
                 Database = SchemaName,
                 ConnectionTimeout = DefaultTimeout,
-                DefaultCommandTimeout = DefaultTimeout
+                DefaultCommandTimeout = DefaultTimeout,
+                CharacterSet = Settings.CharacterSetServer
             };
             return builder.ToString();
         }
