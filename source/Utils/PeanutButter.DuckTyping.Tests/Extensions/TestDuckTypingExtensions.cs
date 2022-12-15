@@ -2752,6 +2752,29 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                     Expect(result.Id).To.Equal(default(int));
                 }
 
+                [Test]
+                public void ShouldMapFuzzyNames()
+                {
+                    // Arrange
+                    var dict = new Dictionary<string, string>()
+                    {
+                        ["Lock.Count"] = "1000"
+                    };
+                    var unforced = dict.FuzzyDuckAs<IHasDottedProperty>();
+                    Expect(unforced.LockCount)
+                        .To.Equal(1000);
+                    // Act
+                    var forced = dict.ForceFuzzyDuckAs<IHasDottedProperty>();
+                    // Assert
+                    Expect(forced.LockCount)
+                        .To.Equal(1000);
+                }
+
+                public interface IHasDottedProperty
+                {
+                    int LockCount { get; set; }
+                }
+
                 public interface IHasWritableId
                 {
                     int Id { get; set; }

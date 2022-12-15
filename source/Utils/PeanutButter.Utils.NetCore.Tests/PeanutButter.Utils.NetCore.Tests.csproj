@@ -5,6 +5,8 @@
     <IsPackable>false</IsPackable>
     <Configurations>Debug;Release;Debug-X</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">

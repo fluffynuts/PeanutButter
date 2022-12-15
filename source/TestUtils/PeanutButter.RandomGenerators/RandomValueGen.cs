@@ -1490,7 +1490,7 @@ namespace PeanutButter.RandomGenerators
                 (hasInfix ? GetRandomFrom(NaturalData.PlaceInfixes) : "")
             }{GetRandomFrom(NaturalData.PlaceSuffixes)}";
         }
-
+        
         /// <summary>
         /// Returns a random last name, source from unique top names:
         /// - international (100)

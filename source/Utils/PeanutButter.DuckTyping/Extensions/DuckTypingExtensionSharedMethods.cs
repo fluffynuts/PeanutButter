@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 #if NETSTANDARD
 #else
 using System.Configuration;
-using Imported.PeanutButter.Utils.Dictionaries;
 #endif
 using System.Linq;
 using System.Reflection;
 using Imported.PeanutButter.Utils;
+using Imported.PeanutButter.Utils.Dictionaries;
 #if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
 using Imported.PeanutButter.DuckTyping.AutoConversion;
 using Imported.PeanutButter.DuckTyping.AutoConversion.Converters;
@@ -36,7 +38,7 @@ namespace PeanutButter.DuckTyping.Extensions
 #else
     public
 #endif
-    static class DuckTypingExtensionSharedMethods
+        static class DuckTypingExtensionSharedMethods
     {
         internal static readonly MethodInfo GenericFuzzyDuckAsMethod =
             FindGenericDuckMethodFromObjectExtensions(nameof(DuckTypingObjectExtensions.FuzzyDuckAs));
@@ -81,7 +83,7 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var specific = genericMethod.MakeGenericMethod(toType);
-            return specific.Invoke(null, new[] {src, throwOnError});
+            return specific.Invoke(null, new[] { src, throwOnError });
         }
 
         internal static T ForceDuckAs<T>(
@@ -101,7 +103,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 forceConcrete
             );
 
-            return (T) Activator.CreateInstance(type, new object[] {new[] {src}});
+            return (T) Activator.CreateInstance(type, new object[] { new[] { src } });
         }
 
         internal static T ForceDuckAs<T>(
@@ -115,7 +117,33 @@ namespace PeanutButter.DuckTyping.Extensions
                 allowDefaultValueForMissingProperties,
                 forceConcrete
             );
-            return (T) Activator.CreateInstance(type, new object[] {new[] {src}});
+            var isDictionary = false;
+            if (src is not null)
+            {
+                
+                src = src switch
+                {
+                    NameValueCollection n => new DictionaryWrappingNameValueCollection(n),
+                    // if we're on netfx, we can automatically wrap connection strings too, but
+                    // on netstandard, the consumer will have to do this themselves
+#if !NETSTANDARD
+                    ConnectionStringSettingsCollection c => new DictionaryWrappingConnectionStringSettingCollection(c),
+#endif
+                    _ => ConvertDictionaryIfNecessary()
+                };
+            }
+
+            return (T) Activator.CreateInstance(type, src);
+
+            object ConvertDictionaryIfNecessary()
+            {
+                var dict = TryConvertToDictionary(src);
+                if (allowFuzzy)
+                {
+                    dict = dict?.ToCaseInsensitiveDictionary();
+                }
+                return dict ?? src;
+            }
         }
 
         // ReSharper disable UnusedParameter.Global
@@ -221,7 +249,7 @@ namespace PeanutButter.DuckTyping.Extensions
             }
 
             var method = GenericConvertDictionaryMethod.MakeGenericMethod(dictionaryTypes.ValueType);
-            return (IDictionary<string, object>) method.Invoke(null, new[] {src});
+            return (IDictionary<string, object>) method.Invoke(null, new[] { src });
         }
 
         private static readonly MethodInfo GenericConvertDictionaryMethod =
@@ -625,8 +653,8 @@ namespace PeanutButter.DuckTyping.Extensions
             var duckType = FindOrCreateDuckTypeFor<T>(allowFuzzy);
             // ReSharper disable RedundantExplicitArrayCreation
             var ctorArgs = srcAsDict == null
-                ? new object[] {new object[] {src}}
-                : new object[] {new IDictionary<string, object>[] {srcAsDict}};
+                ? new object[] { new object[] { src } }
+                : new object[] { new IDictionary<string, object>[] { srcAsDict } };
             // ReSharper restore RedundantExplicitArrayCreation
             return (T) Activator.CreateInstance(duckType, ctorArgs);
         }
