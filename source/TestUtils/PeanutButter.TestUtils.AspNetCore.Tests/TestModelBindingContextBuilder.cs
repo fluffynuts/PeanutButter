@@ -1,13 +1,16 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using NExpect;
 using NSubstitute;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
+using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static NExpect.AspNetCoreExpectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests
 {
@@ -216,6 +219,44 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
                 // Assert
                 Expect(result.ValueProvider)
                     .To.Be(expected);
+            }
+        }
+
+        [TestFixture]
+        public class ConvenientlyDontRequireAValueProvider
+        {
+            [Test]
+            public void ShouldBeAbleToSetArbitraryValue()
+            {
+                // Arrange
+                var name = GetRandomString();
+                var value = GetRandomString();
+                // Act
+                var ctx = ModelBindingContextBuilder.Create()
+                    .WithModelName(name)
+                    .WithModelValue(value)
+                    .Build();
+                var result = ctx.ValueProvider.GetValue(ctx.ModelName);
+                // Assert
+                Expect(result.Values)
+                    .To.Equal(new StringValues(value));
+            }
+
+            [Test]
+            public void ShouldBeAbleToSetArbitraryValueOutOfOrder()
+            {
+                // Arrange
+                var name = GetRandomString();
+                var value = GetRandomString();
+                // Act
+                var ctx = ModelBindingContextBuilder.Create()
+                    .WithModelValue(value)
+                    .WithModelName(name)
+                    .Build();
+                var result = ctx.ValueProvider.GetValue(ctx.ModelName);
+                // Assert
+                Expect(result.Values)
+                    .To.Equal(new StringValues(value));
             }
         }
     }

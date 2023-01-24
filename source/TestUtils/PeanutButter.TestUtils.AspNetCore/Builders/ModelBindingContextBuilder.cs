@@ -1,12 +1,59 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Primitives;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+
+internal class MockValueProvider : IValueProvider
+{
+    private readonly Dictionary<string, StringValues> _values = new();
+    private Func<string, ValueProviderResult> _overrideFunc;
+
+    public bool ContainsPrefix(string prefix)
+    {
+        // partially copied & loosely based off of the FormValueProvider implementation
+        if (prefix == null)
+        {
+            throw new ArgumentNullException(nameof(prefix));
+        }
+
+        if (_values.Keys.Count == 0)
+        {
+            return false;
+        }
+
+        if (prefix.Length == 0)
+        {
+            return true; // Empty prefix matches all elements.
+        }
+
+        return _values.Any(kvp => kvp.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public ValueProviderResult GetValue(string key)
+    {
+        if (_overrideFunc is not null)
+        {
+            return _overrideFunc(key);
+        }
+
+        return _values.TryGetValue(key, out var stringValues)
+            ? new ValueProviderResult(stringValues)
+            : new ValueProviderResult(null as string);
+    }
+
+    public void OverrideGetValue(Func<string, ValueProviderResult> overrideFunc)
+    {
+        _overrideFunc = overrideFunc;
+    }
+}
 
 /// <summary>
 /// Builds a ModelBindingContext for testing
@@ -14,6 +61,9 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders;
 public class ModelBindingContextBuilder
     : RandomizableBuilder<ModelBindingContextBuilder, ModelBindingContext>
 {
+    private readonly CompositeValueProvider _originalCompositeProvider;
+    private readonly MockValueProvider _mockedProvider;
+
     /// <inheritdoc />
     public override ModelBindingContextBuilder Randomize()
     {
@@ -23,6 +73,8 @@ public class ModelBindingContextBuilder
     /// <inheritdoc />
     public ModelBindingContextBuilder()
     {
+        _originalCompositeProvider = new CompositeValueProvider();
+        _mockedProvider = new MockValueProvider();
         WithActionContext(ControllerContextBuilder.BuildDefault())
             .WithModelName("Model")
             .WithBindingSource(BindingSource.Body)
@@ -32,11 +84,38 @@ public class ModelBindingContextBuilder
             .WithModelMetadata(ModelMetadataBuilder.BuildDefault())
             .WithModelState(new ModelStateDictionary())
             .WithValidationState(new ValidationStateDictionary())
-            .WithValueProvider(new CompositeValueProvider())
+            .WithValueProvider(_originalCompositeProvider)
             .WithPartialValueProvider(new RouteValueProvider(BindingSource.Query, new RouteValueDictionary()))
-            .WithPartialValueProvider(new FormValueProvider(BindingSource.Form, FormBuilder.BuildDefault(), CultureInfo.CurrentCulture))
+            .WithPartialValueProvider(new FormValueProvider(BindingSource.Form, FormBuilder.BuildDefault(),
+                CultureInfo.CurrentCulture))
+            .WithPartialValueProvider(_mockedProvider)
             .WithPropertyFilter(_ => true)
             .WithSuccessfulModelBindingResult();
+    }
+
+    /// <summary>
+    /// Convenience method to set the value for the model. Cannot be used in
+    /// conjunction with a custom value provider.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public ModelBindingContextBuilder WithModelValue(StringValues value)
+    {
+        return With(o =>
+        {
+            if (o.ValueProvider != _originalCompositeProvider)
+            {
+                throw new InvalidOperationException(
+                    "Cannot set the value for the model if the value provider has been replaced"
+                );
+            }
+
+            _mockedProvider.OverrideGetValue(s =>
+                s == o.ModelName
+                    ? new ValueProviderResult(value)
+                    : throw new KeyNotFoundException()
+            );
+        });
     }
 
     /// <summary>
@@ -110,8 +189,8 @@ public class ModelBindingContextBuilder
             if (o.ValueProvider is not CompositeValueProvider compositeValueProvider)
             {
                 o.ValueProvider = compositeValueProvider = new CompositeValueProvider();
-                
             }
+
             compositeValueProvider.Add(valueProvider);
         });
     }
