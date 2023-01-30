@@ -463,7 +463,7 @@ namespace PeanutButter.Utils
                 .JoinWith($"\n{indent}");
             return ("{\n" +
                 string.Join(
-                    "\n{indent}",
+                    $"\n{indent}",
                     $"{indent}{joinWith}"
                 ) +
                 $"\n{indentMinus1}}}").Compact();
