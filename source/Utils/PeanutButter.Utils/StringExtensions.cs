@@ -321,7 +321,8 @@ namespace PeanutButter.Utils
         /// <param name="data">Bytes to encode</param>
         /// <returns>The utf8 string, if possible; will return null if given null</returns>
         public static string AsString(
-            this byte[] data)
+            this byte[] data
+        )
         {
             return data.AsString(Encoding.UTF8);
         }
@@ -335,9 +336,10 @@ namespace PeanutButter.Utils
         /// <returns>The string, if possible; will return null if given null</returns>
         public static string AsString(
             this byte[] data,
-            Encoding encoding)
+            Encoding encoding
+        )
         {
-            return data == null
+            return data is null
                 ? null
                 : encoding.GetString(data);
         }
@@ -348,7 +350,8 @@ namespace PeanutButter.Utils
         /// <param name="src">Bytes to wrapp</param>
         /// <returns>Stream wrapping the bytes or null if the source is null</returns>
         public static Stream AsStream(
-            this byte[] src)
+            this byte[] src
+        )
         {
             return src == null
                 ? null
@@ -372,7 +375,8 @@ namespace PeanutButter.Utils
         /// <param name="value">String to convert</param>
         /// <returns>The integer value of the string; 0 if it cannot be converted</returns>
         public static int AsInteger(
-            this string value)
+            this string value
+        )
         {
             var interestingPart = GetLeadingIntegerCharsFrom(value ?? string.Empty);
             int.TryParse(interestingPart, out var result);
@@ -385,7 +389,8 @@ namespace PeanutButter.Utils
         /// <param name="value">String to test</param>
         /// <returns>True if is null or whitespace; False otherwise</returns>
         public static bool IsNullOrWhiteSpace(
-            this string value)
+            this string value
+        )
         {
             return string.IsNullOrWhiteSpace(value);
         }
@@ -396,7 +401,8 @@ namespace PeanutButter.Utils
         /// <param name="value">String to test</param>
         /// <returns>True if is null or whitespace; False otherwise</returns>
         public static bool IsNullOrEmpty(
-            this string value)
+            this string value
+        )
         {
             return string.IsNullOrEmpty(value);
         }
@@ -457,7 +463,8 @@ namespace PeanutButter.Utils
         /// <param name="value">Input string value</param>
         /// <returns>The base64-encoded representation of the string, or null if the string is null</returns>
         public static string ToBase64(
-            this string value)
+            this string value
+        )
         {
             return value?.AsBytes()?.ToBase64();
         }
@@ -533,6 +540,105 @@ namespace PeanutButter.Utils
                 .SplitWhenNonContinuousAnd('-')
                 .Select(s => s.ToLower())
                 .JoinWith("-");
+        }
+
+        /// <summary>
+        /// Replace all occurrences of chars in needles with the replaceWith character
+        /// </summary>
+        /// <param name="haystack"></param>
+        /// <param name="needles"></param>
+        /// <param name="replaceWith"></param>
+        /// <returns></returns>
+        public static string ReplaceAll(
+            this string haystack,
+            IEnumerable<char> needles,
+            char replaceWith
+        )
+        {
+            if (haystack is null)
+            {
+                throw new ArgumentNullException(nameof(haystack));
+            }
+
+            if (needles is null)
+            {
+                throw new ArgumentException(nameof(needles));
+            }
+            // we could do this:
+            // return needles.Aggregate(
+            //     haystack,
+            //     (acc, cur) => acc.Replace(cur, replaceWith)
+            // );
+            // but that results in more string allocations
+            // -> speed-wise, the approaches are about the same
+            //    (on small-enough needle collections),
+            //    but memory-wise, it makes a little difference
+            //    - fewer strings to GC
+            
+            var arr = haystack.ToCharArray();
+            var seek = new HashSet<char>(needles);
+            for (var i = 0; i < arr.Length; i++)
+            {
+                if (seek.Contains(arr[i]))
+                {
+                    arr[i] = replaceWith;
+                }
+            }
+            
+            return new String(arr);
+        }
+        
+        /// <summary>
+        /// Replace all occurrences of strings in needles with the replaceWith string
+        /// </summary>
+        /// <param name="haystack"></param>
+        /// <param name="needles"></param>
+        /// <param name="replaceWith"></param>
+        /// <returns></returns>
+        public static string ReplaceAll(
+            this string haystack,
+            IEnumerable<string> needles,
+            string replaceWith
+        )
+        {
+            if (haystack is null)
+            {
+                throw new ArgumentNullException(nameof(haystack));
+            }
+
+            if (needles is null)
+            {
+                throw new ArgumentException(nameof(needles));
+            }
+
+            return needles.Aggregate(
+                haystack,
+                (acc, cur) => acc.Replace(cur, replaceWith)
+            );
+        }
+
+        /// <summary>
+        /// Remove all the given characters from the string, returning a new
+        /// string
+        /// </summary>
+        /// <param name="subject"></param>
+        /// <param name="toRemove"></param>
+        /// <returns></returns>
+        public static string RemoveAll(
+            this string subject,
+            params char[] toRemove
+        )
+        {
+            var seek = new HashSet<char>(toRemove);
+            var result = new List<char>(subject.Length);
+            foreach (var c in subject)
+            {
+                if (!seek.Contains(c))
+                {
+                    result.Add(c);
+                }
+            }
+            return new String(result.ToArray());
         }
 
         /// <summary>
@@ -1508,10 +1614,10 @@ namespace PeanutButter.Utils
         /// <param name="pathType"></param>
         /// <returns></returns>
         public static string RelativeTo(
-                this string path,
-                string basePath,
-                PathType pathType
-            )
+            this string path,
+            string basePath,
+            PathType pathType
+        )
         {
             if (path is null)
             {

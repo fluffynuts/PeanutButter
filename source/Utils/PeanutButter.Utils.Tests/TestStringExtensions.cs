@@ -40,6 +40,110 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        public class ReplaceAll
+        {
+            [TestFixture]
+            public class WorkingWithChars
+            {
+                [Test]
+                public void ShouldReplaceAllParamsCharsWithReplacementChar()
+                {
+                    // Arrange
+                    var input = "foo.bar-quux_wat";
+                    var expected = "foo bar quux wat";
+
+                    // Act
+                    var result = input.ReplaceAll(
+                        new[] { '.', '-', '_' },
+                        ' '
+                    );
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WorkingWithStrings
+            {
+                [Test]
+                public void ShouldReplaceAllParamsCharsWithReplacementChar()
+                {
+                    // Arrange
+                    var input = "foo.bar-quux_wat";
+                    var expected = "foo bar quux wat";
+
+                    // Act
+                    var result = input.ReplaceAll(
+                        new[] { ".", "-", "_" },
+                        " "
+                    );
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class Performance
+            {
+                [Test]
+                public void SingleCharStringsVsChars()
+                {
+                    // Arrange
+                    var input = "foo.bar-quux_wat";
+                    var chars = new[] { '.', '-', '_' };
+                    var strings = new[] { ".", "-", "_" };
+                    var iterations = 10000000;
+                    string foo = null;
+
+                    // Act
+                    var stringTime = Benchmark.Time(() =>
+                    {
+                        foo = input.ReplaceAll(strings, " ");
+                    }, 100);
+                    var charTime = Benchmark.Time(() =>
+                    {
+                        foo = input.ReplaceAll(chars, ' ');
+                    }, 100);
+                    stringTime = Benchmark.Time(() =>
+                    {
+                        foo = input.ReplaceAll(strings, " ");
+                    }, iterations);
+                    charTime = Benchmark.Time(() =>
+                    {
+                        foo = input.ReplaceAll(chars, ' ');
+                    }, iterations);
+                    // Assert
+                    Expect(foo)
+                        .Not.To.Be.Null();
+                    Console.WriteLine($"chars:   {charTime}");
+                    Console.WriteLine($"strings: {stringTime}");
+                }
+            }
+        }
+
+        [TestFixture]
+        public class RemoveAll
+        {
+            [Test]
+            public void ShouldRemoveAllTheProvidedChars()
+            {
+                // Arrange
+                var input = "foo-bar.quux_wat";
+                var expected = "foobarquuxwat";
+                // Act
+                var result = input.RemoveAll(
+                    '-', '.', '_', ':'
+                );
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
+
+
+        [TestFixture]
         public class RegexReplaceAll
         {
             [Test]
