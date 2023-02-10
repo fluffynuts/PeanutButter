@@ -85,12 +85,12 @@ namespace PeanutButter.RandomGenerators
                 var keyType = genericArgs[0];
                 var valueType = genericArgs[1];
                 var method = GenericGetRandomDictionary.MakeGenericMethod(keyType, valueType);
-                return (T)method.Invoke(null, new object[0]);
+                return (T) method.Invoke(null, new object[0]);
             }
 
             return (T) GetRandomValue(type);
         }
-        
+
         private static readonly MethodInfo GenericGetRandomDictionary = typeof(RandomValueGen)
             .GetMethods()
             .FirstOrDefault(mi => mi.Name == nameof(GetRandomDictionary) && mi.GetParameters().Length == 0);
@@ -141,9 +141,10 @@ namespace PeanutButter.RandomGenerators
                 var value = GetRandom<TValue>();
                 result[key] = value;
             }
+
             return result;
         }
-        
+
         /// <summary>
         /// Generates a random NameValueCollection
         /// with at least one item in it
@@ -184,6 +185,7 @@ namespace PeanutButter.RandomGenerators
                 var value = GetRandomString();
                 result[key] = value;
             }
+
             return result;
         }
 
@@ -1490,7 +1492,7 @@ namespace PeanutButter.RandomGenerators
                 (hasInfix ? GetRandomFrom(NaturalData.PlaceInfixes) : "")
             }{GetRandomFrom(NaturalData.PlaceSuffixes)}";
         }
-        
+
         /// <summary>
         /// Returns a random last name, source from unique top names:
         /// - international (100)
@@ -2267,7 +2269,8 @@ namespace PeanutButter.RandomGenerators
         /// <typeparam name="T">Type of value required</typeparam>
         /// <returns>New random value of type T, different from the input value</returns>
         public static T GetAnother<T>(
-            T differentFromThis)
+            T differentFromThis
+        )
         {
             return GetAnother(differentFromThis, GetRandom<T>);
         }
