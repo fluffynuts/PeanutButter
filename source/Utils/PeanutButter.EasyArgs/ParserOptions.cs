@@ -211,7 +211,7 @@ namespace PeanutButter.EasyArgs
                     $"Usage: dotnet {currentAppFile} {{args}}"
                 };
             }
-            
+
             return configured
                 .Concat(DefaultDescription())
                 .ToArray();
@@ -539,10 +539,13 @@ namespace PeanutButter.EasyArgs
         /// Reports a missing, required option
         /// </summary>
         /// <param name="arg"></param>
-        public virtual void ReportMissingRequiredOption(string arg)
+        public virtual void ReportMissingRequiredOption(CommandlineArgument arg)
         {
+            var suffix = FallbackOnEnvironmentVariables
+                ? $", or set the {arg.Key.ToSnakeCase().ToUpper()} environment variable appropriately"
+                : "";
             LineWriter(
-                $"{arg} is required"
+                $"--{arg.LongName} is required{suffix}"
             );
         }
 

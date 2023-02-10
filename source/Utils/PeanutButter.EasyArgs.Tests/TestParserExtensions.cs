@@ -696,12 +696,104 @@ Report bugs to <no-one-cares@whatevs.org>
                             .To.Be.True();
                     }
                 }
+
+                [Test]
+                public void ShouldSolveRequiredMarker()
+                {
+                    // Arrange
+                    var expected = GetRandomHostname();
+                    using var _ = new AutoTempEnvironmentVariable(
+                        "server",
+                        expected
+                    );
+                    var captured = -1;
+                    var args = new string[0];
+                    // Act
+                    var result = args.ParseTo<RequiredOptions>(
+                        new ParserOptions()
+                        {
+                            FallbackOnEnvironmentVariables = true,
+                            ExitAction = c => captured = c
+                        }
+                    );
+                    // Assert
+                    Expect(captured)
+                        .To.Equal(-1);
+                    Expect(result.Server)
+                        .To.Equal(expected);
+                }
+
+                [Test]
+                public void ShouldHintForMissingRequiredVars()
+                {
+                    // Arrange
+                    var args = new string[0];
+                    var lines = new List<string>();
+                    // Act
+                    args.ParseTo<RequiredOptions>(
+                        new ParserOptions()
+                        {
+                            FallbackOnEnvironmentVariables = true,
+                            LineWriter = s => lines.Add(s),
+                            ExitAction = c =>
+                            {
+                            }
+                        }
+                    );
+                    // Assert
+                    Expect(lines)
+                        .To.Contain.Exactly(1)
+                        .Matched.By(
+                            l => l.EndsWith(
+                                "set the SERVER environment variable appropriately"
+                            )
+                        );
+                }
+
+                [Test]
+                public void ShouldHintForMissingRequiredVars2()
+                {
+                    // Arrange
+                    var args = new string[0];
+                    var lines = new List<string>();
+                    // Act
+                    args.ParseTo<RequiredOptions2>(
+                        new ParserOptions()
+                        {
+                            FallbackOnEnvironmentVariables = true,
+                            LineWriter = s => lines.Add(s),
+                            ExitAction = c =>
+                            {
+                            }
+                        }
+                    );
+                    // Assert
+                    Expect(lines)
+                        .To.Contain.Exactly(1)
+                        .Matched.By(
+                            l => l.EndsWith(
+                                "set the REMOTE_HOST environment variable appropriately"
+                            )
+                        );
+                }
             }
 
             public class Options
             {
                 public string RemoteHost { get; set; }
                 public bool TheFlag { get; set; }
+            }
+
+            public class RequiredOptions
+            {
+                [Required]
+                public string Server { get; set; }
+            }
+
+            public class RequiredOptions2
+            {
+                [Required]
+                public string RemoteHost { get; set; }
             }
         }
 

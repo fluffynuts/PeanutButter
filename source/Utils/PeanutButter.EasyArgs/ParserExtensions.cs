@@ -444,7 +444,7 @@ namespace PeanutButter.EasyArgs
                 .ToArray();
             missing.ForEach(opt =>
             {
-                options.ReportMissingRequiredOption($"--{opt.LongName}");
+                options.ReportMissingRequiredOption(opt);
                 errored.Add(opt.Key);
             });
         }
