@@ -17,6 +17,7 @@ using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 using static PeanutButter.Utils.PyLike;
+using TimeSpan = System.TimeSpan;
 
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -1312,6 +1313,25 @@ namespace PeanutButter.RandomGenerators.Tests
                                 .Greater.Than(TimeSpan.FromMilliseconds(1).Ticks - 1)
                                 .And
                                 .Less.Than(TimeSpan.FromMilliseconds(10).Ticks + 1);
+                            return result;
+                        }).ToArray();
+                    Expect(collected)
+                        .To.Vary();
+                }
+                [Test]
+                public void ShouldReturnValueInRange2()
+                {
+                    // Arrange
+                    // Pre-assert
+                    // Act
+                    var collected = Range(0, NORMAL_RANDOM_TEST_CYCLES)
+                        .Select(_ =>
+                        {
+                            var result = GetRandomTimeSpan(TimeSpan.FromSeconds(2));
+                            // Assert
+                            Expect(result).To.Be
+                                .Greater.Than
+                                .Or.Equal.To(TimeSpan.FromSeconds(2));
                             return result;
                         }).ToArray();
                     Expect(collected)

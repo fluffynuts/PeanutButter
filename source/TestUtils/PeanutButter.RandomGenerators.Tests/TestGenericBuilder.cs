@@ -1170,6 +1170,23 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             [Test]
+            public void RequireUniqueId_ShouldNeverSetZero()
+            {
+                // Arrange
+                var generated = new List<int>();
+                RunCycles(() =>
+                {
+                    // Pre-assert
+                    // Act
+                    var result = GetRandom<Poco2>();
+                    // Assert
+                    generated.Add(result.Id);
+                });
+                Expect(generated)
+                    .Not.To.Contain(0);
+            }
+
+            [Test]
             [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
             public void Randomizer_ShouldUseProvidedRandomizerForNamedProperty()
             {
