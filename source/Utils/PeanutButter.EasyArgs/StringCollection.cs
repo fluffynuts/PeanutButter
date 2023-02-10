@@ -14,6 +14,15 @@ namespace PeanutButter.EasyArgs
 
         private readonly List<string> _values = new();
 
+        public StringCollection()
+        {
+        }
+
+        public StringCollection(params string[] values)
+        {
+            _values.AddRange(values);
+        }
+
         public void Add(string value)
         {
             _values.Add(value);

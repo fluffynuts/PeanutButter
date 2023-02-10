@@ -117,7 +117,6 @@ namespace PeanutButter.DuckTyping.Extensions
                 allowDefaultValueForMissingProperties,
                 forceConcrete
             );
-            var isDictionary = false;
             if (src is not null)
             {
                 

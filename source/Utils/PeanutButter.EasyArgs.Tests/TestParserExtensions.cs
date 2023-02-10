@@ -598,7 +598,6 @@ Report bugs to <no-one-cares@whatevs.org>
                     .Not.To.Contain.Any
                     .Matched.By(s => s.StartsWith("-t"));
             }
-
         }
 
         public interface IHasFlag
@@ -626,11 +625,85 @@ Report bugs to <no-one-cares@whatevs.org>
             Expect(uncollected)
                 .To.Equal(new[] { "some command" });
         }
-            public interface INoShortName
+
+        public interface INoShortName
+        {
+            [DisableGeneratedShortName]
+            public bool TheFlag { get; set; }
+        }
+
+        [TestFixture]
+        public class FallbackToEnvironmentVariables
+        {
+            [TestFixture]
+            public class WhenEnabled
             {
-                [DisableGeneratedShortName]
+                [TestFixture]
+                public class StringProperty
+                {
+                    [TestCase("RemoteHost")]
+                    [TestCase("REMOTE_HOST")]
+                    [TestCase("ReMoTE.Host")]
+                    public void ShouldObserveEnvironmentVariable_(
+                        string varName
+                    )
+                    {
+                        // Arrange
+                        var expected = GetRandomHostname();
+                        using var _ = new AutoTempEnvironmentVariable(
+                            varName,
+                            expected
+                        );
+                        var args = new string[0];
+                        // Act
+                        var result = args.ParseTo<Options>(
+                            new ParserOptions()
+                            {
+                                FallbackOnEnvironmentVariables = true
+                            }
+                        );
+                        // Assert
+                        Expect(result.RemoteHost)
+                            .To.Equal(expected);
+                    }
+                }
+
+                [TestFixture]
+                public class BooleanProperty
+                {
+                    [TestCase("TheFlag")]
+                    [TestCase("THE_FLAG")]
+                    [TestCase("ThE.FlAg")]
+                    public void ShouldObserveEnvironmentVariable_(
+                        string varName
+                    )
+                    {
+                        // Arrange
+                        using var _ = new AutoTempEnvironmentVariable(
+                            varName,
+                            GetRandomFrom(new[] { "1", "true", "yes" })
+                        );
+                        var args = new string[0];
+                        // Act
+                        var result = args.ParseTo<Options>(
+                            new ParserOptions()
+                            {
+                                FallbackOnEnvironmentVariables = true
+                            }
+                        );
+                        // Assert
+                        Expect(result.TheFlag)
+                            .To.Be.True();
+                    }
+                }
+            }
+
+            public class Options
+            {
+                public string RemoteHost { get; set; }
                 public bool TheFlag { get; set; }
             }
+        }
 
         [TestFixture]
         public class GenerateArgs

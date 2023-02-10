@@ -480,6 +480,17 @@ namespace PeanutButter.EasyArgs
         /// </summary>
         public bool ShowHelpOnArgumentError { get; set; }
 
+        /// <summary>
+        /// When enabled, environment variables will be observed as fallback values
+        /// for arguments. For example, if you have a RemoteHost property, then any
+        /// of the following environment variables should configure it if it is not
+        /// explicitly set from the commandline:
+        /// REMOTEHOST
+        /// REMOTE_HOST
+        /// ReMOteHosT
+        /// </summary>
+        public bool FallbackOnEnvironmentVariables { get; set; }
+
         private int TryReadConsoleWidth()
         {
             try

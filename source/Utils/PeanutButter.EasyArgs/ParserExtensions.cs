@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Reflection;
 using PeanutButter.EasyArgs.Attributes;
 using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.Utils;
+using PeanutButter.Utils.Dictionaries;
 
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
 namespace Imported.PeanutButter.EasyArgs
@@ -127,18 +129,61 @@ namespace PeanutButter.EasyArgs
                 }
             }
 
-            var collected = Collect(arguments, flags, collections, out var ignored);
+            var collected = Collect(
+                arguments,
+                flags,
+                out var ignored
+            );
+            if (options.FallbackOnEnvironmentVariables)
+            {
+                collected = new MergeDictionary<string, IHasValue>(
+                    collected,
+                    GrabEnvVars<T>()
+                );
+            }
+
             var matched = TryMatch<T>(
                 lookup,
                 collected,
                 out var unmatched,
                 options
             );
+
             uncollected = unmatched.And(ignored);
             var ducked = matched.ForceFuzzyDuckAs<T>(true);
             return typeof(T).IsConcrete()
                 ? CreateTopMostCopyOf(ducked)
                 : ducked;
+        }
+
+        private static readonly char[] FuzzyEnvVars =
+        {
+            '.',
+            '-',
+            '_',
+            ':'
+        };
+
+        private static IDictionary<string, IHasValue> GrabEnvVars<T>()
+        {
+            var propertyNames = new HashSet<string>(typeof(T).GetProperties()
+                .Select(p => p.Name.ToLower())
+                .ToArray()
+            );
+            var result = new Dictionary<string, IHasValue>();
+            foreach (DictionaryEntry e in Environment.GetEnvironmentVariables())
+            {
+                var key = $"{e.Key}";
+                var k = $"{e.Key}".RemoveAll(
+                    FuzzyEnvVars
+                ).ToLower();
+                if (propertyNames.Contains(k))
+                {
+                    result[key] = new StringCollection($"{e.Value}");
+                }
+            }
+
+            return result;
         }
 
         private static T CreateTopMostCopyOf<T>(T asT)
@@ -438,7 +483,8 @@ namespace PeanutButter.EasyArgs
             string prop,
             HashSet<string> errored,
             IDictionary<string, CommandlineArgument> lookup,
-            IDictionary<string, IHasValue> collected)
+            IDictionary<string, IHasValue> collected
+        )
         {
             var value = opt.Default ?? true;
             if (acc.TryGetValue(prop, out var existing) &&
@@ -728,7 +774,6 @@ namespace PeanutButter.EasyArgs
         private static IDictionary<string, IHasValue> Collect(
             string[] args,
             HashSet<string> flags,
-            HashSet<string> collections,
             out string[] ignored
         )
         {
