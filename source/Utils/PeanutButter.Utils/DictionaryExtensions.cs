@@ -99,7 +99,11 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// Find an item in or add an item to a dictionary
-        /// - operation is thread-safe: dictionary is locked during search &amp; add
+        /// - operation is thread-safe:
+        ///     - relying on internal thread safety of ConcurrentDictionary
+        ///         - if the generator should definitely never be called more than once,
+        ///             consider the overload with `alwaysLock: true`
+        ///     - other dictionaries are locked during search &amp; add
         /// </summary>
         /// <param name="dict"></param>
         /// <param name="key"></param>
@@ -112,6 +116,37 @@ namespace PeanutButter.Utils
             this IDictionary<TKey, TValue> dict,
             TKey key,
             Func<TValue> generator
+        )
+        {
+            return dict.FindOrAdd(
+                key,
+                generator,
+                alwaysLock: false
+            );
+        }
+
+        /// <summary>
+        /// Find an item in or add an item to a dictionary
+        /// - operation is thread-safe:
+        ///     - concurrent dictionaries are optionally locked during search &amp; add (see alwaysLock)
+        ///     - other dictionaries are locked during search &amp; add
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <param name="key"></param>
+        /// <param name="generator"></param>
+        /// <param name="alwaysLock">When true, always lock during operations, even on ConcurrentDictionaries.
+        /// This prevents the generator potentially being called twice by concurrent request. If that doesn't matter
+        /// and you're operating on a ConcurrentDictionary, leave as false. Has no effect on anything other than
+        /// ConcurrentDictionary.</param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TValue FindOrAdd<TKey, TValue>(
+            this IDictionary<TKey, TValue> dict,
+            TKey key,
+            Func<TValue> generator,
+            bool alwaysLock
         )
         {
             if (dict is null)
@@ -129,7 +164,7 @@ namespace PeanutButter.Utils
                 throw new ArgumentNullException(nameof(generator));
             }
 
-            if (dict is ConcurrentDictionary<TKey, TValue> concurrentDictionary)
+            if (!alwaysLock && dict is ConcurrentDictionary<TKey, TValue> concurrentDictionary)
             {
                 TValue generated = default;
                 var wasGenerated = false;

@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Threading;
 using NExpect;
 using NUnit.Framework;
 using static NExpect.Expectations;
@@ -58,6 +59,109 @@ namespace PeanutButter.Utils.Tests
                         Expect(result1)
                             .To.Equal(value1)
                             .And.To.Equal(result2);
+                    }
+                }
+
+                [TestFixture]
+                public class WithoutExplicitLocking
+                {
+                    [Test]
+                    public void ShouldCallGeneratorAsNecessary()
+                    {
+                        // Arrange
+                        var key = GetRandomString();
+                        var value = 1;
+                        var calls = 0;
+                        var firstGenerator = () =>
+                        {
+                            calls++;
+                            Thread.Sleep(100);
+                            return value;
+                        };
+                        var secondGenerator = () =>
+                        {
+                            calls++;
+                            Thread.Sleep(100);
+                            return value;
+                        };
+                        var dict = new ConcurrentDictionary<string, int>();
+                        // Act
+
+                        var t1 = new Thread(() =>
+                        {
+                            dict.FindOrAdd(
+                                key, firstGenerator
+                            );
+                        });
+                        var t2 = new Thread(() =>
+                        {
+                            dict.FindOrAdd(
+                                key, secondGenerator
+                            );
+                        });
+                        t2.Start();
+                        t1.Start();
+                        t2.Join();
+                        t1.Join();
+                        // Assert
+                        Expect(calls)
+                            .To.Equal(2);
+                        Expect(dict)
+                            .To.Contain.Key(key)
+                            .With.Value(value);
+                    }
+                }
+
+                [TestFixture]
+                public class WithExplicitLocking
+                {
+                    [Test]
+                    public void ShouldCallGeneratorOnceOnly()
+                    {
+                        // Arrange
+                        var key = GetRandomString();
+                        var value = GetRandomInt();
+                        var calls = 0;
+
+                        int FirstGenerator()
+                        {
+                            calls++;
+                            Thread.Sleep(100);
+                            return value;
+                        }
+
+                        int SecondGenerator()
+                        {
+                            calls++;
+                            Thread.Sleep(100);
+                            return value;
+                        }
+
+                        var dict = new ConcurrentDictionary<string, int>();
+                        // Act
+
+                        var t1 = new Thread(() =>
+                        {
+                            dict.FindOrAdd(
+                                key, FirstGenerator, alwaysLock: true
+                            );
+                        });
+                        var t2 = new Thread(() =>
+                        {
+                            dict.FindOrAdd(
+                                key, SecondGenerator, alwaysLock: true
+                            );
+                        });
+                        t2.Start();
+                        t1.Start();
+                        t2.Join();
+                        t1.Join();
+                        // Assert
+                        Expect(calls)
+                            .To.Equal(1);
+                        Expect(dict)
+                            .To.Contain.Key(key)
+                            .With.Value(value);
                     }
                 }
             }
