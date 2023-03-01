@@ -173,17 +173,23 @@ namespace PeanutButter.EasyArgs
         private bool? _allowMultipleValues;
 
         /// <summary>
+        /// Marker: is this a negated flag?
+        /// </summary>
+        public bool IsNegatedFlag { get; set; }
+
+        /// <summary>
         /// Produces a copy of the current argument, negated
         /// Used when generating --no-{arg} flags
         /// </summary>
         /// <returns></returns>
-        public CommandlineArgument Negate()
+        public CommandlineArgument CloneNegated()
         {
             var result = new CommandlineArgument();
             this.CopyPropertiesTo(result, deep: false);
             result.ShortName = null;
             result.LongName = $"no-{result.LongName}";
             result.ConflictsWithKeys = new[] { Key };
+            result.IsNegatedFlag = true;
 
             result.IsRequired = false;
             try

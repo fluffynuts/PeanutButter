@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using NExpect;
@@ -9,7 +10,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.EasyArgs.Tests
 {
     [TestFixture]
-    public class TestArgsParser
+    public class TestParserExtensions
     {
         [Test]
         public void ShouldParseArgumentBasedOnShortName()
@@ -974,6 +975,135 @@ Report bugs to <no-one-cares@whatevs.org>
                 Expect(result.Value)
                     .To.Equal(-1);
             }
+
+            [TestFixture]
+            public class DefaultValuesOnFlags
+            {
+                [TestFixture]
+                public class WhenFlagDefaultIsTrue
+                {
+                    [TestFixture]
+                    public class AndFlagNotProvided
+                    {
+                        [Test]
+                        public void ShouldBeTrue()
+                        {
+                            // Arrange
+                            var args = Array.Empty<string>();
+                            // Act
+                            var result = args.ParseTo<HasDefaultPositiveFlag>();
+                            // Assert
+                            Expect(result.Flag)
+                                .To.Be.True();
+                        }
+                    }
+
+                    [TestFixture]
+                    public class AndFlagProvided
+                    {
+                        [TestFixture]
+                        public class AsPositiveFlag
+                        {
+                            [Test]
+                            public void ShouldBeTrue()
+                            {
+                                // Arrange
+                                var args = new[] { "--flag" };
+                                // Act
+                                var result = args.ParseTo<HasDefaultPositiveFlag>();
+                                // Assert
+                                Expect(result.Flag)
+                                    .To.Be.True();
+                            }
+                        }
+
+                        [TestFixture]
+                        public class AsNegativeFlag
+                        {
+                            [Test]
+                            public void ShouldBeFalse()
+                            {
+                                // Arrange
+                                var args = new[] { "--no-flag" };
+                                // Act
+                                var result = args.ParseTo<HasDefaultPositiveFlag>();
+                                // Assert
+                                Expect(result.Flag)
+                                    .To.Be.False();
+                            }
+                        }
+                    }
+
+                    public class HasDefaultPositiveFlag
+                    {
+                        [Default(true)]
+                        public bool Flag { get; set; }
+                    }
+                }
+
+                [TestFixture]
+                public class WhenFlagDefaultIsFalse
+                {
+                    [TestFixture]
+                    public class AndFlagNotProvided
+                    {
+                        [Test]
+                        public void ShouldBeFalse()
+                        {
+                            // Arrange
+                            var args = Array.Empty<string>();
+                            // Act
+                            var result = args.ParseTo<HasDefaultNegativeFlag>();
+                            // Assert
+                            Expect(result.Flag)
+                                .To.Be.False();
+                        }
+                    }
+
+                    [TestFixture]
+                    public class AndFlagProvided
+                    {
+                        [TestFixture]
+                        public class AsPositiveFlag
+                        {
+                            [Test]
+                            public void ShouldBeTrue()
+                            {
+                                // Arrange
+                                var args = new[] { "--flag" };
+                                // Act
+                                var result = args.ParseTo<HasDefaultNegativeFlag>();
+                                // Assert
+                                Expect(result.Flag)
+                                    .To.Be.True();
+                            }
+                        }
+
+                        [TestFixture]
+                        public class AsNegativeFlag
+                        {
+                            [Test]
+                            public void ShouldBeFalse()
+                            {
+                                // Arrange
+                                var args = new[] { "--no-flag" };
+                                // Act
+                                var result = args.ParseTo<HasDefaultNegativeFlag>();
+                                // Assert
+                                Expect(result.Flag)
+                                    .To.Be.False();
+                            }
+                        }
+                    }
+                }
+
+                public class HasDefaultNegativeFlag
+                {
+                    [Default(false)]
+                    public bool Flag { get; set; }
+                }
+            }
+
 
             public class HasDecimal
             {

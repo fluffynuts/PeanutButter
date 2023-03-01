@@ -266,7 +266,7 @@ namespace PeanutButter.EasyArgs
                 .ToArray();
             flags.ForEach(f =>
             {
-                var negated = f.Negate();
+                var negated = f.CloneNegated();
                 negated.IsImplicit = true;
                 if (!lookup.ContainsKey(negated.LongName))
                 {
@@ -535,7 +535,7 @@ namespace PeanutButter.EasyArgs
             }
             else
             {
-                acc[opt.Key] = opt.Default ?? true;
+                acc[opt.Key] = !opt.IsNegatedFlag;
             }
         }
 
