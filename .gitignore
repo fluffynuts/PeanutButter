@@ -142,3 +142,4 @@ source/.idea*
 tools
 .vs
 build-tools
+.idea
