@@ -1095,6 +1095,113 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        public class AsTextList
+        {
+            [TestFixture]
+            public class WhenEmpty
+            {
+                [Test]
+                public void ShouldReturnEmpty()
+                {
+                    // Arrange
+                    var input = new string[0];
+                    // Act
+                    var result = input.AsTextList();
+                    // Assert
+                    Expect(result)
+                        .To.Equal("<empty>");
+                }
+            }
+
+            [TestFixture]
+            public class WhenHaveOneItem
+            {
+                [Test]
+                public void ShouldReturnListOfOne()
+                {
+                    // Arrange
+                    var input = new[] { "cat" };
+                    var expected = "- cat";
+                    // Act
+                    var result = input.AsTextList();
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenHaveMultipleItems
+            {
+                [Test]
+                public void ShouldReturnList()
+                {
+                    // Arrange
+                    var input = new[] { "cat", "dog", "cow" };
+                    var expected = "- cat\n- dog\n- cow";
+                    // Act
+                    var result = input.AsTextList();
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+        }
+        [TestFixture]
+        public class AsTextListWithHeader
+        {
+            [TestFixture]
+            public class WhenEmpty
+            {
+                [Test]
+                public void ShouldReturnEmpty()
+                {
+                    // Arrange
+                    var input = new string[0];
+                    // Act
+                    var result = input.AsTextListWithHeader("items", "- ", "");
+                    // Assert
+                    Expect(result)
+                        .To.Equal("");
+                }
+            }
+
+            [TestFixture]
+            public class WhenHaveOneItem
+            {
+                [Test]
+                public void ShouldReturnListOfOne()
+                {
+                    // Arrange
+                    var input = new[] { "cat" };
+                    var expected = "items\n- cat";
+                    // Act
+                    var result = input.AsTextListWithHeader("items", "- ", "");
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenHaveMultipleItems
+            {
+                [Test]
+                public void ShouldReturnList()
+                {
+                    // Arrange
+                    var input = new[] { "cat", "dog", "cow" };
+                    var expected = "items\n- cat\n- dog\n- cow";
+                    // Act
+                    var result = input.AsTextListWithHeader("items", "- ", "");
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+        }
+
+        [TestFixture]
         public class HasUnique
         {
             [TestFixture]

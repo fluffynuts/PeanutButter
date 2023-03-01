@@ -390,6 +390,160 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Easy way to produce a text list from a collection of items, eg
+        /// [ "cat", "dog", "cow" ]
+        /// becomes
+        /// - cat
+        /// - dog
+        /// - cow
+        /// </summary>
+        /// <param name="input"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string AsTextList<T>(
+            this IEnumerable<T> input
+        )
+        {
+            return input.AsTextList(DEFAULT_LIST_ITEM_MARKER);
+        }
+
+        private const string DEFAULT_LIST_ITEM_MARKER = "- ";
+        private const string DEFAULT_EMPTY_LIST_TEXT = "<empty>";
+
+
+        /// <summary>
+        /// Easy way to produce a text list from a collection of items with
+        /// a provided item marker, eg if the item marker is '* '
+        /// [ "cat", "dog", "cow" ]
+        /// becomes
+        /// * cat
+        /// * dog
+        /// * cow
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="itemMarker"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string AsTextList<T>(
+            this IEnumerable<T> input,
+            string itemMarker
+        )
+        {
+            return input.AsTextList(itemMarker, DEFAULT_EMPTY_LIST_TEXT);
+        }
+
+        /// <summary>
+        /// Easy way to produce a text list from a collection of items with
+        /// a provided item marker, eg if the item marker is '* '
+        /// [ "cat", "dog", "cow" ]
+        /// becomes
+        /// * cat
+        /// * dog
+        /// * cow
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="itemMarker"></param>
+        /// <param name="whenEmpty">Returns this string when the collection is empty</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string AsTextList<T>(
+            this IEnumerable<T> input,
+            string itemMarker,
+            string whenEmpty
+        )
+        {
+            var result = new List<string>();
+            foreach (var item in input ?? Array.Empty<T>())
+            {
+                result.Add($"{itemMarker}{item}");
+            }
+
+            return result.Count > 0
+                ? $"{string.Join("\n", result)}"
+                : whenEmpty;
+        }
+
+        /// <summary>
+        /// Produces a text list from the input, with the provided header and
+        /// item marker, or returns whenEmpty when nothing in the input,
+        /// eg, given the collection [ "flower", "hat", "pen" ] and heading "inventory:":
+        /// inventory:
+        /// - flower
+        /// - hat
+        /// - pen
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="header"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string AsTextListWithHeader<T>(
+            this IEnumerable<T> input,
+            string header
+        )
+        {
+            return input.AsTextListWithHeader(
+                header,
+                DEFAULT_LIST_ITEM_MARKER
+            );
+        }
+
+        /// <summary>
+        /// Produces a text list from the input, with the provided header and
+        /// item marker, or returns whenEmpty when nothing in the input,
+        /// eg, given the collection [ "flower", "hat", "pen" ] and heading "inventory:":
+        /// inventory:
+        /// - flower
+        /// - hat
+        /// - pen
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="header"></param>
+        /// <param name="itemMarker"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string AsTextListWithHeader<T>(
+            this IEnumerable<T> input,
+            string header,
+            string itemMarker
+        )
+        {
+            return input.AsTextListWithHeader(
+                header,
+                itemMarker,
+                DEFAULT_EMPTY_LIST_TEXT
+            );
+        }
+
+
+        /// <summary>
+        /// Produces a text list from the input, with the provided header and
+        /// item marker, or returns whenEmpty when nothing in the input,
+        /// eg, given the collection [ "flower", "hat", "pen" ] and heading "inventory:":
+        /// inventory:
+        /// - flower
+        /// - hat
+        /// - pen
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="header"></param>
+        /// <param name="itemMarker"></param>
+        /// <param name="whenEmpty"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string AsTextListWithHeader<T>(
+            this IEnumerable<T> input,
+            string header,
+            string itemMarker,
+            string whenEmpty
+        )
+        {
+            var listText = input.AsTextList(itemMarker, null);
+            return listText is null
+                ? whenEmpty
+                : $"{header}\n{listText}";
+        }
+
+        /// <summary>
         /// Convenience method to test if a collection has a single item matching the
         /// provided matcher function
         /// </summary>
@@ -1378,9 +1532,9 @@ namespace PeanutButter.Utils
         /// <param name="pathType"></param>
         /// <returns></returns>
         public static string JoinPath(
-                this IEnumerable<string> parts,
-                PathType pathType
-            )
+            this IEnumerable<string> parts,
+            PathType pathType
+        )
         {
             if (parts is null)
             {
