@@ -2,9 +2,14 @@ using System;
 
 namespace PeanutButter.WindowsServiceManagement.Exceptions
 {
-    public class WindowsServiceUtilException : Exception
+    /// <summary>
+    /// The base class from which exceptions in PeanutButter.WindowsServiceManagement
+    /// are derived, if you're looking to catch all service-related exceptions
+    /// </summary>
+    public abstract class WindowsServiceUtilException : Exception
     {
-        public WindowsServiceUtilException(string message)
+        /// <inheritdoc />
+        protected WindowsServiceUtilException(string message)
             : base (message)
         {
         }

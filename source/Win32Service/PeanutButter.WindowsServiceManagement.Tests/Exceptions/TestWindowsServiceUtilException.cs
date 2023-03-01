@@ -28,7 +28,7 @@ namespace PeanutButter.WindowsServiceManagement.Tests.Exceptions
         {
             //---------------Set up test pack-------------------
             var expected = RandomValueGen.GetRandomString();
-            var sut = new WindowsServiceUtilException(expected);
+            var sut = new MyException(expected);
 
             //---------------Assert Precondition----------------
 
@@ -37,6 +37,13 @@ namespace PeanutButter.WindowsServiceManagement.Tests.Exceptions
 
             //---------------Test Result -----------------------
             Assert.AreEqual(expected, result);
+        }
+
+        public class MyException : WindowsServiceUtilException
+        {
+            public MyException(string message) : base(message)
+            {
+            }
         }
     }
 }

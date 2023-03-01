@@ -22,14 +22,34 @@ using PeanutButter.WindowsServiceManagement;
 
 namespace PeanutButter.ServiceShell
 {
+    /// <summary>
+    /// Describes the contract for a very simple logging service
+    /// </summary>
     public interface ISimpleLogger
     {
+        /// <summary>
+        /// Log a debug message
+        /// </summary>
+        /// <param name="message"></param>
         void LogDebug(string message);
+        /// <summary>
+        /// Log an info message
+        /// </summary>
+        /// <param name="message"></param>
         void LogInfo(string message);
+        /// <summary>
+        /// Log a warning message
+        /// </summary>
+        /// <param name="message"></param>
         void LogWarning(string message);
+        /// <summary>
+        /// Log a fatal message - service should probably quit
+        /// </summary>
+        /// <param name="message"></param>
         void LogFatal(string message);
     }
 
+    /// <inheritdoc cref="System.ServiceProcess.ServiceBase" />
     public abstract class Shell : ServiceBase, ISimpleLogger
     {
         /// <summary>
@@ -40,9 +60,19 @@ namespace PeanutButter.ServiceShell
         /// </summary>
         public int Interval { get; protected set; }
 
+        /// <summary>
+        /// The current version of the service
+        /// </summary>
         public VersionInfo Version { get; private set; }
+        /// <summary>
+        /// Whether or not the service was invoked from the commandline (as
+        /// opposed to being invoked via the SCM)
+        /// </summary>
         public bool RunningOnceFromCLI { get; set; }
 
+        /// <summary>
+        /// The name displayed for this service in the SCM MMI snap-in (services.msc)
+        /// </summary>
         public string DisplayName
         {
             get { return GetDisplayName(); }
@@ -52,24 +82,39 @@ namespace PeanutButter.ServiceShell
         private string GetDisplayName()
         {
             if (string.IsNullOrWhiteSpace(_displayName))
+            {
                 throw new ServiceUnconfiguredException("DisplayName");
+            }
+
             return _displayName;
         }
 
         private string _copyright;
 
+        /// <summary>
+        /// Copyright information for this service
+        /// </summary>
         public string CopyrightInformation
         {
             get { return _copyright ?? string.Empty; }
             set { _copyright = value ?? string.Empty; }
         }
 
+        /// <summary>
+        /// The short name for the service, typically used to control
+        /// it via the commandline. This is _not_ the name displayed
+        /// in services.msc.
+        /// </summary>
+        /// <exception cref="ServiceUnconfiguredException"></exception>
         public new string ServiceName
         {
             get
             {
                 if (string.IsNullOrWhiteSpace(_serviceName))
+                {
                     throw new ServiceUnconfiguredException("ServiceName");
+                }
+
                 return _serviceName;
             }
             set { _serviceName = value; }
@@ -78,12 +123,25 @@ namespace PeanutButter.ServiceShell
         private string _serviceName;
         private string _displayName;
 
+        /// <summary>
+        /// Provides basic version information
+        /// </summary>
         public class VersionInfo
         {
+            /// <summary>
+            /// Major version number
+            /// </summary>
             public int Major { get; set; }
+            /// <summary>
+            /// Minor version number
+            /// </summary>
             public int Minor { get; set; }
+            /// <summary>
+            /// Patch version number
+            /// </summary>
             public int Build { get; set; }
 
+            /// <inheritdoc />
             public override string ToString()
             {
                 return string.Join(".", new[] { Major, Minor, Build });
@@ -93,6 +151,7 @@ namespace PeanutButter.ServiceShell
         private bool Running;
         private bool Paused;
 
+        /// <inheritdoc />
         protected Shell()
         {
             Version = new VersionInfo();
@@ -101,6 +160,14 @@ namespace PeanutButter.ServiceShell
             CanPauseAndContinue = true;
         }
 
+        /// <summary>
+        /// Runs the service via the given arguments, ie either
+        /// to affect a required service control operation, or
+        /// with no arguments, as per the SCM.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static int RunMain<T>(string[] args) where T : Shell, new()
         {
             if (InTestModeFor<T>(args))
@@ -217,7 +284,7 @@ namespace PeanutButter.ServiceShell
 
         private static ConsoleCancelEventHandler Stop(Shell instance)
         {
-            return (sender, eventArgs) =>
+            return (_, _) =>
             {
                 if (instance.Running)
                 {
@@ -228,7 +295,7 @@ namespace PeanutButter.ServiceShell
             };
         }
 
-        private static int? RunOnceResultFor<T>(T instance, ServiceCommandlineOptions cli) where T : Shell, new()
+        private static int? RunOnceResultFor<T>(T instance, IServiceCommandlineOptions cli) where T : Shell, new()
         {
             if (cli.RunOnce || cli.Debug)
             {
@@ -298,6 +365,9 @@ namespace PeanutButter.ServiceShell
             }
         }
 
+        /// <summary>
+        /// Reflects the current state of the service
+        /// </summary>
         public ServiceState State => ServiceUtil.State;
 
         private WindowsServiceUtil ServiceUtil =>
@@ -420,6 +490,11 @@ namespace PeanutButter.ServiceShell
             }
         }
 
+        /// <summary>
+        /// Runs the main logic once. You MUST override this in your
+        /// derived service.
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         protected virtual void RunOnce()
         {
             throw new NotImplementedException("You must override RunOnce in your deriving service class");
@@ -451,7 +526,10 @@ namespace PeanutButter.ServiceShell
         private int FailWith(string message, bool silent)
         {
             if (silent)
+            {
                 return (int) ServiceCommandlineOptions.ExitCodes.Success;
+            }
+
             Console.WriteLine(message);
             return (int) ServiceCommandlineOptions.ExitCodes.Failure;
         }
@@ -496,7 +574,9 @@ namespace PeanutButter.ServiceShell
             try
             {
                 if (existingSvcUtil.IsInstalled)
+                {
                     existingSvcUtil.Uninstall(true);
+                }
             }
             catch (Exception ex)
             {
@@ -585,15 +665,22 @@ namespace PeanutButter.ServiceShell
                 if ((a is ColoredConsoleAppender) ||
                     (a is ConsoleAppender) ||
                     (a is AnsiColorTerminalAppender))
+                {
                     a.Threshold = Level.Off;
+                }
             }
         }
 
+        /// <summary>
+        /// Log a string, as INFO
+        /// </summary>
+        /// <param name="status"></param>
         public virtual void Log(string status)
         {
             GetLogger().Info(status);
         }
 
+        /// <inheritdoc />
         protected override void OnStart(string[] args)
         {
             LogState("Starting up");
@@ -601,6 +688,7 @@ namespace PeanutButter.ServiceShell
             thread.Start();
         }
 
+        /// <inheritdoc />
         protected override void OnStop()
         {
             LogState("Stopping");
@@ -608,12 +696,14 @@ namespace PeanutButter.ServiceShell
             Paused = false;
         }
 
+        /// <inheritdoc />
         protected override void OnPause()
         {
             LogState("Pausing");
             Paused = true;
         }
 
+        /// <inheritdoc />
         protected override void OnShutdown()
         {
             LogState("Stopping due to system shutdown");
@@ -621,6 +711,7 @@ namespace PeanutButter.ServiceShell
             Paused = false;
         }
 
+        /// <inheritdoc />
         protected override void OnContinue()
         {
             LogState("Continuing");
@@ -632,34 +723,44 @@ namespace PeanutButter.ServiceShell
             Log(string.Join(" ", new[] { DisplayName, "::", state }));
         }
 
+        /// <inheritdoc />
         public virtual void LogDebug(string message)
         {
             GetLogger().Debug(message);
         }
 
+        /// <inheritdoc />
         public virtual void LogInfo(string message)
         {
             GetLogger().Info(message);
         }
 
+        /// <inheritdoc />
         public virtual void LogWarning(string message)
         {
             GetLogger().Warn(message);
         }
 
+        /// <inheritdoc />
         public virtual void LogFatal(string message)
         {
             GetLogger().Fatal(message);
         }
 
+        /// <summary>
+        /// Runs the main loop once
+        /// </summary>
         protected void Run()
         {
             Running = true;
             LogState("Running");
             while (Running)
             {
-                if (PausedThenStopped())
+                if (Stopped())
+                {
                     break;
+                }
+
                 var lastRun = DateTime.Now;
                 try
                 {
@@ -676,7 +777,11 @@ namespace PeanutButter.ServiceShell
             GetLogger().Info(ServiceName + ": Exiting");
         }
 
-        protected bool PausedThenStopped()
+        /// <summary>
+        /// Test if the service has been stopped. Will block whilst the service is paused.
+        /// </summary>
+        /// <returns></returns>
+        protected bool Stopped()
         {
             while (Paused && Running)
             {
@@ -686,6 +791,11 @@ namespace PeanutButter.ServiceShell
             return !Running;
         }
 
+        /// <summary>
+        /// Waits until the next Interval should be fired, taking into account
+        /// the run-time of the last round.
+        /// </summary>
+        /// <param name="lastRun"></param>
         public void WaitForIntervalFrom(DateTime lastRun)
         {
             var delta = DateTime.Now - lastRun;
@@ -694,13 +804,20 @@ namespace PeanutButter.ServiceShell
                 var granularity = 500;
                 Thread.Sleep(granularity);
                 if (!Running)
+                {
                     break;
+                }
+
                 delta = DateTime.Now - lastRun;
             }
         }
 
         private bool _haveConfiguredLogging;
 
+        /// <summary>
+        /// Provide the ILog logger
+        /// </summary>
+        /// <returns></returns>
         protected ILog GetLogger()
         {
             if (!_haveConfiguredLogging)
@@ -734,6 +851,9 @@ namespace PeanutButter.ServiceShell
         private static string[] _testArgs;
         private WindowsServiceUtil _serviceUtil;
 
+        /// <summary>
+        /// For testability, this sets the service into "test mode"
+        /// </summary>
         public static void StartTesting()
         {
             _testModeEnabled = true;
@@ -756,6 +876,12 @@ namespace PeanutButter.ServiceShell
             return true;
         }
 
+        /// <summary>
+        /// Tests if the main entry point was run
+        /// </summary>
+        /// <param name="args"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <exception cref="ShellTestFailureException"></exception>
         public static void ShouldHaveRunMainFor<T>(string[] args)
         {
             try
@@ -776,6 +902,9 @@ namespace PeanutButter.ServiceShell
             }
         }
 
+        /// <summary>
+        /// Resets the test mode (this is code to enable testing)
+        /// </summary>
         public static void ResetTestMode()
         {
             _testModeEnabled = false;
@@ -786,7 +915,10 @@ namespace PeanutButter.ServiceShell
         private static bool AllMatch(string[] testArgs, string[] args)
         {
             if (testArgs.Length != args.Length)
+            {
                 return false;
+            }
+
             return !testArgs.Where((t, i) => t != args[i]).Any();
         }
     }

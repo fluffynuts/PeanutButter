@@ -7,6 +7,7 @@
     <LangVersion>latest</LangVersion>
     <Configurations>Debug;Release;Debug-X</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>

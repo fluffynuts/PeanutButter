@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.Utils.xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Configurations>Debug;Release;Debug-X</Configurations>
     <Platforms>AnyCPU</Platforms>
     <LangVersion>latest</LangVersion>

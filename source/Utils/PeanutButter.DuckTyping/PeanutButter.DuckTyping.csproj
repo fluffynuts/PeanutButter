@@ -3,14 +3,13 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <Configurations>Debug;Release;Debug-X</Configurations>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.DuckTyping.xml</DocumentationFile>
     <Platforms>AnyCPU</Platforms>
     <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
     <LangVersion>latest</LangVersion>
-
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

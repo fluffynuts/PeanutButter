@@ -17,10 +17,19 @@ namespace PeanutButter.WindowsServiceManagement
 #if NETSTANDARD
     [Obsolete("This service utility uses native win32api to work. Rather use WindowsServiceUtil")]
 #endif
+    /// <summary>
+    /// The legacy, native WindowsServiceUtil which uses the win32api to
+    /// provide service management
+    /// </summary>
     public class NativeWindowsServiceUtil : IWindowsServiceUtil
     {
+        /// <inheritdoc />
         public bool IsDisabled => StartupType == ServiceStartupTypes.Disabled;
+
+        /// <inheritdoc />
         public bool IsPaused => State == ServiceState.Paused;
+
+        /// <inheritdoc />
         public bool IsRunning => State == ServiceState.Running;
 
         private const string SERVICE_NOT_INSTALLED = "Service not installed";
@@ -146,6 +155,12 @@ namespace PeanutButter.WindowsServiceManagement
 
         private const string REG_SERVICES_BASE = "SYSTEM\\CurrentControlSet\\Services";
 
+        /// <summary>
+        /// Attempt to load a WindowsServiceUtil by the pid of a running
+        /// process
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <returns></returns>
         public static IWindowsServiceUtil GetServiceByPid(int pid)
         {
             var sci = new ServiceControlInterface();
@@ -154,7 +169,14 @@ namespace PeanutButter.WindowsServiceManagement
                 ? null
                 : new NativeWindowsServiceUtil(serviceName);
         }
-        
+
+        /// <summary>
+        /// Attempt to load a WindowsServiceUtil by a full path to the
+        /// executable
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static WindowsServiceUtil GetServiceByPath(string path)
         {
             using var baseKey = Registry.LocalMachine.OpenSubKey(REG_SERVICES_BASE);
@@ -202,6 +224,14 @@ namespace PeanutButter.WindowsServiceManagement
             );
         }
 
+        /// <summary>
+        /// In addition to the amount of time that the service control
+        /// manager would normally wait for a service to respond to
+        /// a control request (typically 30s, but this can be overridden
+        /// on the host machine), the util will wait this number of seconds
+        /// extra for your service to change state on blocking control
+        /// requests
+        /// </summary>
         public int ServiceStateExtraWaitSeconds { get; set; }
 
         /// <inheritdoc />
@@ -246,6 +276,11 @@ namespace PeanutButter.WindowsServiceManagement
                 var key = Registry.LocalMachine.OpenSubKey(
                     $"SYSTEM\\CurrentControlSet\\Services\\{ServiceName}"
                 );
+                if (key is null)
+                {
+                    return false;
+                }
+
                 var deleteFlag = (int) key.GetValue("DeleteFlag");
                 return deleteFlag != 0;
             }
@@ -256,11 +291,20 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
+        /// <inheritdoc />
         public NativeWindowsServiceUtil(string serviceName)
             : this(serviceName, null, null)
         {
         }
 
+        /// <summary>
+        /// Construct a windows service util with service name, description
+        /// and commandline - typically the constructor used when registering
+        /// a service for the first time.
+        /// </summary>
+        /// <param name="serviceName"></param>
+        /// <param name="displayName"></param>
+        /// <param name="serviceCommandline"></param>
         public NativeWindowsServiceUtil(
             string serviceName,
             string displayName,
@@ -379,12 +423,13 @@ namespace PeanutButter.WindowsServiceManagement
             InstallAndStart(true);
         }
 
+        /// <inheritdoc />
         public void InstallAndStart(bool waitForStart)
         {
             InstallAndStart(ServiceStartupTypes.Automatic, waitForStart);
         }
 
-        private static Dictionary<ServiceStartupTypes, ServiceBootFlag>
+        private static readonly Dictionary<ServiceStartupTypes, ServiceBootFlag>
             StartupTypeToBootFlagMap =
                 new()
                 {
@@ -403,7 +448,7 @@ namespace PeanutButter.WindowsServiceManagement
                 var installedHere = false;
                 if (service == IntPtr.Zero)
                 {
-                    TryDoWithSCManager(scm =>
+                    TryDoWithScManager(scm =>
                     {
                         service = DoServiceInstall(scm, startupType);
                         if (service != IntPtr.Zero)
@@ -439,7 +484,7 @@ namespace PeanutButter.WindowsServiceManagement
 
         private T TryDoWithService<T>(Func<IntPtr, T> toRun)
         {
-            return TryDoWithSCManager(scm =>
+            return TryDoWithScManager(scm =>
             {
                 var service = IntPtr.Zero;
                 try
@@ -461,7 +506,7 @@ namespace PeanutButter.WindowsServiceManagement
             });
         }
 
-        private T TryDoWithSCManager<T>(Func<IntPtr, T> toRun)
+        private T TryDoWithScManager<T>(Func<IntPtr, T> toRun)
         {
             var scm = IntPtr.Zero;
             try
@@ -478,9 +523,9 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
-        private void TryDoWithSCManager(Action<IntPtr> toRun)
+        private void TryDoWithScManager(Action<IntPtr> toRun)
         {
-            TryDoWithSCManager(scm =>
+            TryDoWithScManager(scm =>
             {
                 toRun(scm);
                 return 0;
@@ -493,9 +538,10 @@ namespace PeanutButter.WindowsServiceManagement
             Install(ServiceStartupTypes.Automatic);
         }
 
+        /// <inheritdoc />
         public void Install(ServiceStartupTypes startupType)
         {
-            TryDoWithSCManager(scm =>
+            TryDoWithScManager(scm =>
             {
                 Win32Api.CloseServiceHandle(
                     DoServiceInstall(scm, startupType)
@@ -763,7 +809,9 @@ namespace PeanutButter.WindowsServiceManagement
                 StopService(
                     service,
                     // fixme
-                    true, true);
+                    wait: true,
+                    forceIfNecessary: true
+                );
             });
         }
 
@@ -776,7 +824,7 @@ namespace PeanutButter.WindowsServiceManagement
         /// <inheritdoc />
         public void Pause(bool wait)
         {
-            TryDoWithSCManager(scm =>
+            TryDoWithScManager(scm =>
             {
                 var service = Win32Api.OpenService(scm, _serviceName,
                     ServiceAccessRights.QueryStatus | ServiceAccessRights.PauseContinue);
@@ -983,6 +1031,7 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
+        // ReSharper disable once UnusedMethodReturnValue.Local
         private int ThrowAppropriateExceptionFor(int waitLevel, string operation, Exception ex)
         {
             switch (waitLevel)
@@ -1041,7 +1090,7 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
-        public void ContinueService(
+        private void ContinueService(
             IntPtr service,
             bool wait)
         {
@@ -1205,6 +1254,14 @@ namespace PeanutButter.WindowsServiceManagement
             {
                 return KillServiceResult.UnableToKill;
             }
+        }
+
+        /// <inheritdoc />
+        public void ConfigureStartup(ServiceStartupTypes startupType)
+        {
+            throw new NotImplementedException(
+                "This is only implemented for the sc-based WindowsServiceUtil"
+            );
         }
 
         // ReSharper disable once InconsistentNaming
