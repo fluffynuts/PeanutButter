@@ -143,3 +143,4 @@ tools
 .vs
 build-tools
 .idea
+docfx_project
