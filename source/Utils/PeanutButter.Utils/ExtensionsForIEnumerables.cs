@@ -1648,5 +1648,95 @@ namespace PeanutButter.Utils
                 yield return item;
             }
         }
+
+        /// <summary>
+        /// tests if the needle is one of the provided items
+        /// (convenience params variant)
+        /// </summary>
+        /// <param name="needle"></param>
+        /// <param name="haystack"></param>
+        /// <param name="moreHaystack"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool IsIn<T>(
+            this T needle,
+            T haystack,
+            params T[] moreHaystack
+        )
+        {
+            return NeedleIsEqualToHaystackSingle() || needle.IsIn(
+                moreHaystack
+            );
+
+            bool NeedleIsEqualToHaystackSingle()
+            {
+                if (needle is null && haystack is null)
+                {
+                    return true;
+                }
+
+                if (needle is null || haystack is null)
+                {
+                    return false;
+                }
+                return needle.Equals(haystack);
+            }
+        }
+
+        /// <summary>
+        /// tests if the needle is in the haystack
+        /// </summary>
+        /// <param name="needle"></param>
+        /// <param name="haystack"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool IsIn<T>(
+            this T needle,
+            IEnumerable<T> haystack
+        )
+        {
+            return needle.IsIn(haystack, new BasicEqualityComparer<T>());
+        }
+
+        /// <summary>
+        /// tests if the needle is in the haystack, using the provided
+        /// equality comparer
+        /// </summary>
+        /// <param name="needle"></param>
+        /// <param name="haystack"></param>
+        /// <param name="equalityComparer"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool IsIn<T>(
+            this T needle,
+            IEnumerable<T> haystack,
+            IEqualityComparer<T> equalityComparer
+        )
+        {
+            return haystack.Contains(needle, equalityComparer);
+        }
+
+        private class BasicEqualityComparer<T> : IEqualityComparer<T>
+        {
+            public bool Equals(T x, T y)
+            {
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
+                return x.Equals(y);
+            }
+
+            public int GetHashCode(T obj)
+            {
+                return obj?.GetHashCode() ?? 0;
+            }
+        }
     }
 }

@@ -1147,6 +1147,7 @@ namespace PeanutButter.Utils.Tests
                 }
             }
         }
+
         [TestFixture]
         public class AsTextListWithHeader
         {
@@ -1198,6 +1199,79 @@ namespace PeanutButter.Utils.Tests
                     Expect(result)
                         .To.Equal(expected);
                 }
+            }
+        }
+
+        [TestFixture]
+        public class IsIn
+        {
+            [TestFixture]
+            public class WhenSubjectIsNotInCollection
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    // Arrange
+                    var test = GetRandomArray<string>(4);
+                    var search = GetAnother(test);
+                    // Act
+                    var result = search.IsIn(test);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldWorkOnNull()
+                {
+                    // Arrange
+                    var test = GetRandomArray<string>(4);
+                    // Act
+                    var result = (null as string).IsIn(test);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class WhenSubjectIsInCollection
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    // Arrange
+                    var test = GetRandomArray<string>(4);
+                    var search = GetRandomFrom(test);
+                    // Act
+                    var result = search.IsIn(test);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+            }
+
+            [Test]
+            [Explicit("Run to see that one-off hashsets are slower than just using .Contains")]
+            public void HashSetSpeedVsLinqContains()
+            {
+                // Arrange
+                var size = 1000000;
+                var data = GetRandomArray<string>(size);
+                var foo = GetRandomString();
+                // Act
+                var hashSetTime = Benchmark.Time(() =>
+                {
+                    var hashSet = new HashSet<string>(data);
+                    var result = hashSet.Contains(foo);
+                });
+                var containsTime = Benchmark.Time(() =>
+                {
+                    var result = data.Contains(foo);
+                });
+                Console.WriteLine($"contains: {containsTime}");
+                Console.WriteLine($"hashset:  {hashSetTime}");
+                // Assert
             }
         }
 
@@ -2439,7 +2513,7 @@ namespace PeanutButter.Utils.Tests
                         .To.Contain.Only(1)
                         .Deep.Equal.To(first);
                 }
-                
+
                 public enum HttpMethod
                 {
                     Get,
@@ -2457,7 +2531,7 @@ namespace PeanutButter.Utils.Tests
                 {
                     public string Route { get; }
                     public HttpMethod Method { get; }
-                    
+
                     public RouteAndMethod(
                         string route,
                         HttpMethod method
@@ -2492,7 +2566,7 @@ namespace PeanutButter.Utils.Tests
 
                     public override int GetHashCode()
                     {
-                        return Tuple.Create(Route, (int)Method).GetHashCode();
+                        return Tuple.Create(Route, (int) Method).GetHashCode();
                     }
 
                     public int CompareTo(RouteAndMethod other)
@@ -2520,7 +2594,6 @@ namespace PeanutButter.Utils.Tests
                         return Method.CompareTo(other.Method);
                     }
                 }
-
             }
         }
 
@@ -2892,7 +2965,7 @@ namespace PeanutButter.Utils.Tests
 
                     // Act
                     var result = collection.FilterNulls();
-                    
+
                     // Assert
                     Expect(result)
                         .To.Deep.Equal(expected);
