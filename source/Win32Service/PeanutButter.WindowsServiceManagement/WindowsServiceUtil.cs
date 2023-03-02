@@ -613,8 +613,9 @@ namespace PeanutButter.WindowsServiceManagement
             AllowedStates = new ServiceState[0];
             try
             {
-                State = ParseState(info[ServiceControlKeys.STATE]);
-                DeterminePossibleStates(State, IsDisabled, info[ServiceControlKeys.STATE]);
+                var state = ParseState(info[ServiceControlKeys.STATE]);
+                State = state;
+                DeterminePossibleStates(state, IsDisabled, info[ServiceControlKeys.STATE]);
             }
             catch (ServiceNotInstalledException)
             {
