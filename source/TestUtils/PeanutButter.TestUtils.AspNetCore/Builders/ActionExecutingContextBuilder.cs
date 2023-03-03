@@ -98,6 +98,17 @@ public class ActionExecutingContextBuilder
     }
 
     /// <summary>
+    /// Short-hand to assign a controller which has no constructor parameters
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public ActionExecutingContextBuilder ForController<T>()
+        where T: ControllerBase, new()
+    {
+        return WithController(new T());
+    }
+
+    /// <summary>
     /// Sets an header on the HttpContext.Request of the ActionExecutingContext
     /// </summary>
     /// <param name="header"></param>
