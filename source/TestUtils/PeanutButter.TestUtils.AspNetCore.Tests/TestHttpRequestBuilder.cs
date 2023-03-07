@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -159,6 +160,17 @@ public class TestHttpRequestBuilder
             // Assert
             Expect(result.ContentLength)
                 .To.Equal(0);
+        }
+
+        [Test]
+        public void ShouldComeFromLocalhost()
+        {
+            // Arrange
+            // Act
+            var result = BuildDefault();
+            // Assert
+            Expect(result.HttpContext.Connection.RemoteIpAddress?.ToString())
+                .To.Equal("127.0.0.1");
         }
 
         public class Poco
