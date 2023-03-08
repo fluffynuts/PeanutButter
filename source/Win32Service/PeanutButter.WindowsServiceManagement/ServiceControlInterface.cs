@@ -9,6 +9,9 @@ using PeanutButter.WindowsServiceManagement.Exceptions;
 
 namespace PeanutButter.WindowsServiceManagement
 {
+    /// <summary>
+    /// Provides a mechanism for controlling windows services
+    /// </summary>
     public interface IServiceControlInterface
     {
         /// <summary>
@@ -52,8 +55,10 @@ namespace PeanutButter.WindowsServiceManagement
         string FindServiceByPid(int pid);
     }
 
+    /// <inheritdoc />
     public class ServiceControlInterface : IServiceControlInterface
     {
+        /// <inheritdoc />
         public string FindServiceByPid(int pid)
         {
             using var io = ProcessIO.Start(
@@ -89,6 +94,7 @@ namespace PeanutButter.WindowsServiceManagement
             return null;
         }
 
+        /// <inheritdoc />
         public IEnumerable<string> ListAllServices()
         {
             using var io = ProcessIO.Start(
@@ -108,17 +114,20 @@ namespace PeanutButter.WindowsServiceManagement
             }
         }
 
+        /// <inheritdoc />
         public IDictionary<string, string> QueryAll(string serviceName)
         {
             return QueryEx(serviceName)
                 .MergedWith(QueryConfiguration(serviceName));
         }
 
+        /// <inheritdoc />
         public IDictionary<string, string> QueryEx(string serviceName)
         {
             return RunServiceControl("queryex", serviceName);
         }
 
+        /// <inheritdoc />
         public IDictionary<string, string> QueryConfiguration(string serviceName)
         {
             return RunServiceControl(
@@ -130,6 +139,7 @@ namespace PeanutButter.WindowsServiceManagement
             );
         }
 
+        /// <inheritdoc />
         public IDictionary<string, string> RunServiceControl(
             params string[] args
         )

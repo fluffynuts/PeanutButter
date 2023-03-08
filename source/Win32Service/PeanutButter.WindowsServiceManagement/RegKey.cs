@@ -4,7 +4,7 @@ using Microsoft.Win32;
 
 namespace PeanutButter.WindowsServiceManagement
 {
-    public class RegKey : IDisposable
+    internal class RegKey : IDisposable
     {
         public RegistryKey Key { get; private set; }
         public bool Exists => Key != null;

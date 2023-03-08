@@ -3,7 +3,7 @@ using System;
 namespace PeanutButter.WindowsServiceManagement
 {
     [Flags]
-    public enum ServiceAccessRights
+    internal enum ServiceAccessRights
     {
         QueryConfig = 0x1,
         ChangeConfig = 0x2,

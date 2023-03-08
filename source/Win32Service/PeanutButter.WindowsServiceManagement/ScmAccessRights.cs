@@ -3,7 +3,7 @@
 namespace PeanutButter.WindowsServiceManagement
 {
     [Flags]
-    public enum ScmAccessRights
+    internal enum ScmAccessRights
     {
         Connect = 0x0001,
         CreateService = 0x0002,

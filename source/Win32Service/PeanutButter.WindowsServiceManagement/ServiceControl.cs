@@ -1,6 +1,6 @@
 namespace PeanutButter.WindowsServiceManagement
 {
-    public enum ServiceControl
+    internal enum ServiceControl
     {
         Stop = 0x00000001,
         Pause = 0x00000002,

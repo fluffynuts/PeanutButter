@@ -1,6 +1,6 @@
 namespace PeanutButter.WindowsServiceManagement
 {
-    public enum ServiceError
+    internal enum ServiceError
     {
         Ignore = 0x00000000,
         Normal = 0x00000001,

@@ -5,7 +5,7 @@ namespace PeanutButter.WindowsServiceManagement
     /// <summary>
     /// write flags, ie what is provided when registering a service
     /// </summary>
-    public enum ServiceBootFlag
+    internal enum ServiceBootFlag
     {
         [Obsolete(Messages.MEANT_FOR_DRIVERS)]
         BootStart = 0x00000000,

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using System.Runtime.CompilerServices;
+using System;
 using System.Runtime.InteropServices;
+[assembly: InternalsVisibleTo("PeanutButter.WindowsServiceManagement.Tests")]
 
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable InconsistentNaming
@@ -8,7 +10,7 @@ using System.Runtime.InteropServices;
 
 namespace PeanutButter.WindowsServiceManagement
 {
-    public class Win32Api
+    internal class Win32Api
     {
         public const int SERVICE_WIN32_OWN_PROCESS = 0x00000010;
         public const int ERROR_SERVICE_MARKED_FOR_DELETE = 1072;
