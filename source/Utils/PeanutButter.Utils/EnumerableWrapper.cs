@@ -239,13 +239,17 @@ namespace PeanutButter.Utils
             var enumeratorReturnTypes = new List<Type> { _getEnumeratorMethod.ReturnType };
             if (enumeratorReturnTypes[0].IsInterface)
             {
-                enumeratorReturnTypes.AddRange(enumeratorReturnTypes[0].GetAllImplementedInterfaces());
+                enumeratorReturnTypes.AddRange(
+                    GetAllImplementedInterfaces(
+                        enumeratorReturnTypes[0]
+                    )
+                );
             }
 
             var currentProps = enumeratorReturnTypes.SelectMany(
                 t => t.GetProperties().Where(pi => pi.Name == nameof(Current))
             ).ToArray();
-            _currentPropInfo = 
+            _currentPropInfo =
                 currentProps.FirstOrDefault(pi => pi.PropertyType == typeof(object))
                 ?? currentProps.FirstOrDefault();
             var methods = enumeratorReturnTypes.SelectMany(t => t.GetMethods(PublicInstance))
@@ -258,6 +262,22 @@ namespace PeanutButter.Utils
                 mi => mi.Name == nameof(Reset) &&
                     mi.ReturnType == typeof(void) &&
                     mi.GetParameters().Length == 0);
+        }
+
+        private static Type[] GetAllImplementedInterfaces(Type inspectType)
+        {
+            var result = new List<Type>();
+            if (inspectType.IsInterface)
+            {
+                result.Add(inspectType);
+            }
+
+            foreach (var type in inspectType.GetInterfaces())
+            {
+                result.AddRange(GetAllImplementedInterfaces(type));
+            }
+
+            return result.Distinct().ToArray();
         }
 
         /// <summary>
@@ -292,9 +312,58 @@ namespace PeanutButter.Utils
                 return matched;
             }
 
-            return getValue.TryChangeType<T>(out var converted)
+            return TryChangeType(getValue, out var converted)
                 ? converted
                 : default(T);
+        }
+
+        private static bool TryChangeType(
+            object input,
+            out T output)
+        {
+            if (input is T immediateResult)
+            {
+                output = immediateResult;
+                return true;
+            }
+
+            var result = TryChangeType(input, typeof(T), out var outputObj);
+            output = (T) outputObj;
+            return result;
+        }
+
+        /// <summary>
+        /// Analogous to TryParse methods, this will attempt to convert a value to
+        /// the type requiredType, returning true if it can, and populating the output parameter
+        /// </summary>
+        /// <param name="input">Value to work on</param>
+        /// <param name="requiredType">The required type</param>
+        /// <param name="output">Output parameter to collect result</param>
+        /// <returns>True when can ChangeType, false otherwise</returns>
+        public static bool TryChangeType(
+            object input,
+            Type requiredType,
+            out object output)
+        {
+            try
+            {
+                output = Convert.ChangeType(input, requiredType);
+                return true;
+            }
+            catch
+            {
+                var method = GenericDefaultOfT.MakeGenericMethod(requiredType);
+                output = method.Invoke(null, new object[0]);
+                return false;
+            }
+        }
+
+        private static readonly MethodInfo GenericDefaultOfT = typeof(EnumerableWrapper)
+            .GetMethod(nameof(Default), BindingFlags.Static | BindingFlags.NonPublic);
+
+        private static TTarget Default<TTarget>()
+        {
+            return default(TTarget);
         }
 
         /// <inheritdoc />

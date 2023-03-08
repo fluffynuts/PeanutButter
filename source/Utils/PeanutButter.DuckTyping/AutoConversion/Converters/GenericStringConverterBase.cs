@@ -1,10 +1,5 @@
 ﻿using System.Linq;
 using System.Reflection;
-#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
-using Imported.PeanutButter.DuckTyping.Extensions;
-#else
-using PeanutButter.DuckTyping.Extensions;
-#endif
 
 #if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
 namespace Imported.PeanutButter.DuckTyping.AutoConversion.Converters
@@ -21,7 +16,7 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
         {
             return typeof(T)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(mi => DuckTypingHelperExtensions.IsTryParseMethod(mi));
+                .FirstOrDefault(mi => mi.IsTryParseMethod());
         }
     }
 }

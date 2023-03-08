@@ -7,12 +7,12 @@ namespace PeanutButter.EasyArgs.Consumer
     {
         static int Main(string[] args)
         {
-            var opts = args.ParseTo<IBareArgs>();
+            var opts = args.ParseTo<BareArgs>();
             return 0;
         }
     }
 
-    public interface IBareArgs
+    public class BareArgs
     {
         int Port { get; }
     }

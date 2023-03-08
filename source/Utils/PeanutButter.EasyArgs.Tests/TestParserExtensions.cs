@@ -19,7 +19,7 @@ namespace PeanutButter.EasyArgs.Tests
             var expected = GetRandomInt(1, 32768);
             var args = new[] { "-p", expected.ToString() };
             // Act
-            var result = args.ParseTo<IArgs>();
+            var result = args.ParseTo<Args>();
             // Assert
             Expect(result.Port)
                 .To.Equal(expected);
@@ -33,7 +33,7 @@ namespace PeanutButter.EasyArgs.Tests
             var args = new[] { "--listen-port", expected.ToString() };
 
             // Act
-            var result = args.ParseTo<IArgs>();
+            var result = args.ParseTo<Args>();
             // Assert
             Expect(result.Port)
                 .To.Equal(expected);
@@ -49,7 +49,7 @@ namespace PeanutButter.EasyArgs.Tests
             var expected = GetRandomInt(1, 32768);
             var args = new[] { arg, expected.ToString() };
             // Act
-            var result = args.ParseTo<IArgs>();
+            var result = args.ParseTo<Args>();
             // Assert
             Expect(result.OtherProperty)
                 .To.Equal(expected);
@@ -64,7 +64,7 @@ namespace PeanutButter.EasyArgs.Tests
             var args = new[] { "-p", e1.ToString(), "-P", e2.ToString() };
 
             // Act
-            var result = args.ParseTo<IArgs>();
+            var result = args.ParseTo<Args>();
             // Assert
             Expect(result.Port)
                 .To.Equal(e1);
@@ -80,7 +80,7 @@ namespace PeanutButter.EasyArgs.Tests
             var unexpected = GetAnother(expected);
             var args = new[] { "-p", expected.ToString(), unexpected.ToString() };
             // Act
-            var result = args.ParseTo<IArgs>(out var uncollected);
+            var result = args.ParseTo<Args>(out var uncollected);
             // Assert
             Expect(result.Port)
                 .To.Equal(expected);
@@ -94,7 +94,7 @@ namespace PeanutButter.EasyArgs.Tests
             // Arrange
             var args = new[] { "-v", "1", "2", "3" };
             // Act
-            var result = args.ParseTo<ISum>();
+            var result = args.ParseTo<Sum>();
             // Assert
             var foo = result.Values;
             Expect(result.Values)
@@ -107,7 +107,7 @@ namespace PeanutButter.EasyArgs.Tests
             // Arrange
             var args = new string[0];
             // Act
-            var result = args.ParseTo<IHasFlags>();
+            var result = args.ParseTo<HasFlags>();
             // Assert
             Expect(result.Frob)
                 .To.Be.False();
@@ -119,7 +119,7 @@ namespace PeanutButter.EasyArgs.Tests
             // Arrange
             var args = new[] { "--frob" };
             // Act
-            var result = args.ParseTo<IHasFlags>();
+            var result = args.ParseTo<HasFlags>();
             // Assert
             Expect(result.Frob)
                 .To.Be.True();
@@ -131,7 +131,7 @@ namespace PeanutButter.EasyArgs.Tests
             // Arrange
             var args = new string[0];
             // Act
-            var result = args.ParseTo<IHasDefaultTrueFrob>();
+            var result = args.ParseTo<HasDefaultTrueFrob>();
             // Assert
             Expect(result.Frob)
                 .To.Be.True();
@@ -143,7 +143,7 @@ namespace PeanutButter.EasyArgs.Tests
             // Arrange
             var args = new[] { "--no-frob" };
             // Act
-            var result = args.ParseTo<IHasDefaultTrueFrob>();
+            var result = args.ParseTo<HasDefaultTrueFrob>();
             // Assert
             Expect(result.Frob)
                 .To.Be.False();
@@ -163,7 +163,7 @@ namespace PeanutButter.EasyArgs.Tests
             };
 
             // Act
-            args.ParseTo<IHasConflictingFlags>(
+            args.ParseTo<HasConflictingFlags>(
                 out var uncollected,
                 opts
             );
@@ -192,7 +192,7 @@ namespace PeanutButter.EasyArgs.Tests
             var expected = $"{args[1]} conflicts with {args[0]}";
 
             // Act
-            args.ParseTo<IHasConflictingFlags>(
+            args.ParseTo<HasConflictingFlags>(
                 out var uncollected,
                 opts
             );
@@ -223,7 +223,7 @@ namespace PeanutButter.EasyArgs.Tests
             var expected = $"{args[1]} conflicts with {args[0]}";
 
             // Act
-            args.ParseTo<IHasConflictingFlags>(
+            args.ParseTo<HasConflictingFlags>(
                 out var uncollected,
                 opts
             );
@@ -252,7 +252,7 @@ namespace PeanutButter.EasyArgs.Tests
                 LineWriter = str => lines.Add(str)
             };
             // Act
-            args.ParseTo<IArgs>(out var uncollected, opts);
+            args.ParseTo<Args>(out var uncollected, opts);
 
             // Assert
             Expect(exitCode)
@@ -279,7 +279,7 @@ namespace PeanutButter.EasyArgs.Tests
             };
 
             // Act
-            args.ParseTo<IHasConflictingFlags>(out var collected, opts);
+            args.ParseTo<HasConflictingFlags>(out var collected, opts);
             // Assert
             Expect(exitCode)
                 .To.Equal(1);
@@ -305,7 +305,7 @@ namespace PeanutButter.EasyArgs.Tests
                 LineWriter = str => lines.Add(str)
             };
             // Act
-            args.ParseTo<IHasRequiredArg>(out var uncollected, opts);
+            args.ParseTo<HasRequiredArg>(out var uncollected, opts);
             // Assert
             Expect(exitCode)
                 .To.Equal(1);
@@ -316,34 +316,34 @@ namespace PeanutButter.EasyArgs.Tests
                 .Matched.By(l => l.Contains("--port is required"));
         }
 
-        public interface IHasRequiredArg
+        public class HasRequiredArg
         {
             [Required]
-            int Port { get; }
+            public int Port { get; set; }
         }
 
-        public interface IHasConflictingFlags
+        public class HasConflictingFlags
         {
-            bool Flag1 { get; set; }
+            public bool Flag1 { get; set; }
 
             [ConflictsWith(nameof(Flag1))]
-            bool Flag2 { get; set; }
+            public bool Flag2 { get; set; }
         }
 
-        public interface IHasFlags
+        public class HasFlags
         {
-            bool Frob { get; }
+            public bool Frob { get; set; }
         }
 
-        public interface IHasDefaultTrueFrob
+        public class HasDefaultTrueFrob
         {
             [Default(true)]
-            bool Frob { get; }
+            public bool Frob { get; set; }
         }
 
-        public interface ISum
+        public class Sum
         {
-            int[] Values { get; set; }
+            public int[] Values { get; set; }
         }
 
         [Test]
@@ -366,7 +366,7 @@ namespace PeanutButter.EasyArgs.Tests
             // Arrange
             var args = new[] { "something-something" };
             // Act
-            var result = args.ParseTo<IFoo>(out var remaining);
+            var result = args.ParseTo<Foo>(out var remaining);
             // Assert
             Expect(result)
                 .Not.To.Be.Null();
@@ -374,7 +374,7 @@ namespace PeanutButter.EasyArgs.Tests
                 .To.Equal(args);
         }
 
-        public interface IFoo
+        public class Foo
         {
             public bool Bar { get; set; }
         }
@@ -421,7 +421,7 @@ Report bugs to <no-one-cares@whatevs.org>
                     LineWriter = str => lines.Add(str)
                 };
                 // Act
-                args.ParseTo<IHelpArgs>(out var uncollected, opts);
+                args.ParseTo<HelpArgs>(out var uncollected, opts);
                 // Assert
                 Expect(exitCode)
                     .To.Equal(2);
@@ -464,7 +464,7 @@ This program was made with love and biscuits.
 Exit status codes are 0 for happy and non-zero for unhappy.
 Report bugs to <no-one-cares@whatevs.org>
 ")]
-            public interface IHelpArgs
+            public class HelpArgs
             {
                 [Attributes.Description("user name to use")]
                 public string User { get; set; }
@@ -508,7 +508,7 @@ Report bugs to <no-one-cares@whatevs.org>
                     }
                 };
                 // Act
-                args.ParseTo<IOpts>(opts);
+                args.ParseTo<Opts>(opts);
                 // Assert
                 Expect(collected.JoinWith("\n").Trim())
                     .To.Start.With(opts.Description[0])
@@ -517,9 +517,9 @@ Report bugs to <no-one-cares@whatevs.org>
                     .To.End.With(opts.MoreInfo[0]);
             }
 
-            public interface IOpts
+            public class Opts
             {
-                int Count { get; set; }
+                public int Count { get; set; }
             }
 
             [Test]
@@ -536,7 +536,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 };
                 var collected = new List<string>();
                 // Act
-                var result = args.ParseTo<IChild>(new ParserOptions()
+                var result = args.ParseTo<Child>(new ParserOptions()
                 {
                     ExitOnError = false,
                     LineWriter = collected.Add
@@ -561,14 +561,15 @@ Report bugs to <no-one-cares@whatevs.org>
                 public string Name { get; set; }
             }
 
-            public interface IGrandParent2
+            public class GrandParent2
             {
-                public string Address { get; set; }
+                public virtual string Address { get; set; }
             }
 
-            public interface IParent1 : IGrandParent1, IGrandParent2
+            public class Parent1 : GrandParent2, IGrandParent1
             {
-                public string Color { get; set; }
+                public virtual string Color { get; set; }
+                public virtual string Name { get; set; }
             }
 
             public interface IParent2
@@ -576,9 +577,10 @@ Report bugs to <no-one-cares@whatevs.org>
                 public bool Flag { get; set; }
             }
 
-            public interface IChild : IParent1, IParent2
+            public class Child : Parent1, IParent2
             {
-                public int Value { get; set; }
+                public virtual int Value { get; set; }
+                public virtual bool Flag { get; set; }
             }
 
             [Test]
@@ -593,7 +595,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 };
                 var args = new[] { "--help" };
                 // Act
-                args.ParseTo<INoShortName>(opts);
+                args.ParseTo<NoShortName>(opts);
                 // Assert
                 Expect(captured)
                     .Not.To.Contain.Any
@@ -601,7 +603,7 @@ Report bugs to <no-one-cares@whatevs.org>
             }
         }
 
-        public interface IHasFlag
+        public class HasFlag
         {
             public bool Flag { get; set; }
         }
@@ -616,7 +618,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 ExitOnError = false
             };
             // Act
-            var result = args.ParseTo<IHasFlag>(
+            var result = args.ParseTo<HasFlag>(
                 out var uncollected,
                 opts
             );
@@ -627,7 +629,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 .To.Equal(new[] { "some command" });
         }
 
-        public interface INoShortName
+        public class NoShortName
         {
             [DisableGeneratedShortName]
             public bool TheFlag { get; set; }
@@ -900,7 +902,7 @@ Report bugs to <no-one-cares@whatevs.org>
                         LineWriter = s => output.Add(s)
                     };
                     // Act
-                    args.ParseTo<INumericOptions>(
+                    args.ParseTo<NumericOptions>(
                         out var uncollected,
                         opts
                     );
@@ -928,7 +930,7 @@ Report bugs to <no-one-cares@whatevs.org>
                         LineWriter = s => output.Add(s)
                     };
                     // Act
-                    args.ParseTo<INumericOptions>(
+                    args.ParseTo<NumericOptions>(
                         out var uncollected,
                         opts
                     );
@@ -944,7 +946,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 }
             }
 
-            public interface INumericOptions
+            public class NumericOptions
             {
                 [Min(5)]
                 [Max(10)]
@@ -1111,7 +1113,7 @@ Report bugs to <no-one-cares@whatevs.org>
             }
         }
 
-        public interface IArgs
+        public class Args
         {
             [ShortName('p')]
             [LongName("listen-port")]

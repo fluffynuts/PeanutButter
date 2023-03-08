@@ -20,8 +20,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj" />
     <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <Compile Include="..\PeanutButter.Utils\EnumerableWrapper.cs">
+      <Link>EnumerableWrapper.cs</Link>
+    </Compile>
+  </ItemGroup>
+
 </Project>

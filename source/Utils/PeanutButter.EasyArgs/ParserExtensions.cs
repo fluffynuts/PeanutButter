@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.EasyArgs.Attributes;
-using PeanutButter.DuckTyping.Extensions;
 using PeanutButter.Utils;
 using PeanutButter.Utils.Dictionaries;
 
@@ -34,7 +33,7 @@ namespace PeanutButter.EasyArgs
         /// <returns></returns>
         public static T ParseTo<T>(
             this string[] arguments
-        )
+        ) where T : class, new()
         {
             return arguments.ParseTo<T>(
                 out _
@@ -54,7 +53,7 @@ namespace PeanutButter.EasyArgs
         public static T ParseTo<T>(
             this string[] arguments,
             ParserOptions options
-        )
+        ) where T : class, new()
         {
             return arguments.ParseTo<T>(out _, options);
         }
@@ -71,7 +70,7 @@ namespace PeanutButter.EasyArgs
         public static T ParseTo<T>(
             this string[] arguments,
             out string[] uncollected
-        )
+        ) where T : class, new()
         {
             return arguments.ParseTo<T>(
                 out uncollected,
@@ -111,7 +110,7 @@ namespace PeanutButter.EasyArgs
             this string[] arguments,
             out string[] uncollected,
             ParserOptions options
-        )
+        ) where T : class, new()
         {
             var lookup = GenerateSwitchLookupFor<T>();
             AddImpliedOptionsTo(lookup);
@@ -150,11 +149,126 @@ namespace PeanutButter.EasyArgs
             );
 
             uncollected = unmatched.And(ignored);
-            var ducked = matched.ForceFuzzyDuckAs<T>(true);
-            return typeof(T).IsConcrete()
-                ? CreateTopMostCopyOf(ducked)
-                : ducked;
+            // var ducked = matched.ForceFuzzyDuckAs<T>(true);
+            // return typeof(T).IsConcrete()
+            //     ? CreateTopMostCopyOf(ducked)
+            //     : ducked;
+            return MapTo<T>(matched);
         }
+
+        private static T MapTo<T>(IDictionary<string, object> data)
+            where T : class, new()
+        {
+            var result = new T();
+            var props = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            foreach (var prop in props)
+            {
+                if (data.TryGetValue(prop.Name, out var value))
+                {
+                    if (value is null)
+                    {
+                        continue;
+                    }
+
+                    var valueType = value.GetType();
+                    if (valueType == prop.PropertyType)
+                    {
+                        prop.SetValue(result, value);
+                        continue;
+                    }
+
+                    if (prop.PropertyType.IsEnum)
+                    {
+                        TrySetEnumValue(prop, result, value);
+                        continue;
+                    }
+
+                    if (TrySetCollectionValue(prop, result, value))
+                    {
+                        continue;
+                    }
+
+                    prop.SetValue(result, ConvertOne(value, prop.PropertyType));
+                }
+            }
+
+            return result;
+        }
+
+        private static bool TrySetCollectionValue<T>(
+            PropertyInfo prop,
+            T result,
+            object value
+        ) where T : class, new()
+        {
+            var enumeratorMethod = prop.PropertyType.GetMethod(nameof(IEnumerable.GetEnumerator));
+            if (enumeratorMethod is null)
+            {
+                return false;
+            }
+
+            if (!prop.PropertyType.IsArray)
+            {
+                throw new InvalidOperationException(
+                    "Enumerable properties on parsed args targets must be simple arrays"
+                );
+            }
+            
+            var method = ConvertToArrayGeneric.MakeGenericMethod(prop.PropertyType.GetElementType());
+            var converted = method.Invoke(null, new object[] { value });
+            prop.SetValue(result, converted);
+            return true;
+        }
+        
+        private static readonly MethodInfo ConvertToArrayGeneric = typeof(ParserExtensions)
+            .GetMethod(nameof(ConvertToArrayOf), BindingFlags.Static | BindingFlags.NonPublic);
+
+        private static object ConvertToArrayOf<T>(
+            object value
+        )
+        {
+            var result = new List<T>();
+            var wrapper = new EnumerableWrapper(value);
+            foreach (var item in wrapper)
+            {
+                result.Add((T)ConvertOne(item, typeof(T)));
+            }
+            return result.ToArray();
+        }
+
+
+
+        private static void TrySetEnumValue<T>(
+            PropertyInfo prop,
+            T result,
+            object value
+        ) where T : class, new()
+        {
+            if (int.TryParse($"{value}", out var eValue))
+            {
+                prop.SetValue(result, eValue);
+                return;
+            }
+
+            throw new InvalidOperationException(
+                $"Unable to parse '{value}' as enum type '{prop.PropertyType}'"
+            );
+        }
+
+        private static object ConvertOne(object value, Type toType)
+        {
+            try
+            {
+                return Convert.ChangeType(value, toType);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    $"Unable to convert '{value}' with type '{value.GetType()}' to target type '{toType}': {ex.Message}"
+                );
+            }
+        }
+
 
         private static readonly char[] FuzzyEnvVars =
         {
