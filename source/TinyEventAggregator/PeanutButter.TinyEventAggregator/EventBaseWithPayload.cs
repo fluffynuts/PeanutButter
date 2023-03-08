@@ -12,8 +12,12 @@ using System.Threading.Tasks;
 
 namespace PeanutButter.TinyEventAggregator
 {
+    /// <inheritdoc />
     public abstract class EventBase<TPayload> : EventBase
     {
+        /// <summary>
+        /// The number of subscribers to this event
+        /// </summary>
         public int SubscriptionCount
         {
             get
@@ -25,18 +29,33 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
+        /// <summary>
+        /// Fired when a subscription is added for this event
+        /// </summary>
         public SubscriptionAddedEventHandler OnSubscriptionAdded { get; set; }
+        /// <summary>
+        /// Fired when a subscription is removed for this event
+        /// </summary>
         public SubscriptionRemovedEventHandler OnSubscriptionRemoved { get; set; }
 
         private readonly List<Subscription<TPayload>> _subscriptions;
         private readonly string _eventName;
 
+        /// <inheritdoc />
         protected EventBase()
         {
             _subscriptions = new List<Subscription<TPayload>>();
             _eventName = GetType().Name;
         }
 
+        /// <summary>
+        /// Subscribe to the event
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <param name="sourceFile"></param>
+        /// <param name="requestingMethod"></param>
+        /// <param name="subscribingSourceLine"></param>
+        /// <returns></returns>
         public SubscriptionToken Subscribe(
             Action<TPayload> callback,
             [CallerFilePath] string sourceFile = "",
@@ -66,6 +85,14 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
+        /// <summary>
+        /// Subscribe to the event for one iteration only
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="sourceFile"></param>
+        /// <param name="requestingMethod"></param>
+        /// <param name="subscribingSourceLine"></param>
+        /// <returns></returns>
         public SubscriptionToken SubscribeOnce(
             Action<TPayload> action,
             [CallerFilePath] string sourceFile = "",
@@ -81,6 +108,15 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
+        /// <summary>
+        /// Subscribe to the event for a limited number of notifications
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="limit"></param>
+        /// <param name="sourceFile"></param>
+        /// <param name="requestingMethod"></param>
+        /// <param name="subscribingSourceLine"></param>
+        /// <returns></returns>
         public SubscriptionToken LimitedSubscription(
             Action<TPayload> action,
             int limit,
@@ -109,6 +145,13 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
+        /// <summary>
+        /// Publish this event with some data to all subscribers
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="sourceFile"></param>
+        /// <param name="requestingMethod"></param>
+        /// <param name="publishingSourceLine"></param>
         public void Publish(
             TPayload data,
             [CallerFilePath] string sourceFile = "",
@@ -140,6 +183,14 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
+        /// <summary>
+        /// Publish the event to all subscribers with the provided data
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="sourceFile"></param>
+        /// <param name="requestingMethod"></param>
+        /// <param name="publishingSourceLine"></param>
+        /// <returns></returns>
         public Task PublishAsync(
             TPayload data,
             [CallerFilePath] string sourceFile = null,
@@ -154,6 +205,14 @@ namespace PeanutButter.TinyEventAggregator
             ));
         }
 
+        /// <summary>
+        /// Unsubscribe from this event with the provided token
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="sourceFile"></param>
+        /// <param name="requestingMethod"></param>
+        /// <param name="unsubscribingSourceLine"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void Unsubscribe(
             SubscriptionToken token,
             [CallerFilePath] string sourceFile = "",

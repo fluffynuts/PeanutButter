@@ -154,6 +154,15 @@ namespace PeanutButter.ServiceShell
         private Action<string> HelpWriter { get; set; } = Console.WriteLine;
 
         /// <summary>
+        /// parameterless constructor to be used with something else that parses
+        /// arguments, eg EasyArgs
+        /// </summary>
+        public ServiceCommandlineOptions()
+        {
+            // to be used with the EasyArgs parser
+        }
+
+        /// <summary>
         /// Construct the commandline arguments, using the string[] args
         /// provided to the program
         /// </summary>
@@ -191,7 +200,7 @@ namespace PeanutButter.ServiceShell
                 opts.IgnoreUnknownSwitches = false;
             }
 
-            var parsed = args.ParseTo<IServiceCommandlineOptions>(
+            var parsed = args.ParseTo<ServiceCommandlineOptions>(
                 out _,
                 opts
             );

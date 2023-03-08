@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace PeanutButter.TinyEventAggregator
 {
+    /// <summary>
+    /// Provides a simple event aggregator
+    /// </summary>
     public interface IEventAggregator
     {
         /// <summary>
@@ -24,6 +27,7 @@ namespace PeanutButter.TinyEventAggregator
         void Unsuspend();
     }
 
+    /// <inheritdoc />
     public class EventAggregator
         : IEventAggregator
     {
@@ -31,6 +35,9 @@ namespace PeanutButter.TinyEventAggregator
         private static EventAggregator _instance;
         private readonly List<EventBase> _events;
 
+        /// <summary>
+        /// The singleton instance
+        /// </summary>
         public static EventAggregator Instance
         {
             get
@@ -42,11 +49,15 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
+        /// <summary>
+        /// Construct a new Event aggregator
+        /// </summary>
         public EventAggregator()
         {
             _events = new List<EventBase>();
         }
 
+        /// <inheritdoc />
         public TEvent GetEvent<TEvent>() where TEvent: EventBase, new()
         {
             lock (this)
@@ -60,6 +71,7 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
+        /// <inheritdoc />
         public void Unsuspend()
         {
             foreach (var ev in _events)
@@ -68,6 +80,7 @@ namespace PeanutButter.TinyEventAggregator
             }
         }
 
+        /// <inheritdoc />
         public void Suspend()
         {
             foreach (var ev in _events)
