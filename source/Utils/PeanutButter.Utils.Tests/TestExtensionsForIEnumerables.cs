@@ -717,7 +717,7 @@ namespace PeanutButter.Utils.Tests
                 {
                     //---------------Set up test pack-------------------
                     var collection = GetRandomArray<string>(2);
-                    var expected = collection.ToArray()[1];
+                    var expected = collection[1];
 
                     //---------------Assert Precondition----------------
                     Assert.That(collection.Count(), Is.GreaterThanOrEqualTo(2));
@@ -765,7 +765,7 @@ namespace PeanutButter.Utils.Tests
                 {
                     //---------------Set up test pack-------------------
                     var collection = GetRandomArray<string>(3);
-                    var expected = collection.ToArray()[2];
+                    var expected = collection[2];
 
                     //---------------Assert Precondition----------------
                     Expect(collection)
@@ -778,6 +778,169 @@ namespace PeanutButter.Utils.Tests
                     //---------------Test Result -----------------------
                     Expect(item)
                         .To.Equal(expected);
+                }
+            }
+        }
+
+        [TestFixture]
+        public class Fourth
+        {
+            [TestFixture]
+            public class WhenCollectionLessThanFourItems
+            {
+                [TestCase(1)]
+                [TestCase(2)]
+                [TestCase(3)]
+                public void ShouldThrowFor_(int howMany)
+                {
+                    //---------------Set up test pack-------------------
+                    var input = GetRandomArray<int>(howMany, howMany);
+                    var expectedMessage = ReadDefaultOutOfRangeMessage();
+
+                    //---------------Assert Precondition----------------
+
+                    //---------------Execute Test ----------------------
+                    Expect(() => input.Fourth())
+                        .To.Throw<InvalidOperationException>()
+                        .With.Message.Equal.To(expectedMessage);
+
+                    //---------------Test Result -----------------------
+                }
+            }
+
+            [TestFixture]
+            public class WhenThreeOrMoreItemsInCollection
+            {
+                [Test]
+                public void ShouldReturnThird()
+                {
+                    //---------------Set up test pack-------------------
+                    var collection = GetRandomArray<string>(4);
+                    var expected = collection[3];
+
+                    //---------------Assert Precondition----------------
+                    Expect(collection)
+                        .To.Contain.At.Least(3)
+                        .Items();
+
+                    //---------------Execute Test ----------------------
+                    var item = collection.Fourth();
+
+                    //---------------Test Result -----------------------
+                    Expect(item)
+                        .To.Equal(expected);
+                }
+            }
+        }
+
+        [TestFixture]
+        public class Nth
+        {
+            [TestFixture]
+            public class WhenNOrMoreItemsInCollection
+            {
+                [Test]
+                public void ShouldReturnTheItemAtThatIndex()
+                {
+                    // Arrange
+                    var n = GetRandomInt(5, 15);
+                    var collection = GetRandomArray<string>(n + 1);
+                    var expected = collection[n];
+
+                    // Act
+                    var result = collection.Nth(n);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class GivenNIsZero
+            {
+                [Test]
+                public void ShouldReturnTheZerothItemInTheCollection()
+                {
+                    // Arrange
+                    var collection = GetRandomArray<string>(1);
+                    var expected = collection[0];
+                    // Act
+                    var result = collection.Nth(0);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenNExceedsCollectionMaxIndex
+            {
+                [Test]
+                public void ShouldThrow()
+                {
+                    // Arrange
+                    var n = GetRandomInt(5, 10);
+                    var collection = GetRandomArray<string>(n, n);
+                    // Act
+                    Expect(() => collection.Nth(n))
+                        .To.Throw<InvalidOperationException>();
+                    // Assert
+                }
+            }
+        }
+
+        [TestFixture]
+        public class At
+        {
+            [TestFixture]
+            public class WhenNOrMoreItemsInCollection
+            {
+                [Test]
+                public void ShouldReturnTheItemAtThatIndex()
+                {
+                    // Arrange
+                    var n = GetRandomInt(5, 15);
+                    var collection = GetRandomArray<string>(n + 1);
+                    var expected = collection[n];
+
+                    // Act
+                    var result = collection.At(n);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class GivenNIsZero
+            {
+                [Test]
+                public void ShouldReturnTheZerothItemInTheCollection()
+                {
+                    // Arrange
+                    var collection = GetRandomArray<string>(1);
+                    var expected = collection[0];
+                    // Act
+                    var result = collection.At(0);
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenNExceedsCollectionMaxIndex
+            {
+                [Test]
+                public void ShouldThrow()
+                {
+                    // Arrange
+                    var n = GetRandomInt(5, 10);
+                    var collection = GetRandomArray<string>(n, n);
+                    // Act
+                    Expect(() => collection.At(n))
+                        .To.Throw<InvalidOperationException>();
+                    // Assert
                 }
             }
         }

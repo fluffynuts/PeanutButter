@@ -609,6 +609,41 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Convenience method to get the fourth item from a collection
+        /// </summary>
+        /// <param name="src">Source collection</param>
+        /// <typeparam name="T">Item type of the collection</typeparam>
+        /// <returns>The fourth item, when available. Will throw if there is no item available.</returns>
+        public static T Fourth<T>(this IEnumerable<T> src)
+        {
+            return src.FirstAfter(3);
+        }
+
+        /// <summary>
+        /// Convenience method to get the Nth item from a collection
+        /// </summary>
+        /// <param name="src">Source collection</param>
+        /// <param name="n">Zero-based index into collection</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T Nth<T>(this IEnumerable<T> src, int n)
+        {
+            return src.FirstAfter(n);
+        }
+
+        /// <summary>
+        /// Alias for Nth
+        /// </summary>
+        /// <param name="src">Source collection</param>
+        /// <param name="n">Zero-based index into collection</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T At<T>(this IEnumerable<T> src, int n)
+        {
+            return src.Nth(n);
+        }
+
+        /// <summary>
         /// Convenience method to get the first item after skipping N items from a collection
         /// -> equivalent to collection.Skip(N).First();
         /// -> collection.FirstAfter(2) returns the 3rd element
@@ -1679,6 +1714,7 @@ namespace PeanutButter.Utils
                 {
                     return false;
                 }
+
                 return needle.Equals(haystack);
             }
         }
