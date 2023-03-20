@@ -98,6 +98,76 @@ namespace PeanutButter.RandomGenerators.Tests
                 // Assert
                 Assert.Fail($"Unable to find {max} in range {min} - {max} over {HIGH_RANDOM_TEST_CYCLES} attempts");
             }
+
+            [TestFixture]
+            public class WithExcludeParameter
+            {
+                [TestFixture]
+                public class WhenExcludeParameterIsEqualToMinValueOrMaxValue
+                {
+                    [Test]
+                    public void ShouldThrow()
+                    {
+                        // Arrange
+                        // Act
+                        // Assert
+                        Expect(() => GetRandomInt(1, 100, 100))
+                            .To.Throw<ArgumentException>()
+                            .With.Message.Containing("The exclude parameter can not be equal to minValue or maxValue");
+                        
+                        Expect(() => GetRandomInt(1, 100, 1))
+                            .To.Throw<ArgumentException>()
+                            .With.Message.Containing("The exclude parameter can not be equal to minValue or maxValue");
+                    }
+                }
+
+                [TestFixture]
+                public class WithSingleExcludeFuncParameter
+                {
+                    [Test]
+                    [Repeat(10)]
+                    public void ShouldExcludeParameter()
+                    {
+                        // arrange
+                        var randomNumber = GetRandomInt(100, 102, () => 101);
+                        // act
+                        // assert
+                        Expect(randomNumber).To.Not.Equal(101);
+                    }
+                }
+
+                [TestFixture]
+                public class WithArrayOfExcludeFuncParameters
+                {
+                    [Test]
+                    [Repeat(10)]
+                    public void ShouldExcludeParameter()
+                    {
+                        // arrange
+                        var randomNumber = GetRandomInt(100, 103, () => new long[]{101, 102});
+                        // act
+                        // assert
+                        Expect(randomNumber).To.Not.Equal(101);
+                        Expect(randomNumber).To.Not.Equal(102);
+                    }
+                }
+
+                [TestFixture]
+                public class WithMultipleExcludeParameters
+                {
+                    [Test]
+                    [Repeat(10)]
+                    public void ShouldExcludeParameter()
+                    {
+                        // arrange
+                        var randomNumber = GetRandomInt(100, 103, 101, 102);
+                        // act
+                        // assert
+                        Expect(randomNumber).To.Not.Equal(101);
+                        Expect(randomNumber).To.Not.Equal(102);
+                    }
+                }
+            }
         }
 
         [TestFixture]
@@ -394,6 +464,76 @@ namespace PeanutButter.RandomGenerators.Tests
                 Assert.IsTrue(ints.All(i => i >= min));
                 Assert.IsTrue(ints.All(i => i <= max));
                 Assert.IsTrue(ints.Distinct().Count() > 1);
+            }
+            
+            [TestFixture]
+            public class WithExcludeParameter
+            {
+                [TestFixture]
+                public class WhenExcludeParameterIsEqualToMinValueOrMaxValue
+                {
+                    [Test]
+                    public void ShouldThrow()
+                    {
+                        // Arrange
+                        // Act
+                        // Assert
+                        Expect(() => GetRandomLong(1, 100, 100))
+                            .To.Throw<ArgumentException>()
+                            .With.Message.Containing("The exclude parameter can not be equal to minValue or maxValue");
+                        
+                        Expect(() => GetRandomLong(1, 100, 1))
+                            .To.Throw<ArgumentException>()
+                            .With.Message.Containing("The exclude parameter can not be equal to minValue or maxValue");
+                    }
+                }
+
+                [TestFixture]
+                public class WithSingleExcludeFuncParameter
+                {
+                    [Test]
+                    [Repeat(10)]
+                    public void ShouldExcludeParameter()
+                    {
+                        // arrange
+                        var randomNumber = GetRandomLong(100, 102, () => 101);
+                        // act
+                        // assert
+                        Expect(randomNumber).To.Not.Equal(101);
+                    }
+                }
+
+                [TestFixture]
+                public class WithArrayOfExcludeFuncParameters
+                {
+                    [Test]
+                    [Repeat(10)]
+                    public void ShouldExcludeParameter()
+                    {
+                        // arrange
+                        var randomNumber = GetRandomLong(100, 103, () => new long[]{101, 102});
+                        // act
+                        // assert
+                        Expect(randomNumber).To.Not.Equal(101);
+                        Expect(randomNumber).To.Not.Equal(102);
+                    }
+                }
+
+                [TestFixture]
+                public class WithMultipleExcludeParameters
+                {
+                    [Test]
+                    [Repeat(10)]
+                    public void ShouldExcludeParameter()
+                    {
+                        // arrange
+                        var randomNumber = GetRandomLong(100, 103, 101, 102);
+                        // act
+                        // assert
+                        Expect(randomNumber).To.Not.Equal(101);
+                        Expect(randomNumber).To.Not.Equal(102);
+                    }
+                }
             }
         }
 

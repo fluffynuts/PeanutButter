@@ -57,7 +57,7 @@ namespace PeanutButter.RandomGenerators
         /// <summary>
         /// Gets a random value of the specified type by attempting to find the correct
         /// random generator method and invoking it. Works on primitives (eg int, string),
-        /// enums and complex objects. When invoked on a complex object, will attempt to fine
+        /// enums and complex objects. When invoked on a complex object, will attempt to find
         /// (or, if necessary, create) a GenericBuilder to produce the result
         /// </summary>
         /// <typeparam name="T">Type to generate a random value of</typeparam>
@@ -460,6 +460,51 @@ namespace PeanutButter.RandomGenerators
         {
             return (int) GetRandomLong(minValue, maxValue);
         }
+        
+        /// <summary>
+        /// Returns a random integer within the specified range with a parameter to exclude a value
+        /// </summary>
+        /// <param name="minValue">Minimum value to consider</param>
+        /// <param name="maxValue">Maximum value to consider</param>
+        /// <param name="exclude">Value that should not be generated</param>
+        /// <returns></returns>
+        public static int GetRandomInt(
+            int minValue,
+            int maxValue, 
+            Func<int> exclude)
+        {
+            return (int) GetRandomLong(minValue, maxValue, exclude.Invoke());
+        }
+        
+        /// <summary>
+        /// Returns a random integer within the specified range with a parameter to exclude values
+        /// </summary>
+        /// <param name="minValue">Minimum value to consider</param>
+        /// <param name="maxValue">Maximum value to consider</param>
+        /// <param name="exclude">Values that should not be generated</param>
+        /// <returns></returns>
+        public static int GetRandomInt(
+            int minValue,
+            int maxValue, 
+            Func<long[]> exclude)
+        {
+            return (int) GetRandomLong(minValue, maxValue, exclude.Invoke());
+        }
+        
+        /// <summary>
+        /// Returns a random integer within the specified range with a parameter to exclude values
+        /// </summary>
+        /// <param name="minValue">Minimum value to consider</param>
+        /// <param name="maxValue">Maximum value to consider</param>
+        /// <param name="exclude">Values that should not be generated</param>
+        /// <returns></returns>
+        public static int GetRandomInt(
+            int minValue,
+            int maxValue, 
+            params long[] exclude)
+        {
+            return (int) GetRandomLong(minValue, maxValue, exclude);
+        }
 
         /// <summary>
         /// Returns a random boolean value
@@ -505,7 +550,7 @@ namespace PeanutButter.RandomGenerators
         /// Returns a random long between the provided min value and
         /// that value + 1000, inclusive
         /// </summary>
-        /// <param name="minValue"></param>
+        /// <param name="minValue">Minimum value to consider</param>
         /// <returns></returns>
         public static long GetRandomLong(
             long minValue)
@@ -517,14 +562,41 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Returns a random long between the provided min value and max value with a parameter to exclude the specified value
+        /// </summary>
+        /// <param name="minValue">Minimum value to consider</param>
+        /// <param name="maxValue">Maximum value to consider</param>
+        /// <param name="exclude">Value that should not be generated</param>
+        /// <returns></returns>
+        public static long GetRandomLong(long minValue, long maxValue, Func<long> exclude)
+        {
+            return GetRandomLong(minValue, maxValue, exclude.Invoke());
+        }
+        
+        /// <summary>
+        /// Returns a random long between the provided min value and max value with a parameter to exclude specified values
+        /// </summary>
+        /// <param name="minValue">Minimum value to consider</param>
+        /// <param name="maxValue">Maximum value to consider</param>
+        /// <param name="exclude">Value that should not be generated</param>
+        /// <returns></returns>
+        public static long GetRandomLong(long minValue, long maxValue, Func<long[]> exclude)
+        {
+            return GetRandomLong(minValue, maxValue, exclude.Invoke());
+        }
+
+
+        /// <summary>
         /// Returns a random long within the specified range
         /// </summary>
         /// <param name="minValue">Minimum value to consider</param>
         /// <param name="maxValue">Maximum value to consider</param>
+        /// <param name="exclude"></param>
         /// <returns>Random integer between minValue and maxValue (inclusive)</returns>
         public static long GetRandomLong(
             long minValue,
-            long maxValue)
+            long maxValue,
+            params long[] exclude)
         {
             if (minValue > maxValue)
             {
@@ -533,9 +605,32 @@ namespace PeanutButter.RandomGenerators
                 maxValue = swap;
             }
 
-            var dec = RandomGenerator.NextDouble();
-            var range = maxValue - minValue + 1;
-            return minValue + (long) (range * dec);
+            long Next()
+            {
+                var dec = RandomGenerator.NextDouble();
+                var range = maxValue - minValue + 1;
+                return minValue + (long) (range * dec);
+            }
+
+            var nextLong = Next();
+
+            if (exclude.Length <= 0)
+            {
+                return nextLong;
+            }
+
+            // This exception will prevent infinite loops from occurring within the while loop that follows
+            if (exclude.Contains(minValue) || exclude.Contains(maxValue))
+            {
+                throw new ArgumentException($"The {nameof(exclude)} parameter can not be equal to {nameof(minValue)} or {nameof(maxValue)}", nameof(exclude));
+            }
+            
+            while (exclude.Contains(nextLong))
+            {
+                nextLong = Next();
+            }
+            
+            return nextLong;
         }
 
         /// <summary>
