@@ -1,11 +1,20 @@
 ﻿using System.Collections.Generic;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides extension methods on KeyValuePairCollections
     /// </summary>
-    public static class KeyValueCollectionExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class KeyValueCollectionExtensions
     {
         /// <summary>
         /// Resolves a KeyValuePair of string/string to a KeyValuePair of string/object

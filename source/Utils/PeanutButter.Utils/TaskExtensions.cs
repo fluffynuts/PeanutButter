@@ -1,11 +1,21 @@
 using System.Threading.Tasks;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
-    /// Extension methoss for tasks
+    /// Extension methods for tasks
+    /// Suggest: Use Async.RunSync, which does more cleverness.
     /// </summary>
-    public static class TaskExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class TaskExtensions
     {
         /// <summary>
         /// Runs a task which returns a result synchronously, returning that result
@@ -33,6 +43,5 @@ namespace PeanutButter.Utils
             task.ConfigureAwait(false);
             task.Wait();
         }
-
     }
 }

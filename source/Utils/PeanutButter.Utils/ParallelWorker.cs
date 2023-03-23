@@ -4,18 +4,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Describes a worker
     /// </summary>
-    public interface IWorker
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface IWorker
     {
         /// <summary>
         /// Will be true whilst the worker is busy
         /// </summary>
         bool Busy { get; }
-        
+
         /// <summary>
         /// Indicates the default MaxDegreeOfParallelism for ParallelWorker
         /// (should default to the number of available cores, on the assumption
@@ -27,7 +36,12 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Describes a parallel worker for actions
     /// </summary>
-    public interface IParallelWorker: IWorker
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface IParallelWorker : IWorker
     {
         /// <summary>
         /// Add some workers to the queue. If the work is already running,
@@ -59,7 +73,12 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Encapsulates some work which must be run in parallel
     /// </summary>
-    public class ParallelWorker : Worker, IParallelWorker
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class ParallelWorker : Worker, IParallelWorker
     {
         /// <summary>
         /// Will be true whilst the worker is busy
@@ -138,7 +157,12 @@ namespace PeanutButter.Utils
     /// Describes a parallel worker for functions returning values
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IParallelWorker<T>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface IParallelWorker<T>
     {
         /// <summary>
         /// Will be true whilst the worker is busy
@@ -176,7 +200,12 @@ namespace PeanutButter.Utils
     /// Encapsulates some work which must be run in parallel
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ParallelWorker<T> : Worker, IParallelWorker<T>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class ParallelWorker<T> : Worker, IParallelWorker<T>
     {
         /// <summary>
         /// Will be true whilst the worker is busy
@@ -308,6 +337,7 @@ namespace PeanutButter.Utils
             {
                 results.Add(deferredResult);
             }
+
             return results.ToArray();
         }
     }

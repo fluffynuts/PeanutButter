@@ -2,12 +2,21 @@
 using System.Linq;
 using System.Reflection;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides extension methods for Assemblies
     /// </summary>
-    public static class AssemblyExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class AssemblyExtensions
     {
         /// <summary>
         /// Finds a Type by name within a given assembly. Returns null

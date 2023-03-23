@@ -25,7 +25,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides a mechanism for guessing the MIME type of a file
@@ -35,17 +39,23 @@ namespace PeanutButter.Utils
     /// The code in this file is licensed under the
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    public static class MIMEType
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class MIMEType
     {
         private const string DEFAULT_MIME_TYPE = "application/octet-stream";
-        
+
         /// <summary>
         /// A list of all known file extensions for MIMEType
         /// </summary>
         public static string[] KnownFileExtensions =>
             _knownFileExtensions ??= ExtensionToMimeTypeMappings.Keys.ToArray();
+
         private static string[] _knownFileExtensions;
-        
+
 
         /// <summary>
         /// Tries to get the type of the MIME from the provided string.

@@ -6,12 +6,21 @@ using System.Text;
 
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Describes the contract for an auto-deleting temporary folder
     /// </summary>
-    public interface IAutoTempFolder : IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface IAutoTempFolder : IDisposable
     {
         /// <summary>
         /// The local path at which this temp folder exists
@@ -187,7 +196,12 @@ namespace PeanutButter.Utils
     /// Provides a mechanism for creating a temporary folder which is automatically
     /// deleted upon disposal.
     /// </summary>
-    public class AutoTempFolder : IAutoTempFolder
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class AutoTempFolder : IAutoTempFolder
     {
         /// <summary>
         /// Default file access, as per System.IO.FileStream

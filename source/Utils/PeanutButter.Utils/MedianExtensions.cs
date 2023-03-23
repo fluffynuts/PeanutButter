@@ -2,12 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides .Median() extension methods for numeric collections
     /// </summary>
-    public static class MedianExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class MedianExtensions
     {
         /// <summary>
         /// Produces the median value from a non-empty collection or
@@ -23,7 +32,7 @@ namespace PeanutButter.Utils
         {
             return DetermineMedianFor(
                 collection,
-                i => (decimal)i,
+                i => i,
                 (prev, middle) => (prev + middle) / 2
             );
         }
@@ -42,7 +51,7 @@ namespace PeanutButter.Utils
         {
             return DetermineMedianFor(
                 collection,
-                i => (decimal)i,
+                i => i,
                 (prev, middle) => (prev + middle) / 2
             );
         }
@@ -61,7 +70,7 @@ namespace PeanutButter.Utils
         {
             return DetermineMedianFor(
                 collection,
-                i => (decimal)i,
+                i => i,
                 (prev, middle) => (prev + middle) / 2
             );
         }
@@ -80,7 +89,7 @@ namespace PeanutButter.Utils
         {
             return DetermineMedianFor(
                 collection,
-                i => (decimal)i,
+                i => i,
                 (prev, middle) => (prev + middle) / 2
             );
         }
@@ -99,11 +108,11 @@ namespace PeanutButter.Utils
         {
             return DetermineMedianFor(
                 collection,
-                i => (decimal)i,
+                i => i,
                 (prev, middle) => (prev + middle) / 2
             );
         }
-        
+
         /// <summary>
         /// Produces the median value from a non-empty collection or
         /// throws for an empty collection
@@ -118,7 +127,7 @@ namespace PeanutButter.Utils
         {
             return DetermineMedianFor(
                 collection,
-                i => (decimal)i,
+                i => (decimal) i,
                 (prev, middle) => (prev + middle) / 2
             );
         }
@@ -137,7 +146,7 @@ namespace PeanutButter.Utils
         {
             return DetermineMedianFor(
                 collection,
-                i => (decimal)i,
+                i => (decimal) i,
                 (prev, middle) => (prev + middle) / 2
             );
         }

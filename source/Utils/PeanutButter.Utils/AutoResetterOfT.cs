@@ -1,6 +1,10 @@
 ﻿using System;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides a mechanism to run code on construction and disposal,
@@ -14,7 +18,12 @@ namespace PeanutButter.Utils
     /// 2. Upon disposal, the end action is called with the value from (1)
     /// </summary>
     /// <typeparam name="T">Type of value which is passed to the start and end actions</typeparam>
-    public class AutoResetter<T> : IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class AutoResetter<T> : IDisposable
     {
         private readonly T _initialValue;
         private readonly object _lock = new object();

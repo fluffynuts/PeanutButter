@@ -4,9 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 // ReSharper disable MemberCanBePrivate.Global
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -50,7 +48,7 @@ namespace PeanutButter.Utils
         /// Runs a deep equality test between two objects, glossing over reference
         /// differences between class-types and comparing only primitive types. Use
         /// this when you'd like to essentially test whether the data in one object
-        /// hierachy matches that of another
+        /// hierarchy matches that of another
         /// </summary>
         /// <param name="objSource">Object which is the source of truth</param>
         /// <param name="objCompare">Object to compare with</param>
@@ -133,7 +131,7 @@ namespace PeanutButter.Utils
         /// Runs a deep equality test between two objects, glossing over reference
         /// differences between class-types and comparing only primitive types. Use
         /// this when you'd like to essentially test whether the data in one object
-        /// hierachy matches that of another
+        /// hierarchy matches that of another
         /// </summary>
         /// <param name="objSource">Object which is the source of truth</param>
         /// <param name="objCompare">Object to compare with</param>
@@ -159,7 +157,7 @@ namespace PeanutButter.Utils
         /// Runs a deep equality test between two objects,
         /// ignoring reference differences wherever possible
         /// and logging failures with the provided action. Properties
-        /// can be explided by name with the ignorePropertiesByName params
+        /// can be excluded by name with the ignorePropertiesByName params
         /// </summary>
         /// <param name="objSource"></param>
         /// <param name="objCompare"></param>
@@ -482,7 +480,7 @@ namespace PeanutButter.Utils
             var itemType = srcPropertyInfo.PropertyType.GetCollectionItemType();
             if (itemType == null)
                 return false;
-            var method = _genericMakeListCopy.MakeGenericMethod(itemType);
+            var method = GenericMakeListCopy.MakeGenericMethod(itemType);
             var newValue = method.Invoke(null, new[] { srcVal });
             dstPropertyInfo.SetValue(dst, newValue);
             return true;
@@ -502,7 +500,7 @@ namespace PeanutButter.Utils
             var underlyingType = srcPropertyInfo.PropertyType.GetCollectionItemType();
             if (underlyingType == null)
                 return false;
-            var specific = _genericMakeArrayCopy.MakeGenericMethod(underlyingType);
+            var specific = GenericMakeArrayCopy.MakeGenericMethod(underlyingType);
             // ReSharper disable once RedundantExplicitArrayCreation
             var newValue = specific.Invoke(null, new[] { srcVal });
             dstPropertyInfo.SetValue(dst, newValue);
@@ -524,23 +522,23 @@ namespace PeanutButter.Utils
             return true;
         }
 
-        private static readonly BindingFlags _privateStatic =
+        private const BindingFlags PRIVATE_STATIC =
             BindingFlags.NonPublic | BindingFlags.Static;
 
-        private static readonly MethodInfo _genericMakeArrayCopy
+        private static readonly MethodInfo GenericMakeArrayCopy
             = typeof(ObjectExtensions).GetMethod(
                 nameof(MakeArrayCopyOf),
-                _privateStatic);
+                PRIVATE_STATIC);
 
-        private static readonly MethodInfo _genericMakeListCopy
+        private static readonly MethodInfo GenericMakeListCopy
             = typeof(ObjectExtensions).GetMethod(
                 nameof(MakeListCopyOf),
-                _privateStatic);
+                PRIVATE_STATIC);
 
-        private static readonly MethodInfo _genericMakeDictionaryCopy
+        private static readonly MethodInfo GenericMakeDictionaryCopy
             = typeof(ObjectExtensions).GetMethod(
                 nameof(MakeDictionaryCopyOf),
-                _privateStatic);
+                PRIVATE_STATIC);
 
 #pragma warning disable S1144 // Unused private types or members should be removed
         // ReSharper disable once UnusedMember.Local
@@ -614,7 +612,7 @@ namespace PeanutButter.Utils
                     return src;
                 }
 
-                return _cloneStrategies.Aggregate(
+                return CloneStrategies.Aggregate(
                     null as object,
                     (acc, cur) => acc ?? cur(src, cloneType));
             }
@@ -625,7 +623,7 @@ namespace PeanutButter.Utils
             }
         }
 
-        private static readonly Func<object, Type, object>[] _cloneStrategies =
+        private static readonly Func<object, Type, object>[] CloneStrategies =
         {
             CloneArray,
             CloneList,
@@ -646,7 +644,7 @@ namespace PeanutButter.Utils
             var key = Tuple.Create(keyType, valueType);
             if (!DictionaryCopyMethodCache.TryGetValue(key, out var method))
             {
-                method = _genericMakeDictionaryCopy.MakeGenericMethod(keyType, valueType);
+                method = GenericMakeDictionaryCopy.MakeGenericMethod(keyType, valueType);
                 DictionaryCopyMethodCache.TryAdd(key, method);
             }
 
@@ -661,7 +659,7 @@ namespace PeanutButter.Utils
                 return null;
             var itemType = cloneType.GetCollectionItemType();
             var method = FindGenericMethodFor(
-                itemType, _genericMakeArrayCopy, ArrayCopyMethodCache
+                itemType, GenericMakeArrayCopy, ArrayCopyMethodCache
             );
             return method.Invoke(null, new[] { src });
         }
@@ -673,7 +671,7 @@ namespace PeanutButter.Utils
             var itemType = cloneType.GetCollectionItemType();
             var method = FindGenericMethodFor(
                 itemType,
-                _genericMakeListCopy,
+                GenericMakeListCopy,
                 ListCopyMethodCache
             );
             return method.Invoke(null, new[] { src });
@@ -686,7 +684,7 @@ namespace PeanutButter.Utils
             var itemType = cloneType.GetCollectionItemType();
             var method = FindGenericMethodFor(
                 itemType,
-                _genericMakeArrayCopy, ArrayCopyMethodCache
+                GenericMakeArrayCopy, ArrayCopyMethodCache
             );
             return method.Invoke(null, new[] { src });
         }
@@ -738,7 +736,7 @@ namespace PeanutButter.Utils
         /// Gets the value of a property on an object, specified by the property path, of the given Type
         /// </summary>
         /// <param name="src">Object to search for the required property</param>
-        /// <param name="propertyPath">Path to the property: may be a property name or a dotted path down an object heirachy, eg: Company.Name</param>
+        /// <param name="propertyPath">Path to the property: may be a property name or a dotted path down an object hierarchy, eg: Company.Name</param>
         /// <typeparam name="T">Expected type of the property value</typeparam>
         /// <returns></returns>
         public static T Get<T>(
@@ -882,7 +880,7 @@ namespace PeanutButter.Utils
                 if (type == typeof(string))
                 {
                     typeWasConverted = true;
-                    return (T) (object) valueAsObject?.ToString();
+                    return (T) (object) valueAsObject.ToString();
                 }
 
                 try
@@ -936,7 +934,7 @@ namespace PeanutButter.Utils
             );
             if (!trailingMember.Found)
             {
-                throw new MemberNotFoundException(src?.GetType(), propertyPath);
+                throw new MemberNotFoundException(src.GetType(), propertyPath);
             }
 
             return trailingMember.GetValue();
@@ -969,22 +967,30 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
-        /// Invokes a method on an object, if available; otherwise 'splodes
+        /// Invokes a method on an object, if available; otherwise explodes
         /// </summary>
         /// <param name="src">Object to invoke the method on</param>
         /// <param name="methodName">Method to invoke, by name</param>
         /// <param name="args">Any parameters to give to the method</param>
         /// <returns>return value of the method</returns>
-        public static object InvokeMethodWithResult(this object src, string methodName, params object[] args)
+        public static object InvokeMethodWithResult(
+            this object src,
+            string methodName,
+            params object[] args
+        )
         {
             var srcType = src.GetType();
             var method = srcType.GetMethod(
                 methodName,
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (method == null)
-                throw new InvalidOperationException($"Can't find method {methodName} on {srcType.Name}");
-            return method.Invoke(src, args);
+                INSTANCE_PUBLIC_OR_PRIVATE
+            );
+            return method is null
+                ? throw new InvalidOperationException($"Can't find method {methodName} on {srcType.Name}")
+                : method.Invoke(src, args);
         }
+
+        private const BindingFlags INSTANCE_PUBLIC_OR_PRIVATE =
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
         /// <summary>
         /// Attempts to set a property value on an object by property path
@@ -1405,12 +1411,11 @@ namespace PeanutButter.Utils
             return search.Contains(searchType);
         }
 
-        private static readonly BindingFlags _publicStatic =
-            BindingFlags.Public | BindingFlags.Static;
+        private const BindingFlags PUBLIC_STATIC = BindingFlags.Public | BindingFlags.Static;
 
         private static readonly MethodInfo GenericIsInstanceOf
             = typeof(ObjectExtensions)
-                .GetMethods(_publicStatic)
+                .GetMethods(PUBLIC_STATIC)
                 .Single(mi => mi.IsGenericMethod &&
                     mi.Name == nameof(ObjectExtensions.IsInstanceOf));
 

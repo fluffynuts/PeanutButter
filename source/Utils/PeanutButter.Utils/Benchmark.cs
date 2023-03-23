@@ -2,13 +2,22 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides a static Time method which times running
     /// the provided action the specified number of times
     /// </summary>
-    public static class Benchmark
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+    static class Benchmark
     {
         /// <summary>
         /// Times the provided action, run the provided number

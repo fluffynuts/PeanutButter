@@ -3,7 +3,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+// ReSharper disable once CheckNamespace
+namespace Imported.PeanutButter.Utils.Experimental
+#else
+// ReSharper disable once CheckNamespace
 namespace PeanutButter.Utils.Experimental
+#endif
 {
     [Obsolete("This is not ready for prime-time yet")]
     internal class UdpIpc : IDisposable
@@ -104,7 +110,7 @@ namespace PeanutButter.Utils.Experimental
         }
     }
 
-    internal class Message<T>: Message
+    internal class Message<T> : Message
     {
         public override string Type { get; set; }
 

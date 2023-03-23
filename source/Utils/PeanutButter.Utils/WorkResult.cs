@@ -1,9 +1,18 @@
 using System;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <inheritdoc />
-    public class WorkResult<T> : WorkResult
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+    class WorkResult<T> : WorkResult
     {
         /// <summary>
         /// Result of the work, if available
@@ -25,7 +34,12 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Stores the exception (or none) from a single piece of work
     /// </summary>
-    public class WorkResult
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+    class WorkResult
     {
         /// <summary>
         /// Exception thrown by the work, or null if no exception thrown

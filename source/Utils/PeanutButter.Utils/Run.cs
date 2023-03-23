@@ -3,7 +3,11 @@
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once UnusedType.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides convenience wrapper functions to run small bits of work
@@ -12,7 +16,12 @@ namespace PeanutButter.Utils
     /// handbrakes. No magic context. No guarantees, except that your
     /// work will be executed. May make the host machine very tired.
     /// </summary>
-    public static class Run
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class Run
     {
         /// <summary>
         /// Run all actions in parallel, returning any captured exceptions

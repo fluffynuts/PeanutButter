@@ -1,15 +1,25 @@
 using System;
 using System.Threading;
+
 // ReSharper disable UnusedMember.Global
 // ReSharper disable TypeParameterCanBeVariant
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// SingleItemCache provides a light, fast, caching wrapper
     /// around a function to generate a value with a provided TTL
     /// </summary>
-    public interface ISingleItemCache<T>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface ISingleItemCache<T>
     {
         /// <summary>
         /// The value for the generator, or a cached value,
@@ -39,7 +49,12 @@ namespace PeanutButter.Utils
     /// SingleItemCache provides a light, fast, caching wrapper
     /// around a function to generate a value with a provided TTL
     /// </summary>
-    public class SingleItemCache<T>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class SingleItemCache<T>
         : ISingleItemCache<T>
     {
         private readonly Func<T> _generator;
@@ -47,14 +62,14 @@ namespace PeanutButter.Utils
         private readonly object _lockObject = new();
         private T _cachedValue;
 
-        private long _freshUntilMs = 0;
+        private long _freshUntilMs;
 
         /// <summary>
         /// The value for the generator, or a cached value,
         /// if available and still fresh enough
         /// </summary>
         public T Value => RetrieveValue();
-        
+
         /// <summary>
         /// Expose the generator (might be useful for testing purposes)
         /// </summary>

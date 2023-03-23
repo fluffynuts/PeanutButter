@@ -4,12 +4,21 @@ using System.IO;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToConstant.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// The types of storage supported by AutoResettingFile
     /// </summary>
-    public enum StorageTypes
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        enum StorageTypes
     {
         /// <summary>
         /// Automatically select storage based on file size
@@ -31,7 +40,12 @@ namespace PeanutButter.Utils
     /// Facilitates easily reverting a file to a prior state
     /// via the IDisposable pattern
     /// </summary>
-    public class AutoResettingFile : IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class AutoResettingFile : IDisposable
     {
         /// <summary>
         /// The max file size to store in memory when using Automatic storage

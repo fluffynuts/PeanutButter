@@ -1,11 +1,20 @@
 using System;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides extensions to help with common enum operations
     /// </summary>
-    public static class FlagExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class FlagExtensions
     {
         /// <summary>
         /// Tests if a "flag" enum contains the required flag. Enums which have values
@@ -24,7 +33,7 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static bool HasFlag<T>(
             this T enumValue,
-            T flag) where T: struct
+            T flag) where T : struct
         {
             if (!typeof(T).IsEnum)
             {
@@ -36,7 +45,7 @@ namespace PeanutButter.Utils
             {
                 return intValue.HasFlag(intFlag);
             }
-            
+
             return false;
         }
 
@@ -44,7 +53,7 @@ namespace PeanutButter.Utils
         {
             try
             {
-                result = (int)Convert.ChangeType(value, typeof(int));
+                result = (int) Convert.ChangeType(value, typeof(int));
                 return true;
             }
             catch

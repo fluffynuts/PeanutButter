@@ -1,11 +1,20 @@
 ﻿using System;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides some useful extension methods for DateTime values
     /// </summary>
-    public static class DateTimeExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class DateTimeExtensions
     {
         /// <summary>
         /// Calculates whether or not a provided DateTime is within the provided range

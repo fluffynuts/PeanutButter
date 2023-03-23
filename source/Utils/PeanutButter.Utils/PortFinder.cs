@@ -3,12 +3,21 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Utility class to find open ports for binding to
     /// </summary>
-    public static class PortFinder
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class PortFinder
     {
         /// <summary>
         /// Attempts to find a random unbound port on the loopback device (localhost)
@@ -74,7 +83,7 @@ namespace PeanutButter.Utils
                 forAddress,
                 min,
                 max,
-                (minPort, maxPort, lastAttempt) => Next(minPort, maxPort, tried),
+                (minPort, maxPort, _) => Next(minPort, maxPort, tried),
                 attemptLogger
             );
         }

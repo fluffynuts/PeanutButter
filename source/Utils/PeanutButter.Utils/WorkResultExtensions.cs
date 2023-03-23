@@ -2,13 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides convenience extensions for work results
     /// </summary>
     // ReSharper disable once UnusedType.Global
-    public static class WorkResultExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+    static class WorkResultExtensions
     {
         /// <summary>
         /// Provides a convenience method into retrieving all

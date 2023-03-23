@@ -4,12 +4,21 @@ using System.Collections.Generic;
 using System.Linq;
 using PeanutButter.Utils.Dictionaries;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides some more object extensions, for webby usages
     /// </summary>
-    public static class WebObjectExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class WebObjectExtensions
     {
         /// <summary>
         /// Provides a query string for the given object data
@@ -43,7 +52,7 @@ namespace PeanutButter.Utils
             return dict.Aggregate(
                 new List<string>() as IList<string>,
                 (acc, cur) => acc.And(
-                    $"{HttpEncoder.UrlEncode((string) cur.Key)}={HttpEncoder.UrlEncode((string) cur.Value?.ToString())}"
+                    $"{HttpEncoder.UrlEncode(cur.Key)}={HttpEncoder.UrlEncode(cur.Value?.ToString())}"
                 )
             ).JoinWith("&");
         }

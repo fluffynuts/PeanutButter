@@ -1,31 +1,46 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 // ReSharper disable StaticMemberInGenericType
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Defines an action to run on a reference to a value type
     /// </summary>
     /// <param name="item"></param>
     /// <typeparam name="T1"></typeparam>
-    public delegate void ActionRef<T1>(ref T1 item);
-    
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        delegate void ActionRef<T1>(ref T1 item);
+
     /// <summary>
     /// Most basic interface to implement to be considered a builder
     /// </summary>
     /// <typeparam name="TEntity">Type of the entity this builder should build</typeparam>
     /// <typeparam name="TBuilder"></typeparam>
     // ReSharper disable once TypeParameterCanBeVariant
-    public interface IBuilder<TBuilder, TEntity>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface IBuilder<TBuilder, TEntity>
     {
         /// <summary>
         /// Builds a new instance of TSubject
         /// </summary>
         /// <returns>New instance of TSubject</returns>
         TEntity Build();
-        
+
         /// <summary>
         /// Queues a transform to be run at build time on entities
         /// you wish to build; use this on reference types
@@ -33,7 +48,7 @@ namespace PeanutButter.Utils
         /// <param name="transform"></param>
         /// <returns></returns>
         TBuilder WithProp(Action<TEntity> transform);
-        
+
         /// <summary>
         /// Queues a transform to be run at build time on entities
         /// you wish to build; use this on value types
@@ -42,13 +57,18 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         TBuilder WithProp(ActionRef<TEntity> transform);
     }
-    
+
     /// <summary>
     /// Provides a base class with simple builder functionality
     /// </summary>
     /// <typeparam name="TBuilder"></typeparam>
     /// <typeparam name="TEntity"></typeparam>
-    public abstract class Builder<TBuilder, TEntity>: IBuilder<TBuilder, TEntity>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        abstract class Builder<TBuilder, TEntity> : IBuilder<TBuilder, TEntity>
         where TBuilder : Builder<TBuilder, TEntity>, IBuilder<TBuilder, TEntity>, new()
     {
         private static readonly Type EntityType = typeof(TEntity);

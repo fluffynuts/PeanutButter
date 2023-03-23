@@ -2,12 +2,21 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides a mechanism for lazy evaluation with a provider context
     /// </summary>
-    public interface ILazyWithContext<TValue>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface ILazyWithContext<TValue>
     {
         /// <summary>
         /// The lazily-evaluated value
@@ -16,7 +25,12 @@ namespace PeanutButter.Utils
     }
 
     /// <inheritdoc />
-    public class LazyWithContext<TContext, TValue> : ILazyWithContext<TValue>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class LazyWithContext<TContext, TValue> : ILazyWithContext<TValue>
     {
         /// <summary>
         /// The lazily-evaluated value
@@ -26,7 +40,7 @@ namespace PeanutButter.Utils
         private readonly TContext _context;
         private TValue _cached;
         private bool _evaluated;
-        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _lock = new(1);
         private readonly Func<TContext, TValue> _synchronousValueFactory;
         private readonly Func<TContext, Task<TValue>> _asyncValueFactory;
 
@@ -41,7 +55,7 @@ namespace PeanutButter.Utils
         {
             _context = context;
             _synchronousValueFactory = valueFactory ??
-                                       throw new ArgumentNullException(nameof(valueFactory));
+                throw new ArgumentNullException(nameof(valueFactory));
         }
 
         /// <summary>
@@ -74,8 +88,8 @@ namespace PeanutButter.Utils
                 }
 
                 _cached = _synchronousValueFactory == null
-                       ? ResolveValueAsync()
-                           : ResolveValueSync();
+                    ? ResolveValueAsync()
+                    : ResolveValueSync();
                 _evaluated = true;
                 return _cached;
             }

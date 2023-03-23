@@ -3,7 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     internal class EmptyEnumerator<T>
         : IEnumerator<T>
@@ -80,7 +84,12 @@ namespace PeanutButter.Utils
     /// series. For obvious reasons, CopyTo will copy the
     /// internal, limited collection.
     /// </summary>
-    public class CircularList<T> : IList<T>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+    class CircularList<T> : IList<T>
     {
         private readonly List<T> _store;
 

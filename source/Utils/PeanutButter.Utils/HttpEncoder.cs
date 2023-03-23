@@ -5,7 +5,11 @@
 using System;
 using System.Text;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// This is adapted from the dotnet runtime to avoid having to depend
@@ -34,7 +38,7 @@ namespace PeanutButter.Utils
             var encoded = UrlEncode(bytes, offset, count);
 
             return (alwaysCreateNewReturnValue && (encoded != null) && (encoded == bytes))
-                ? (byte[])encoded.Clone()
+                ? (byte[]) encoded.Clone()
                 : encoded;
         }
 
@@ -74,7 +78,7 @@ namespace PeanutButter.Utils
             // count them first
             for (var i = 0; i < count; i++)
             {
-                var ch = (char)bytes[offset + i];
+                var ch = (char) bytes[offset + i];
 
                 if (ch == ' ')
                 {
@@ -109,7 +113,7 @@ namespace PeanutButter.Utils
             for (var i = 0; i < count; i++)
             {
                 var b = bytes[offset + i];
-                var ch = (char)b;
+                var ch = (char) b;
 
                 if (IsUrlSafeChar(ch))
                 {
@@ -117,13 +121,13 @@ namespace PeanutButter.Utils
                 }
                 else if (ch == ' ')
                 {
-                    expandedBytes[pos++] = (byte)'+';
+                    expandedBytes[pos++] = (byte) '+';
                 }
                 else
                 {
-                    expandedBytes[pos++] = (byte)'%';
-                    expandedBytes[pos++] = (byte)ToCharLower(b >> 4);
-                    expandedBytes[pos++] = (byte)ToCharLower(b);
+                    expandedBytes[pos++] = (byte) '%';
+                    expandedBytes[pos++] = (byte) ToCharLower(b >> 4);
+                    expandedBytes[pos++] = (byte) ToCharLower(b);
                 }
             }
 
@@ -140,7 +144,7 @@ namespace PeanutButter.Utils
                 value += ('a' - ('9' + 1));
             }
 
-            return (char)value;
+            return (char) value;
         }
 
         private static bool ValidateUrlEncodingParameters(byte[] bytes, int offset, int count)

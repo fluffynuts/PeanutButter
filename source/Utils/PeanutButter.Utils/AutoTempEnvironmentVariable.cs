@@ -1,11 +1,20 @@
 using System;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides a scoped, temporary environment variable
     /// </summary>
-    public class AutoTempEnvironmentVariable : IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class AutoTempEnvironmentVariable : IDisposable
     {
         /// <summary>
         /// The name of the temp env var

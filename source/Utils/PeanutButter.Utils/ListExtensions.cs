@@ -1,12 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides methods on lists as one might expect from JavaScript
     /// </summary>
-    public static class ListExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class ListExtensions
     {
         /// <summary>
         /// Removes the first item from the list and returns it

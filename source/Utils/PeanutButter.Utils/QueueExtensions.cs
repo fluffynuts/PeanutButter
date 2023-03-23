@@ -1,11 +1,20 @@
 using System.Collections.Generic;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides some useful extensions for Queues
     /// </summary>
-    public static class QueueExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class QueueExtensions
     {
         /// <summary>
         /// Attempt to Dequeue on the queue (NOT thread-safe). If
@@ -25,7 +34,7 @@ namespace PeanutButter.Utils
                 result = queue.Dequeue();
                 return true;
             }
-            
+
             result = default;
             return false;
         }

@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides a mechanism to autmatically delete one or more files
@@ -13,7 +17,12 @@ namespace PeanutButter.Utils
     /// left behind. No exceptions are thrown. Files which have been removed in the
     /// interim do not cause any exceptions.
     /// </summary>
-    public class AutoDeleter: IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class AutoDeleter: IDisposable
     {
         private readonly List<string> _toDelete;
 

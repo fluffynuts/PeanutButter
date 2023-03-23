@@ -5,13 +5,22 @@ using System.Linq;
 using System.Text;
 using _Path = System.IO.Path;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides a mechanism to create, read and write a temporary file which
     /// is automatically removed at disposal time
     /// </summary>
-    public class AutoTempFile : IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class AutoTempFile : IDisposable
     {
         /// <summary>
         /// Provides the path to the temporary file on disk

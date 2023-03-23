@@ -3,12 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Tests shape equality between two types
     /// </summary>
-    public class TypeEqualityTester
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class TypeEqualityTester
     {
         /// <summary>
         /// Provides a read-only collection of the errors encountered during the last comparison
@@ -38,7 +47,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="master">Master type</param>
         /// <param name="compare">Comparison type</param>
-        public TypeEqualityTester(Type master, Type compare): this(master, compare, new List<string>())
+        public TypeEqualityTester(Type master, Type compare) : this(master, compare, new List<string>())
         {
         }
 
@@ -88,8 +97,8 @@ namespace PeanutButter.Utils
         {
             var nameMatch = compareMembers.FirstOrDefault(c => c.Name == master.Name);
             return nameMatch == null
-                    ? AddError($"No property found to match {master.Name} by name on {_compare}")
-                    : DeepCompare(master.Type, nameMatch.Type);
+                ? AddError($"No property found to match {master.Name} by name on {_compare}")
+                : DeepCompare(master.Type, nameMatch.Type);
         }
 
         private bool DeepCompare(Type masterType, Type compareType)
@@ -104,12 +113,12 @@ namespace PeanutButter.Utils
         private bool TryFindPrimitiveMatchFor(PropertyOrField cur, PropertyOrField[] compareMembers)
         {
             return compareMembers.ContainsOnlyOneMatching(
-                       cur,
-                       (o1, o2) => AllowAssignmentEquivalence
-                                    ? o1.IsAssignmentMatchFor(o2)
-                                    : o1.IsMatchFor(o2)
-                   ) ||
-                   AddError($"No match for: {cur.PrettyPrint()}");
+                    cur,
+                    (o1, o2) => AllowAssignmentEquivalence
+                        ? o1.IsAssignmentMatchFor(o2)
+                        : o1.IsMatchFor(o2)
+                ) ||
+                AddError($"No match for: {cur.PrettyPrint()}");
         }
 
         private bool AddError(string s)

@@ -2,7 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides a rolling window of data to the given size
@@ -11,7 +15,12 @@ namespace PeanutButter.Utils
     /// renders the instance unusable from then on.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IRollingWindow<T> : IEnumerable<T>, IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface IRollingWindow<T> : IEnumerable<T>, IDisposable
     {
         /// <summary>
         /// Get or set the maximum size for this window. If you set the MaxSize
@@ -29,7 +38,12 @@ namespace PeanutButter.Utils
     }
 
     /// <inheritdoc />
-    public class RollingWindow<T> : IRollingWindow<T>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class RollingWindow<T> : IRollingWindow<T>
     {
         /// <inheritdoc />
         public long MaxSize

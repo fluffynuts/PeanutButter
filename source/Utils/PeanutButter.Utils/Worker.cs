@@ -1,11 +1,20 @@
 using System;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// base class for parallel workers
     /// </summary>
-    public abstract class Worker
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        abstract class Worker
     {
         /// <summary>
         /// Indicates the default MaxDegreeOfParallelism for ParallelWorker

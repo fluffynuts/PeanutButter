@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Globalization;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides a relatively "safe" interchange between decimal and string
@@ -12,13 +16,18 @@ namespace PeanutButter.Utils
     ///  a prime example being transport of decimals from Javascript into a ZA .net
     ///  culture -- but there are others)
     /// </summary>
-    public class DecimalDecorator
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class DecimalDecorator
     {
         /// <summary>
         /// Flag: is the underlying value a valid decimal value
         /// </summary>
         public bool IsValidDecimal { get; }
-        
+
         /// <summary>
         /// Attempts to do a direct parse on a string value
         /// - will break if the input value is clearly not a decimal, eg "aaa"
@@ -125,5 +134,4 @@ namespace PeanutButter.Utils
             return _decimalValue;
         }
     }
-
 }

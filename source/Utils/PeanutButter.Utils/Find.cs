@@ -3,14 +3,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Finds files
     /// </summary>
-    public static class Find
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class Find
     {
-        private static readonly string PathItemSeparator = Platform.IsUnixy ? ":" : ";";
+        private static readonly string PathItemSeparator = Platform.IsUnixy
+            ? ":"
+            : ";";
 
         /// <summary>
         /// Finds the first match for a given filename in the PATH
@@ -22,7 +33,9 @@ namespace PeanutButter.Utils
             var paths = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(
                 new[] { PathItemSeparator },
                 StringSplitOptions.RemoveEmptyEntries);
-            var extensions = Platform.IsUnixy ? new string[0] : GenerateWindowsExecutableExtensionsList();
+            var extensions = Platform.IsUnixy
+                ? new string[0]
+                : GenerateWindowsExecutableExtensionsList();
             return paths.Aggregate(
                 null as string,
                 (acc, cur) => acc ?? ValidateExecutable(SearchFor(search, cur, extensions))
@@ -48,9 +61,12 @@ namespace PeanutButter.Utils
                 {
                     return null;
                 }
+
                 var parts = first.Split(' ');
                 // look for the attribs section, and assume executable if any 'x'
-                return parts[0].Contains("x") ? filePath : null;
+                return parts[0].Contains("x")
+                    ? filePath
+                    : null;
             }
         }
 

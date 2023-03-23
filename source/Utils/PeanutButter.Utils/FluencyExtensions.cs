@@ -1,11 +1,20 @@
 ﻿using System;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Add fluency anywhere - as if all things were buildable!
     /// </summary>
-    public static class FluencyExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class FluencyExtensions
     {
         /// <summary>
         /// Add fluency for any object - all things can be builders now

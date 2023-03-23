@@ -5,13 +5,21 @@ using System.Text;
 using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
-
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides utility extensions on Stream objects
     /// </summary>
-    public static class StreamExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class StreamExtensions
     {
         /// <summary>
         /// Reads all bytes from a stream
@@ -93,7 +101,7 @@ namespace PeanutButter.Utils
             {
                 throw new ArgumentException(nameof(src));
             }
-            
+
             if (src.Position == 0)
             {
                 return;
@@ -526,6 +534,7 @@ namespace PeanutButter.Utils
                     bytes.ToArray()
                 );
             }
+
             return null;
         }
 

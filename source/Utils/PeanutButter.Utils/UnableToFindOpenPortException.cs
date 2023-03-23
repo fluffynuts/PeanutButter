@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Net;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     internal class UnableToFindOpenPortException
         : Exception

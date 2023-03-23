@@ -4,13 +4,22 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides common functionality to retry logic
     /// with configurable delay
     /// </summary>
-    public static class RetryExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class RetryExtensions
     {
         /// <summary>
         /// 
@@ -98,6 +107,7 @@ namespace PeanutButter.Utils
                 "Should never get here"
             );
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -184,7 +194,5 @@ namespace PeanutButter.Utils
                 "Should never get here"
             );
         }
-        
-        
     }
 }

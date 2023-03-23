@@ -6,12 +6,21 @@ using System.Linq.Expressions;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UsePatternMatching
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Utility class to assist with dealing with expressions
     /// </summary>
-    public static class ExpressionUtil
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class ExpressionUtil
     {
         /// <summary>
         /// Calculates the member path of an Expression and returns it as a dotted string
@@ -59,7 +68,7 @@ namespace PeanutButter.Utils
         public static Type GetPropertyTypeFor<TSource>(Expression<Func<TSource, object>> expression)
         {
             var propertyPath = GetMemberPathFor(expression);
-            var pathParts = new Stack<string>(propertyPath.Split(new[] {"."}, StringSplitOptions.None));
+            var pathParts = new Stack<string>(propertyPath.Split(new[] { "." }, StringSplitOptions.None));
             var result = typeof(TSource);
             do
             {
@@ -84,7 +93,7 @@ namespace PeanutButter.Utils
         /// </returns>
         public static string GetFullPropertyPathNameFrom(MemberExpression expression)
         {
-            var parts = new List<string>(new[] {expression.Member.Name});
+            var parts = new List<string>(new[] { expression.Member.Name });
             var next = expression.Expression as MemberExpression;
             while (next != null)
             {

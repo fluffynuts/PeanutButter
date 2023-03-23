@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides a mechanism to dispose of other disposables when it is disposed.
@@ -9,7 +13,12 @@ namespace PeanutButter.Utils
     /// which takes care of disposing registered items (in reverse order) when it is
     /// disposed
     /// </summary>
-    public class AutoDisposer: IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class AutoDisposer: IDisposable
     {
         private readonly List<IDisposable> _toDispose;
 

@@ -3,7 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Holds a list of most-recently-used items, up to
@@ -23,7 +27,12 @@ namespace PeanutButter.Utils
     /// </summary>
     /// <typeparam name="T"></typeparam>
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class MostRecentlyUsedList<T> : IEnumerable<T>
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class MostRecentlyUsedList<T> : IEnumerable<T>
     {
         /// <summary>
         /// The capacity of this list. Once this is reached, adding
@@ -77,27 +86,26 @@ namespace PeanutButter.Utils
         {
             return new MostRecentlyUsedEnumerator<T>(this);
         }
-        
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
-        
+
         internal Dictionary<T, long> Items => _items;
     }
 
     internal class MostRecentlyUsedEnumerator<T> : IEnumerator<T>
     {
-        private readonly IOrderedEnumerable<KeyValuePair<T, long>> _snapshot;
         private readonly IEnumerator<KeyValuePair<T, long>> _snapshotEnumerator;
 
         public MostRecentlyUsedEnumerator(
             MostRecentlyUsedList<T> list
         )
         {
-            _snapshot = list.Items
+            var snapshot = list.Items
                 .OrderByDescending(kvp => kvp.Value);
-            _snapshotEnumerator = _snapshot.GetEnumerator();
+            _snapshotEnumerator = snapshot.GetEnumerator();
         }
 
         public void Dispose()
@@ -115,10 +123,12 @@ namespace PeanutButter.Utils
             _snapshotEnumerator.Reset();
         }
 
-        public T Current {
+        public T Current
+        {
             get => _snapshotEnumerator.Current.Key;
             set => throw new InvalidOperationException("Cannot set the current value on an enumerator");
         }
+
         object IEnumerator.Current => Current;
     }
 }

@@ -4,13 +4,22 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils
+#else
 namespace PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// Provides methods to run async code synchronously and safely
     /// http://stackoverflow.com/questions/5095183/how-would-i-run-an-async-taskt-method-synchronously
     /// </summary>
-    public static class Async
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        static class Async
     {
         /// <summary>
         /// Executes an async Action synchronously
@@ -51,6 +60,7 @@ namespace PeanutButter.Utils
                 {
                     throw;
                 }
+
                 ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
                 // shouldn't actually get here
                 throw;
@@ -99,6 +109,7 @@ namespace PeanutButter.Utils
                 {
                     throw;
                 }
+
                 ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
                 // shouldn't actually get here
                 throw;
