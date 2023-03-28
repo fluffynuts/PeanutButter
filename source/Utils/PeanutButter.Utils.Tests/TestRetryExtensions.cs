@@ -16,6 +16,23 @@ namespace PeanutButter.Utils.Tests
             [TestFixture]
             public class RetryingAnAction
             {
+                [TestFixture]
+                public class GivenZeroRetries
+                {
+                    [Test]
+                    public void ShouldRunActionOnce()
+                    {
+                        // Arrange
+                        var calls = 0;
+                        var func = new Action(() => calls++);
+                        // Act
+                        func.RunWithRetries(0);
+                        // Assert
+                        Expect(calls)
+                            .To.Equal(1);
+                    }
+                }
+
                 [Test]
                 public void ShouldRetryTheSpecifiedNumberOfTime()
                 {
@@ -252,6 +269,27 @@ namespace PeanutButter.Utils.Tests
             [TestFixture]
             public class RetryingAnAsyncAction
             {
+                [TestFixture]
+                public class WhenRetriesIsZero
+                {
+                    [Test]
+                    public async Task ShouldRunTheCodeOnce()
+                    {
+                        // Arrange
+                        var calls = 0;
+                        var func = new Func<Task>(() =>
+                        {
+                            calls++;
+                            return Task.CompletedTask;
+                        });
+                        // Act
+                        await func.RunWithRetries(0);
+                        // Assert
+                        Expect(calls)
+                            .To.Equal(1);
+                    }
+                }
+
                 [Test]
                 public async Task ShouldRetryTheSpecifiedNumberOfTime()
                 {
@@ -305,6 +343,7 @@ namespace PeanutButter.Utils.Tests
                         {
                             throw new Exception("moo");
                         }
+
                         return Task.CompletedTask;
                     });
                     // Act
@@ -334,6 +373,7 @@ namespace PeanutButter.Utils.Tests
                         {
                             throw new Exception("moo");
                         }
+
                         return Task.CompletedTask;
                     });
                     // Act
@@ -362,7 +402,7 @@ namespace PeanutButter.Utils.Tests
                         );
                 }
             }
-            
+
             [TestFixture]
             public class RetryingAnAsyncFunc
             {
@@ -386,7 +426,7 @@ namespace PeanutButter.Utils.Tests
                     var result = -1;
                     var runTime = Benchmark.Time(
                         () =>
-                            Expect(async() =>
+                            Expect(async () =>
                             {
                                 result = await func.RunWithRetries(runTo);
                             }).Not.To.Throw()

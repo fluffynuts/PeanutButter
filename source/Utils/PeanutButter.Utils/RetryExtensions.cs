@@ -25,11 +25,11 @@ namespace PeanutButter.Utils
         /// 
         /// </summary>
         /// <param name="action"></param>
-        /// <param name="maxRetries"></param>
+        /// <param name="retries"></param>
         /// <param name="retryDelays"></param>
         public static void RunWithRetries(
             this Action action,
-            int maxRetries,
+            int retries,
             params TimeSpan[] retryDelays
         )
         {
@@ -43,7 +43,7 @@ namespace PeanutButter.Utils
                 action.Invoke();
                 return true;
             });
-            func.RunWithRetries(maxRetries, retryDelays);
+            func.RunWithRetries(retries, retryDelays);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace PeanutButter.Utils
         /// number of retries and provided backoff delays
         /// </summary>
         /// <param name="func"></param>
-        /// <param name="maxRetries"></param>
+        /// <param name="retries"></param>
         /// <param name="retryDelays"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -59,7 +59,7 @@ namespace PeanutButter.Utils
         /// <exception cref="ArgumentException"></exception>
         public static T RunWithRetries<T>(
             this Func<T> func,
-            int maxRetries,
+            int retries,
             params TimeSpan[] retryDelays
         )
         {
@@ -68,23 +68,23 @@ namespace PeanutButter.Utils
                 throw new ArgumentNullException(nameof(func));
             }
 
-            if (maxRetries < 1)
-            {
-                throw new ArgumentException(
-                    $"maxRetries must be at least 1 (provided value was: {maxRetries})",
-                    nameof(maxRetries)
-                );
-            }
-
             if (retryDelays.Length == 0)
             {
                 retryDelays = new[] { TimeSpan.FromSeconds(0) };
             }
 
+            if (retries < 0)
+            {
+                throw new ArgumentException(
+                    $"{nameof(retries)} must be at least 0 (provided value was {retries})",
+                    nameof(retries)
+                );
+            }
+
             var lastDelay = retryDelays.Last();
             var delayQueue = new Queue<TimeSpan>(retryDelays);
 
-            for (var i = 0; i < maxRetries; i++)
+            do
             {
                 try
                 {
@@ -92,7 +92,7 @@ namespace PeanutButter.Utils
                 }
                 catch
                 {
-                    if (i == maxRetries - 1)
+                    if (retries == 0)
                     {
                         throw;
                     }
@@ -101,7 +101,7 @@ namespace PeanutButter.Utils
                         delayQueue.DequeueOrDefault(fallback: lastDelay)
                     );
                 }
-            }
+            } while (--retries > 0);
 
             throw new InvalidOperationException(
                 "Should never get here"
@@ -112,11 +112,11 @@ namespace PeanutButter.Utils
         /// 
         /// </summary>
         /// <param name="asyncAction"></param>
-        /// <param name="maxRetries"></param>
+        /// <param name="retries"></param>
         /// <param name="retryDelays"></param>
         public static async Task RunWithRetries(
             this Func<Task> asyncAction,
-            int maxRetries,
+            int retries,
             params TimeSpan[] retryDelays
         )
         {
@@ -130,7 +130,7 @@ namespace PeanutButter.Utils
                 await asyncAction.Invoke();
                 return true;
             });
-            await func.RunWithRetries(maxRetries, retryDelays);
+            await func.RunWithRetries(retries, retryDelays);
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace PeanutButter.Utils
         /// number of retries and provided backoff delays
         /// </summary>
         /// <param name="func"></param>
-        /// <param name="maxRetries"></param>
+        /// <param name="retries"></param>
         /// <param name="retryDelays"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -146,7 +146,7 @@ namespace PeanutButter.Utils
         /// <exception cref="ArgumentException"></exception>
         public static async Task<T> RunWithRetries<T>(
             this Func<Task<T>> func,
-            int maxRetries,
+            int retries,
             params TimeSpan[] retryDelays
         )
         {
@@ -155,11 +155,11 @@ namespace PeanutButter.Utils
                 throw new ArgumentNullException(nameof(func));
             }
 
-            if (maxRetries < 1)
+            if (retries < 0)
             {
                 throw new ArgumentException(
-                    $"maxRetries must be at least 1 (provided value was: {maxRetries})",
-                    nameof(maxRetries)
+                    $"{nameof(retries)} must be at least 0 (provided value was {retries})",
+                    nameof(retries)
                 );
             }
 
@@ -171,7 +171,7 @@ namespace PeanutButter.Utils
             var lastDelay = retryDelays.Last();
             var delayQueue = new Queue<TimeSpan>(retryDelays);
 
-            for (var i = 0; i < maxRetries; i++)
+            do
             {
                 try
                 {
@@ -179,7 +179,7 @@ namespace PeanutButter.Utils
                 }
                 catch
                 {
-                    if (i == maxRetries - 1)
+                    if (retries == 0)
                     {
                         throw;
                     }
@@ -188,7 +188,7 @@ namespace PeanutButter.Utils
                         delayQueue.DequeueOrDefault(fallback: lastDelay)
                     );
                 }
-            }
+            } while (--retries > 0);
 
             throw new InvalidOperationException(
                 "Should never get here"
