@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -284,7 +285,7 @@ public class TestHttpResponseBuilder
     }
 
     [Test]
-    public async Task ShouldBeAbleTo_Response_WriteAsync()
+    public async Task ShouldBeAbleTo_WriteAsync()
     {
         // Arrange
         var sut = HttpResponseBuilder.BuildDefault();
@@ -298,7 +299,7 @@ public class TestHttpResponseBuilder
     }
 
     [Test]
-    public async Task ShouldBeAbleTo_Response_WriteJsonAsync()
+    public async Task ShouldBeAbleTo_WriteJsonAsync()
     {
         // Arrange
         var sut = HttpResponseBuilder.BuildDefault();
@@ -317,18 +318,67 @@ public class TestHttpResponseBuilder
     }
 
     [Test]
+    public async Task ShouldBeAbleToSetStringBody()
+    {
+        // Arrange
+        var expected = GetRandomWords();
+        var sut = HttpResponseBuilder.Create()
+            .WithBody(expected)
+            .Build();
+
+        // Act
+        var result = await sut.Body.ReadAllTextAsync();
+        // Assert
+        Expect(result)
+            .To.Equal(expected);
+    }
+
+    [Test]
+    public async Task ShouldBeAbleToSetBytesBody()
+    {
+        // Arrange
+        var expected = GetRandomBytes();
+        var sut = HttpResponseBuilder.Create()
+            .WithBody(expected)
+            .Build();
+
+        // Act
+        var result = await sut.Body.ReadAllBytesAsync();
+        // Assert
+        Expect(result)
+            .To.Deep.Equal(expected);
+    }
+
+    [Test]
+    public async Task ShouldBeAbleToSetStreamBody()
+    {
+        // Arrange
+        var expected = GetRandomBytes();
+        var stream = new MemoryStream(expected);
+        var sut = HttpResponseBuilder.Create()
+            .WithBody(stream)
+            .Build();
+
+        // Act
+        var result = await sut.Body.ReadAllBytesAsync();
+        // Assert
+        Expect(result)
+            .To.Deep.Equal(expected);
+    }
+
+    [Test]
     public async Task ShouldBeAbleToClear()
     {
         // Arrange
         var sut = HttpResponseBuilder.BuildDefault();
-        
+
         // Act
         await sut.Body.WriteAsync(GetRandomBytes());
-        sut.StatusCode = (int)HttpStatusCode.Found;
+        sut.StatusCode = (int) HttpStatusCode.Found;
         sut.Clear();
         // Assert
         Expect(sut.StatusCode)
-            .To.Equal((int)HttpStatusCode.OK);
+            .To.Equal((int) HttpStatusCode.OK);
         Expect(await sut.Body.ReadAllBytesAsync())
             .To.Be.Empty();
     }

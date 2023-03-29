@@ -1,8 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
+using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
@@ -187,5 +190,55 @@ public class HttpResponseBuilder : RandomizableBuilder<HttpResponseBuilder, Http
             o => o.SetContextAccessor(accessor),
             nameof(FakeHttpResponse.HttpContext)
         );
+    }
+
+    /// <summary>
+    /// Sets the body from utf8-encoded text
+    /// </summary>
+    /// <param name="body"></param>
+    /// <returns></returns>
+    public HttpResponseBuilder WithBody(
+        string body
+    )
+    {
+        return WithBody(body, Encoding.UTF8);
+    }
+
+    /// <summary>
+    /// Sets the body from the provided text, using the provided encoding
+    /// </summary>
+    /// <param name="body"></param>
+    /// <param name="encoding"></param>
+    /// <returns></returns>
+    public HttpResponseBuilder WithBody(
+        string body,
+        Encoding encoding
+    )
+    {
+        return WithBody(encoding.GetBytes(body));
+    }
+
+    /// <summary>
+    /// Sets the body from a stream
+    /// </summary>
+    /// <param name="body"></param>
+    /// <returns></returns>
+    public HttpResponseBuilder WithBody(
+        Stream body
+    )
+    {
+        return WithBody(body.ReadAllBytes());
+    }
+
+    /// <summary>
+    /// Sets the body from some bytes
+    /// </summary>
+    /// <param name="body"></param>
+    /// <returns></returns>
+    public HttpResponseBuilder WithBody(
+        byte[] body
+    )
+    {
+        return With(o => o.Body.Write(body));
     }
 }
