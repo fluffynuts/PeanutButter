@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,11 +16,13 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 public class FakeFormFile : IFormFile, IFake
 {
     private Stream _content;
+    private const string CONTENT_TYPE_TEXT = "text/plain";
+    private const string CONTENT_TYPE_BINARY = "application/octet-stream";
 
     /// <summary>
     /// Default constructor: create an empty form file
     /// </summary>
-    public FakeFormFile()
+    public FakeFormFile(): this(Array.Empty<byte>(), "", "")
     {
     }
 
@@ -33,7 +36,7 @@ public class FakeFormFile : IFormFile, IFake
         string content,
         string name,
         string fileName
-    ) : this(content, name, fileName, null)
+    ) : this(content, name, fileName, CONTENT_TYPE_TEXT)
     {
     }
 
@@ -61,7 +64,7 @@ public class FakeFormFile : IFormFile, IFake
     /// <param name="name"></param>
     /// <param name="fileName"></param>
     public FakeFormFile(byte[] content, string name, string fileName)
-        : this(content, name, fileName, null)
+        : this(content, name, fileName, CONTENT_TYPE_BINARY)
     {
     }
 
@@ -179,6 +182,45 @@ public class FakeFormFile : IFormFile, IFake
     /// </summary>
     /// <param name="stream"></param>
     public void SetContent(Stream stream)
+    {
+        _content = new MemoryStream();
+        stream.CopyTo(_content);
+    }
+
+    /// <summary>
+    /// Sets the content for the file (overwrites)
+    /// </summary>
+    /// <param name="content"></param>
+    public void SetContent(string content)
+    {
+        SetContent(content, Encoding.UTF8);
+    }
+
+    /// <summary>
+    /// Sets the content for the file (overwrites)
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="encoding"></param>
+    public void SetContent(string content, Encoding encoding)
+    {
+        _content = new MemoryStream(encoding.GetBytes(content));
+    }
+
+    /// <summary>
+    /// Sets the content for the file (overwrites)
+    /// </summary>
+    /// <param name="content"></param>
+    public void SetContent(byte[] content)
+    {
+        _content = new MemoryStream(content);
+    }
+
+    /// <summary>
+    /// Replaces the content stream, perhaps useful for a lazy
+    /// evaluation.
+    /// </summary>
+    /// <param name="stream"></param>
+    public void SetContentStream(Stream stream)
     {
         _content = stream;
     }
