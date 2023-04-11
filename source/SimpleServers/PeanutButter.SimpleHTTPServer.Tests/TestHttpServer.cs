@@ -15,8 +15,8 @@ using PeanutButter.SimpleTcpServer;
 using PeanutButter.Utils;
 using NExpect;
 using static NExpect.Expectations;
-// ReSharper disable UnusedAutoPropertyAccessor.Global
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable PossibleNullReferenceException
@@ -27,627 +27,727 @@ namespace PeanutButter.SimpleHTTPServer.Tests
     [TestFixture]
     public class TestHttpServer
     {
-        [Test]
-        public void Construct_WhenPortIsSpecified_ShouldUseThatPort()
+        [TestFixture]
+        public class Construction
         {
-            const int maxTries = 20;
-            for (var i = 0; i < maxTries; i++)
+            [Test]
+            public void WhenPortIsSpecified_ShouldUseThatPort()
             {
-                var port = GetRandomInt(2000, 3000);
-                try
+                const int maxTries = 20;
+                for (var i = 0; i < maxTries; i++)
                 {
-                    //---------------Set up test pack-------------------
-                    using (var server = Create(port))
+                    var port = GetRandomInt(2000, 3000);
+                    try
                     {
-                        //---------------Assert Precondition----------------
+                        //---------------Set up test pack-------------------
+                        using (var server = Create(port))
+                        {
+                            //---------------Assert Precondition----------------
 
-                        //---------------Execute Test ----------------------
+                            //---------------Execute Test ----------------------
 
-                        //---------------Test Result -----------------------
-                        Assert.AreEqual(port, server.Port);
+                            //---------------Test Result -----------------------
+                            Expect(server.Port)
+                                .To.Equal(port);
+                        }
+
+                        return;
                     }
+                    catch (PortUnavailableException)
+                    {
+                        Console.WriteLine($"Port {port} is currently not available");
+                    }
+                }
 
-                    return;
-                }
-                catch (PortUnavailableException)
-                {
-                    Console.WriteLine($"Port {port} is currently not available");
-                }
+                Assert.Fail($"Unable to bind to any specified port in {maxTries} attempts");
             }
 
-            Assert.Fail($"Unable to bind to any specified port in {maxTries} attempts");
-        }
-
-        [Test]
-        [Repeat(10)]
-        public void Construct_WhenPortIsNotSpecified_ShouldChooseRandomPortBetween_5000_And_50000()
-        {
-            //---------------Set up test pack-------------------
-            using var server = Create();
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-
-            //---------------Test Result -----------------------
-            Expect(server.Port)
-                .To.Be.Greater.Than.Or.Equal.To(5000)
-                .And
-                .To.Be.Less.Than.Or.Equal.To(32768);
-            Console.WriteLine("Server started on port: " + server.Port);
-        }
-
-        [Test]
-        public void Start_WhenConfiguredToServeXDocument_ShouldServeDocument()
-        {
-            //---------------Set up test pack-------------------
-            var doc = $"<html><head></head><body><p>{GetRandomAlphaNumericString()}</p></body></html>";
-            const string theDocName = "index.html";
-            using var server = Create();
-            server.AddHtmlDocumentHandler(
-                (p, _) => p.Path == "/" + theDocName
-                    ? doc
-                    : null);
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, theDocName).ToUTF8String();
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(doc, result);
-        }
-
-        [Test]
-        public void AddDocumentHandler_ShouldSetContentTypeFromResult()
-        {
-            // Arrange
-            using var server = Create();
-            var html1 = $"<html><head></head><body></body>{GetRandomAlphaNumericString()}</html>";
-            var html2 = $"<!DOCTYPE html><html><head></head><body></body>{GetRandomAlphaNumericString()}</html>";
-            var json = $"{{ id: 1, name: \"{GetRandomAlphaNumericString()}\" }}";
-            var text = GetRandomAlphaNumericString();
-            var xml1 = "<?xml version=\"1.0\" encoding=\"UTF-9\"?><doc><item>moo</item></doc>";
-            var xml2 = "<doc><item>moo</item></doc>";
-            // Pre-Assert
-
-            // Act
-            server.AddDocumentHandler(
-                (p, _) => p.Path == "/html1"
-                    ? html1
-                    : null);
-            server.AddDocumentHandler(
-                (p, _) => p.Path == "/html2"
-                    ? html2
-                    : null);
-            server.AddDocumentHandler(
-                (p, _) => p.Path == "/json"
-                    ? json
-                    : null);
-            server.AddDocumentHandler(
-                (p, _) => p.Path == "/text"
-                    ? text
-                    : null);
-            server.AddDocumentHandler(
-                (p, _) => p.Path == "/xml1"
-                    ? xml1
-                    : null);
-            server.AddDocumentHandler(
-                (p, _) => p.Path == "/xml2"
-                    ? xml2
-                    : null);
-            DownloadResultFrom(
-                server,
-                HttpMethods.Get,
-                "/html1",
-                null,
-                out var htmlContentType1);
-            DownloadResultFrom(
-                server,
-                HttpMethods.Get,
-                "/html2",
-                null,
-                out var htmlContentType2);
-            DownloadResultFrom(server, HttpMethods.Get, "/json", null, out var jsonContentType);
-            DownloadResultFrom(server, HttpMethods.Get, "/text", null, out var textContentType);
-            DownloadResultFrom(
-                server,
-                HttpMethods.Get,
-                "/xml1",
-                null,
-                out var xmlContentType1);
-            DownloadResultFrom(
-                server,
-                HttpMethods.Get,
-                "/xml2",
-                null,
-                out var xmlContentType2);
-
-            // Assert
-            Expect(htmlContentType1).To.Equal("text/html");
-            Expect(htmlContentType2).To.Equal("text/html");
-            Expect(xmlContentType1).To.Equal("text/xml");
-            Expect(xmlContentType2).To.Equal("text/xml");
-            Expect(jsonContentType).To.Equal("application/json");
-            Expect(textContentType).To.Equal("application/octet-stream");
-        }
-
-        public class PostBody
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
-
-        [TestCase("POST")]
-        [TestCase("PUT")]
-        [TestCase("DELETE")]
-        [TestCase("PATCH")]
-        public async Task GettingRequestBody(string method)
-        {
-            // Arrange
-            using var server = new HttpServer()
+            [Test]
+            [Repeat(10)]
+            public void WhenPortIsNotSpecified_ShouldChooseRandomPortBetween_5000_And_50000()
             {
-                LogAction = Console.WriteLine
-            };
-            var poco = new
+                //---------------Set up test pack-------------------
+                using var server = Create();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+
+                //---------------Test Result -----------------------
+                Expect(server.Port)
+                    .To.Be.Greater.Than.Or.Equal.To(5000)
+                    .And
+                    .To.Be.Less.Than.Or.Equal.To(32768);
+                Console.WriteLine("Server started on port: " + server.Port);
+            }
+        }
+
+        [TestFixture]
+        [Parallelizable]
+        public class AddHtmlDocumentHandler
+        {
+            [Test]
+            public void ShouldServeDocument()
             {
-                id = 1,
-                name = "moo"
-            };
-            var path = $"/{method.ToLower()}";
-            var expectedBody = JsonConvert.SerializeObject(poco);
-            string body = null;
-            PostBody bodyObject = null;
-            server.AddJsonDocumentHandler(
-                (processor, stream) =>
+                //---------------Set up test pack-------------------
+                var doc = $"<html><head></head><body><p>{GetRandomAlphaNumericString()}</p></body></html>";
+                const string theDocName = "index.html";
+                using var server = GlobalSetup.Pool.Take();
+                server.Instance.AddHtmlDocumentHandler(
+                    (p, _) => p.Path == "/" + theDocName
+                        ? doc
+                        : null);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(
+                    server.Instance, theDocName).ToUTF8String();
+
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Equal(doc);
+            }
+        }
+
+        [TestFixture]
+        [Parallelizable]
+        public class AddDocumentHandler
+        {
+            [Test]
+            public void ShouldSetContentTypeFromResult()
+            {
+                // Arrange
+                using var poolItem = GlobalSetup.Pool.Take();
+                var server = poolItem.Instance;
+                var html1 = $"<html><head></head><body></body>{GetRandomAlphaNumericString()}</html>";
+                var html2 = $"<!DOCTYPE html><html><head></head><body></body>{GetRandomAlphaNumericString()}</html>";
+                var json = $"{{ id: 1, name: \"{GetRandomAlphaNumericString()}\" }}";
+                var text = GetRandomAlphaNumericString();
+                var xml1 = "<?xml version=\"1.0\" encoding=\"UTF-9\"?><doc><item>moo</item></doc>";
+                var xml2 = "<doc><item>moo</item></doc>";
+                // Pre-Assert
+
+                // Act
+                server.AddDocumentHandler(
+                    (p, _) => p.Path == "/html1"
+                        ? html1
+                        : null);
+                server.AddDocumentHandler(
+                    (p, _) => p.Path == "/html2"
+                        ? html2
+                        : null);
+                server.AddDocumentHandler(
+                    (p, _) => p.Path == "/json"
+                        ? json
+                        : null);
+                server.AddDocumentHandler(
+                    (p, _) => p.Path == "/text"
+                        ? text
+                        : null);
+                server.AddDocumentHandler(
+                    (p, _) => p.Path == "/xml1"
+                        ? xml1
+                        : null);
+                server.AddDocumentHandler(
+                    (p, _) => p.Path == "/xml2"
+                        ? xml2
+                        : null);
+                DownloadResultFrom(
+                    server,
+                    HttpMethods.Get,
+                    "/html1",
+                    null,
+                    out var htmlContentType1);
+                DownloadResultFrom(
+                    server,
+                    HttpMethods.Get,
+                    "/html2",
+                    null,
+                    out var htmlContentType2);
+                DownloadResultFrom(server, HttpMethods.Get, "/json", null, out var jsonContentType);
+                DownloadResultFrom(server, HttpMethods.Get, "/text", null, out var textContentType);
+                DownloadResultFrom(
+                    server,
+                    HttpMethods.Get,
+                    "/xml1",
+                    null,
+                    out var xmlContentType1);
+                DownloadResultFrom(
+                    server,
+                    HttpMethods.Get,
+                    "/xml2",
+                    null,
+                    out var xmlContentType2);
+
+                // Assert
+                Expect(htmlContentType1).To.Equal("text/html");
+                Expect(htmlContentType2).To.Equal("text/html");
+                Expect(xmlContentType1).To.Equal("text/xml");
+                Expect(xmlContentType2).To.Equal("text/xml");
+                Expect(jsonContentType).To.Equal("application/json");
+                Expect(textContentType).To.Equal("application/octet-stream");
+            }
+        }
+
+        [TestFixture]
+        [Parallelizable]
+        public class AddJsonDocumentHandler
+        {
+            public class PostBody
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+            }
+
+            [TestCase("POST")]
+            [TestCase("PUT")]
+            [TestCase("DELETE")]
+            [TestCase("PATCH")]
+            public async Task GettingRequestBody(string method)
+            {
+                // Arrange
+                using var poolItem = GlobalSetup.Pool.Take();
+                var server = poolItem.Instance;
+                server.LogAction = Console.WriteLine;
+                var poco = new
                 {
-                    if (processor.Path != path)
-                        return null;
-                    body = stream.AsString();
-                    bodyObject = stream.As<PostBody>();
-                    return new
+                    id = 1,
+                    name = "moo"
+                };
+                var path = $"/{method.ToLower()}";
+                var expectedBody = JsonConvert.SerializeObject(poco);
+                string body = null;
+                PostBody bodyObject = null;
+                server.AddJsonDocumentHandler(
+                    (processor, stream) =>
                     {
-                        id = 1,
-                        body
+                        if (processor.Path != path)
+                            return null;
+                        body = stream.AsString();
+                        bodyObject = stream.As<PostBody>();
+                        return new
+                        {
+                            id = 1,
+                            body
+                        };
+                    });
+                // Pre-assert
+                // Act
+                var client = new HttpClient();
+                var message = new HttpRequestMessage(
+                    new HttpMethod(method),
+                    server.GetFullUrlFor(path))
+                {
+                    Content = new StringContent(
+                        JsonConvert.SerializeObject(poco)
+                    )
+                };
+                await client.SendAsync(message);
+                // Assert
+                Expect(body).To.Equal(expectedBody);
+                Expect(bodyObject).Not.To.Be.Null();
+                Expect(bodyObject.Id).To.Equal(poco.id);
+                Expect(bodyObject.Name).To.Equal(poco.name);
+            }
+
+            [TestCase("POST")]
+            [TestCase("PUT")]
+            [TestCase("DELETE")]
+            [TestCase("PATCH")]
+            public async Task GettingRequestBodyWhenChunked(string method)
+            {
+                // HttpClient in net6.0 (netstandard perhaps?) will 
+                // send the body chunked when using ObjectContent - where net462
+                // will not
+                // Arrange
+                var poolItem = GlobalSetup.Pool.Take();
+                var server = poolItem.Instance;
+                server.LogAction = Console.WriteLine;
+                var poco = new
+                {
+                    id = 1,
+                    name = "moo"
+                };
+                var path = $"/{method.ToLower()}";
+                var expectedBody = JsonConvert.SerializeObject(poco);
+                string body = null;
+                PostBody bodyObject = null;
+                server.AddJsonDocumentHandler(
+                    (processor, stream) =>
+                    {
+                        if (processor.Path != path)
+                            return null;
+                        body = stream.AsString();
+                        bodyObject = stream.As<PostBody>();
+                        return new
+                        {
+                            id = 1,
+                            body
+                        };
+                    });
+                // Pre-assert
+                // Act
+                var client = new HttpClient();
+                var message = new HttpRequestMessage(
+                    new HttpMethod(method),
+                    server.GetFullUrlFor(path))
+                {
+                    Content = new ObjectContent<object>(
+                        poco,
+                        new JsonMediaTypeFormatter())
+                };
+                await client.SendAsync(message);
+                // Assert
+                Expect(body).To.Equal(expectedBody);
+                Expect(bodyObject).Not.To.Be.Null();
+                Expect(bodyObject.Id).To.Equal(poco.id);
+                Expect(bodyObject.Name).To.Equal(poco.name);
+            }
+
+
+            [Test]
+            public void ShouldServeJsonDocument()
+            {
+                //---------------Set up test pack-------------------
+                var expected = GetRandomString();
+                var data = new SimpleData { SomeProperty = expected };
+                var route = "api/foo";
+                using var server = GlobalSetup.Pool.Take();
+                server.Instance.AddJsonDocumentHandler(
+                    (p, _) => p.Path == "/" + route
+                        ? data
+                        : null);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+
+                var stringResult = DownloadResultFrom(
+                    server.Instance,
+                    route,
+                    null,
+                    out string _
+                ).ToUTF8String();
+
+                //---------------Test Result -----------------------
+                var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(stringResult);
+                Expect(resultAsObject)
+                    .Not.To.Be.Null();
+                Expect(resultAsObject.SomeProperty)
+                    .To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        [Parallelizable]
+        public class ServeFile
+        {
+            [Test]
+            public void WhenConfiguredToServeFile_ShouldReturnTheFileContents()
+            {
+                //---------------Set up test pack-------------------
+                var theFile = GetRandomBytes(100, 200);
+                const string theFileName = "somefile.bin";
+                using var server = GlobalSetup.Pool.Take();
+                //---------------Assert Precondition----------------
+                server.Instance.AddFileHandler(
+                    (p, _) => p.Path == "/" + theFileName
+                        ? theFile
+                        : null);
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(server, theFileName);
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Equal(theFile);
+            }
+
+            [Test]
+            public void WhenConfiguredToServeFileViaFunc_ShouldReturnTheFileContents()
+            {
+                //---------------Set up test pack-------------------
+                var theFile = GetRandomBytes(100, 200);
+                const string theFileName = "somefile.bin";
+                using var server = GlobalSetup.Pool.Take();
+                //---------------Assert Precondition----------------
+                server.Instance.ServeFile("/" + theFileName, () => theFile, contentType: "application/octet-stream");
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(server, theFileName);
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Equal(theFile);
+            }
+
+            [Test]
+            public void GivenPathAndDataAndContentType_ShouldServeForThatPath()
+            {
+                using var server = GlobalSetup.Pool.Take();
+                //---------------Set up test pack-------------------
+                var data = GetRandomBytes(10, 100);
+                var contentType = "text/" + GetRandomFrom(new[] { "xml", "html", "javascript", "plain" });
+                server.Instance.ServeFile("/file.bin", data, contentType);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(server, "/file.bin", null, out var servedType);
+
+                //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Equal(data);
+                Expect(servedType)
+                    .To.Equal(contentType);
+            }
+
+            [Test]
+            public void GivenPathAndData_ShouldGive404ForOtherPaths()
+            {
+                using var server = GlobalSetup.Pool.Take();
+                //---------------Set up test pack-------------------
+                var data = GetRandomBytes(10, 100);
+                var contentType = "text/" + GetRandomFrom(new[] { "xml", "html", "javascript", "plain" });
+                server.Instance.ServeFile("/file.bin", data, contentType);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Expect(() => DownloadResultFrom(server, "/file1.bin"))
+                    .To.Throw<WebException>()
+                    .With.Property(e => e.Response as HttpWebResponse)
+                    .Matched.By(r => r.StatusCode == HttpStatusCode.NotFound);
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+        [TestFixture]
+        public class FullUrl
+        {
+            [Test]
+            public void ShouldProduceTheFullUrlForTheRequest()
+            {
+                // Arrange
+                using var server = GlobalSetup.Pool.Take();
+                var captured = null as string;
+                server.Instance.AddJsonDocumentHandler((p, s) =>
+                {
+                    captured = p.FullUrl;
+                    return new SimpleData()
+                    {
+                        SomeProperty = "Hello"
                     };
                 });
-            // Pre-assert
-            // Act
-            var client = new HttpClient();
-            var message = new HttpRequestMessage(
-                new HttpMethod(method),
-                server.GetFullUrlFor(path))
+                var path = "/foo/bar/quux?id=123";
+                var expected = server.Instance.GetFullUrlFor(path);
+                // Act
+                DownloadResultFrom(server, path);
+                // Assert
+                Expect(captured)
+                    .To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        [Parallelizable]
+        public class ServeDocument
+        {
+            [Test]
+            public void ServeDocument_GivenPathAndDocument_ShouldServeForThatPath()
             {
-                Content = new StringContent(
-                    JsonConvert.SerializeObject(poco)
-                )
-            };
-            await client.SendAsync(message);
-            // Assert
-            Expect(body).To.Equal(expectedBody);
-            Expect(bodyObject).Not.To.Be.Null();
-            Expect(bodyObject.Id).To.Equal(poco.id);
-            Expect(bodyObject.Name).To.Equal(poco.name);
-        }
-        
-        [TestCase("POST")]
-        [TestCase("PUT")]
-        [TestCase("DELETE")]
-        [TestCase("PATCH")]
-        public async Task GettingRequestBodyWhenChunked(string method)
-        {
-            // HttpClient in net6.0 (netstandard perhaps?) will 
-            // send the body chunked when using ObjectContent - where net462
-            // will not
-            // Arrange
-            using var server = new HttpServer()
+                using var server = GlobalSetup.Pool.Take();
+                //---------------Set up test pack-------------------
+                var doc = new XDocument(
+                    new XElement(
+                        "html",
+                        new XElement("body", new XElement("p", new XText(GetRandomString())))));
+                server.Instance.ServeDocument("/index.html", doc);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(server, "/index.html", null, out var contentType);
+
+                //---------------Test Result -----------------------
+                Expect(result.ToUTF8String())
+                    .To.Equal(doc.ToString());
+                Expect(contentType)
+                    .To.Equal("text/html");
+            }
+
+            [TestCase(HttpMethods.Get)]
+            [TestCase(HttpMethods.Post)]
+            public void GivenPathAndDocumentAndVerb_ShouldServeForThatPathAndDocumentAndVerb(
+                HttpMethods serveMethod)
             {
-                LogAction = Console.WriteLine
-            };
-            var poco = new
+                using var server = GlobalSetup.Pool.Take();
+                //---------------Set up test pack-------------------
+                var invalidMethod = serveMethod == HttpMethods.Get
+                    ? HttpMethods.Post
+                    : HttpMethods.Get;
+                var doc = new XDocument(
+                    new XElement(
+                        "html",
+                        new XElement("body", new XElement("p", new XText(GetRandomString())))));
+                var path = "/index.html";
+                server.Instance.ServeDocument(path, doc, serveMethod);
+
+                //---------------Assert Precondition----------------
+                Expect(serveMethod)
+                    .Not.To.Equal(invalidMethod);
+
+                //---------------Execute Test ----------------------
+                Console.WriteLine("Attempt to download path: " + path);
+                string contentType;
+                var ex = Assert.Throws<WebException>(
+                    () =>
+                        DownloadResultFrom(server, invalidMethod, path, null, out contentType));
+                var webResponse = ex.Response as HttpWebResponse;
+                Expect(ex.Message)
+                    .Not.To.Be.Null();
+                var statusCode = webResponse.StatusCode;
+                Expect(statusCode)
+                    .To.Equal(HttpStatusCode.NotFound);
+                var result = DownloadResultFrom(server, serveMethod, path, null, out contentType);
+
+                //---------------Test Result -----------------------
+                Expect(result.ToUTF8String())
+                    .To.Equal(doc.ToString());
+                Expect(contentType)
+                    .To.Equal("text/html");
+            }
+
+            [Test]
+            public void WhenConfiguredToServeXDocumentFromPathWithParameters_ShouldServeDocument()
             {
-                id = 1,
-                name = "moo"
-            };
-            var path = $"/{method.ToLower()}";
-            var expectedBody = JsonConvert.SerializeObject(poco);
-            string body = null;
-            PostBody bodyObject = null;
-            server.AddJsonDocumentHandler(
-                (processor, stream) =>
-                {
-                    if (processor.Path != path)
-                        return null;
-                    body = stream.AsString();
-                    bodyObject = stream.As<PostBody>();
-                    return new
-                    {
-                        id = 1,
-                        body
-                    };
-                });
-            // Pre-assert
-            // Act
-            var client = new HttpClient();
-            var message = new HttpRequestMessage(
-                new HttpMethod(method),
-                server.GetFullUrlFor(path))
+                //---------------Set up test pack-------------------
+                var doc = XDocument.Parse(
+                    "<html><head></head><body><p>" +
+                    GetRandomAlphaNumericString() +
+                    "</p></body></html>");
+                const string theDocName = "/index?foo=bar";
+                using var server = GlobalSetup.Pool.Take();
+                server.Instance.ServeDocument(theDocName, doc, HttpMethods.Get);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(server, theDocName).ToUTF8String();
+
+                //---------------Test Result -----------------------
+                Expect(doc.ToString(SaveOptions.DisableFormatting))
+                    .To.Equal(
+                        XDocument.Parse(result)
+                            .ToString(SaveOptions.DisableFormatting)
+                    );
+            }
+
+            [Test]
+            public void WhenConfiguredToServeXmlFromPathWithParameters_ShouldServeDocument()
             {
-                Content = new ObjectContent<object>(
-                    poco,
-                    new JsonMediaTypeFormatter())
-            };
-            await client.SendAsync(message);
-            // Assert
-            Expect(body).To.Equal(expectedBody);
-            Expect(bodyObject).Not.To.Be.Null();
-            Expect(bodyObject.Id).To.Equal(poco.id);
-            Expect(bodyObject.Name).To.Equal(poco.name);
-        }
-        
+                //---------------Set up test pack-------------------
+                var doc = XDocument.Parse(
+                    "<html><head></head><body><p>" +
+                    GetRandomAlphaNumericString() +
+                    "</p></body></html>");
+                const string theDocName = "/index?foo=bar";
+                using var server = GlobalSetup.Pool.Take();
+                server.Instance.ServeDocument(theDocName, doc.ToString(), HttpMethods.Get);
+                //---------------Assert Precondition----------------
 
-        public class SimpleData
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(server, theDocName).ToUTF8String();
+
+                //---------------Test Result -----------------------
+                Expect(doc.ToString(SaveOptions.DisableFormatting))
+                    .To.Equal(
+                        XDocument.Parse(result).ToString(SaveOptions.DisableFormatting)
+                    );
+            }
+
+            [Test]
+            public void WhenConfiguredToServeXmlViaFuncFromPathWithParameters_ShouldServeDocument()
+            {
+                //---------------Set up test pack-------------------
+                var doc = XDocument.Parse(
+                    "<html><head></head><body><p>" +
+                    GetRandomAlphaNumericString() +
+                    "</p></body></html>");
+                const string theDocName = "/index?foo=bar";
+                using var server = GlobalSetup.Pool.Take();
+                server.Instance.ServeDocument(theDocName, () => doc.ToString(), HttpMethods.Get);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(server, theDocName).ToUTF8String();
+
+                //---------------Test Result -----------------------
+                Expect(doc.ToString(SaveOptions.DisableFormatting))
+                    .To.Equal(
+                        XDocument.Parse(result).ToString(SaveOptions.DisableFormatting)
+                    );
+            }
+
+            [Test]
+            public void WhenConfiguredToServeXDocumentFromPathWithParametersForFunc_ShouldServeDocument()
+            {
+                //---------------Set up test pack-------------------
+                var doc = XDocument.Parse(
+                    "<html><head></head><body><p>" +
+                    GetRandomAlphaNumericString() +
+                    "</p></body></html>");
+                const string theDocName = "/index?foo=bar";
+                using var server = GlobalSetup.Pool.Take();
+                server.Instance.ServeDocument(theDocName, () => doc, HttpMethods.Get);
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(server, theDocName).ToUTF8String();
+
+                //---------------Test Result -----------------------
+                Expect(doc.ToString(SaveOptions.DisableFormatting))
+                    .To.Equal(
+                        XDocument.Parse(result).ToString(SaveOptions.DisableFormatting)
+                    );
+            }
+
+            [Test]
+            public void GivenPathAndDocument_ShouldGive404ForOtherPaths()
+            {
+                using var server = GlobalSetup.Pool.Take();
+                //---------------Set up test pack-------------------
+                var doc = new XDocument(
+                    new XElement(
+                        "html",
+                        new XElement("body", new XElement("p", new XText(GetRandomString())))));
+                server.Instance.ServeDocument("/index.html", doc);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Expect(() => DownloadResultFrom(server, "/index1.html"))
+                    .To.Throw<WebException>()
+                    .With.Property(e => e.Response as HttpWebResponse)
+                    .Matched.By(r => r.StatusCode == HttpStatusCode.NotFound);
+
+                //---------------Test Result -----------------------
+            }
+        }
+
+
+        [TestFixture]
+        [Parallelizable]
+        public class ServeJsonDocument
         {
-            public string SomeProperty { get; set; }
+            [Test]
+            public void GivenPathAndDocument_ShouldServeForThatPath()
+            {
+                using var server = GlobalSetup.Pool.Take();
+                //---------------Set up test pack-------------------
+                var obj = GetRandom<SimpleData>();
+                server.Instance.ServeJsonDocument("/api/query", obj);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(
+                    server.Instance,
+                    "/api/query",
+                    null,
+                    out var contentType
+                );
+
+                //---------------Test Result -----------------------
+                var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
+                Expect(result)
+                    .Not.To.Be.Null();
+                Expect(resultAsObject.SomeProperty)
+                    .To.Equal(obj.SomeProperty);
+                Expect(contentType)
+                    .To.Equal("application/json");
+            }
+
+            [Test]
+            public void ServeJsonDocument_GivenPathAndDocumentFactory_ShouldServeForThatPath()
+            {
+                using var server = GlobalSetup.Pool.Take();
+                //---------------Set up test pack-------------------
+                var obj = GetRandom<SimpleData>();
+                server.Instance.ServeJsonDocument("/api/query", () => obj);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(
+                    server.Instance, "/api/query", null, out var contentType);
+
+                //---------------Test Result -----------------------
+                var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
+                Expect(result)
+                    .Not.To.Be.Null();
+                Expect(resultAsObject.SomeProperty)
+                    .To.Equal(obj.SomeProperty);
+                Expect(contentType)
+                    .To.Equal("application/json");
+            }
+
+            [Test]
+            public void GivenPathWithParametersAndDocument_ShouldServeForThatPathWithParameters()
+            {
+                using var server = GlobalSetup.Pool.Take();
+                //---------------Set up test pack-------------------
+                var obj = GetRandom<SimpleData>();
+                var path = "/api/query?option=value";
+                server.Instance.ServeJsonDocument(path, obj);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                var result = DownloadResultFrom(
+                    server.Instance, path, null, out var contentType);
+
+                //---------------Test Result -----------------------
+                var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
+                Expect(result)
+                    .Not.To.Be.Null();
+                Expect(resultAsObject.SomeProperty)
+                    .To.Equal(obj.SomeProperty);
+                Expect(contentType)
+                    .To.Equal("application/json");
+            }
+
+            [TestCase(HttpMethods.Get)]
+            [TestCase(HttpMethods.Post)]
+            public void GivenPathAndDocumentAndVerb_ShouldServeForThatPathAndVerbOnly(
+                HttpMethods valid)
+            {
+                using var server = GlobalSetup.Pool.Take();
+                //---------------Set up test pack-------------------
+                var invalid = valid == HttpMethods.Get
+                    ? HttpMethods.Post
+                    : HttpMethods.Get;
+                var obj = GetRandom<SimpleData>();
+                var path = "/api/" + GetRandomString();
+                server.Instance.ServeJsonDocument(path, obj, valid);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                string contentType;
+                Expect(() => DownloadResultFrom(
+                        server.Instance, invalid, path, null, out contentType))
+                    .To.Throw<WebException>();
+                var result = DownloadResultFrom(
+                    server.Instance, valid, path, null, out contentType);
+
+                //---------------Test Result -----------------------
+                var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
+                Expect(result)
+                    .Not.To.Be.Null();
+                Expect(resultAsObject.SomeProperty)
+                    .To.Equal(obj.SomeProperty);
+                Expect(contentType)
+                    .To.Equal("application/json");
+            }
         }
 
         [Test]
-        public void AddJsonDocumentHandler_ShouldServeJsonDocument()
-        {
-            //---------------Set up test pack-------------------
-            var expected = GetRandomString();
-            var data = new SimpleData { SomeProperty = expected };
-            var route = "api/foo";
-            using var server = Create();
-            server.AddJsonDocumentHandler(
-                (p, _) => p.Path == "/" + route
-                    ? data
-                    : null);
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-
-            var stringResult = DownloadResultFrom(server, route, null, out string _).ToUTF8String();
-
-            //---------------Test Result -----------------------
-            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(stringResult);
-            Assert.IsNotNull(resultAsObject);
-            Assert.AreEqual(expected, resultAsObject.SomeProperty);
-        }
-
-
-        [Test]
-        public void Start_WhenConfiguredToServeFile_ShouldReturnTheFileContents()
-        {
-            //---------------Set up test pack-------------------
-            var theFile = GetRandomBytes(100, 200);
-            const string theFileName = "somefile.bin";
-            using var server = Create();
-            //---------------Assert Precondition----------------
-            server.AddFileHandler(
-                (p, _) => p.Path == "/" + theFileName
-                    ? theFile
-                    : null);
-            //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, theFileName);
-            //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(theFile, result);
-        }
-
-        [Test]
-        public void Start_WhenConfiguredToServeFileViaFunc_ShouldReturnTheFileContents()
-        {
-            //---------------Set up test pack-------------------
-            var theFile = GetRandomBytes(100, 200);
-            const string theFileName = "somefile.bin";
-            using var server = Create();
-            //---------------Assert Precondition----------------
-            server.ServeFile("/" + theFileName, () => theFile, contentType: "application/octet-stream");
-            //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, theFileName);
-            //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(theFile, result);
-        }
-
-        [Test]
-        public void ServeDocument_GivenPathAndDocument_ShouldServeForThatPath()
-        {
-            using var server = Create();
-            //---------------Set up test pack-------------------
-            var doc = new XDocument(
-                new XElement(
-                    "html",
-                    new XElement("body", new XElement("p", new XText(GetRandomString())))));
-            server.ServeDocument("/index.html", doc);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, "/index.html", null, out var contentType);
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(doc.ToString(), result.ToUTF8String());
-            Assert.AreEqual("text/html", contentType);
-        }
-
-        [TestCase(HttpMethods.Get)]
-        [TestCase(HttpMethods.Post)]
-        public void ServeDocument_GivenPathAndDocumentAndVerb_ShouldServeForThatPathAndDocumentAndVerb(
-            HttpMethods serveMethod)
-        {
-            using var server = Create();
-            //---------------Set up test pack-------------------
-            var invalidMethod = serveMethod == HttpMethods.Get
-                ? HttpMethods.Post
-                : HttpMethods.Get;
-            var doc = new XDocument(
-                new XElement(
-                    "html",
-                    new XElement("body", new XElement("p", new XText(GetRandomString())))));
-            var path = "/index.html";
-            server.ServeDocument(path, doc, serveMethod);
-
-            //---------------Assert Precondition----------------
-            Assert.AreNotEqual(serveMethod, invalidMethod);
-
-            //---------------Execute Test ----------------------
-            Console.WriteLine("Attempt to download path: " + path);
-            string contentType;
-            var ex = Assert.Throws<WebException>(
-                () =>
-                    DownloadResultFrom(server, invalidMethod, path, null, out contentType));
-            var webResponse = ex.Response as HttpWebResponse;
-            Assert.IsNotNull(webResponse, ex.Message);
-            var statusCode = webResponse.StatusCode;
-            Assert.AreEqual(HttpStatusCode.NotFound, statusCode);
-            var result = DownloadResultFrom(server, serveMethod, path, null, out contentType);
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(doc.ToString(), result.ToUTF8String());
-            Assert.AreEqual("text/html", contentType);
-        }
-
-        [Test]
-        public void ServeDocument_WhenConfiguredToServeXDocumentFromPathWithParameters_ShouldServeDocument()
-        {
-            //---------------Set up test pack-------------------
-            var doc = XDocument.Parse(
-                "<html><head></head><body><p>" +
-                GetRandomAlphaNumericString() +
-                "</p></body></html>");
-            const string theDocName = "/index?foo=bar";
-            using var server = Create();
-            server.ServeDocument(theDocName, doc, HttpMethods.Get);
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, theDocName).ToUTF8String();
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(
-                doc.ToString(SaveOptions.DisableFormatting),
-                XDocument.Parse(result).ToString(SaveOptions.DisableFormatting));
-        }
-
-        [Test]
-        public void ServeDocument_WhenConfiguredToServeXmlFromPathWithParameters_ShouldServeDocument()
-        {
-            //---------------Set up test pack-------------------
-            var doc = XDocument.Parse(
-                "<html><head></head><body><p>" +
-                GetRandomAlphaNumericString() +
-                "</p></body></html>");
-            const string theDocName = "/index?foo=bar";
-            using var server = Create();
-            server.ServeDocument(theDocName, doc.ToString(), HttpMethods.Get);
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, theDocName).ToUTF8String();
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(
-                doc.ToString(SaveOptions.DisableFormatting),
-                XDocument.Parse(result).ToString(SaveOptions.DisableFormatting));
-        }
-
-        [Test]
-        public void ServeDocument_WhenConfiguredToServeXmlViaFuncFromPathWithParameters_ShouldServeDocument()
-        {
-            //---------------Set up test pack-------------------
-            var doc = XDocument.Parse(
-                "<html><head></head><body><p>" +
-                GetRandomAlphaNumericString() +
-                "</p></body></html>");
-            const string theDocName = "/index?foo=bar";
-            using var server = Create();
-            server.ServeDocument(theDocName, () => doc.ToString(), HttpMethods.Get);
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, theDocName).ToUTF8String();
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(
-                doc.ToString(SaveOptions.DisableFormatting),
-                XDocument.Parse(result).ToString(SaveOptions.DisableFormatting));
-        }
-
-        [Test]
-        public void ServeDocument_WhenConfiguredToServeXDocumentFromPathWithParametersForFunc_ShouldServeDocument()
-        {
-            //---------------Set up test pack-------------------
-            var doc = XDocument.Parse(
-                "<html><head></head><body><p>" +
-                GetRandomAlphaNumericString() +
-                "</p></body></html>");
-            const string theDocName = "/index?foo=bar";
-            using var server = Create();
-            server.ServeDocument(theDocName, () => doc, HttpMethods.Get);
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, theDocName).ToUTF8String();
-
-            //---------------Test Result -----------------------
-            Assert.AreEqual(
-                doc.ToString(SaveOptions.DisableFormatting),
-                XDocument.Parse(result).ToString(SaveOptions.DisableFormatting));
-        }
-
-
-        [Test]
-        public void ServeJsonDocument_GivenPathAndDocument_ShouldServeForThatPath()
-        {
-            using var server = Create();
-            //---------------Set up test pack-------------------
-            var obj = GetRandom<SimpleData>();
-            server.ServeJsonDocument("/api/query", obj);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            string contentType;
-            var result = DownloadResultFrom(server, "/api/query", null, out contentType);
-
-            //---------------Test Result -----------------------
-            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
-            Assert.IsNotNull(result);
-            Assert.AreEqual(obj.SomeProperty, resultAsObject.SomeProperty);
-            Assert.AreEqual("application/json", contentType);
-        }
-
-        [Test]
-        public void ServeJsonDocument_GivenPathAndDocumentFactory_ShouldServeForThatPath()
-        {
-            using var server = Create();
-            //---------------Set up test pack-------------------
-            var obj = GetRandom<SimpleData>();
-            server.ServeJsonDocument("/api/query", () => obj);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            string contentType;
-            var result = DownloadResultFrom(server, "/api/query", null, out contentType);
-
-            //---------------Test Result -----------------------
-            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
-            Assert.IsNotNull(result);
-            Assert.AreEqual(obj.SomeProperty, resultAsObject.SomeProperty);
-            Assert.AreEqual("application/json", contentType);
-        }
-
-        [Test]
-        public void ServeJsonDocument_GivenPathWithParametersAndDocument_ShouldServeForThatPathWithParameters()
-        {
-            using var server = Create();
-            //---------------Set up test pack-------------------
-            var obj = GetRandom<SimpleData>();
-            var path = "/api/query?option=value";
-            server.ServeJsonDocument(path, obj);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            string contentType;
-            var result = DownloadResultFrom(server, path, null, out contentType);
-
-            //---------------Test Result -----------------------
-            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
-            Assert.IsNotNull(result);
-            Assert.AreEqual(obj.SomeProperty, resultAsObject.SomeProperty);
-            Assert.AreEqual("application/json", contentType);
-        }
-
-        [TestCase(HttpMethods.Get)]
-        [TestCase(HttpMethods.Post)]
-        public void ServeJsonDocument_GivenPathAndDocumentAndVerb_ShouldServeForThatPathAndVerbOnly(HttpMethods valid)
-        {
-            using var server = Create();
-            //---------------Set up test pack-------------------
-            var invalid = valid == HttpMethods.Get
-                ? HttpMethods.Post
-                : HttpMethods.Get;
-            var obj = GetRandom<SimpleData>();
-            var path = "/api/" + GetRandomString();
-            server.ServeJsonDocument(path, obj, valid);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            string contentType;
-            Assert.Throws<WebException>(() => DownloadResultFrom(server, invalid, path, null, out contentType));
-            var result = DownloadResultFrom(server, valid, path, null, out contentType);
-
-            //---------------Test Result -----------------------
-            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
-            Assert.IsNotNull(result);
-            Assert.AreEqual(obj.SomeProperty, resultAsObject.SomeProperty);
-            Assert.AreEqual("application/json", contentType);
-        }
-
-        [Test]
-        public void ServeDocument_GivenPathAndDocument_ShouldGive404ForOtherPaths()
-        {
-            using var server = Create();
-            //---------------Set up test pack-------------------
-            var doc = new XDocument(
-                new XElement(
-                    "html",
-                    new XElement("body", new XElement("p", new XText(GetRandomString())))));
-            server.ServeDocument("/index.html", doc);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var ex = Assert.Throws<WebException>(() => DownloadResultFrom(server, "/index1.html"));
-
-            //---------------Test Result -----------------------
-            var response = ex.Response as HttpWebResponse;
-            Assert.IsNotNull(response);
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
-        }
-
-        [Test]
-        public void ServeFile_GivenPathAndData_ShouldServeForThatPath()
-        {
-            using var server = Create();
-            //---------------Set up test pack-------------------
-            var data = GetRandomBytes(10, 100);
-            var contentType = "text/" + GetRandomFrom(new[] { "xml", "html", "javascript", "plain" });
-            server.ServeFile("/file.bin", data, contentType);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            string servedType;
-            var result = DownloadResultFrom(server, "/file.bin", null, out servedType);
-
-            //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(data, result);
-            Assert.AreEqual(contentType, servedType);
-        }
-
-        [Test]
-        public void ServeFile_GivenPathAndData_ShouldGive404ForOtherPaths()
-        {
-            using var server = Create();
-            //---------------Set up test pack-------------------
-            var data = GetRandomBytes(10, 100);
-            var contentType = "text/" + GetRandomFrom(new[] { "xml", "html", "javascript", "plain" });
-            server.ServeFile("/file.bin", data, contentType);
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var ex = Assert.Throws<WebException>(() => DownloadResultFrom(server, "/file1.bin"));
-
-            //---------------Test Result -----------------------
-            var response = ex.Response as HttpWebResponse;
-            Assert.IsNotNull(response);
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
-        }
-
-        [Test]
+        [Parallelizable]
         public void
             Download_GivenDownloadInfoAndOutputFolder_WhenDownloadUninterrupted_ShouldDownloadFileToOutputFolder()
         {
@@ -664,7 +764,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             server.AddFileHandler(
                 (processor, _) =>
                 {
-                    if (processor.FullUrl == "/" + fileName)
+                    if (processor.Path == "/" + fileName)
                     {
                         return expectedBytes;
                     }
@@ -679,86 +779,101 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             Download(url, fileName, tempFolder);
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(File.Exists(expectedFile));
-            CollectionAssert.AreEquivalent(expectedBytes, File.ReadAllBytes(expectedFile));
+            Expect(expectedFile)
+                .To.Exist();
+            Expect(File.ReadAllBytes(expectedFile))
+                .To.Equal(expectedBytes);
         }
 
         [Test]
+        [Parallelizable]
         public void WhenNoHandlerClaimsPath_ShouldReturn404()
         {
             //---------------Set up test pack-------------------
-            using var server = Create();
+            using var server = GlobalSetup.Pool.Take();
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<WebException>(() => DownloadResultFrom(server, "/index.html"));
+            Expect(() => DownloadResultFrom(server, "/index.html"))
+                .To.Throw<WebException>()
+                .With.Property(e => e.Response as HttpWebResponse)
+                .Matched.By(r => r.StatusCode == HttpStatusCode.NotFound);
 
             //---------------Test Result -----------------------
-            var response = ex.Response as HttpWebResponse;
-            Assert.IsNotNull(response);
-            Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [Test]
+        [Parallelizable]
         public void WhenDocumentHandlerThrows_ShouldReturn500()
         {
             //---------------Set up test pack-------------------
-            using var server = Create();
+            using var server = GlobalSetup.Pool.Take();
             var message = GetRandomString();
             var logs = new List<string>();
-            server.LogAction = logs.Add;
-            server.AddHtmlDocumentHandler(
+            server.Instance.LogAction = logs.Add;
+            server.Instance.AddHtmlDocumentHandler(
                 (_, _) => throw new Exception(message)
             );
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<WebException>(() => DownloadResultFrom(server, "/index.html"));
+            Expect(() => DownloadResultFrom(server, "/index.html"))
+                .To.Throw<WebException>()
+                .With.Property(e => e.Response as HttpWebResponse)
+                .Matched.By(r => r.StatusCode == HttpStatusCode.InternalServerError);
 
             //---------------Test Result -----------------------
-            var response = ex.Response as HttpWebResponse;
-            Assert.IsNotNull(response);
-            Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
-            Assert.IsTrue(logs.Any(l => l.Contains(message)));
+            Expect(logs)
+                .To.Contain.Any
+                .Matched.By(l => l.Contains(message));
         }
 
         [Test]
+        [Parallelizable]
         public void RequestLogAction_ShouldLogRequests()
         {
             //---------------Set up test pack-------------------
-            using var server = Create();
+            using var server = GlobalSetup.Pool.Take();
             var requestLogs = new List<RequestLogItem>();
-            server.RequestLogAction = requestLogs.Add;
+            server.Instance.RequestLogAction = requestLogs.Add;
             var path = "/index.html";
-            server.ServeDocument(path, new XDocument());
+            server.Instance.ServeDocument(path, new XDocument());
             var key = "X-" + GetRandomString();
             var headers = new Dictionary<string, string>()
             {
                 { key, GetRandomString() }
             };
             //---------------Assert Precondition----------------
-            CollectionAssert.IsEmpty(requestLogs);
+            Expect(requestLogs)
+                .To.Be.Empty();
 
             //---------------Execute Test ----------------------
             DownloadResultFrom(server, path, headers);
 
             //---------------Test Result -----------------------
             var log = requestLogs.Single();
-            Assert.AreEqual(path, log.Path);
-            Assert.AreEqual(HttpStatusCode.OK, log.StatusCode);
-            Assert.AreEqual("GET", log.Method);
-            Assert.AreEqual("OK", log.Message);
-            Assert.IsTrue(log.Headers.ContainsKey(key));
-            Assert.AreEqual(headers[key], log.Headers[key]);
+
+            Expect(log.Path)
+                .To.Equal(path);
+            Expect(log.StatusCode)
+                .To.Equal(HttpStatusCode.OK);
+            Expect(log.Method)
+                .To.Equal("GET");
+            Expect(log.Message)
+                .To.Equal("OK");
+            Expect(log.Headers)
+                .To.Contain.Key(key)
+                .With.Value(headers[key]);
         }
 
         [Test]
+        [Parallelizable]
         public async Task ShouldPopulateUrlParameters()
         {
             // Arrange
-            using var server = Create();
+            using var server = GlobalSetup.Pool.Take();
             var capturedParams = new Dictionary<string, string>();
-            server.AddJsonDocumentHandler(
+            server.Instance.AddJsonDocumentHandler(
                 (processor, _) =>
                 {
                     processor.UrlParameters.ForEach(
@@ -767,7 +882,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 });
             var client = new HttpClient()
             {
-                BaseAddress = new Uri(server.BaseUrl)
+                BaseAddress = new Uri(server.Instance.BaseUrl)
             };
             // Pre-assert
             // Act
@@ -782,15 +897,16 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldReturn500WhenHandlerThrows()
         {
             // Arrange
-            using var server = Create();
+            using var server = GlobalSetup.Pool.Take();
             var exceptionMessage = GetRandomString(10);
-            server.AddHandler((_, _) => throw new Exception(exceptionMessage));
+            server.Instance.AddHandler((_, _) => throw new Exception(exceptionMessage));
 
 #pragma warning disable SYSLIB0014
-            var req = WebRequest.Create(server.GetFullUrlFor("/moo.jpg"));
+            var req = WebRequest.Create(server.Instance.GetFullUrlFor("/moo.jpg"));
 #pragma warning restore SYSLIB0014
             try
             {
@@ -820,6 +936,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class ReUsingServerByClearingAndReRegisteringHandlers
         {
             private HttpServer _server;
@@ -1074,11 +1191,40 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             }
         }
 
+        private static byte[] DownloadResultFrom(
+            IPoolItem<HttpServer> poolItem,
+            string path,
+            Dictionary<string, string> addHeaders = null
+        )
+        {
+            return DownloadResultFrom(
+                poolItem.Instance,
+                path,
+                addHeaders
+            );
+        }
+
         private static byte[] DownloadResultFrom(HttpServer server,
             string path,
             Dictionary<string, string> addHeaders = null)
         {
             return DownloadResultFrom(server, path, addHeaders, out var _);
+        }
+
+        private static byte[] DownloadResultFrom(
+            IPoolItem<HttpServer> server,
+            HttpMethods method,
+            string path,
+            Dictionary<string, string> addHeaders,
+            out string contentType)
+        {
+            return DownloadResultFrom(
+                server.Instance,
+                method,
+                path,
+                addHeaders,
+                out contentType
+            );
         }
 
         private static byte[] DownloadResultFrom(
@@ -1108,12 +1254,32 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
 
         private static byte[] DownloadResultFrom(
+            IPoolItem<HttpServer> poolItem,
+            string path,
+            Dictionary<string, string> addHeaders,
+            out string contentType
+        )
+        {
+            return DownloadResultFrom(
+                poolItem.Instance,
+                path,
+                addHeaders,
+                out contentType
+            );
+        }
+
+        private static byte[] DownloadResultFrom(
             HttpServer server,
             string path,
             Dictionary<string, string> addHeaders,
             out string contentType)
         {
             return DownloadResultFrom(server, HttpMethods.Get, path, addHeaders, out contentType);
+        }
+
+        public class SimpleData
+        {
+            public string SomeProperty { get; set; }
         }
     }
 }

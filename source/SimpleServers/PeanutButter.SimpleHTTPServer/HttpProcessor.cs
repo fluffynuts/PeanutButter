@@ -58,6 +58,12 @@ namespace PeanutButter.SimpleHTTPServer
         public string FullUrl { get; private set; }
 
         /// <summary>
+        /// The full path, including query, for the
+        /// request being processed
+        /// </summary>
+        public string FullPath { get; private set; }
+
+        /// <summary>
         /// Just the path for the request being processed
         /// </summary>
         public string Path { get; private set; }
@@ -84,7 +90,10 @@ namespace PeanutButter.SimpleHTTPServer
 
 
         /// <inheritdoc />
-        public HttpProcessor(TcpClient tcpClient, HttpServerBase server) : base(tcpClient)
+        public HttpProcessor(
+            TcpClient tcpClient,
+            HttpServerBase server
+        ) : base(tcpClient)
         {
             Server = server;
             HttpHeaders = new Dictionary<string, string>();
@@ -152,8 +161,9 @@ namespace PeanutButter.SimpleHTTPServer
             }
 
             Method = tokens[0].ToUpper();
-            FullUrl = tokens[1];
-            var parts = FullUrl.Split('?');
+            FullPath = tokens[1];
+            FullUrl = Server.GetFullUrlFor(FullPath);
+            var parts = FullPath.Split('?');
             if (parts.Length == 1)
                 UrlParameters = new Dictionary<string, string>();
             else
@@ -440,7 +450,7 @@ namespace PeanutButter.SimpleHTTPServer
         {
             var action = RequestLogAction;
             action?.Invoke(
-                new RequestLogItem(FullUrl, code, Method, message, HttpHeaders)
+                new RequestLogItem(FullPath, code, Method, message, HttpHeaders)
             );
         }
 

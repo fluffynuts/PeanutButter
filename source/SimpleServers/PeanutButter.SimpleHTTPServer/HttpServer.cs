@@ -167,27 +167,6 @@ namespace PeanutButter.SimpleHTTPServer
         }
 
         /// <summary>
-        /// Provides the full url, including protocol, host and port
-        /// for the provided relative Url: most useful when using an
-        /// automatic port
-        /// </summary>
-        /// <param name="relativeUrl"></param>
-        /// <returns></returns>
-        public string GetFullUrlFor(string relativeUrl)
-        {
-            var joinWith = relativeUrl.StartsWith("/")
-                ? string.Empty
-                : "/";
-            return string.Join(joinWith, BaseUrl, relativeUrl);
-        }
-
-        // ReSharper disable once MemberCanBePrivate.Global
-        /// <summary>
-        /// Provides the base url from which the server serves
-        /// </summary>
-        public string BaseUrl => $"http://localhost:{Port}";
-
-        /// <summary>
         /// Adds a handler for providing a file download
         /// </summary>
         /// <param name="handler"></param>
@@ -445,7 +424,7 @@ namespace PeanutButter.SimpleHTTPServer
         {
             AddHtmlDocumentHandler((p, s) =>
             {
-                if (p.FullUrl != queryPath || !method.Matches(p.Method))
+                if (p.FullPath != queryPath || !method.Matches(p.Method))
                     return null;
                 Log("Serving html document at {0}", p.FullUrl);
                 return doc();
@@ -495,7 +474,7 @@ namespace PeanutButter.SimpleHTTPServer
         {
             AddJsonDocumentHandler((p, s) =>
             {
-                if (p.FullUrl != path || !method.Matches(p.Method))
+                if (p.FullPath != path || !method.Matches(p.Method))
                     return null;
                 Log("Serving JSON document at {0}", p.FullUrl);
                 return dataFactory();
@@ -538,11 +517,14 @@ namespace PeanutButter.SimpleHTTPServer
         }
 
         /// <summary>
-        /// Clears any registered handlers so the server can be re-used with completely
-        /// different logic
+        /// Clears any registered handlers & log actions
+        /// so the server can be re-used with completely
+        /// different logic / handlers
         /// </summary>
         public void Reset()
         {
+            LogAction = null;
+            RequestLogAction = null;
             _handlers.Clear();
         }
     }

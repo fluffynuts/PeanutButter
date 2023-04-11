@@ -58,5 +58,24 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="inputData">The stream to read the request body from.</param>
         /// <param name="method">The HTTP method.</param>
         public abstract void HandleRequestWithBody(HttpProcessor p, MemoryStream inputData, string method);
+        
+        /// <summary>
+        /// Resolves the full url to the provided path on the current server
+        /// </summary>
+        /// <param name="relativeUrl"></param>
+        /// <returns></returns>
+        public string GetFullUrlFor(string relativeUrl)
+        {
+            var joinWith = relativeUrl.StartsWith("/")
+                ? string.Empty
+                : "/";
+            return string.Join(joinWith, BaseUrl, relativeUrl);
+        }
+        
+        // ReSharper disable once MemberCanBePrivate.Global
+        /// <summary>
+        /// Provides the base url from which the server serves
+        /// </summary>
+        public string BaseUrl => $"http://localhost:{Port}";
     }
 }
