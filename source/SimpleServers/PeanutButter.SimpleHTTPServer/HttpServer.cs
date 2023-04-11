@@ -296,7 +296,8 @@ namespace PeanutButter.SimpleHTTPServer
             HandleDocumentRequestWith(handler, "json", o => _jsonSerializer(o), s => MimeTypes.JSON);
         }
 
-        private void HandleDocumentRequestWith(Func<HttpProcessor, Stream, object> handler,
+        private void HandleDocumentRequestWith(
+            Func<HttpProcessor, Stream, object> handler,
             string documentTypeForLogging,
             Func<object, string> stringProcessor,
             Func<string, string> mimeTypeGenerator)

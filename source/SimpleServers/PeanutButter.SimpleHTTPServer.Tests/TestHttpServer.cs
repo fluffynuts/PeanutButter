@@ -409,9 +409,9 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
                 //---------------Execute Test ----------------------
                 Expect(() => DownloadResultFrom(server, "/file1.bin"))
-                    .To.Throw<WebException>()
-                    .With.Property(e => e.Response as HttpWebResponse)
-                    .Matched.By(r => r.StatusCode == HttpStatusCode.NotFound);
+                    .To.Throw<HttpException>()
+                    .With.Property(e => e.StatusCode)
+                    .Equal.To(HttpStatusCode.NotFound);
 
                 //---------------Test Result -----------------------
             }
@@ -458,6 +458,8 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                         "html",
                         new XElement("body", new XElement("p", new XText(GetRandomString())))));
                 server.Instance.ServeDocument("/index.html", doc);
+                
+                var url = server.Instance.GetFullUrlFor("/index.html");
 
                 //---------------Assert Precondition----------------
 
@@ -495,15 +497,10 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 //---------------Execute Test ----------------------
                 Console.WriteLine("Attempt to download path: " + path);
                 string contentType;
-                var ex = Assert.Throws<WebException>(
-                    () =>
-                        DownloadResultFrom(server, invalidMethod, path, null, out contentType));
-                var webResponse = ex.Response as HttpWebResponse;
-                Expect(ex.Message)
-                    .Not.To.Be.Null();
-                var statusCode = webResponse.StatusCode;
-                Expect(statusCode)
-                    .To.Equal(HttpStatusCode.NotFound);
+                Expect(() => DownloadResultFrom(server, invalidMethod, path, null, out contentType))
+                    .To.Throw<HttpException>()
+                    .With.Property(e => e.StatusCode)
+                    .Equal.To(HttpStatusCode.NotFound);
                 var result = DownloadResultFrom(server, serveMethod, path, null, out contentType);
 
                 //---------------Test Result -----------------------
@@ -621,9 +618,9 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
                 //---------------Execute Test ----------------------
                 Expect(() => DownloadResultFrom(server, "/index1.html"))
-                    .To.Throw<WebException>()
-                    .With.Property(e => e.Response as HttpWebResponse)
-                    .Matched.By(r => r.StatusCode == HttpStatusCode.NotFound);
+                    .To.Throw<HttpException>()
+                    .With.Property(e => e.StatusCode)
+                    .Equal.To(HttpStatusCode.NotFound);
 
                 //---------------Test Result -----------------------
             }
@@ -731,7 +728,7 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 string contentType;
                 Expect(() => DownloadResultFrom(
                         server.Instance, invalid, path, null, out contentType))
-                    .To.Throw<WebException>();
+                    .To.Throw<HttpException>();
                 var result = DownloadResultFrom(
                     server.Instance, valid, path, null, out contentType);
 
@@ -795,9 +792,9 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
             //---------------Execute Test ----------------------
             Expect(() => DownloadResultFrom(server, "/index.html"))
-                .To.Throw<WebException>()
-                .With.Property(e => e.Response as HttpWebResponse)
-                .Matched.By(r => r.StatusCode == HttpStatusCode.NotFound);
+                .To.Throw<HttpException>()
+                .With.Property(e => e.StatusCode)
+                .Equal.To(HttpStatusCode.NotFound);
 
             //---------------Test Result -----------------------
         }
@@ -818,11 +815,12 @@ namespace PeanutButter.SimpleHTTPServer.Tests
 
             //---------------Execute Test ----------------------
             Expect(() => DownloadResultFrom(server, "/index.html"))
-                .To.Throw<WebException>()
-                .With.Property(e => e.Response as HttpWebResponse)
+                .To.Throw<HttpException>()
+                .With.Property(e => e.Response)
                 .Matched.By(r =>
                     r.StatusCode == HttpStatusCode.InternalServerError &&
-                    r.GetResponseStream()
+                    r.Content
+                        .ReadAsStream()
                         .AsString(Encoding.UTF8)
                         .Contains(message)
                 );
@@ -1120,25 +1118,66 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             HttpMethods method,
             string path,
             Dictionary<string, string> addHeaders,
-            out string contentType)
+            out string contentType
+        )
         {
-#pragma warning disable SYSLIB0014
-            var request = WebRequest.Create(server.GetFullUrlFor(path));
-#pragma warning restore SYSLIB0014
-            (request as HttpWebRequest).KeepAlive = false;
-            request.Method = method.ToString().ToUpper();
-            addHeaders?.ForEach(kvp => request.Headers[kvp.Key] = kvp.Value);
-            var response = request.GetResponse();
-            const string contentTypeHeader = "Content-Type";
-            var hasContentTypeHeader = response.Headers.AllKeys.Contains(contentTypeHeader);
-            contentType = hasContentTypeHeader
-                ? response.Headers[contentTypeHeader]
-                : null;
-            using var s = response.GetResponseStream();
+            var message = new HttpRequestMessage()
+            {
+                Method = HttpMethodLookup[method],
+                RequestUri = new Uri(
+                    server.GetFullUrlFor(path)
+                )
+            };
+            foreach (var kvp in addHeaders ?? new Dictionary<string, string>())
+            {
+                message.Headers.Add(kvp.Key, kvp.Value);
+            }
+
+            var response = HttpClient.Send(message);
+            contentType = response.Content.Headers.ContentType?.MediaType;
+            using var s = response.Content.ReadAsStream();
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new HttpException(
+                    response
+                );
+            }
+
             var memStream = new MemoryStream();
             s.CopyTo(memStream);
             return memStream.ToArray();
         }
+
+        public class HttpException : Exception
+        {
+            public HttpStatusCode StatusCode => Response.StatusCode;
+            public HttpResponseMessage Response { get; set; }
+
+            public HttpException(
+                HttpResponseMessage response
+            ) : base($"http error: {response.StatusCode}")
+            {
+                Response = response;
+            }
+        }
+
+        private static readonly Dictionary<HttpMethods, HttpMethod> HttpMethodLookup = new()
+        {
+            [HttpMethods.Delete] = HttpMethod.Delete,
+            [HttpMethods.Get] = HttpMethod.Get,
+            [HttpMethods.Head] = HttpMethod.Head,
+            [HttpMethods.Options] = HttpMethod.Options,
+            [HttpMethods.Patch] = HttpMethod.Patch,
+            [HttpMethods.Post] = HttpMethod.Post,
+            [HttpMethods.Put] = HttpMethod.Put
+        };
+
+        const string CONTENT_TYPE_HEADER = "Content-Type";
+
+        private static HttpClient HttpClient
+            => _httpClient ??= new HttpClient();
+
+        private static HttpClient _httpClient;
 
 
         private static byte[] DownloadResultFrom(
