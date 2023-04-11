@@ -820,12 +820,20 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             Expect(() => DownloadResultFrom(server, "/index.html"))
                 .To.Throw<WebException>()
                 .With.Property(e => e.Response as HttpWebResponse)
-                .Matched.By(r => r.StatusCode == HttpStatusCode.InternalServerError);
+                .Matched.By(r =>
+                    r.StatusCode == HttpStatusCode.InternalServerError &&
+                    r.GetResponseStream()
+                        .AsString(Encoding.UTF8)
+                        .Contains(message)
+                );
 
             //---------------Test Result -----------------------
             Expect(logs)
                 .To.Contain.Any
                 .Matched.By(l => l.Contains(message));
+            Expect(logs)
+                .Not.To.Contain.Any
+                .Matched.By(l => l.Contains("No handlers"));
         }
 
         [Test]
@@ -993,126 +1001,6 @@ namespace PeanutButter.SimpleHTTPServer.Tests
                 Expect(asString).To.Equal(expected);
             }
         }
-
-        // [TestFixture]
-        // public class WildIssues
-        // {
-        //     [TestFixture]
-        //     public class SuddenEndOfStreamFail
-        //     {
-        //         [TestCase("POST")]
-        //         [TestCase("GET")]
-        //         public void ShouldSendRequestWithMethod_(string expectedMethod)
-        //         {
-        //             // Arrange
-        //             var requestPathAndParameters = GetRandomHttpPathAndParameters();
-        //             var expectedResult = GetRandomWords();
-        //             var capturedPath = null as string;
-        //             var capturedParameters = new Dictionary<string, string>();
-        //             var capturedMethod = null as string;
-        //             var capturedHeaders = new Dictionary<string, string>();
-        //             using var server = Create();
-        //             server.AddHandler((processor, _) =>
-        //             {
-        //                 capturedMethod = processor.Method;
-        //                 capturedParameters = processor.UrlParameters;
-        //                 capturedPath = processor.Path;
-        //                 capturedHeaders = processor.HttpHeaders;
-        //                 processor.WriteDocument(expectedResult);
-        //                 return HttpServerPipelineResult.HandledExclusively;
-        //             });
-        //             var url = server.GetFullUrlFor(requestPathAndParameters);
-        //             var uri = new Uri(url);
-        //             var expectedParameters = uri.ParseQueryString().ToDictionary();
-        //             var expectedPath = uri.AbsolutePath;
-        //
-        //             var sut = new HttpRequestExecutor();
-        //             // Act
-        //             var result = sut.ExecuteRequest(url, expectedMethod);
-        //
-        //             // Assert
-        //             Expect(capturedParameters)
-        //                 .To.Equal(expectedParameters);
-        //             Expect(capturedPath)
-        //                 .To.Equal(expectedPath);
-        //             Expect(result.StatusCode)
-        //                 .To.Equal(HttpStatusCode.OK);
-        //             Expect(result.RawResponse)
-        //                 .To.Equal(expectedResult);
-        //             Expect(capturedHeaders)
-        //                 .To.Contain.Key("Connection")
-        //                 .With.Value("Keep-Alive");
-        //             Expect(capturedHeaders)
-        //                 .To.Contain.Key("Accept-Encoding")
-        //                 .With.Value("gzip, deflate");
-        //         }
-        //
-        //         /// <summary>
-        //         /// The request result
-        //         /// </summary>
-        //         public class RequestResult
-        //         {
-        //             public HttpStatusCode StatusCode { get; }
-        //
-        //             public string RawResponse { get; }
-        //
-        //             public RequestResult(HttpStatusCode statusCode, string rawResponse)
-        //             {
-        //                 StatusCode = statusCode;
-        //                 RawResponse = rawResponse;
-        //             }
-        //         }
-        //
-        //         public interface IHttpRequestExecutor
-        //         {
-        //             RequestResult ExecuteRequest(string url, string method = "POST");
-        //         }
-        //
-        //         public class HttpRequestExecutor
-        //             : IHttpRequestExecutor
-        //         {
-        //             private static readonly HttpClient HttpClient;
-        //
-        //             static HttpRequestExecutor()
-        //             {
-        //                 HttpClient = new HttpClient()
-        //                 {
-        //                     DefaultRequestHeaders =
-        //                     {
-        //                         { "Connection", "Keep-Alive" },
-        //                         { "Accept-Encoding", "gzip, deflate" }
-        //                     }
-        //                 };
-        //             }
-        //
-        //             public RequestResult ExecuteRequest(string url, string method = "POST")
-        //             {
-        //                 var message = new HttpRequestMessage()
-        //                 {
-        //                     RequestUri = new Uri(url),
-        //                     Method = ResolveHttpMethodFor(method),
-        //                     Content = null
-        //                 };
-        //                 var response = HttpClient.Send(message);
-        //                 using var contentStream = response.Content.ReadAsStream();
-        //                 return new RequestResult(response.StatusCode, contentStream.ReadAllText());
-        //             }
-        //
-        //             private HttpMethod ResolveHttpMethodFor(string method)
-        //             {
-        //                 return method?.ToLower() switch
-        //                 {
-        //                     "get" => HttpMethod.Get,
-        //                     "post" => HttpMethod.Post,
-        //                     "put" => HttpMethod.Put,
-        //                     "patch" => HttpMethod.Patch,
-        //                     "delete" => HttpMethod.Delete,
-        //                     _ => throw new ArgumentException($"'{method}' is not a known http method")
-        //                 };
-        //             }
-        //         }
-        //     }
-        // }
 
         private static HttpServer Create(int? port = null)
         {

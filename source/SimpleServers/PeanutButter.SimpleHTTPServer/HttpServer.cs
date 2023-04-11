@@ -359,6 +359,7 @@ namespace PeanutButter.SimpleHTTPServer
                         "Internal server error",
                         body
                     );
+                    throw;
                 }
             }
 
