@@ -17,7 +17,7 @@ namespace StubbornService
     {
         protected override void OnStop()
         {
-            var semaphore = new SemaphoreSlim(1);
+            var semaphore = new SemaphoreSlim(1, 1);
             semaphore.Wait();
             // deadlock, on purpose
             var howLongToWait = WaitTime;

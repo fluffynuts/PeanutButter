@@ -130,7 +130,7 @@ namespace PeanutButter.TempDb.MySql.Base
         public bool RootPasswordSet { get; private set; }
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly SemaphoreSlim MysqldLock = new SemaphoreSlim(1);
+        private static readonly SemaphoreSlim MysqldLock = new SemaphoreSlim(1, 1);
 
         // ReSharper disable once StaticMemberInGenericType
         private static string _mysqld;
@@ -701,7 +701,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 : DatabasePath;
 
         private Thread _processWatcherThread;
-        private readonly SemaphoreSlim _disposalLock = new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _disposalLock = new(1, 1);
 
         private void StartProcessWatcher()
         {

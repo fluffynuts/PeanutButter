@@ -8,7 +8,7 @@ namespace PeanutButter.TempDb.Runner
     {
         public static int Main(string[] args)
         {
-            var running = new SemaphoreSlim(1);
+            var running = new SemaphoreSlim(1, 1);
             var opts = args.ParseTo<Options>();
             try
             {

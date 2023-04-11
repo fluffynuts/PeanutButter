@@ -17,7 +17,7 @@ namespace PeanutButter.TinyEventAggregator
     /// </summary>
     public abstract class EventBase
     {
-        private readonly SemaphoreSlim _suspensionLock = new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _suspensionLock = new SemaphoreSlim(1, 1);
         private readonly object _lock = new object();
         private readonly object _waitLock = new object();
         /// <summary>

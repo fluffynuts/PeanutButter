@@ -299,7 +299,7 @@ namespace PeanutButter.Utils
         )
         {
             var results = new ConcurrentBag<WorkResult<T>>();
-            var blocker = new SemaphoreSlim(maxDegreeOfParallelism);
+            var blocker = new SemaphoreSlim(maxDegreeOfParallelism, maxDegreeOfParallelism);
             var threads = toRun.Select(a =>
             {
                 var t = new Thread(() =>
