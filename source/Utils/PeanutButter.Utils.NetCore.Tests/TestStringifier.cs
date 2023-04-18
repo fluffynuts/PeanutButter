@@ -17,9 +17,10 @@ namespace PeanutButter.Utils.NetCore.Tests
             // Act
             var result = ctx.Stringify();
             // Assert
-            Expect(result)
-                .Not.To.Contain(Stringifier.SEEN_OBJECT_PLACEHOLDER);
-            Console.WriteLine(result);
+            var parts = result.Split(Stringifier.SEEN_OBJECT_PLACEHOLDER);
+            Expect(parts)
+                .To.Contain.Only(2)
+                .Items(() => "httpcontext -> httprequest -> httpcontext should produce circular reference");
         }
 
         [Test]
@@ -33,8 +34,8 @@ namespace PeanutButter.Utils.NetCore.Tests
             // Assert
             var parts = result.Split(Stringifier.SEEN_OBJECT_PLACEHOLDER);
             Expect(parts)
-                .To.Contain.Only(2).Items();
-            Console.WriteLine(result);
+                .To.Contain.Only(3)
+                .Items(() => $"result: {result}\nsplit on{Stringifier.SEEN_OBJECT_PLACEHOLDER}\nparts:\n{parts.JoinWith("- ")}");
         }
     }
 }
