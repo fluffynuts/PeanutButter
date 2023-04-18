@@ -6,6 +6,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Configurations>Debug;Release;Debug-X</Configurations>
     <Platforms>AnyCPU</Platforms>
+    <DefineConstants>NETFX</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -39,6 +40,11 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Runtime" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\PeanutButter.Utils.NetCore.Tests\SlidingWindowTests.cs">
+      <Link>SlidingWindowTests.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />
 </Project>
