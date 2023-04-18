@@ -107,7 +107,7 @@ namespace PeanutButter.Utils.Dictionaries
         public object Unwrap() => _wrapped;
 
         /// <inheritdoc />
-        public T Unwrap<T>() => (T)_wrapped;
+        public T Unwrap<T>() => (T) _wrapped;
 
         /// <inheritdoc />
         public bool TryUnwrap<T>(out T result)
@@ -262,7 +262,16 @@ namespace PeanutButter.Utils.Dictionaries
                 return;
             }
 
-            if (IsDictionaryTypeWithStringKeys(_wrappedType))
+            var isMissingKeysProperty = !_wrapped.HasProperty(nameof(Keys));
+            //var isJObject = _wrappedType.FullName == "Newtonsoft.Json.Linq.JObject";
+            // FIXME: should add a special case for JObjects, all done by reflection,
+            // since JObject implements IDictionary<string, JObject>, but somehow
+            // doesn't implement .Keys?!
+
+            if (
+                !isMissingKeysProperty &&
+                IsDictionaryTypeWithStringKeys(_wrappedType)
+            )
             {
                 CacheDictionaryPropertyInfos();
                 return;
@@ -281,9 +290,13 @@ namespace PeanutButter.Utils.Dictionaries
             // behave like one would expect in compiled land: use the
             // prop/field from the closest type to the hosting type
             var allProps = _wrappedType.GetProperties(ProxyFlags)
+                // FIXME: what about indexed props?
+                .Where(pi => pi.GetIndexParameters().Length == 0)
                 .Select(pi => new PropertyOrField(pi))
-                .Union(_wrappedType.GetFields(ProxyFlags).Select(fi => new PropertyOrField(fi)))
+                .Union(_wrappedType.GetFields(ProxyFlags)
+                    .Select(fi => new PropertyOrField(fi)))
                 .Cast<IPropertyOrField>()
+                .Where(p => !string.IsNullOrWhiteSpace(p.Name))
                 .ToList();
             var countedProps = allProps.Aggregate(
                 new List<NameWithCount>(),
@@ -590,9 +603,9 @@ namespace PeanutButter.Utils.Dictionaries
         private object ReadProperty(string key)
         {
             VerifyHasKey(key);
-            if (_copyOnWrite && _valueOverrides.ContainsKey(key))
+            if (_copyOnWrite && _valueOverrides.TryGetValue(key, out var property))
             {
-                return _valueOverrides[key];
+                return property;
             }
 
             return _propertyReader(key);
@@ -763,7 +776,6 @@ namespace PeanutButter.Utils.Dictionaries
                 exception = ex;
                 return false;
             }
-            
         }
 
         public void SetValue(object host, object value)

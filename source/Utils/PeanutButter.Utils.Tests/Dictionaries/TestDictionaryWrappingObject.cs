@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using PeanutButter.Utils.Dictionaries;
 using static NExpect.Expectations;
@@ -1076,6 +1078,43 @@ namespace PeanutButter.Utils.Tests.Dictionaries
 
             public class Child : Parent
             {
+            }
+        }
+
+        [TestFixture]
+        public class Serialization
+        {
+            [Test]
+            public void ShouldSerializeSimplePoco()
+            {
+                // Arrange
+                var obj = new { id = 1, name = "bob" };
+                var sut = Create(obj);
+                // Act
+                var json = JsonConvert.SerializeObject(sut);
+                // Assert
+                Expect(json)
+                    .Not.To.Be.Null.Or.Empty();
+            }
+
+            [Test]
+            [Explicit("WIP: requires a bit more effort than I have the time for right now")]
+            public void ShouldSerializeJObject()
+            {
+                // Arrange
+                var obj = new JObject();
+                obj.Add(new JProperty("id", 1));
+                obj.Add(new JProperty("name", 2));
+                foreach (var kvp in obj)
+                {
+                    var foo = kvp;
+                }
+
+                var sut = Create(obj);
+                // Act
+                Expect(() => JsonConvert.SerializeObject(sut))
+                    .Not.To.Throw();
+                // Assert
             }
         }
 
