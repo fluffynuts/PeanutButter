@@ -21,6 +21,11 @@ namespace PeanutButter.Utils
         )
         {
             var ratePerSecond = window.CurrentRate();
+            if (ratePerSecond == 0)
+            {
+                return TimeSpan.MaxValue;
+            }
+
             var remainingSeconds = remainingItems / ratePerSecond;
             return TimeSpan.FromSeconds((double) remainingSeconds);
         }
@@ -38,6 +43,10 @@ namespace PeanutButter.Utils
         )
         {
             var ratePerSecond = window.CurrentRate();
+            if (ratePerSecond == 0)
+            {
+                return TimeSpan.MaxValue;
+            }
             var remainingSeconds = remainingItems / ratePerSecond;
             return TimeSpan.FromSeconds((double) remainingSeconds);
         }
@@ -55,6 +64,10 @@ namespace PeanutButter.Utils
         )
         {
             var ratePerSecond = window.CurrentRate();
+            if (ratePerSecond == 0)
+            {
+                return TimeSpan.MaxValue;
+            }
             var remainingSeconds = remainingItems / ratePerSecond;
             return TimeSpan.FromSeconds((double) remainingSeconds);
         }
@@ -72,6 +85,10 @@ namespace PeanutButter.Utils
         )
         {
             var ratePerSecond = window.CurrentRate();
+            if (ratePerSecond == 0)
+            {
+                return TimeSpan.MaxValue;
+            }
             var remainingSeconds = (decimal) remainingItems / ratePerSecond;
             return TimeSpan.FromSeconds((double) remainingSeconds);
         }

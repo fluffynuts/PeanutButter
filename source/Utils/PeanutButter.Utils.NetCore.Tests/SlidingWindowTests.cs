@@ -441,6 +441,58 @@ namespace PeanutButter.Utils.NetCore.Tests
                 Expect(Math.Round(result.TotalSeconds))
                     .To.Equal(3);
             }
+
+            [Test]
+            [Parallelizable]
+            public void IntsShouldBeAbleToQueryCurrentRateInItemsPerEmpty()
+            {
+                // Arrange
+                var sut = Create<int>(TimeSpan.FromSeconds(10));
+                // Act
+                var result = sut.EstimatedTimeRemaining(sut.Sum());
+                // Assert
+                Expect(result)
+                    .To.Equal(TimeSpan.MaxValue);
+            }
+
+            [Test]
+            [Parallelizable]
+            public void LongsShouldBeAbleToQueryCurrentRateInItemsPerEmpty()
+            {
+                // Arrange
+                var sut = Create<long>(TimeSpan.FromSeconds(10));
+                // Act
+                var result = sut.EstimatedTimeRemaining(sut.Sum());
+                // Assert
+                Expect(result)
+                    .To.Equal(TimeSpan.MaxValue);
+            }
+
+            [Test]
+            [Parallelizable]
+            public void DecimalsShouldBeAbleToQueryCurrentRateInItemsPerEmpty()
+            {
+                // Arrange
+                var sut = Create<decimal>(TimeSpan.FromSeconds(10));
+                // Act
+                var result = sut.EstimatedTimeRemaining(sut.Sum());
+                // Assert
+                Expect(result)
+                    .To.Equal(TimeSpan.MaxValue);
+            }
+
+            [Test]
+            [Parallelizable]
+            public void DoublesShouldBeAbleToQueryCurrentRateInItemsPerEmpty()
+            {
+                // Arrange
+                var sut = Create<double>(TimeSpan.FromSeconds(10));
+                // Act
+                var result = sut.EstimatedTimeRemaining(sut.Sum());
+                // Assert
+                Expect(result)
+                    .To.Equal(TimeSpan.MaxValue);
+            }
         }
 
         private static ISlidingWindow<T> Create<T>(
