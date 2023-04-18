@@ -363,6 +363,86 @@ namespace PeanutButter.Utils.NetCore.Tests
             }
         }
 
+        [TestFixture]
+        public class EstimatedTimeRemaining
+        {
+            [Test]
+            [Parallelizable]
+            public void IntsShouldBeAbleToQueryCurrentRateInItemsPerSecond()
+            {
+                // Arrange
+                var sut = Create<int>(TimeSpan.FromSeconds(10));
+                // Act
+                sut.Add(3);
+                Thread.Sleep(1000);
+                sut.Add(4);
+                Thread.Sleep(1000);
+                sut.Add(5);
+                Thread.Sleep(1000);
+                var result = sut.EstimatedTimeRemaining(sut.Sum());
+                // Assert
+                Expect(Math.Round(result.TotalSeconds))
+                    .To.Equal(3);
+            }
+
+            [Test]
+            [Parallelizable]
+            public void LongsShouldBeAbleToQueryCurrentRateInItemsPerSecond()
+            {
+                // Arrange
+                var sut = Create<long>(TimeSpan.FromSeconds(10));
+                // Act
+                sut.Add(3);
+                Thread.Sleep(1000);
+                sut.Add(4);
+                Thread.Sleep(1000);
+                sut.Add(5);
+                Thread.Sleep(1000);
+                var result = sut.EstimatedTimeRemaining(sut.Sum());
+                // Assert
+                Expect(Math.Round(result.TotalSeconds))
+                    .To.Equal(3);
+            }
+
+            [Test]
+            [Parallelizable]
+            public void DecimalsShouldBeAbleToQueryCurrentRateInItemsPerSecond()
+            {
+                // Arrange
+                var sut = Create<decimal>(TimeSpan.FromSeconds(10));
+                // Act
+                sut.Add(3);
+                Thread.Sleep(1000);
+                sut.Add(4);
+                Thread.Sleep(1000);
+                sut.Add(5);
+                Thread.Sleep(1000);
+                var result = sut.EstimatedTimeRemaining(sut.Sum());
+                // Assert
+                Expect(Math.Round(result.TotalSeconds))
+                    .To.Equal(3);
+            }
+
+            [Test]
+            [Parallelizable]
+            public void DoublesShouldBeAbleToQueryCurrentRateInItemsPerSecond()
+            {
+                // Arrange
+                var sut = Create<double>(TimeSpan.FromSeconds(10));
+                // Act
+                sut.Add(3);
+                Thread.Sleep(1000);
+                sut.Add(4);
+                Thread.Sleep(1000);
+                sut.Add(5);
+                Thread.Sleep(1000);
+                var result = sut.EstimatedTimeRemaining(sut.Sum());
+                // Assert
+                Expect(Math.Round(result.TotalSeconds))
+                    .To.Equal(3);
+            }
+        }
+
         private static ISlidingWindow<T> Create<T>(
             int maxItems
         )

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedType.Global
 
@@ -8,7 +9,7 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Provides convenience extensions for sliding windows
     /// </summary>
-    public static class SlidingWindowExtensions
+    public static class SlidingWindowRateExtensions
     {
         // This would be a lot simpler if INumeric<T> was in netstandard...
         /// <summary>
@@ -145,7 +146,7 @@ namespace PeanutButter.Utils
                 return 0;
             }
 
-            var sum = (decimal)window.Sum();
+            var sum = (decimal) window.Sum();
             var totalTime = window.MaxLifeSpan;
             var periods = CalculatePeriodCount(totalTime, periodSize);
             return sum / periods;
