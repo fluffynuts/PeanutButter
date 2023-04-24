@@ -20,7 +20,9 @@ namespace PeanutButter.Utils.Dictionaries
 #else
     public
 #endif
-        class DefaultDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+        class DefaultDictionary<TKey, TValue>
+        : IDictionary<TKey, TValue>,
+          IDictionary
     {
         private readonly Func<TValue> _defaultResolver;
         private readonly bool _storeResolvedDefaults;
@@ -51,7 +53,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <param name="defaultResolver"></param>
         public DefaultDictionary(
             Func<TValue> defaultResolver
-        ) : this(defaultResolver, null as IEqualityComparer<TKey>)
+        ) : this(defaultResolver, null)
         {
         }
 
@@ -64,7 +66,7 @@ namespace PeanutButter.Utils.Dictionaries
         public DefaultDictionary(
             Func<TValue> defaultResolver,
             bool storeResolvedDefaults
-        ) : this(defaultResolver, null as IEqualityComparer<TKey>, storeResolvedDefaults)
+        ) : this(defaultResolver, null, storeResolvedDefaults)
         {
         }
 
@@ -122,8 +124,8 @@ namespace PeanutButter.Utils.Dictionaries
         /// return the value provided by the default resolver
         /// </summary>
         /// <param name="smartResolver"></param>
-        public DefaultDictionary(Func<TKey, TValue> smartResolver) : this(smartResolver,
-            null as IEqualityComparer<TKey>)
+        public DefaultDictionary(Func<TKey, TValue> smartResolver)
+            : this(smartResolver, null)
         {
         }
 
@@ -143,6 +145,51 @@ namespace PeanutButter.Utils.Dictionaries
             return _actual.GetEnumerator();
         }
 
+        /// <inheritdoc />
+        public void Remove(object key)
+        {
+            if (key is TKey k)
+            {
+                _actual.Remove(k);
+            }
+        }
+
+        /// <inheritdoc />
+        public object this[object key]
+        {
+            get => TryGetWithKey(key);
+            set => TrySetWithKey(key, value);
+        }
+
+        private void TrySetWithKey(object key, object value)
+        {
+            if (key is not TKey k)
+            {
+                throw new InvalidOperationException(
+                    $"Key {key} is of invalid type for this store"
+                );
+            }
+
+            if (value is not TValue v)
+            {
+                throw new InvalidOperationException(
+                    $"Value {value} is of invalid type for this store"
+                );
+            }
+
+            _actual[k] = v;
+        }
+
+        private object TryGetWithKey(object key)
+        {
+            if (key is TKey k)
+            {
+                return _actual[k];
+            }
+
+            throw new KeyNotFoundException($"Not found (invalid key type): {key}");
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -157,6 +204,33 @@ namespace PeanutButter.Utils.Dictionaries
             _actual.Add(item.Key, item.Value);
         }
 
+        /// <inheritdoc />
+        public bool Contains(object key)
+        {
+            return key is TKey k &&
+                _actual.ContainsKey(k);
+        }
+
+        /// <inheritdoc />
+        public void Add(object key, object value)
+        {
+            if (key is not TKey k)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot add key '{key}': invalid type"
+                );
+            }
+
+            if (value is not TValue v)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot add value '{value}': invalid type"
+                );
+            }
+
+            _actual.Add(k, v);
+        }
+
         /// <summary>
         /// Removes all known items from the dictionary
         /// -> NB: you'll still get default values!
@@ -164,6 +238,11 @@ namespace PeanutButter.Utils.Dictionaries
         public void Clear()
         {
             _actual.Clear();
+        }
+
+        IDictionaryEnumerator IDictionary.GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -199,15 +278,36 @@ namespace PeanutButter.Utils.Dictionaries
             return _actual.Remove(item.Key);
         }
 
+        /// <inheritdoc />
+        public void CopyTo(Array array, int index)
+        {
+            foreach (var item in _actual)
+            {
+                array.SetValue(item, index++);
+            }
+        }
+
         /// <summary>
         /// Gives the count of known items in the dictionary
         /// </summary>
         public int Count => _actual.Count;
 
+        /// <inheritdoc />
+        public object SyncRoot { get; } = new();
+
+        /// <inheritdoc />
+        public bool IsSynchronized => false;
+
+        // ReSharper disable once ConvertToAutoProperty
+        ICollection IDictionary.Values => _actual.Values;
+
         /// <summary>
         /// Always returns false - DefaultDictionaries are writable!
         /// </summary>
         public bool IsReadOnly => false;
+
+        /// <inheritdoc />
+        public bool IsFixedSize => false;
 
         /// <summary>
         /// Always returns true - if the key is "unknown" a default can still be provided
@@ -275,6 +375,7 @@ namespace PeanutButter.Utils.Dictionaries
             {
                 _actual[key] = resolved;
             }
+
             return resolved;
         }
 
@@ -294,6 +395,8 @@ namespace PeanutButter.Utils.Dictionaries
         /// Returns a collection of all known keys
         /// </summary>
         public ICollection<TKey> Keys => _actual.Keys;
+
+        ICollection IDictionary.Keys => _actual.Keys;
 
         /// <summary>
         /// Returns a collection of all known values

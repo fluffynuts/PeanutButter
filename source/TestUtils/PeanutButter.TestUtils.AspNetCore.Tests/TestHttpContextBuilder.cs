@@ -837,6 +837,42 @@ public class TestHttpContextBuilder
         }
 
         [TestFixture]
+        public class HttpContextItems
+        {
+            [Test]
+            public void ShouldBeAbleToSetAndRetrieve()
+            {
+                // Arrange
+                var sut = HttpContextBuilder.BuildDefault();
+                var key = GetRandomString();
+                var value = GetRandomString();
+                // Act
+                sut.Items[key] = value;
+                // Assert
+                Expect(sut.Items[key])
+                    .To.Equal(value);
+            }
+
+            [TestFixture]
+            public class WhenItemNotFound
+            {
+                [Test]
+                public void ShouldReturnNull()
+                {
+                    // this is what a real HttpContext does
+                    // Arrange
+                    var sut = HttpContextBuilder.BuildDefault();
+                    var key = GetRandomString();
+                    // Act
+                    var result = sut.Items[key];
+                    // Assert
+                    Expect(result)
+                        .To.Be.Null();
+                }
+            }
+        }
+
+        [TestFixture]
         public class HttpRequestFeature
         {
             [TestFixture]

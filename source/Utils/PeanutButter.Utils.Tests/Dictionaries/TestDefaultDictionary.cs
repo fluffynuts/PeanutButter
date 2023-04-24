@@ -448,13 +448,204 @@ namespace PeanutButter.Utils.Tests.Dictionaries
 
             // Act
             dict[level1][level2] = expected;
-            
+
             // Assert
             Expect(dict[level1][level2])
                 .To.Equal(expected);
         }
 
-        private IDictionary<TKey, TValue> Create<TKey, TValue>(
+        [TestFixture]
+        public class ImplementationOfIDictionary
+        {
+            [TestFixture]
+            public class Indexing
+            {
+                [Test]
+                public void ShouldBeAbleToSetAndGetViaCorrectTypes()
+                {
+                    // Arrange
+                    var sut = Create<string, string>() as IDictionary;
+                    var key = GetRandomString();
+                    var value = GetRandomString();
+                    // Act
+                    sut[key] = value;
+                    // Assert
+                    Expect(sut[key])
+                        .To.Equal(value);
+                }
+
+                [TestFixture]
+                public class GivenInvalidKeyType
+                {
+                    [Test]
+                    public void ShouldThrow()
+                    {
+                        // Arrange
+                        var sut = Create<string, string>() as IDictionary;
+                        var key = GetRandomInt();
+                        var value = GetRandomString();
+                        // Act
+                        Expect(() => sut[key] = value)
+                            .To.Throw<InvalidOperationException>();
+                        // Assert
+                    }
+                }
+
+                [TestFixture]
+                public class GivenInvalidValueType
+                {
+                    [Test]
+                    public void ShouldThrow()
+                    {
+                        // Arrange
+                        var sut = Create<string, string>() as IDictionary;
+                        var key = GetRandomString();
+                        var value = GetRandomInt();
+                        // Act
+                        Expect(() => sut[key] = value)
+                            .To.Throw<InvalidOperationException>();
+                        // Assert
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class Remove
+            {
+                [Test]
+                public void ShouldRemoveExistingItem()
+                {
+                    // Arrange
+                    var sut = Create<string, string>() as IDictionary
+                        ?? throw new Exception("Should implement non-generic IDictionary");
+                    var key = GetRandomString();
+                    var value = GetRandomString();
+                    sut[key] = value;
+                    Expect(sut.Contains(key))
+                        .To.Be.True();
+                    // Act
+                    sut.Remove((object) key);
+                    // Assert
+                    Expect(sut as IDictionary<string, string>)
+                        .Not.To.Contain.Key(key);
+                    Expect(sut.Contains(key))
+                        .To.Be.False();
+                }
+
+                [TestFixture]
+                public class WhenKeyIsInvalidType
+                {
+                    [Test]
+                    public void ShouldRemoveNothing()
+                    {
+                        // Arrange
+                        var sut = Create<string, string>() as IDictionary;
+                        sut["key"] = "value";
+                        // Act
+                        Expect(() => sut.Remove(1))
+                            .Not.To.Throw();
+                        // Assert
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class Add
+            {
+                [TestFixture]
+                public class WhenKeyAndValueHaveValidType
+                {
+                    [Test]
+                    public void ShouldAddTheKeyWithValue()
+                    {
+                        // Arrange
+                        var sut = Create<string, string>();
+                        var key = GetRandomString();
+                        var value = GetRandomString();
+                        // Act
+                        sut.Add(key, value);
+                        var result = sut[key];
+                        // Assert
+                        Expect(result)
+                            .To.Equal(value);
+                    }
+                }
+
+                [TestFixture]
+                public class WhenKeyIsInvalidType
+                {
+                    [Test]
+                    public void ShouldThrow()
+                    {
+                        // Arrange
+                        var sut = Create<string, string>()
+                            as IDictionary;
+                        var key = GetRandomInt();
+                        var value = GetRandomString();
+                        // Act
+                        Expect(() => sut.Add(key, value))
+                            .To.Throw<InvalidOperationException>();
+                        // Assert
+                    }
+                }
+
+                [TestFixture]
+                public class WhenValueIsInvalidType
+                {
+                    [Test]
+                    public void ShouldThrow()
+                    {
+                        // Arrange
+                        var sut = Create<string, string>()
+                            as IDictionary;
+                        var key = GetRandomString();
+                        var value = GetRandomInt();
+                        // Act
+                        Expect(() => sut.Add(key, value))
+                            .To.Throw<InvalidOperationException>();
+                        // Assert
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class CopyTo
+            {
+                [TestFixture]
+                public class WhenProvidedAnAdequateArray
+                {
+                    [Test]
+                    public void ShouldCopy()
+                    {
+                        // Arrange
+                        var sut = Create<string, string>();
+                        var key1 = GetRandomString();
+                        var value1 = GetRandomString();
+                        var key2 = GetRandomString();
+                        var value2 = GetRandomString();
+                        sut[key1] = value1;
+                        sut[key2] = value2;
+                        var expected = new object[10];
+                        var offset = 2;
+                        var idx = offset;
+                        foreach (var kvp in sut)
+                        {
+                            expected[idx++] = kvp;
+                        }
+
+                        var d = sut as IDictionary;
+                        var target = new object[10];
+                        // Act
+                        d.CopyTo(target, offset);
+                        // Assert
+                        Expect(target)
+                            .To.Deep.Equal(expected);
+                    }
+                }
+            }
+        }
+
+        private static IDictionary<TKey, TValue> Create<TKey, TValue>(
             Func<TValue> defaultResolver = null
         )
         {

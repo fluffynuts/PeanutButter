@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.HttpSys;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Utils;
+using PeanutButter.Utils.Dictionaries;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -120,7 +121,8 @@ public class FakeHttpContext : HttpContext, IFake
     public override ClaimsPrincipal User { get; set; }
 
     /// <inheritdoc />
-    public override IDictionary<object, object> Items { get; set; } = new Dictionary<object, object>();
+    public override IDictionary<object, object> Items { get; set; } 
+        = new DefaultDictionary<object, object>();
 
     /// <inheritdoc />
     public override IServiceProvider RequestServices { get; set; }
