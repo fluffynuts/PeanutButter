@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NExpect;
 using NUnit.Framework;
 using static NExpect.Expectations;
@@ -78,6 +79,18 @@ namespace PeanutButter.Utils.Tests
                 // Assert
                 Expect(result)
                     .To.Equal("");
+            }
+
+            [Test]
+            public void ShouldHandleNullPropertyValueLikeEmptyString()
+            {
+                // Arrange
+                var o = new { id = null as string };
+                // Act
+                var result = o.AsQueryString();
+                // Assert
+                Expect(result)
+                    .To.Equal("?id=");
             }
 
             [Test]

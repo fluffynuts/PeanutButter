@@ -29,7 +29,7 @@ namespace PeanutButter.Utils
 
         public static string UrlEncode(string str, Encoding encoding)
         {
-            var bytes = Encoding.UTF8.GetBytes(str);
+            var bytes = Encoding.UTF8.GetBytes(str ?? "");
             return encoding.GetString(UrlEncode(bytes, 0, bytes.Length, false));
         }
 
