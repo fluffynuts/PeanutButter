@@ -519,7 +519,7 @@ namespace PeanutButter.SimpleHTTPServer
         }
 
         /// <summary>
-        /// Clears any registered handlers & log actions
+        /// Clears any registered handlers &amp; log actions
         /// so the server can be re-used with completely
         /// different logic / handlers
         /// </summary>

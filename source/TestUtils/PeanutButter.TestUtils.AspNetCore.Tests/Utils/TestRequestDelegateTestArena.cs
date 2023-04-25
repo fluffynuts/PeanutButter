@@ -44,6 +44,23 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests.Utils
             }
 
             [Test]
+            public void ShouldRecordTheCalls()
+            {
+                // Arrange
+                var arena = RequestDelegateTestArenaBuilder.BuildDefault();
+                var otherContext = HttpContextBuilder.BuildRandom();
+                Expect(arena.RecordedCalls)
+                    .To.Be.Empty();
+                var (ctx, next) = arena;
+                // Act
+                next.Invoke(ctx);
+                next.Invoke(otherContext);
+                // Assert
+                Expect(arena.RecordedCalls)
+                    .To.Equal(new[] { ctx, otherContext });
+            }
+
+            [Test]
             public void ShouldBeAbleToMutateTheContext()
             {
                 // Arrange
