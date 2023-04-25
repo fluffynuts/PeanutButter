@@ -75,8 +75,8 @@ namespace PeanutButter.Utils.NetCore.Tests
                 .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
             // Assert
             var lines = io.StandardOutput.ToArray().Trim();
-            Expect(lines)
-                .To.Equal(new[] { expected });
+            Expect(lines.Last() /* sometimes, pwsh has to break this test by outputting an upgrade nag :| */)
+                .To.Equal(expected);
         }
 
         [Test]

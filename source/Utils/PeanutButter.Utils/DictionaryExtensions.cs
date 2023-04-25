@@ -389,6 +389,42 @@ namespace PeanutButter.Utils
 
             return result;
         }
+
+        /// <summary>
+        /// Attempts to add an item to the dictionary. Returns true if the
+        /// item was added. Will lock the dictionary, so is thread-safe
+        /// against itself or anything else calling lock() on the subject
+        /// </summary>
+        /// <param name="subject"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        public static bool TryAdd<TKey, TValue>(
+            this IDictionary<TKey, TValue> subject,
+            TKey key,
+            TValue value
+        )
+        {
+            lock (subject)
+            {
+                if (subject.ContainsKey(key))
+                {
+                    return false;
+                }
+
+                try
+                {
+                    subject.Add(key, value);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
     }
 
     /// <summary>

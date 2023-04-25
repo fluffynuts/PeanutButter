@@ -16,6 +16,53 @@ namespace PeanutButter.Utils.Tests
     public class TestDictionaryExtensions
     {
         [TestFixture]
+        public class TryAdd
+        {
+            [TestFixture]
+            public class WhenKeyNotFound
+            {
+                [Test]
+                public void ShouldAddTheItemAndReturnTrue()
+                {
+                    // Arrange
+                    var dict = new Dictionary<string, string>();
+                    var key = GetRandomString();
+                    var value = GetRandomString();
+                    // Act
+                    var result = dict.TryAdd(key, value);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                    Expect(dict)
+                        .To.Contain.Key(key)
+                        .With.Value(value);
+                }
+            }
+
+            [TestFixture]
+            public class WhenKeyIsFound
+            {
+                [Test]
+                public void ShouldNotReplaceTheValueAndShouldReturnFalse()
+                {
+                    // Arrange
+                    var dict = new Dictionary<string, string>();
+                    var key = GetRandomString();
+                    var value = GetRandomString();
+                    var otherValue = GetRandomString();
+                    // Act
+                    dict.TryAdd(key, value);
+                    var result = dict.TryAdd(key, otherValue);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                    Expect(dict)
+                        .To.Contain.Key(key)
+                        .With.Value(value);
+                }
+            }
+        }
+        [TestFixture]
         public class FindOrAdd
         {
             [TestFixture]
