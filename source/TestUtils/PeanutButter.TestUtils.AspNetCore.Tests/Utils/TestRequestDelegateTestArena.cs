@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using NUnit.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using NExpect;
+using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Utils;
+using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -49,14 +51,15 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests.Utils
                 // Arrange
                 var arena = RequestDelegateTestArenaBuilder.BuildDefault();
                 var otherContext = HttpContextBuilder.BuildRandom();
-                Expect(arena.RecordedCalls)
-                    .To.Be.Empty();
                 var (ctx, next) = arena;
                 // Act
                 next.Invoke(ctx);
                 next.Invoke(otherContext);
                 // Assert
-                Expect(arena.RecordedCalls)
+                var recorded = next.GetMetadata<List<HttpContext>>(
+                    RequestDelegateTestArena.METADATA_KEY_CALL_ARGS
+                );
+                Expect(recorded)
                     .To.Equal(new[] { ctx, otherContext });
             }
 

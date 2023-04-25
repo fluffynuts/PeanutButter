@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Builders;
+using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Utils;
@@ -50,6 +51,12 @@ public class RequestDelegateTestArena
     private HttpContext _httpContext;
 
     /// <summary>
+    /// The key used to hold the call history for the delegate in
+    /// PB metadata
+    /// </summary>
+    public const string METADATA_KEY_CALL_ARGS = "__callargs__";
+
+    /// <summary>
     /// Construct a test arena with no custom logic in the delegate
     /// and no mutations to the http context
     /// </summary>
@@ -70,22 +77,6 @@ public class RequestDelegateTestArena
     ) : this(WrapSynchronousLogic(delegateLogic))
     {
     }
-
-    /// <summary>
-    /// The record of calls to the delegate
-    /// </summary>
-    public HttpContext[] RecordedCalls
-    {
-        get
-        {
-            lock (_recordedCalls)
-            {
-                return _recordedCalls.ToArray();
-            }
-        }
-    }
-
-    private readonly List<HttpContext> _recordedCalls = new();
 
     internal static Func<HttpContext, Task> WrapSynchronousLogic(
         Action<HttpContext> delegateLogic
@@ -142,11 +133,19 @@ public class RequestDelegateTestArena
         {
             lock (Delegate!)
             {
-                _recordedCalls.Add(requestContext);
+                if (!Delegate.TryGetMetadata<List<HttpContext>>(METADATA_KEY_CALL_ARGS, out var argsList))
+                {
+                    argsList = new List<HttpContext>();
+                    Delegate.SetMetadata(METADATA_KEY_CALL_ARGS, argsList);
+                }
+
+                argsList.Add(requestContext);
             }
 
             return logic1.Invoke(requestContext);
         };
+
+        Delegate.SetMetadata(METADATA_KEY_CALL_ARGS, new List<HttpContext>());
     }
 
     /// <summary>
@@ -158,7 +157,7 @@ public class RequestDelegateTestArena
     public RequestDelegateTestArena(
         Func<HttpContext, Task> logic,
         HttpContext httpContext
-    ) : this(logic, NoOp)
+    ): this(logic, NoOp)
     {
         _httpContext = httpContext;
     }
