@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+// ReSharper disable MemberCanBePrivate.Global
+
 // ReSharper disable InheritdocConsiderUsage
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils.Dictionaries
@@ -9,6 +11,35 @@ namespace Imported.PeanutButter.Utils.Dictionaries
 namespace PeanutButter.Utils.Dictionaries
 #endif
 {
+    /// <summary>
+    /// Flags which may be set when constructing a DefaultDictionary
+    /// to control operations
+    /// </summary>
+    [Flags]
+    public enum DefaultDictionaryFlags
+    {
+        /// <summary>
+        /// No options set
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// When set, default values which are resolved via the
+        /// resolver function will be stored for future use in the
+        /// internal data store - they will not be regenerated on
+        /// each successive request
+        /// </summary>
+        CacheResolvedDefaults,
+
+        /// <summary>
+        /// When set, ContainsKey will return false for keys which
+        /// are actually missing from the internal data store, even
+        /// though reading via the indexer will return the calculated
+        /// default value
+        /// </summary>
+        ReportMissingKeys
+    }
+
     /// <summary>
     /// Provides a Dictionary class which returns default values for unknown keys
     /// (like Python's defaultdict)
@@ -26,23 +57,32 @@ namespace PeanutButter.Utils.Dictionaries
     {
         private readonly Func<TValue> _defaultResolver;
         private readonly bool _storeResolvedDefaults;
+        private readonly HashSet<TKey> _generatedKeys = new();
         private readonly Func<TKey, TValue> _smartResolver;
         private readonly Dictionary<TKey, TValue> _actual;
+        private readonly bool _reportMissingKeys;
 
         /// <summary>
         /// Always report as case- and culture- insensitive
         /// </summary>
-        // ReSharper disable once UnusedMember.Global
-        public IEqualityComparer<TKey> Comparer { get; private set; }
-        // typeof(TKey) == typeof(string)
-        //         ? StringComparer.OrdinalIgnoreCase as IEqualityComparer<TKey>
-        //         : new StrictComparer<TKey>();
+        public IEqualityComparer<TKey> Comparer { get; }
+
+        /// <summary>
+        /// Create the default dictionary with the default resolver
+        /// (returning default(TValue)) and the provided flags
+        /// </summary>
+        /// <param name="flags"></param>
+        public DefaultDictionary(
+            DefaultDictionaryFlags flags
+        ) : this(() => default, flags)
+        {
+        }
 
         /// <summary>
         /// Constructs a DefaultDictionary where missing key lookups
         /// return the default value for TValue
         /// </summary>
-        public DefaultDictionary() : this(() => default(TValue))
+        public DefaultDictionary() : this(() => default)
         {
         }
 
@@ -53,7 +93,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <param name="defaultResolver"></param>
         public DefaultDictionary(
             Func<TValue> defaultResolver
-        ) : this(defaultResolver, null)
+        ) : this(defaultResolver, keyComparer: null)
         {
         }
 
@@ -62,11 +102,11 @@ namespace PeanutButter.Utils.Dictionaries
         /// optionally storing resolved defaults for later re-use
         /// </summary>
         /// <param name="defaultResolver"></param>
-        /// <param name="storeResolvedDefaults"></param>
+        /// <param name="flags"></param>
         public DefaultDictionary(
             Func<TValue> defaultResolver,
-            bool storeResolvedDefaults
-        ) : this(defaultResolver, null, storeResolvedDefaults)
+            DefaultDictionaryFlags flags
+        ) : this(defaultResolver, null, flags)
         {
         }
 
@@ -79,7 +119,7 @@ namespace PeanutButter.Utils.Dictionaries
         public DefaultDictionary(
             Func<TValue> defaultResolver,
             IEqualityComparer<TKey> keyComparer
-        ) : this(defaultResolver, keyComparer, false)
+        ) : this(defaultResolver, keyComparer, DefaultDictionaryFlags.None)
         {
         }
 
@@ -90,16 +130,17 @@ namespace PeanutButter.Utils.Dictionaries
         /// </summary>
         /// <param name="defaultResolver"></param>
         /// <param name="keyComparer"></param>
-        /// <param name="storeResolvedDefaults"></param>
+        /// <param name="flags"></param>
         /// <exception cref="ArgumentNullException"></exception>
         public DefaultDictionary(
             Func<TValue> defaultResolver,
             IEqualityComparer<TKey> keyComparer,
-            bool storeResolvedDefaults
+            DefaultDictionaryFlags flags
         )
         {
             _defaultResolver = defaultResolver ?? throw new ArgumentNullException(nameof(defaultResolver));
-            _storeResolvedDefaults = storeResolvedDefaults;
+            _storeResolvedDefaults = flags.HasFlag(DefaultDictionaryFlags.CacheResolvedDefaults);
+            _reportMissingKeys = flags.HasFlag(DefaultDictionaryFlags.ReportMissingKeys);
             Comparer = ResolveEqualityComparer(keyComparer);
             _actual = new Dictionary<TKey, TValue>(Comparer);
         }
@@ -177,14 +218,14 @@ namespace PeanutButter.Utils.Dictionaries
                 );
             }
 
-            _actual[k] = v;
+            this[k] = v;
         }
 
         private object TryGetWithKey(object key)
         {
             if (key is TKey k)
             {
-                return _actual[k];
+                return this[k];
             }
 
             throw new KeyNotFoundException($"Not found (invalid key type): {key}");
@@ -208,7 +249,7 @@ namespace PeanutButter.Utils.Dictionaries
         public bool Contains(object key)
         {
             return key is TKey k &&
-                _actual.ContainsKey(k);
+                ContainsKey(k);
         }
 
         /// <inheritdoc />
@@ -316,6 +357,12 @@ namespace PeanutButter.Utils.Dictionaries
         /// <returns>True</returns>
         public bool ContainsKey(TKey key)
         {
+            if (_reportMissingKeys)
+            {
+                return !_generatedKeys.Contains(key) && 
+                    _actual.ContainsKey(key);
+            }
+
             return true;
         }
 
@@ -371,11 +418,15 @@ namespace PeanutButter.Utils.Dictionaries
             TValue resolved
         )
         {
-            if (_storeResolvedDefaults)
-            {
-                _actual[key] = resolved;
-            }
+            return _storeResolvedDefaults
+                ? Store(key, resolved)
+                : resolved;
+        }
 
+        private TValue Store(TKey key, TValue resolved)
+        {
+            _generatedKeys.Add(key);
+            _actual[key] = resolved;
             return resolved;
         }
 
@@ -388,7 +439,11 @@ namespace PeanutButter.Utils.Dictionaries
             get => _actual.TryGetValue(key, out var result)
                 ? result
                 : Resolve(key);
-            set => _actual[key] = value;
+            set 
+            { 
+                _generatedKeys.Remove(key);
+                _actual[key] = value; 
+            }
         }
 
         /// <summary>

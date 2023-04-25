@@ -37,7 +37,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var sut = Create<string, bool>();
-            var key = RandomValueGen.GetRandomString();
+            var key = GetRandomString();
 
             // Pre-assert
 
@@ -52,8 +52,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void IndexedValue_GivenDefaultResolverAtConstruction_ShouldReturnThatValue()
         {
             // Arrange
-            var expected = RandomValueGen.GetRandomString();
-            var key = RandomValueGen.GetRandomString();
+            var expected = GetRandomString();
+            var key = GetRandomString();
             var sut = Create<string, string>(() => expected);
 
             // Pre-assert
@@ -88,9 +88,9 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void IndexedValue_WhenKeyExists_ShouldReturnThatValue()
         {
             // Arrange
-            var expected = RandomValueGen.GetRandomString();
-            var key = RandomValueGen.GetRandomString();
-            var unexpected = RandomValueGen.GetAnother(expected);
+            var expected = GetRandomString();
+            var key = GetRandomString();
+            var unexpected = GetAnother(expected);
             var sut = Create<string, string>(() => unexpected);
 
             // Pre-assert
@@ -103,34 +103,210 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             Expect(result).To.Equal(expected);
         }
 
-        [Test]
-        public void ContainsKey_ShouldReturnTrue()
+        [TestFixture]
+        public class ContainsKey
         {
-            // Arrange
-            var haveKey = RandomValueGen.GetRandomString();
-            var missingKey = RandomValueGen.GetAnother(haveKey);
-            var sut = Create<string, string>();
-            sut[haveKey] = RandomValueGen.GetRandomString();
+            [Test]
+            public void ShouldReturnTrueByDefault()
+            {
+                // Arrange
+                var haveKey = GetRandomString();
+                var missingKey = GetAnother(haveKey);
+                var sut = Create<string, string>();
+                sut[haveKey] = GetRandomString();
 
-            // Pre-assert
+                // Pre-assert
 
-            // Act
-            var haveResult = sut.ContainsKey(haveKey);
-            var missingResult = sut.ContainsKey(missingKey);
+                // Act
+                var haveResult = sut.ContainsKey(haveKey);
+                var missingResult = sut.ContainsKey(missingKey);
 
-            // Assert
-            Expect(haveResult).To.Be.True();
-            Expect(missingResult).To.Be.True();
+                // Assert
+                Expect(haveResult).To.Be.True();
+                Expect(missingResult).To.Be.True();
+            }
+
+            [TestFixture]
+            public class WhenReportMissingKeysFlagSet
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    // Arrange
+                    var sut = Create<string, string>(
+                        flags: DefaultDictionaryFlags.ReportMissingKeys
+                    );
+                    var hasKey = GetRandomString();
+                    sut[hasKey] = GetRandomString();
+                    var missing = GetAnother(hasKey);
+                    Expect(sut.ContainsKey(hasKey))
+                        .To.Be.True();
+                    // Act
+                    var result = sut.ContainsKey(missing);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [TestFixture]
+                public class WhenStoringMissingKeys
+                {
+                    [Test]
+                    public void ShouldStillReturnFalse()
+                    {
+                        // Arrange
+                        var sut = Create<string, string>(
+                            flags:
+                            DefaultDictionaryFlags.ReportMissingKeys |
+                            DefaultDictionaryFlags.CacheResolvedDefaults
+                        );
+                        var key = GetRandomString();
+                        // Act
+                        var read = sut[key];
+                        Expect(read)
+                            .To.Be.Null();
+                        var result = sut.ContainsKey(key);
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+
+                    [TestFixture]
+                    public class ButAfterManuallySetting
+                    {
+                        [Test]
+                        public void ShouldReturnTrue()
+                        {
+                            // Arrange
+                            var sut = Create<string, string>(
+                                flags:
+                                DefaultDictionaryFlags.ReportMissingKeys |
+                                DefaultDictionaryFlags.CacheResolvedDefaults
+                            );
+                            var key = GetRandomString();
+                            // Act
+                            Expect(sut.ContainsKey(key))
+                                .To.Be.False();
+                            var read = sut[key];
+                            Expect(sut.ContainsKey(key))
+                                .To.Be.False();
+                            sut[key] = GetRandomString();
+
+                            // Assert
+                            Expect(sut.ContainsKey(key))
+                                .To.Be.True();
+                        }
+                    }
+                }
+            }
+        }
+
+        [TestFixture]
+        public class IDictionary_Contains
+        {
+            [Test]
+            public void ShouldReturnTrueByDefault()
+            {
+                // Arrange
+                var haveKey = GetRandomString();
+                var missingKey = GetAnother(haveKey);
+                var sut = Create<string, string>() as IDictionary;
+                sut[haveKey] = GetRandomString();
+
+                // Pre-assert
+
+                // Act
+                var haveResult = sut.Contains(haveKey);
+                var missingResult = sut.Contains(missingKey);
+
+                // Assert
+                Expect(haveResult).To.Be.True();
+                Expect(missingResult).To.Be.True();
+            }
+
+            [TestFixture]
+            public class WhenReportMissingKeysFlagSet
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    // Arrange
+                    var sut = Create<string, string>(
+                        flags: DefaultDictionaryFlags.ReportMissingKeys
+                    ) as IDictionary;
+                    var hasKey = GetRandomString();
+                    sut[hasKey] = GetRandomString();
+                    var missing = GetAnother(hasKey);
+                    Expect(sut.Contains(hasKey))
+                        .To.Be.True();
+                    // Act
+                    var result = sut.Contains(missing);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [TestFixture]
+                public class WhenStoringMissingKeys
+                {
+                    [Test]
+                    public void ShouldStillReturnFalse()
+                    {
+                        // Arrange
+                        var sut = Create<string, string>(
+                            flags:
+                            DefaultDictionaryFlags.ReportMissingKeys |
+                            DefaultDictionaryFlags.CacheResolvedDefaults
+                        ) as IDictionary;
+                        var key = GetRandomString();
+                        // Act
+                        var read = sut[key];
+                        Expect(read)
+                            .To.Be.Null();
+                        var result = sut.Contains(key);
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+
+                    [TestFixture]
+                    public class ButAfterManuallySetting
+                    {
+                        [Test]
+                        public void ShouldReturnTrue()
+                        {
+                            // Arrange
+                            var sut = Create<string, string>(
+                                flags:
+                                DefaultDictionaryFlags.ReportMissingKeys |
+                                DefaultDictionaryFlags.CacheResolvedDefaults
+                            ) as IDictionary;
+                            var key = GetRandomString();
+                            // Act
+                            Expect(sut.Contains(key))
+                                .To.Be.False();
+                            var read = sut[key];
+                            Expect(sut.Contains(key))
+                                .To.Be.False();
+                            sut[key] = GetRandomString();
+
+                            // Assert
+                            Expect(sut.Contains(key))
+                                .To.Be.True();
+                        }
+                    }
+                }
+            }
         }
 
         [Test]
         public void Enumeration_ShouldPassThrough()
         {
             // Arrange
-            var k1 = RandomValueGen.GetRandomString();
-            var k2 = RandomValueGen.GetAnother(k1);
-            var v1 = RandomValueGen.GetRandomString();
-            var v2 = RandomValueGen.GetAnother(v1);
+            var k1 = GetRandomString();
+            var k2 = GetAnother(k1);
+            var v1 = GetRandomString();
+            var v2 = GetAnother(v1);
             var sut = Create<string, string>();
             sut[k1] = v1;
             sut[k2] = v2;
@@ -155,7 +331,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var sut = Create<string, string>();
-            var kvp = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
+            var kvp = GetRandom<KeyValuePair<string, string>>();
 
 
             // Pre-assert
@@ -172,7 +348,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var sut = Create<string, string>();
-            var item = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
+            var item = GetRandom<KeyValuePair<string, string>>();
             sut.Add(item);
 
             // Pre-assert
@@ -186,31 +362,11 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         [Test]
-        public void Contains_ShouldReturnTrue()
-        {
-            // Arrange
-            var have = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
-            var missing = RandomValueGen.GetAnother(have);
-            var sut = Create<string, string>();
-            sut.Add(have);
-
-            // Pre-assert
-
-            // Act
-            var haveResult = sut.Contains(have);
-            var missingResult = sut.Contains(missing);
-
-            // Assert
-            Expect(haveResult).To.Be.True();
-            Expect(missingResult).To.Be.True();
-        }
-
-        [Test]
         public void Remove_GivenKeyValuePair_ShouldPassThrough_SortOf()
         {
             // Arrange
-            var have = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
-            var missing = RandomValueGen.GetAnother(have);
+            var have = GetRandom<KeyValuePair<string, string>>();
+            var missing = GetAnother(have);
             var sut = Create<string, string>();
             sut.Add(have);
 
@@ -231,8 +387,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void Remove_GivenKey_ShouldPassThrough()
         {
             // Arrange
-            var have = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
-            var missing = RandomValueGen.GetAnother(have);
+            var have = GetRandom<KeyValuePair<string, string>>();
+            var missing = GetAnother(have);
             var sut = Create<string, string>();
             sut.Add(have);
             Expect(sut[have.Key]).Not.To.Be.Null();
@@ -254,7 +410,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var sut = Create<string, string>();
-            var kvp = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
+            var kvp = GetRandom<KeyValuePair<string, string>>();
 
             // Pre-assert
 
@@ -269,7 +425,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void TryGetValue_WhenKeyIsKnown_ShouldReturnThatValue()
         {
             // Arrange
-            var have = RandomValueGen.GetRandom<KeyValuePair<string, string>>();
+            var have = GetRandom<KeyValuePair<string, string>>();
             var sut = Create<string, string>();
             sut.Add(have);
 
@@ -287,13 +443,13 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void TryGetValue_WhenKeyIsUnknown_ShouldReturnDefault()
         {
             // Arrange
-            var expected = RandomValueGen.GetRandomString();
+            var expected = GetRandomString();
             var sut = Create<string, string>(() => expected);
 
             // Pre-assert
 
             // Act
-            var result = sut.TryGetValue(RandomValueGen.GetRandomString(), out var found);
+            var result = sut.TryGetValue(GetRandomString(), out var found);
 
             // Assert
             Expect(result).To.Be.True();
@@ -304,9 +460,9 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void CopyTo_ShouldCopyKnownKeyValuePairs()
         {
             // Arrange
-            var start = RandomValueGen.GetRandomInt(2, 4);
-            var arraySize = RandomValueGen.GetRandomInt(10, 15);
-            var items = RandomValueGen.GetRandomArray<KeyValuePair<string, string>>(2, 4);
+            var start = GetRandomInt(2, 4);
+            var arraySize = GetRandomInt(10, 15);
+            var items = GetRandomArray<KeyValuePair<string, string>>(2, 4);
             var target = new KeyValuePair<string, string>[arraySize];
             var sut = Create<string, string>();
             items.ForEach(sut.Add);
@@ -329,7 +485,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var sut = Create<string, bool>();
-            var items = RandomValueGen.GetRandomArray<KeyValuePair<string, bool>>();
+            var items = GetRandomArray<KeyValuePair<string, bool>>();
             items.ForEach(sut.Add);
 
             // Pre-assert
@@ -360,7 +516,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void Keys_ShouldReturnKnownKeys()
         {
             // Arrange
-            var items = RandomValueGen.GetRandomArray<KeyValuePair<string, string>>();
+            var items = GetRandomArray<KeyValuePair<string, string>>();
             var sut = Create<string, string>();
             items.ForEach(sut.Add);
 
@@ -378,7 +534,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         public void Values_ShouldReturnKnownValues()
         {
             // Arrange
-            var items = RandomValueGen.GetRandomArray<KeyValuePair<string, string>>();
+            var items = GetRandomArray<KeyValuePair<string, string>>();
             var sut = Create<string, string>();
             items.ForEach(sut.Add);
 
@@ -397,7 +553,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         {
             // Arrange
             var sut = new DefaultDictionary<string, string>(s => s + "moo");
-            var index = RandomValueGen.GetRandomString();
+            var index = GetRandomString();
             var expected = index + "moo";
             // Pre-Assert
             // Act
@@ -440,7 +596,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             // Arrange
             var dict = new DefaultDictionary<string, Dictionary<string, string>>(
                 () => new Dictionary<string, string>(),
-                storeResolvedDefaults: true
+                DefaultDictionaryFlags.CacheResolvedDefaults
             );
             var level1 = GetRandomString(10);
             var level2 = GetRandomString(10);
@@ -516,7 +672,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 public void ShouldRemoveExistingItem()
                 {
                     // Arrange
-                    var sut = Create<string, string>() as IDictionary
+                    var sut = Create<string, string>(flags: DefaultDictionaryFlags.ReportMissingKeys) as IDictionary
                         ?? throw new Exception("Should implement non-generic IDictionary");
                     var key = GetRandomString();
                     var value = GetRandomString();
@@ -646,13 +802,14 @@ namespace PeanutButter.Utils.Tests.Dictionaries
         }
 
         private static IDictionary<TKey, TValue> Create<TKey, TValue>(
-            Func<TValue> defaultResolver = null
+            Func<TValue> defaultResolver = null,
+            DefaultDictionaryFlags flags = DefaultDictionaryFlags.None
         )
         {
             return defaultResolver == null
-                ? new DefaultDictionary<TKey, TValue>()
+                ? new DefaultDictionary<TKey, TValue>(flags)
                 : new DefaultDictionary<TKey, TValue>(
-                    defaultResolver
+                    defaultResolver, flags
                 );
         }
     }

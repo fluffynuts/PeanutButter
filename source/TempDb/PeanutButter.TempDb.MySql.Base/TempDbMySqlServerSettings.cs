@@ -155,7 +155,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// settings.CustomConfiguration["mysqld"]["max_connection"] = "128";
         /// </summary>
         public DefaultDictionary<string, Dictionary<string, string>> CustomConfiguration { get; }
-            = new(() => new Dictionary<string, string>(), storeResolvedDefaults: true);
+            = new(() => new Dictionary<string, string>(), DefaultDictionaryFlags.CacheResolvedDefaults);
 
 
         /// <summary>

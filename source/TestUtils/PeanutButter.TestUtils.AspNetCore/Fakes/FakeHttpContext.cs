@@ -121,8 +121,10 @@ public class FakeHttpContext : HttpContext, IFake
     public override ClaimsPrincipal User { get; set; }
 
     /// <inheritdoc />
-    public override IDictionary<object, object> Items { get; set; } 
-        = new DefaultDictionary<object, object>();
+    public override IDictionary<object, object> Items { get; set; }
+        = new DefaultDictionary<object, object>(
+            DefaultDictionaryFlags.ReportMissingKeys
+        );
 
     /// <inheritdoc />
     public override IServiceProvider RequestServices { get; set; }

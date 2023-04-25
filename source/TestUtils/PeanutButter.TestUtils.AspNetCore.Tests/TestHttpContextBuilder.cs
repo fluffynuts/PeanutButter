@@ -869,6 +869,19 @@ public class TestHttpContextBuilder
                     Expect(result)
                         .To.Be.Null();
                 }
+
+                [Test]
+                public void ShouldReportMissingKey()
+                {
+                    // Arrange
+                    var sut = HttpContextBuilder.BuildDefault();
+                    var key = GetRandomString();
+                    // Act
+                    var result = sut.Items.ContainsKey(key);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
             }
         }
 
