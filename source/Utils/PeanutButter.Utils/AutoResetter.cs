@@ -22,6 +22,36 @@ internal
 #endif
         class AutoResetter : IDisposable
     {
+        /// <summary>
+        /// Convenience to create an AutoResetter without new or having
+        /// to care about whether you're using the action or func variant
+        /// </summary>
+        /// <param name="onStart"></param>
+        /// <param name="onDisposed"></param>
+        /// <returns></returns>
+        public static AutoResetter Create(
+            Action onStart,
+            Action onDisposed
+        )
+        {
+            return new AutoResetter(onStart, onDisposed);
+        }
+
+        /// <summary>
+        /// Convenience to create an AutoResetter without new or having
+        /// to care about whether you're using the action or func variant
+        /// </summary>
+        /// <param name="onStart"></param>
+        /// <param name="onDisposed"></param>
+        /// <returns></returns>
+        public static AutoResetter<T> Create<T>(
+            Func<T> onStart,
+            Action<T> onDisposed
+        )
+        {
+            return new AutoResetter<T>(onStart, onDisposed);
+        }
+
         private readonly object _lock = new object();
         private Action _disposalAction;
 
