@@ -238,6 +238,7 @@ namespace PeanutButter.Utils
         /// <param name="value"></param>
         /// <param name="kind"></param>
         /// <returns></returns>
+        [Obsolete("Please switch to .WithKind, which avoids the potential confusion of an expectation of 'conversion' of the DateTime from/to local time.")]
         public static DateTime ToKind(this DateTime value, DateTimeKind kind)
         {
             return DateTimeFor(
@@ -251,6 +252,27 @@ namespace PeanutButter.Utils
                 value.Millisecond);
         }
 
+        /// <summary>
+        /// Provides a new DateTime object with the DateTimeKind set as required. Note
+        /// that this doesn't convert DateTime objects between, eg UTC and Local times:
+        /// the 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="kind"></param>
+        /// <returns></returns>
+        public static DateTime WithKind(this DateTime value, DateTimeKind kind)
+        {
+            return DateTimeFor(
+                kind,
+                value.Year,
+                value.Month,
+                value.Day,
+                value.Hour,
+                value.Minute,
+                value.Second,
+                value.Millisecond);
+        }
+        
         /// <summary>
         /// Provides a new DateTime with all components from the subject except
         /// Seconds, which are truncated.

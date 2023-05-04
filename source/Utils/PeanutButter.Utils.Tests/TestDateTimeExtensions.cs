@@ -652,7 +652,7 @@ namespace PeanutButter.Utils.Tests
                 // Pre-assert
                 Expect(source.Kind).To.Equal(DateTimeKind.Local);
                 // Act
-                var result = source.ToKind(DateTimeKind.Utc);
+                var result = source.WithKind(DateTimeKind.Utc);
                 // Assert
                 Expect(result.Kind).To.Equal(DateTimeKind.Utc);
                 Expect(result.Year).To.Equal(source.Year);
@@ -662,6 +662,16 @@ namespace PeanutButter.Utils.Tests
                 Expect(result.Minute).To.Equal(source.Minute);
                 Expect(result.Second).To.Equal(source.Second);
                 Expect(result.Millisecond).To.Equal(source.Millisecond);
+                if (TimeZoneInfo.Local.BaseUtcOffset.TotalMinutes == 0)
+                {
+                    // can't do the reverse test below if we're on utc,
+                    // ie, enjoying some bangers and mash with a warm beer
+                    return;
+                }
+
+                var utc = source.ToUniversalTime();
+                Expect(result)
+                    .Not.To.Equal(utc, () => ".WithKind should not perform an actual TZ conversion");
             }
         }
 
