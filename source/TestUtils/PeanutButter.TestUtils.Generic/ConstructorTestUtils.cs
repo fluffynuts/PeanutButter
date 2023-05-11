@@ -128,7 +128,7 @@ namespace PeanutButter.TestUtils.Generic
                 var underlyingType = parameterType.GetNullableGenericUnderlyingType();
                 if (underlyingType != parameterType)
                 {
-                    return GetRandomValue(underlyingType);
+                    return GetRandom(underlyingType);
                 }
 
                 return CreateSubstituteWithLinkedNSubstitute(parameterType);

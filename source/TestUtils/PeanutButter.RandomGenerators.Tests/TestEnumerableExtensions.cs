@@ -7,6 +7,7 @@ using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.Tests.RandomTestCycles;
 
 // ReSharper disable ExpressionIsAlwaysNull
 // ReSharper disable CollectionNeverUpdated.Local
@@ -16,7 +17,7 @@ using static NExpect.Expectations;
 namespace PeanutButter.RandomGenerators.Tests
 {
     [TestFixture]
-    public class TestEnumerableExtensions : TestBase
+    public class TestEnumerableExtensions
     {
         [Test]
         public void Randomize_OperatingOnEnumerableOfItems_ShouldGiveBackJumbledCollectionOfSameItems()

@@ -8,6 +8,7 @@ using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 using static PeanutButter.Utils.PyLike;
+using static PeanutButter.RandomGenerators.Tests.RandomTestCycles;
 
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable PossibleNullReferenceException
@@ -25,7 +26,7 @@ using static PeanutButter.Utils.PyLike;
 namespace PeanutButter.RandomGenerators.Tests
 {
     [TestFixture]
-    public class TestGenericBuilder : TestBase
+    public class TestGenericBuilder
     {
         private class SimpleClass
         {
@@ -1455,7 +1456,7 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 // Arrange
                 // Act
-                Action generation = () => GetRandomValue(typeof(Action<>));
+                Action generation = () => GetRandom(typeof(Action<>));
                 // Assert
                 Expect(generation)
                     .To.Throw().With.Message.Containing("A generic type definition can't be generated: ");

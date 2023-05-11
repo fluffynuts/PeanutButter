@@ -88,7 +88,7 @@ namespace PeanutButter.RandomGenerators
                 return (T) method.Invoke(null, new object[0]);
             }
 
-            return (T) GetRandomValue(type);
+            return (T) GetRandom(type);
         }
 
         private static readonly MethodInfo GenericGetRandomDictionary = typeof(RandomValueGen)
@@ -259,7 +259,7 @@ namespace PeanutButter.RandomGenerators
         /// </summary>
         /// <param name="type">Type to generate a random value of</param>
         /// <returns>New instance of the specified type. Should be different every time, when possible.</returns>
-        public static object GetRandomValue(
+        public static object GetRandom(
             Type type)
         {
             if (type is null)
