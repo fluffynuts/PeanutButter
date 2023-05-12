@@ -30,7 +30,7 @@ namespace PeanutButter.Utils
         private Action<T> _disposalAction;
 
         /// <summary>
-        /// Construcst a new AutoResetter, runs the start Func and stores the result
+        /// Constructs a new AutoResetter, runs the start Func and stores the result
         /// </summary>
         /// <param name="start">Code to run at construction</param>
         /// <param name="end">Code to run at disposal; will receive the result provided from the start Func</param>
