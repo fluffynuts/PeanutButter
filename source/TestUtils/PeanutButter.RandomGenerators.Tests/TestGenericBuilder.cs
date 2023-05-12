@@ -146,35 +146,59 @@ namespace PeanutButter.RandomGenerators.Tests
                  i < NORMAL_RANDOM_TEST_CYCLES;
                  i++)
             {
-                randomItems.Add(NotAsSimpleBuilder.Create()
-                    .WithRandomProps()
-                    .Build());
+                randomItems.Add(
+                    NotAsSimpleBuilder.Create()
+                        .WithRandomProps()
+                        .Build()
+                );
             }
 
             //---------------Test Result -----------------------
             // look for variance
-            VarianceAssert.IsVariant<NotAsSimpleClass, string>(randomItems,
-                "Name");
-            VarianceAssert.IsVariant<NotAsSimpleClass, int>(randomItems,
-                "Value");
-            VarianceAssert.IsVariant<NotAsSimpleClass, bool>(randomItems,
-                "Flag");
-            VarianceAssert.IsVariant<NotAsSimpleClass, DateTime>(randomItems,
-                "Created");
-            VarianceAssert.IsVariant<NotAsSimpleClass, decimal>(randomItems,
-                "Cost");
-            VarianceAssert.IsVariant<NotAsSimpleClass, double>(randomItems,
-                "DoubleValue");
-            VarianceAssert.IsVariant<NotAsSimpleClass, float>(randomItems,
-                "FloatValue");
-            VarianceAssert.IsVariant<NotAsSimpleClass, Guid>(randomItems,
-                "GuidValue");
-            VarianceAssert.IsVariant<NotAsSimpleClass, decimal?>(randomItems,
-                "NullableDecimalValue");
-            VarianceAssert.IsVariant<NotAsSimpleClass, byte[]>(randomItems,
-                "ByteArrayValue");
-            VarianceAssert.IsVariant<NotAsSimpleClass, SomeValues>(randomItems,
-                "EnumValue");
+            VarianceAssert.IsVariant<NotAsSimpleClass, string>(
+                randomItems,
+                "Name"
+            );
+            VarianceAssert.IsVariant<NotAsSimpleClass, int>(
+                randomItems,
+                "Value"
+            );
+            VarianceAssert.IsVariant<NotAsSimpleClass, bool>(
+                randomItems,
+                "Flag"
+            );
+            VarianceAssert.IsVariant<NotAsSimpleClass, DateTime>(
+                randomItems,
+                "Created"
+            );
+            VarianceAssert.IsVariant<NotAsSimpleClass, decimal>(
+                randomItems,
+                "Cost"
+            );
+            VarianceAssert.IsVariant<NotAsSimpleClass, double>(
+                randomItems,
+                "DoubleValue"
+            );
+            VarianceAssert.IsVariant<NotAsSimpleClass, float>(
+                randomItems,
+                "FloatValue"
+            );
+            VarianceAssert.IsVariant<NotAsSimpleClass, Guid>(
+                randomItems,
+                "GuidValue"
+            );
+            VarianceAssert.IsVariant<NotAsSimpleClass, decimal?>(
+                randomItems,
+                "NullableDecimalValue"
+            );
+            VarianceAssert.IsVariant<NotAsSimpleClass, byte[]>(
+                randomItems,
+                "ByteArrayValue"
+            );
+            VarianceAssert.IsVariant<NotAsSimpleClass, SomeValues>(
+                randomItems,
+                "EnumValue"
+            );
         }
 
         public class TestCleverRandomStrings
@@ -254,10 +278,14 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(items.Select(i => i.Enabled)
-                .All(v => v));
-            VarianceAssert.IsVariant<TestBooleans, bool>(items,
-                "SomeOtherBoolean");
+            Assert.IsTrue(
+                items.Select(i => i.Enabled)
+                    .All(v => v)
+            );
+            VarianceAssert.IsVariant<TestBooleans, bool>(
+                items,
+                "SomeOtherBoolean"
+            );
         }
 
         private class BuilderInspector
@@ -291,7 +319,10 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             //---------------Set up test pack-------------------
             BuilderInspector.Clear();
-            Assert.AreEqual(0, BuilderInspector.Calls.Length);
+            Assert.AreEqual(
+                0,
+                BuilderInspector.Calls.Length
+            );
 
             //---------------Assert Precondition----------------
 
@@ -299,9 +330,18 @@ namespace PeanutButter.RandomGenerators.Tests
             BuilderInspector.BuildRandom();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(2, BuilderInspector.Calls.Length);
-            Assert.AreEqual("WithRandomProps", BuilderInspector.Calls[0]);
-            Assert.AreEqual("Build", BuilderInspector.Calls[1]);
+            Assert.AreEqual(
+                2,
+                BuilderInspector.Calls.Length
+            );
+            Assert.AreEqual(
+                "WithRandomProps",
+                BuilderInspector.Calls[0]
+            );
+            Assert.AreEqual(
+                "Build",
+                BuilderInspector.Calls[1]
+            );
         }
 
         public class ComplexMember1
@@ -362,19 +402,28 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(NORMAL_RANDOM_TEST_CYCLES, randomItems.Count);
+            Assert.AreEqual(
+                NORMAL_RANDOM_TEST_CYCLES,
+                randomItems.Count
+            );
             VarianceAssert.IsVariant<ClassWithComplexMembers, ComplexMember1>(
                 randomItems,
-                "ComplexMember1");
+                "ComplexMember1"
+            );
             VarianceAssert.IsVariant<ClassWithComplexMembers, ComplexMember2>(
                 randomItems,
-                "ComplexMember2");
+                "ComplexMember2"
+            );
             var complexMembers1 = randomItems.Select(i => i.ComplexMember1);
-            VarianceAssert.IsVariant<ComplexMember1, string>(complexMembers1,
-                "Name");
+            VarianceAssert.IsVariant<ComplexMember1, string>(
+                complexMembers1,
+                "Name"
+            );
             var complexMembers2 = randomItems.Select(i => i.ComplexMember2);
-            VarianceAssert.IsVariant<ComplexMember2, int>(complexMembers2,
-                "Value");
+            VarianceAssert.IsVariant<ComplexMember2, int>(
+                complexMembers2,
+                "Value"
+            );
         }
 
         [Test]
@@ -387,7 +436,7 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-                Assert.DoesNotThrow(() => ParentWithBuilderBuilder.BuildRandom());
+            Assert.DoesNotThrow(() => ParentWithBuilderBuilder.BuildRandom());
             //---------------Test Result -----------------------
         }
 
@@ -415,7 +464,9 @@ namespace PeanutButter.RandomGenerators.Tests
                     .WithChild(ChildWithBuilderBuilder.BuildRandom());
             }
 
-            private ParentWithBuilderBuilder WithChild(ChildWithBuilder child)
+            private ParentWithBuilderBuilder WithChild(
+                ChildWithBuilder child
+            )
             {
                 return WithProp(o => o.Children.Add(child));
             }
@@ -461,7 +512,10 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = ParentBuilder.BuildRandom();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(1337, result.Child.Id);
+            Assert.AreEqual(
+                1337,
+                result.Child.Id
+            );
         }
 
         public class EmailBuilder : GenericBuilder<EmailBuilder, Email>
@@ -477,6 +531,7 @@ namespace PeanutButter.RandomGenerators.Tests
             : GenericBuilder<EmailRecipientBuilder, EmailRecipient>
         {
         }
+
         public class EmailRecipient
         {
             public int EmailRecipientId { get; set; }
@@ -487,6 +542,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public bool IsBCC { get; set; }
             public virtual Email Email { get; set; }
         }
+
         public class Email
         {
             public Email()
@@ -506,6 +562,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public virtual IList<EmailAttachment> EmailAttachments { get; set; }
             public virtual IList<EmailRecipient> EmailRecipients { get; set; }
         }
+
         public class EmailAttachment
         {
             public int EmailAttachmentId { get; set; }
@@ -530,21 +587,57 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = EmailRecipientBuilder.BuildRandom();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("local is lekker", result.Email.Subject);
+            Assert.AreEqual(
+                "local is lekker",
+                result.Email.Subject
+            );
         }
 
-        [TestCase("foo", "foo", 0)]
-        [TestCase("bar", "foo", -1)]
-        [TestCase("foo", "bar", 1)]
-        [TestCase("foo.bar", "foo.bar", 0)]
-        [TestCase("foo.bar", "foo.bar.tests", -1)]
-        [TestCase("foo.bar", "foo.bar.tests.part2", -2)]
-        [TestCase("foo.bar.tests", "foo.bar", 1)]
-        [TestCase("foo.bar.tests.part2", "foo.bar", 2)]
+        [TestCase(
+            "foo",
+            "foo",
+            0
+        )]
+        [TestCase(
+            "bar",
+            "foo",
+            -1
+        )]
+        [TestCase(
+            "foo",
+            "bar",
+            1
+        )]
+        [TestCase(
+            "foo.bar",
+            "foo.bar",
+            0
+        )]
+        [TestCase(
+            "foo.bar",
+            "foo.bar.tests",
+            -1
+        )]
+        [TestCase(
+            "foo.bar",
+            "foo.bar.tests.part2",
+            -2
+        )]
+        [TestCase(
+            "foo.bar.tests",
+            "foo.bar",
+            1
+        )]
+        [TestCase(
+            "foo.bar.tests.part2",
+            "foo.bar",
+            2
+        )]
         public void MatchIndexFor_GivenArrays_ShouldReturnExpectedResult(
             string left,
             string right,
-            int expected)
+            int expected
+        )
         {
             //---------------Set up test pack-------------------
             var leftParts = left.Split('.');
@@ -556,7 +649,10 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = leftParts.MatchIndexFor(rightParts);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Assert.AreEqual(
+                expected,
+                result
+            );
         }
 
         // real-world usage, has inner exception about defining duplicate dynamic module
@@ -583,11 +679,7 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             public FakeMessagePlatformSender Sender { get; set; }
 
-            public IEnumerable<FakeMessagePlatformRecipient> Recipients
-            {
-                get;
-                set;
-            }
+            public IEnumerable<FakeMessagePlatformRecipient> Recipients { get; set; }
 
             public FakeMessagePlatformData Message { get; set; }
             public IEnumerable<string> Protocols { get; set; }
@@ -620,51 +712,72 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 return WithProp(
                     o => o.Message.Options =
-                             GetRandomCollection(
-                                 FakeMessagePlatformOptionBuilder.BuildRandom,
-                                 2));
+                        GetRandomCollection(
+                            FakeMessagePlatformOptionBuilder.BuildRandom,
+                            2
+                        )
+                );
             }
 
             public FakeMessageDataBuilder AsOneProtocolToOneRecipient()
             {
-                return WithRandomProtocols(1, 1)
-                    .WithRandomRecipients(1, 1);
+                return WithRandomProtocols(
+                        1,
+                        1
+                    )
+                    .WithRandomRecipients(
+                        1,
+                        1
+                    );
             }
 
-            public FakeMessageDataBuilder WithRandomProtocols(int min = 1,
-                int max = 10)
+            public FakeMessageDataBuilder WithRandomProtocols(
+                int min = 1,
+                int max = 10
+            )
             {
                 return WithProp(
                     o => o.Protocols =
-                             GetRandomCollection(() => GetRandomString(),
-                                 min,
-                                 max));
+                        GetRandomCollection(
+                            () => GetRandomString(),
+                            min,
+                            max
+                        )
+                );
             }
 
-            public FakeMessageDataBuilder WithRandomRecipients(int min = 1,
-                int max = 10)
+            public FakeMessageDataBuilder WithRandomRecipients(
+                int min = 1,
+                int max = 10
+            )
             {
                 return WithProp(
                     o => o.Recipients =
-                             GetRandomCollection(
-                                 FakeMessagePlatformRecipientBuilder
-                                     .BuildRandom,
-                                 min,
-                                 max));
+                        GetRandomCollection(
+                            FakeMessagePlatformRecipientBuilder
+                                .BuildRandom,
+                            min,
+                            max
+                        )
+                );
             }
 
-            public FakeMessageDataBuilder WithOption(string name,
-                string value)
+            public FakeMessageDataBuilder WithOption(
+                string name,
+                string value
+            )
             {
                 return WithProp(
                     o => o.Message.Options = o.Message.Options
-                             .EmptyIfNull()
-                             .And(
-                                 new FakeMessagePlatformOption()
-                                 {
-                                     Name = name,
-                                     Value = value
-                                 }));
+                        .EmptyIfNull()
+                        .And(
+                            new FakeMessagePlatformOption()
+                            {
+                                Name = name,
+                                Value = value
+                            }
+                        )
+                );
             }
         }
 
@@ -685,11 +798,21 @@ namespace PeanutButter.RandomGenerators.Tests
             Expect(
                     () => FakeMessageDataBuilder.Create()
                         .WithRandomProps()
-                        .WithOption("message", "hello world")
-                        .WithOption("user", "bob saget")
-                        .WithOption("AnotherOption", "wibble socks")
+                        .WithOption(
+                            "message",
+                            "hello world"
+                        )
+                        .WithOption(
+                            "user",
+                            "bob saget"
+                        )
+                        .WithOption(
+                            "AnotherOption",
+                            "wibble socks"
+                        )
                         .AsOneProtocolToOneRecipient()
-                        .Build())
+                        .Build()
+                )
                 .Not.To.Throw();
 
             //---------------Test Result -----------------------
@@ -837,8 +960,10 @@ namespace PeanutButter.RandomGenerators.Tests
             public int Id { get; set; }
             public string Name { get; set; }
 
-            public ImplementingClassWithConstructorParams(int id,
-                string name)
+            public ImplementingClassWithConstructorParams(
+                int id,
+                string name
+            )
             {
                 Id = id;
                 Name = name;
@@ -869,7 +994,10 @@ namespace PeanutButter.RandomGenerators.Tests
                 .ExportedTypes
                 .Where(t => interfaceType.IsAssignableFrom(t))
                 .ToArray();
-            CollectionAssert.Contains(types, concrete);
+            CollectionAssert.Contains(
+                types,
+                concrete
+            );
             Assert.IsTrue(concrete.IsClass);
             Assert.IsFalse(concrete.IsAbstract);
             //---------------Assert Precondition----------------
@@ -887,10 +1015,7 @@ namespace PeanutButter.RandomGenerators.Tests
             string Issuer { get; } // Who issued this token (uri)
 
             string
-                Audience
-            {
-                get;
-            } // Uri to audience (with idsvr, this points at resources)
+                Audience { get; } // Uri to audience (with idsvr, this points at resources)
 
             DateTime Expires { get; } // Token is not valid after this datetime
 
@@ -898,10 +1023,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 NotBefore { get; } // Token is not valid before this datetime
 
             string
-                ClientId
-            {
-                get;
-            } // Id of the connecting Client for which this token was provided
+                ClientId { get; } // Id of the connecting Client for which this token was provided
 
             string[] Scopes { get; } // Scopes requested & loaded into the token
 
@@ -915,10 +1037,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             string Email { get; } // only present if email scope was requested
 
-            bool EmailVerified
-            {
-                get;
-            } // only present if email scope was requested
+            bool EmailVerified { get; } // only present if email scope was requested
 
             string[] Roles { get; } // only present if roles scope was requested
         }
@@ -943,24 +1062,30 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             public string AllMessages { get; private set; } = "";
 
-            public override void Write(string message)
+            public override void Write(
+                string message
+            )
             {
                 AllMessages += message;
             }
 
-            public override void WriteLine(string message)
+            public override void WriteLine(
+                string message
+            )
             {
                 AllMessages += message + "\n";
             }
         }
-        
+
         [Test]
         public void Randomize_ShouldNotTraceLogWhenPropertiesAreWritable()
         {
             //--------------- Arrange -------------------
             var listener = new LocalTraceListener();
-            using (new AutoResetter(InstallListener(listener),
-                RemoveListener(listener)))
+            using (new AutoResetter(
+                       InstallListener(listener),
+                       RemoveListener(listener)
+                   ))
             {
                 //--------------- Assume ----------------
                 Expect(listener.AllMessages)
@@ -977,12 +1102,16 @@ namespace PeanutButter.RandomGenerators.Tests
             }
         }
 
-        private Action InstallListener(LocalTraceListener listener)
+        private Action InstallListener(
+            LocalTraceListener listener
+        )
         {
             return () => Trace.Listeners.Add(listener);
         }
 
-        private Action RemoveListener(LocalTraceListener listener)
+        private Action RemoveListener(
+            LocalTraceListener listener
+        )
         {
             return () => Trace.Listeners.Remove(listener);
         }
@@ -997,7 +1126,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public class NodeBuilder : GenericBuilder<NodeBuilder, Node>
         {
         }
-        
+
 
         [Test]
         public void
@@ -1007,7 +1136,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // Pre-Assert
             // Act
             var result = NodeBuilder.Create()
-                             .GenericBuild() as Node;
+                .GenericBuild() as Node;
             // Assert
             Expect(result)
                 .Not.To.Be.Null();
@@ -1025,7 +1154,7 @@ namespace PeanutButter.RandomGenerators.Tests
             // Pre-Assert
             // Act
             var result = NodeBuilder.Create()
-                             .GenericDeepBuild() as Node;
+                .GenericDeepBuild() as Node;
             // Assert
             Expect(result)
                 .Not.To.Be.Null();
@@ -1054,11 +1183,15 @@ namespace PeanutButter.RandomGenerators.Tests
             // Arrange
             // Pre-assert
             // Act
-            var result = Range(0, 10)
+            var result = Range(
+                    0,
+                    10
+                )
                 .Select(
                     i => SomeStructBuilder.Create()
                         .WithRandomProps()
-                        .Build())
+                        .Build()
+                )
                 .ToArray();
             // Assert
             Expect(result.All(o => o.Equals(default(SomeStruct))))
@@ -1069,7 +1202,9 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             public SomeStruct Moo { get; }
 
-            public SomeClass(SomeStruct moo)
+            public SomeClass(
+                SomeStruct moo
+            )
             {
                 Moo = moo;
             }
@@ -1081,7 +1216,10 @@ namespace PeanutButter.RandomGenerators.Tests
             // Arrange
             // Pre-assert
             // Act
-            var result = Range(0, 10)
+            var result = Range(
+                    0,
+                    10
+                )
                 .Select(
                     i => GetRandom<SomeClass>()
                 )
@@ -1103,9 +1241,18 @@ namespace PeanutButter.RandomGenerators.Tests
         {
         }
 
-        [TestCase(DateTimeKind.Local, DateTimeKind.Local)]
-        [TestCase(DateTimeKind.Utc, DateTimeKind.Utc)]
-        [TestCase(DateTimeKind.Unspecified, DateTimeKind.Local)]
+        [TestCase(
+            DateTimeKind.Local,
+            DateTimeKind.Local
+        )]
+        [TestCase(
+            DateTimeKind.Utc,
+            DateTimeKind.Utc
+        )]
+        [TestCase(
+            DateTimeKind.Unspecified,
+            DateTimeKind.Local
+        )]
         public void ShouldSetDefaultDateTimeKindFromMethod(
             DateTimeKind set,
             DateTimeKind expected
@@ -1159,14 +1306,16 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 // Arrange
                 var generated = new List<int>();
-                RunCycles(() =>
-                {
-                    // Pre-assert
-                    // Act
-                    var result = GetRandom<Poco2>();
-                    // Assert
-                    generated.Add(result.Id);
-                });
+                RunCycles(
+                    () =>
+                    {
+                        // Pre-assert
+                        // Act
+                        var result = GetRandom<Poco2>();
+                        // Assert
+                        generated.Add(result.Id);
+                    }
+                );
                 Expect(generated).To.Have.Unique.Items();
             }
 
@@ -1175,14 +1324,16 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 // Arrange
                 var generated = new List<int>();
-                RunCycles(() =>
-                {
-                    // Pre-assert
-                    // Act
-                    var result = GetRandom<Poco2>();
-                    // Assert
-                    generated.Add(result.Id);
-                });
+                RunCycles(
+                    () =>
+                    {
+                        // Pre-assert
+                        // Act
+                        var result = GetRandom<Poco2>();
+                        // Assert
+                        generated.Add(result.Id);
+                    }
+                );
                 Expect(generated)
                     .Not.To.Contain(0);
             }
@@ -1213,7 +1364,189 @@ namespace PeanutButter.RandomGenerators.Tests
                     .To.Be.Null();
             }
 
-            private void RunCycles(Action toRun)
+            [TestFixture]
+            public class InheritingDecorators
+            {
+                [TestFixture]
+                public class DerivedBuilderHasNoAttributes
+                {
+                    [Test]
+                    public void ShouldInheritAll()
+                    {
+                        // Arrange
+                        // Act
+                        var result = UndecoratedBuilder.Create()
+                            .WithRandomProps()
+                            .Build();
+                        // Assert
+                        Expect(result.Id)
+                            .To.Equal(1);
+                        Expect(result.Name)
+                            .To.Equal("base");
+                    }
+                }
+
+                [TestFixture]
+                public class DerivedBuilderOverridesAnAttribute
+                {
+                    [Test]
+                    public void ShouldApplyDerivedAttributes()
+                    {
+                        // Arrange
+                        // Act
+                        var result1 = DecoratedBuilder.Create()
+                            .WithRandomProps()
+                            .Build();
+                        var result2 = DecoratedBuilder2.Create()
+                            .WithRandomProps()
+                            .Build();
+                        // Assert
+                        Expect(result1.Id)
+                            .To.Equal(2);
+                        Expect(result1.Name)
+                            .To.Equal("decorated");
+                        Expect(result2.Id)
+                            .To.Equal(2);
+                        Expect(result2.Name)
+                            .To.Equal("decorated2");
+                    }
+                }
+
+                [TestFixture]
+                public class UsingInheritanceToCreateBuildersForConcreteAndInterfaces
+                {
+                    [Test]
+                    public void ShouldBeAbleToShareBuilderLogicFromBaseBuilder()
+                    {
+                        // Arrange
+                        // Act
+                        var item1 = GetRandom<ItemWithInterface>();
+                        var item2 = GetRandom<IItemWithInterface>();
+                        // Assert
+                        Expect(item1.Id)
+                            .To.Equal(24);
+                        Expect(item2.Id)
+                            .To.Equal(42);
+                    }
+
+                    public interface IItemWithInterface
+                    {
+                        int Id { get; set; }
+                        string Name { get; set; }
+                    }
+
+                    public class ItemWithInterface
+                        : IItemWithInterface
+                    {
+                        public int Id { get; set; }
+                        public string Name { get; set; }
+                    }
+
+                    [SetId(42)]
+                    public abstract class BuilderBase<T> : GenericBuilder<BuilderBase<T>, T>
+                        where T : IItemWithInterface
+                    {
+                    }
+
+                    [SetId(24)]
+                    public class ItemBuilder : BuilderBase<ItemWithInterface>
+                    {
+                    }
+
+                    public class ItemInterfaceBuilder : BuilderBase<IItemWithInterface>
+                    {
+                    }
+                }
+
+                [SetId(1)]
+                [SetName("base")]
+                public class BaseBuilder : GenericBuilder<BaseBuilder, Item>
+                {
+                }
+
+                public class UndecoratedBuilder : BaseBuilder
+                {
+                    public new static UndecoratedBuilder Create()
+                    {
+                        return new UndecoratedBuilder();
+                    }
+                }
+
+                [SetId(2)]
+                [SetName("decorated")]
+                public class DecoratedBuilder : BaseBuilder
+                {
+                    public new static DecoratedBuilder Create()
+                    {
+                        return new DecoratedBuilder();
+                    }
+                }
+
+                [SetName("decorated2")]
+                public class DecoratedBuilder2 : DecoratedBuilder
+                {
+                    public new static DecoratedBuilder2 Create()
+                    {
+                        return new DecoratedBuilder2();
+                    }
+                }
+
+                public class Item
+                {
+                    public int Id { get; set; }
+                    public string Name { get; set; }
+                }
+
+                public class SetIdAttribute : RandomizerAttribute
+                {
+                    private readonly int _value;
+
+                    public SetIdAttribute(
+                        int value
+                    ) : base("Id")
+                    {
+                        _value = value;
+                    }
+
+                    public override void SetRandomValue(
+                        PropertyOrField propInfo,
+                        ref object target
+                    )
+                    {
+                        propInfo.SetValue(
+                            target,
+                            _value
+                        );
+                    }
+                }
+
+                public class SetNameAttribute : RandomizerAttribute
+                {
+                    private readonly string _value;
+
+                    public SetNameAttribute(
+                        string value
+                    ) : base("Name")
+                    {
+                        _value = value;
+                    }
+
+                    public override void SetRandomValue(
+                        PropertyOrField propInfo,
+                        ref object target
+                    )
+                    {
+                        propInfo.SetValue(
+                            target,
+                            _value
+                        );
+                    }
+                }
+            }
+
+            private void RunCycles(
+                Action toRun
+            )
             {
                 for (var i = 0;
                      i < NORMAL_RANDOM_TEST_CYCLES;
@@ -1244,43 +1577,67 @@ namespace PeanutButter.RandomGenerators.Tests
                 public Poco IgnoreMeToo { get; set; }
             }
 
-            [RequireNonZero(nameof(Poco.Wheels),  nameof(Poco.NonZeroNumber))]
+            [RequireNonZero(
+                nameof(Poco.Wheels),
+                nameof(Poco.NonZeroNumber)
+            )]
             [RequireNonZeroId]
             [RandomizeNegative(nameof(Poco.NegativeNumber))]
-            [NoRandomize(nameof(Poco.IgnoreMe), nameof(Poco.IgnoreMeToo))]
+            [NoRandomize(
+                nameof(Poco.IgnoreMe),
+                nameof(Poco.IgnoreMeToo)
+            )]
             public class PocoBuilder : GenericBuilder<PocoBuilder, Poco>
             {
             }
 
             public class RandomizeNegativeAttribute : RandomizerAttribute
             {
-                public RandomizeNegativeAttribute(string propertyName) 
+                public RandomizeNegativeAttribute(
+                    string propertyName
+                )
                     : base(propertyName)
                 {
                 }
 
                 public override void SetRandomValue(
-                    PropertyOrField propInfo, 
-                    ref object target)
+                    PropertyOrField propInfo,
+                    ref object target
+                )
                 {
-                    var value = GetRandomInt(-10, -1);
-                    propInfo.SetValue(target, value);
+                    var value = GetRandomInt(
+                        -10,
+                        -1
+                    );
+                    propInfo.SetValue(
+                        target,
+                        value
+                    );
                 }
             }
 
             public class RandomizeHighPositiveAttribute : RandomizerAttribute
             {
-                public RandomizeHighPositiveAttribute(string propertyName) 
+                public RandomizeHighPositiveAttribute(
+                    string propertyName
+                )
                     : base(propertyName)
                 {
                 }
 
                 public override void SetRandomValue(
-                    PropertyOrField propInfo, 
-                    ref object target)
+                    PropertyOrField propInfo,
+                    ref object target
+                )
                 {
-                    var value = GetRandomInt(100, 1024);
-                    propInfo.SetValue(target, value);
+                    var value = GetRandomInt(
+                        100,
+                        1024
+                    );
+                    propInfo.SetValue(
+                        target,
+                        value
+                    );
                 }
             }
 
@@ -1297,7 +1654,7 @@ namespace PeanutButter.RandomGenerators.Tests
             [RandomizeNegative("Id")]
             public class NegativeIdBuilder<TBuilder, TEntity>
                 : GenericBuilder<TBuilder, TEntity>
-                where TBuilder: GenericBuilder<TBuilder, TEntity>
+                where TBuilder : GenericBuilder<TBuilder, TEntity>
             {
             }
 

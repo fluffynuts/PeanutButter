@@ -76,6 +76,13 @@ namespace PeanutButter.RandomGenerators
 
         /// <summary>
         /// Creates a new instance of the builder; used to provide a fluent syntax
+        /// NB: You must implement anew this in a derived class if you expect decorations
+        /// (eg [RequireNonNull]) to be properly applied at all levels after using syntax
+        /// like DerivedBuilder.BuildRandom() or DerivedBuilder.Create().WithRandomProps().Build()
+        /// - this may not seem obvious, but the base class' static method will be called otherwise.
+        /// This _does not_ apply if you're using GetRandom&lt;T&gt;() as this will use
+        /// `new DerivedBuilder()` which will ensure that decorations are read through
+        /// the entire hierarchy
         /// </summary>
         /// <returns>New instance of the builder</returns>
         public static TBuilder Create()
