@@ -605,7 +605,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     }
 
                     var port = PortFinder.FindOpenPort();
-                    while (PortFinder.PortIsInUse(port + 1))
+                    while (PortFinder.PortIsActivelyInUse(port + 1))
                     {
                         port = PortFinder.FindOpenPort();
                     }

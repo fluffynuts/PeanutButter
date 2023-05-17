@@ -20,8 +20,19 @@ namespace PeanutButter.Utils
         static class PortFinder
     {
         /// <summary>
+        /// The lowest port number that is considered by default
+        /// - 1024 because that doesn't require privilege escalation
+        /// </summary>
+        public const int MIN_PORT = 1024;
+
+        /// <summary>
+        /// The highest port number considered by default
+        /// </summary>
+        public const int MAX_PORT = 65535;
+
+        /// <summary>
         /// Attempts to find a random unbound port on the loopback device (localhost)
-        /// within the range 1024-32768
+        /// within the range 1024-65535
         /// </summary>
         /// <returns></returns>
         public static int FindOpenPort()
@@ -31,13 +42,13 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// Attempts to find an unbound port on the provided ip address
-        /// within the range 1024-32768
+        /// within the range 1024-65535
         /// </summary>
         /// <param name="forAddress"></param>
         /// <returns></returns>
         public static int FindOpenPort(IPAddress forAddress)
         {
-            return FindOpenPort(forAddress, 1024, 32768);
+            return FindOpenPort(forAddress, MIN_PORT, MAX_PORT);
         }
 
         /// <summary>
@@ -87,6 +98,8 @@ namespace PeanutButter.Utils
                 attemptLogger
             );
         }
+
+        private static readonly HashSet<int> Used = new();
 
         /// <summary>
         /// Attempts to find an unbound port on the provided ip address
@@ -145,9 +158,18 @@ namespace PeanutButter.Utils
             var test = 0;
             for (var i = 0; i < maxTries; i++)
             {
-                test = portAttemptGenerator(min, max, test);
+                lock (Used)
+                {
+                    do
+                    {
+                        test = portAttemptGenerator(min, max, test);
+                    } while (Used.Contains(test));
+
+                    Used.Add(test);
+                }
+
                 attemptLogger?.Invoke($"Testing if port {test} is already bound on {forAddress}");
-                if (PortIsInUse(forAddress, test))
+                if (PortIsActivelyInUse(forAddress, test))
                 {
                     continue;
                 }
@@ -172,9 +194,9 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="port"></param>
         /// <returns></returns>
-        public static bool PortIsInUse(int port)
+        public static bool PortIsActivelyInUse(int port)
         {
-            return PortIsInUse(IPAddress.Loopback, port);
+            return PortIsActivelyInUse(IPAddress.Loopback, port);
         }
 
         /// <summary>
@@ -183,7 +205,7 @@ namespace PeanutButter.Utils
         /// <param name="forAddress"></param>
         /// <param name="port"></param>
         /// <returns></returns>
-        public static bool PortIsInUse(IPAddress forAddress, int port)
+        public static bool PortIsActivelyInUse(IPAddress forAddress, int port)
         {
             try
             {
@@ -211,10 +233,13 @@ namespace PeanutButter.Utils
             }
 
             int result;
-            do
+            lock (Used)
             {
-                result = RandomNumber.Next(min, max);
-            } while (tried.Contains(result));
+                do
+                {
+                    result = RandomNumber.Next(min, max);
+                } while (tried.Contains(result) || Used.Contains(result));
+            }
 
             return result;
         }
