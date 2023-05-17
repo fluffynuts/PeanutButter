@@ -79,11 +79,11 @@ namespace PeanutButter.DuckTyping.Tests.AutoConversion.Converters
             var sut = Create<DateTime>();
             var input1 = GetRandom<DateTime>()
                 .TruncateMilliseconds()
-                .ToKind(DateTimeKind.Unspecified);
+                .WithKind(DateTimeKind.Unspecified);
             var expected1 = input1.ToString();
             var expected2 = GetRandom<DateTime>()
                 .TruncateMilliseconds()
-                .ToKind(DateTimeKind.Unspecified);
+                .WithKind(DateTimeKind.Unspecified);
             var input2 = expected2.ToString();
 
             //--------------- Assume ----------------

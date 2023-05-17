@@ -1581,7 +1581,7 @@ namespace PeanutButter.Utils.Tests
                     // Assert
                     Expect(result.Kind)
                         .To.Equal(DateTimeKind.Unspecified);
-                    var withSameKind = result.ToKind(DateTimeKind.Local);
+                    var withSameKind = result.WithKind(DateTimeKind.Local);
                     Expect(withSameKind)
                         .To.Equal(dt);
                 }

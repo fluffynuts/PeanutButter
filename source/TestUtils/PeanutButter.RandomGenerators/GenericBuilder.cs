@@ -721,7 +721,7 @@ namespace PeanutButter.RandomGenerators
                             var currentValue = (DateTime) (pi.GetValue(entity));
                             pi.SetValue(
                                 entity,
-                                currentValue.ToKind(_defaultDateTimeKind)
+                                currentValue.WithKind(_defaultDateTimeKind)
                             );
                         }
                     );

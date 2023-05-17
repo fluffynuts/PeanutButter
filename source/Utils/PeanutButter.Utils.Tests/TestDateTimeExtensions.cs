@@ -685,7 +685,7 @@ namespace PeanutButter.Utils.Tests
             public override Builder WithRandomProps()
             {
                 return base.WithRandomProps()
-                    .WithProp(o => o.DateProperty = o.DateProperty.ToKind(DateTimeKind.Utc));
+                    .WithProp(o => o.DateProperty = o.DateProperty.WithKind(DateTimeKind.Utc));
             }
         }
 
