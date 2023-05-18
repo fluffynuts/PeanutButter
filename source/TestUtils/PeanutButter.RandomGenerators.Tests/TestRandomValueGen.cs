@@ -726,6 +726,55 @@ namespace PeanutButter.RandomGenerators.Tests
                 var o1 = new object();
                 var o2 = new object();
                 var o3 = new object();
+                var items = new List<object> {  };
+                var items2 = new List<object> { o1, o2, o3 };
+                var enumerable = items.Union(items2);
+
+                var results = new List<object>();
+                const int runs = NORMAL_RANDOM_TEST_CYCLES;
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                for (var i = 0; i < runs; i++)
+                {
+                    results.Add(GetRandomFrom(enumerable));
+                }
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(results.All(r => items2.Contains(r)));
+                Assert.IsTrue(items.All(i => results.Any(r => r == i)));
+            }
+
+            [Test]
+            public void ShouldReturnARandomItemFromTheList()
+            {
+                //---------------Set up test pack-------------------
+                var o1 = new object();
+                var o2 = new object();
+                var o3 = new object();
+                var items = new List<object> { o1, o2, o3 };
+                var results = new List<object>();
+                const int runs = NORMAL_RANDOM_TEST_CYCLES;
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                for (var i = 0; i < runs; i++)
+                {
+                    results.Add(GetRandomFrom(items));
+                }
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(results.All(r => items.Contains(r)));
+                Assert.IsTrue(items.All(i => results.Any(r => r == i)));
+            }
+
+            [Test]
+            public void ShouldReturnARandomItemFromTheArray()
+            {
+                //---------------Set up test pack-------------------
+                var o1 = new object();
+                var o2 = new object();
+                var o3 = new object();
                 var items = new[] { o1, o2, o3 };
                 var results = new List<object>();
                 const int runs = NORMAL_RANDOM_TEST_CYCLES;

@@ -1966,9 +1966,37 @@ namespace PeanutButter.RandomGenerators
         public static T GetRandomFrom<T>(
             IEnumerable<T> items)
         {
-            var itemArray = items as T[] ?? items.ToArray();
+            var itemArray = items.ToArray();
             var upper = itemArray.Length - 1;
             return itemArray.Skip(GetRandomInt(0, upper)).First();
+        }
+
+        /// <summary>
+        /// Gets a random item from the provided list
+        /// </summary>
+        /// <param name="items">List of items</param>
+        /// <typeparam name="T">Item type in list</typeparam>
+        /// <returns>Random value from list; if the list is empty, expect an exception</returns>
+        public static T GetRandomFrom<T>(
+            List<T> items)
+        {
+            int maxValue = items.Count - 1;
+            var index = GetRandomInt(0, maxValue);
+            return items[index];
+        }
+
+        /// <summary>
+        /// Gets a random item from the provided array
+        /// </summary>
+        /// <param name="items">Array of items</param>
+        /// <typeparam name="T">Item type in collection</typeparam>
+        /// <returns>Random value from array; if the array is empty, expect an exception</returns>
+        public static T GetRandomFrom<T>(
+            T[] items)
+        {
+            int maxValue = items.Length - 1;
+            var index = GetRandomInt(0, maxValue);
+            return items[index];
         }
 
         /// <summary>
