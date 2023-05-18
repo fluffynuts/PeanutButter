@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils
@@ -33,9 +35,10 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static bool HasFlag<T>(
             this T enumValue,
-            T flag) where T : struct
+            T flag
+        ) where T : struct
         {
-            if (!typeof(T).IsEnum)
+            if (!IsEnum<T>())
             {
                 return false; // can't do this comparison
             }
@@ -47,6 +50,180 @@ namespace PeanutButter.Utils
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Tests for multiple flags in an int value
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="flag1"></param>
+        /// <param name="flag2"></param>
+        /// <param name="moreFlags"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool HasFlags<T>(
+            this T value,
+            T flag1,
+            T flag2,
+            params T[] moreFlags
+        )
+        {
+            if (!ConvertToInt(value, out var intValue))
+            {
+                return false;
+            }
+
+            var ints = new List<int>();
+            if (!ConvertToInt(flag1, out var intFlag1))
+            {
+                return false;
+            }
+
+            ints.Add(intFlag1);
+            if (!ConvertToInt(flag2, out var intFlag2))
+            {
+                return false;
+            }
+
+            ints.Add(intFlag2);
+            foreach (var flag in moreFlags)
+            {
+                if (!ConvertToInt(flag, out var intFlag))
+                {
+                    return false;
+                }
+
+                ints.Add(intFlag);
+            }
+            
+            return intValue.HasFlags(ints);
+        }
+
+        /// <summary>
+        /// Tests for multiple flags in an int value
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="flag1"></param>
+        /// <param name="flag2"></param>
+        /// <param name="moreFlags"></param>
+        /// <returns></returns>
+        public static bool HasFlags(
+            this int value,
+            int flag1,
+            int flag2,
+            params int[] moreFlags
+        )
+        {
+            var allFlags = new List<int>(moreFlags)
+            {
+                flag1,
+                flag2
+            };
+            return value.HasFlags(allFlags);
+        }
+
+        /// <summary>
+        /// Tests for multiple flags in an int value
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        public static bool HasFlags(
+            this int value,
+            IEnumerable<int> flags
+        )
+        {
+            foreach (var flag in flags)
+            {
+                if (!value.HasFlag(flag))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Returns a new value that is the original enum
+        /// with the required flag added
+        /// </summary>
+        /// <param name="enumValue"></param>
+        /// <param name="flag"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T WithFlag<T>(
+            this T enumValue,
+            T flag
+        ) where T : struct
+        {
+            if (!IsEnum<T>())
+            {
+                return enumValue;
+            }
+
+            if (ConvertToInt(enumValue, out var intValue) &&
+                ConvertToInt(flag, out var intFlag))
+            {
+                // unfortunately, we have to sink to boxing ):
+                return (T) (object) intValue.WithFlag(intFlag);
+            }
+
+            return enumValue;
+        }
+
+        /// <summary>
+        /// Returns a new value that is the original enum
+        /// with the required flag added
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="flag"></param>
+        /// <returns></returns>
+        public static int WithFlag(
+            this int value,
+            int flag
+        )
+        {
+            return value | flag;
+        }
+
+        /// <summary>
+        /// Returns a new value that is the original
+        /// enum value without the provided flag
+        /// </summary>
+        /// <param name="enumValue"></param>
+        /// <param name="flag"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T WithoutFlag<T>(
+            this T enumValue,
+            T flag
+        ) where T : struct
+        {
+            if (!IsEnum<T>())
+            {
+                return enumValue;
+            }
+            if (ConvertToInt(enumValue, out var intValue) &&
+                ConvertToInt(flag, out var intFlag))
+            {
+                return (T)(object) intValue.WithoutFlag(intFlag);
+            }
+            return enumValue;
+        }
+
+        /// <summary>
+        /// Returns a new value which is the original
+        /// integer value without the provided integer flag
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="flag"></param>
+        /// <returns></returns>
+        public static int WithoutFlag(
+            this int value,
+            int flag
+        )
+        {
+            return value & ~flag;
         }
 
         private static bool ConvertToInt<T>(T value, out int result)
@@ -74,9 +251,15 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static bool HasFlag(
             this int value,
-            int flag)
+            int flag
+        )
         {
             return (value & flag) == flag;
+        }
+
+        private static bool IsEnum<T>()
+        {
+            return typeof(T).IsEnum;
         }
     }
 }
