@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -720,22 +721,29 @@ namespace PeanutButter.RandomGenerators.Tests
         public class GetRandomFrom
         {
             [Test]
-            public void ShouldReturnARandomItemFromTheCollection()
+            [Parallelizable]
+            public void ShouldReturnARandomItemFromTheListCollection()
             {
                 //---------------Set up test pack-------------------
                 var o1 = new object();
                 var o2 = new object();
                 var o3 = new object();
-                var items = new[] { o1, o2, o3 };
+                var items = new List<object> { o1, o2, o3 };
                 var results = new List<object>();
-                const int runs = NORMAL_RANDOM_TEST_CYCLES;
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                for (var i = 0; i < runs; i++)
+                // warm up
+                var _ = GetRandomFrom(items);
+                var time = Benchmark.Time(() =>
                 {
-                    results.Add(GetRandomFrom(items));
-                }
+                    for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                    {
+                        results.Add(GetRandomFrom(items));
+                    }
+                });
+                
+                Console.Error.WriteLine(time);
 
                 //---------------Test Result -----------------------
                 Assert.IsTrue(results.All(r => items.Contains(r)));
@@ -743,7 +751,98 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             [Test]
-            public void ParamsSignatureForEasyWins()
+            [Parallelizable]
+            public void ShouldReturnARandomItemFromTheArrayCollection()
+            {
+                //---------------Set up test pack-------------------
+                var o1 = new object();
+                var o2 = new object();
+                var o3 = new object();
+                var items = new[] { o1, o2, o3 };
+                var results = new List<object>();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                // warm up
+                var _ = GetRandomFrom(items);
+                var time = Benchmark.Time(() =>
+                {
+                    for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                    {
+                        results.Add(GetRandomFrom(items));
+                    }
+                });
+                
+                Console.Error.WriteLine(time);
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(results.All(r => items.Contains(r)));
+                Assert.IsTrue(items.All(i => results.Any(r => r == i)));
+            }
+
+            [Test]
+            [Parallelizable]
+            public void ShouldReturnARandomItemFromTheEnumerableCollection()
+            {
+                //---------------Set up test pack-------------------
+                var o1 = new object();
+                var o2 = new object();
+                var o3 = new object();
+                var items = new ConcurrentBag<object>(new[] { o1, o2, o3 });
+                var results = new List<object>();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                // warm up
+                var _ = GetRandomFrom(items);
+                var time = Benchmark.Time(() =>
+                {
+                    for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                    {
+                        results.Add(GetRandomFrom(items));
+                    }
+                });
+                
+                Console.Error.WriteLine(time);
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(results.All(r => items.Contains(r)));
+                Assert.IsTrue(items.All(i => results.Any(r => r == i)));
+            }
+
+            [Test]
+            [Parallelizable]
+            public void ShouldReturnARandomItemFromTheLazyEnumerableCollection()
+            {
+                //---------------Set up test pack-------------------
+                var o1 = new object();
+                var o2 = new object();
+                var o3 = new object();
+                var items = new[] { o1 }.Union(new[] { o2, o3 });
+                var results = new List<object>();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                // warm up
+                var _ = GetRandomFrom(items);
+                var time = Benchmark.Time(() =>
+                {
+                    for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                    {
+                        results.Add(GetRandomFrom(items));
+                    }
+                });
+                
+                Console.Error.WriteLine(time);
+
+                //---------------Test Result -----------------------
+                Assert.IsTrue(results.All(r => items.Contains(r)));
+                Assert.IsTrue(items.All(i => results.Any(r => r == i)));
+            }
+
+            [Test]
+            [Parallelizable]
+            public void ParamsSignatureForPrettyCode()
             {
                 // Arrange
                 // Act

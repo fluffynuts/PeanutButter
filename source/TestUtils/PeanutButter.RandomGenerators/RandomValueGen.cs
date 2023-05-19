@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -237,17 +238,19 @@ namespace PeanutButter.RandomGenerators
         private static readonly Type[] EmptyTypes = new Type[0];
 
         private static Type[] LoadedTypes = AppDomain.CurrentDomain.GetAssemblies()
-            .Select(asm =>
-            {
-                try
+            .Select(
+                asm =>
                 {
-                    return asm.GetExportedTypes();
+                    try
+                    {
+                        return asm.GetExportedTypes();
+                    }
+                    catch
+                    {
+                        return EmptyTypes;
+                    }
                 }
-                catch
-                {
-                    return EmptyTypes;
-                }
-            })
+            )
             .SelectMany(o => o)
             .ToArray();
 
@@ -260,7 +263,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="type">Type to generate a random value of</param>
         /// <returns>New instance of the specified type. Should be different every time, when possible.</returns>
         public static object GetRandom(
-            Type type)
+            Type type
+        )
         {
             if (type is null)
             {
@@ -281,18 +285,21 @@ namespace PeanutButter.RandomGenerators
         }
 
         private static object GetRandomValueForType(
-            Type type)
+            Type type
+        )
         {
             var builder = GetBuilderFor(type);
             if (builder == null)
                 throw new Exception(
                     "Can't get random value for type: '" + type.Name +
-                    "': either too complex or I missed a simple type?");
+                    "': either too complex or I missed a simple type?"
+                );
             return builder.GenericWithRandomProps().GenericBuild();
         }
 
         private static IGenericBuilder GetBuilderFor(
-            Type type)
+            Type type
+        )
         {
             var builderType = GenericBuilderLocator.TryFindExistingBuilderFor(type)
                 ?? GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(type);
@@ -440,7 +447,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="minValue"></param>
         /// <returns></returns>
         public static int GetRandomInt(
-            int minValue)
+            int minValue
+        )
         {
             return GetRandomInt(
                 minValue,
@@ -456,7 +464,8 @@ namespace PeanutButter.RandomGenerators
         /// <returns>Random integer between minValue and maxValue (inclusive)</returns>
         public static int GetRandomInt(
             int minValue,
-            int maxValue)
+            int maxValue
+        )
         {
             return (int) GetRandomLong(minValue, maxValue);
         }
@@ -508,7 +517,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="minValue"></param>
         /// <returns></returns>
         public static long GetRandomLong(
-            long minValue)
+            long minValue
+        )
         {
             return GetRandomLong(
                 minValue,
@@ -524,7 +534,8 @@ namespace PeanutButter.RandomGenerators
         /// <returns>Random integer between minValue and maxValue (inclusive)</returns>
         public static long GetRandomLong(
             long minValue,
-            long maxValue)
+            long maxValue
+        )
         {
             if (minValue > maxValue)
             {
@@ -582,9 +593,17 @@ namespace PeanutButter.RandomGenerators
             DateTime? maxDate = null,
             bool dateOnly = false,
             DateTime? minTime = null,
-            DateTime? maxTime = null)
+            DateTime? maxTime = null
+        )
         {
-            return GetRandomDate(DateTimeKind.Local, minDate, maxDate, dateOnly, minTime, maxTime);
+            return GetRandomDate(
+                DateTimeKind.Local,
+                minDate,
+                maxDate,
+                dateOnly,
+                minTime,
+                maxTime
+            );
         }
 
         /// <summary>
@@ -632,7 +651,8 @@ namespace PeanutButter.RandomGenerators
                 rawDateTime.Minute,
                 rawDateTime.Second,
                 rawDateTime.Millisecond,
-                kind);
+                kind
+            );
             return dateOnly
                 ? sanitised.StartOfDay()
                 : RangeCheckTimeOnRandomDate(minTime, maxTime, sanitised);
@@ -661,7 +681,8 @@ namespace PeanutButter.RandomGenerators
                 maxDate,
                 dateOnly,
                 minTime,
-                maxTime);
+                maxTime
+            );
         }
 
         /// <summary>
@@ -687,7 +708,8 @@ namespace PeanutButter.RandomGenerators
                 maxDate,
                 dateOnly,
                 minTime,
-                maxTime);
+                maxTime
+            );
         }
 
         /// <summary>
@@ -713,7 +735,8 @@ namespace PeanutButter.RandomGenerators
                 maxDate,
                 dateOnly,
                 minTime,
-                maxTime);
+                maxTime
+            );
         }
 
         /// <summary>
@@ -726,7 +749,8 @@ namespace PeanutButter.RandomGenerators
         public static TimeSpan GetRandomTimeSpan(
             double min,
             double max = DefaultRanges.MAX_INT_VALUE,
-            TimeSpanContexts context = TimeSpanContexts.Minutes)
+            TimeSpanContexts context = TimeSpanContexts.Minutes
+        )
         {
             var howMany = GetRandomDouble(min, max);
             return TimespanGenerators[context](howMany);
@@ -740,7 +764,8 @@ namespace PeanutButter.RandomGenerators
         /// <returns></returns>
         public static TimeSpan GetRandomTimeSpan(
             TimeSpan min,
-            TimeSpan? max = null)
+            TimeSpan? max = null
+        )
         {
             max ??= TimeSpan.MaxValue;
             var ticksDelta = GetRandomLong(0, (max - min).Value.Ticks);
@@ -789,15 +814,30 @@ namespace PeanutButter.RandomGenerators
             DateTime? maxTime = null
         )
         {
-            var fromDate = GetRandomDate(kind, minDate, maxDate, dateOnly, minTime, maxTime);
-            var toDate = GetRandomDate(kind, minDate, maxDate, dateOnly, minTime, maxTime);
+            var fromDate = GetRandomDate(
+                kind,
+                minDate,
+                maxDate,
+                dateOnly,
+                minTime,
+                maxTime
+            );
+            var toDate = GetRandomDate(
+                kind,
+                minDate,
+                maxDate,
+                dateOnly,
+                minTime,
+                maxTime
+            );
             return new DateRange(fromDate, toDate);
         }
 
         internal static DateTime RangeCheckTimeOnRandomDate(
             DateTime? minTime,
             DateTime? maxTime,
-            DateTime value)
+            DateTime value
+        )
         {
             var baseDate = new DateTime(value.Year, value.Month, value.Day);
             minTime = baseDate.Add(minTime?.TimeOfDay ?? TimeSpan.FromSeconds(0));
@@ -1138,7 +1178,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="min"></param>
         /// <returns></returns>
         public static TimeSpan GetRandomTimeOfDay(
-            TimeSpan min)
+            TimeSpan min
+        )
         {
             return GetRandomTimeOfDay(
                 min,
@@ -1154,7 +1195,8 @@ namespace PeanutButter.RandomGenerators
         /// <returns>Timespan representing a time on a day, clamped to within 24 hours</returns>
         public static TimeSpan GetRandomTimeOfDay(
             TimeSpan min,
-            TimeSpan max)
+            TimeSpan max
+        )
         {
             var minSeconds = min.TotalSeconds;
             var maxSeconds = max.TotalSeconds;
@@ -1557,7 +1599,8 @@ namespace PeanutButter.RandomGenerators
             // ReSharper disable once ImpureMethodCallOnReadonlyValueField
             return string.Join(
                 Path.DirectorySeparatorChar.ToString(),
-                new[] { drive }.And(folders.ToArray()));
+                new[] { drive }.And(folders.ToArray())
+            );
         }
 
         /// <summary>
@@ -1577,7 +1620,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="minWords"></param>
         /// <returns></returns>
         public static string GetRandomWords(
-            int minWords)
+            int minWords
+        )
         {
             return GetRandomWords(
                 minWords,
@@ -1595,7 +1639,8 @@ namespace PeanutButter.RandomGenerators
         /// <returns>Block of text with "words" and whitespace</returns>
         public static string GetRandomWords(
             int minWords,
-            int maxWords)
+            int maxWords
+        )
         {
             var actual = GetRandomInt(minWords, maxWords);
             var words = new List<string>();
@@ -1820,7 +1865,8 @@ namespace PeanutButter.RandomGenerators
             return GetRandomString(
                 minLength,
                 maxLength,
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+            );
         }
 
         /// <summary>
@@ -1831,12 +1877,17 @@ namespace PeanutButter.RandomGenerators
         /// <returns></returns>
         public static string GetRandomNonAlphaNumericString(
             int minChars = 0,
-            int maxChars = 10)
+            int maxChars = 10
+        )
         {
             return Range(0, GetRandomInt(minChars, maxChars))
-                .Select(_ =>
-                    GetRandom(c => c < 'A' || c > 'z',
-                        () => (char) GetRandomInt(32, 255)))
+                .Select(
+                    _ =>
+                        GetRandom(
+                            c => c < 'A' || c > 'z',
+                            () => (char) GetRandomInt(32, 255)
+                        )
+                )
                 .JoinWith("");
         }
 
@@ -1848,7 +1899,8 @@ namespace PeanutButter.RandomGenerators
         /// <returns>Random string made up of only alphabetic characters</returns>
         public static string GetRandomAlphaString(
             int minLength = DefaultRanges.MINLENGTH_STRING,
-            int? maxLength = null)
+            int? maxLength = null
+        )
         {
             return GetRandomString(minLength, maxLength, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
         }
@@ -1861,7 +1913,8 @@ namespace PeanutButter.RandomGenerators
         /// <returns>Random string made up of only numeric characters</returns>
         public static string GetRandomNumericString(
             int minLength = DefaultRanges.MINLENGTH_STRING,
-            int? maxLength = null)
+            int? maxLength = null
+        )
         {
             return GetRandomString(minLength, maxLength, "1234567890");
         }
@@ -1881,7 +1934,8 @@ namespace PeanutButter.RandomGenerators
             if (!type.IsEnum())
                 throw new ArgumentException(
                     "GetRandomEnum cannot be called on something other than an enum ('" +
-                    type.Name + "')");
+                    type.Name + "')"
+                );
             var possible = Enum.GetValues(type).Cast<T>();
             return GetRandomFrom(possible);
         }
@@ -1896,12 +1950,14 @@ namespace PeanutButter.RandomGenerators
         /// non-enum type (since there is no generic constraint for enum types, yet)
         /// </exception>
         public static object GetRandomEnum(
-            Type enumType)
+            Type enumType
+        )
         {
             if (!enumType.IsEnum())
                 throw new ArgumentException(
                     "GetRandomEnum cannot be called on something other than an enum ('" +
-                    enumType.Name + "')");
+                    enumType.Name + "')"
+                );
             var possible = Enum.GetValues(enumType).Cast<object>();
             return GetRandomFrom(possible);
         }
@@ -1916,13 +1972,15 @@ namespace PeanutButter.RandomGenerators
             if (!typeof(Delegate).IsAssignableFrom(delegateType))
             {
                 throw new ArgumentException(
-                    $"{nameof(GetEmptyDelegate)} cannot be called on something other than a delegate ('{delegateType.Name}')");
+                    $"{nameof(GetEmptyDelegate)} cannot be called on something other than a delegate ('{delegateType.Name}')"
+                );
             }
 
             if (delegateType.IsGenericTypeDefinition)
             {
                 throw new ArgumentException(
-                    $"{nameof(GetEmptyDelegate)} must be called on a concrete delegate type ('{delegateType.Name}')");
+                    $"{nameof(GetEmptyDelegate)} must be called on a concrete delegate type ('{delegateType.Name}')"
+                );
             }
 
             var method = delegateType.GetMethod("Invoke");
@@ -1964,11 +2022,21 @@ namespace PeanutButter.RandomGenerators
         /// <typeparam name="T">Item type in collection</typeparam>
         /// <returns>Random value from collection; if the collection is empty, expect an exception</returns>
         public static T GetRandomFrom<T>(
-            IEnumerable<T> items)
+            IEnumerable<T> items
+        )
         {
-            var itemArray = items as T[] ?? items.ToArray();
-            var upper = itemArray.Length - 1;
-            return itemArray.Skip(GetRandomInt(0, upper)).First();
+            int upper;
+            switch (items)
+            {
+                case IList<T> list:
+                    // catches lists and arrays!
+                    upper = list.Count - 1;
+                    return list[GetRandomInt(0, upper)];
+                default:
+                    var itemArray = items.ToArray();
+                    upper = itemArray.Length - 1;
+                    return itemArray[GetRandomInt(0, upper)];
+            }
         }
 
         /// <summary>
@@ -1981,17 +2049,20 @@ namespace PeanutButter.RandomGenerators
         /// <exception cref="ArgumentException">Thrown when the butNot exclusion list leaves no options to select from items</exception>
         public static T GetRandomFrom<T>(
             IEnumerable<T> items,
-            params T[] butNot)
+            params T[] butNot
+        )
         {
             var itemsArray = items as T[] ?? items.ToArray();
-            if (itemsArray.Except(butNot).IsEmpty())
+            var notHash = new HashSet<T>(butNot);
+            if (itemsArray.Except(notHash).IsEmpty())
                 throw new ArgumentException(
-                    "Items collection does not contain enough items to apply the exclusion list, assuming the exclusions are actually in the source list");
+                    "Items collection does not contain enough items to apply the exclusion list, assuming the exclusions are actually in the source list"
+                );
             T result;
             do
             {
                 result = GetRandomFrom(itemsArray);
-            } while (butNot.Contains(result));
+            } while (notHash.Contains(result));
 
             return result;
         }
@@ -2007,7 +2078,8 @@ namespace PeanutButter.RandomGenerators
         public static IEnumerable<T> GetRandomSelectionFrom<T>(
             IEnumerable<T> items,
             int minValues = DefaultRanges.MIN_ITEMS,
-            int maxValues = DefaultRanges.MAX_ITEMS)
+            int maxValues = DefaultRanges.MAX_ITEMS
+        )
         {
             var itemArray = items as T[] ?? items.ToArray();
             if (itemArray.Length == 0)
@@ -2034,10 +2106,25 @@ namespace PeanutButter.RandomGenerators
         /// <param name="theDate">Date to select a random tim eon</param>
         /// <returns>A new DateTime value which has the same calendar values as the input, but has a randomized time</returns>
         public static DateTime GetRandomTimeOn(
-            DateTime theDate)
+            DateTime theDate
+        )
         {
-            var min = new DateTime(theDate.Year, theDate.Month, theDate.Day, 0, 0, 0);
-            var max = new DateTime(theDate.Year, theDate.Month, theDate.Day, 0, 0, 0);
+            var min = new DateTime(
+                theDate.Year,
+                theDate.Month,
+                theDate.Day,
+                0,
+                0,
+                0
+            );
+            var max = new DateTime(
+                theDate.Year,
+                theDate.Month,
+                theDate.Day,
+                0,
+                0,
+                0
+            );
             max = max.AddDays(1).AddMilliseconds(-1);
             return GetRandomDate(min, max);
         }
@@ -2283,7 +2370,8 @@ namespace PeanutButter.RandomGenerators
         /// <typeparam name="T">Type of value required</typeparam>
         /// <returns>New random value of type T, different from the input values</returns>
         public static T GetAnother<T>(
-            IEnumerable<T> notAnyOfThese)
+            IEnumerable<T> notAnyOfThese
+        )
         {
             return GetAnother(notAnyOfThese, GetRandom<T>);
         }
@@ -2311,7 +2399,8 @@ namespace PeanutButter.RandomGenerators
 
         private static bool DefaultEqualityTest<T>(
             T left,
-            T right)
+            T right
+        )
         {
             if (left == null && right == null)
                 return true;
@@ -2323,7 +2412,8 @@ namespace PeanutButter.RandomGenerators
         private static T1 GetANewRandomValueUsing<T1, T2>(
             T2 differentFromThisValue,
             Func<T1> usingThisGenerator,
-            Func<T1, bool> isANewValue)
+            Func<T1, bool> isANewValue
+        )
         {
             var attempts = 0;
             do
@@ -2373,11 +2463,14 @@ namespace PeanutButter.RandomGenerators
         /// <returns>new string within the required parts range</returns>
         public static string GetRandomHostname(int minParts, int maxParts)
         {
-            return string.Join(".", GetRandomCollection(
-                () => GetRandomString(1),
-                minParts,
-                maxParts
-            ));
+            return string.Join(
+                ".",
+                GetRandomCollection(
+                    () => GetRandomString(1),
+                    minParts,
+                    maxParts
+                )
+            );
         }
 
         /// <summary>
@@ -2386,7 +2479,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="partCount">How many parts to have in your version string</param>
         /// <returns>Version-like string</returns>
         public static string GetRandomVersionString(
-            int partCount = 3)
+            int partCount = 3
+        )
         {
             return string.Join(".", GetRandomCollection<int>(partCount, partCount));
         }
@@ -2412,7 +2506,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="path">Base path within which to create the new folder</param>
         /// <returns>Just the name of the created folder (not the full path)</returns>
         public static string CreateRandomFolderIn(
-            string path)
+            string path
+        )
         {
             string folderName;
             do
@@ -2433,7 +2528,8 @@ namespace PeanutButter.RandomGenerators
         /// <returns>Just the names of the created folders (not the full paths)</returns>
         public static IEnumerable<string> CreateRandomFoldersIn(
             string path,
-            int depth = 2)
+            int depth = 2
+        )
         {
             var toCreate = GetRandomCollection<string>(1).ToList();
             toCreate.ToArray().ForEach(
@@ -2444,9 +2540,11 @@ namespace PeanutButter.RandomGenerators
                     {
                         toCreate.AddRange(
                             CreateRandomFoldersIn(Path.Combine(path, f), depth - 1)
-                                .Select(sub => Path.Combine(f, sub)));
+                                .Select(sub => Path.Combine(f, sub))
+                        );
                     }
-                });
+                }
+            );
             return toCreate;
         }
 
@@ -2456,7 +2554,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="path">Folder within which to create the file</param>
         /// <returns>Name of the file (name only, not full path)</returns>
         public static string CreateRandomFileIn(
-            string path)
+            string path
+        )
         {
             var fileName = GetRandomString();
             File.WriteAllBytes(Path.Combine(path, fileName), GetRandomBytes());
@@ -2470,7 +2569,8 @@ namespace PeanutButter.RandomGenerators
         /// <param name="path">Folder within which to create the file</param>
         /// <returns>Name of the file (name only, not full path)</returns>
         public static string CreateRandomTextFileIn(
-            string path)
+            string path
+        )
         {
             var fileName = GetRandomString();
             var lines = GetRandomCollection<string>(1);
@@ -2514,8 +2614,10 @@ namespace PeanutButter.RandomGenerators
                         {
                             var createdFile = CreateRandomFileIn(Path.Combine(path, f));
                             result.Add(Path.Combine(f, createdFile));
-                        });
-                });
+                        }
+                    );
+                }
+            );
             return result;
         }
 
