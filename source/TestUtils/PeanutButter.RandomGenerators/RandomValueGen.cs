@@ -2025,18 +2025,22 @@ namespace PeanutButter.RandomGenerators
             IEnumerable<T> items
         )
         {
-            int upper;
-            switch (items)
-            {
-                case IList<T> list:
-                    // catches lists and arrays!
-                    upper = list.Count - 1;
-                    return list[GetRandomInt(0, upper)];
-                default:
-                    var itemArray = items.ToArray();
-                    upper = itemArray.Length - 1;
-                    return itemArray[GetRandomInt(0, upper)];
-            }
+            var itemArray = items.ToArray();
+            return GetRandomFrom(itemArray);
+        }
+
+        /// <summary>
+        /// Gets a random item from the provided collection
+        /// </summary>
+        /// <param name="items">Collection of items</param>
+        /// <typeparam name="T">Item type in collection</typeparam>
+        /// <returns>Random value from collection; if the collection is empty, expect an exception</returns>
+        public static T GetRandomFrom<T>(
+            IList<T> items
+        )
+        {
+            var upper = items.Count - 1;
+            return items[GetRandomInt(0, upper)];
         }
 
         /// <summary>
