@@ -19,6 +19,11 @@ using NExpect;
 namespace PeanutButter.Utils.Tests.Dictionaries
 {
     [TestFixture]
+    public class TestDictionaryWrappingObjectCached: TestDictionaryWrappingObject
+    {
+    }
+
+    [TestFixture]
     public class TestDictionaryWrappingObject
     {
         [TestCase(typeof(IDictionary<string, object>))]

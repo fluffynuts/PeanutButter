@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
@@ -282,43 +283,55 @@ namespace PeanutButter.Utils.Dictionaries
                 .Select(p => new KeyValuePair<string, string>(p.Name, p.Name))
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value, Comparer);
         }
+        
+        private static readonly ConcurrentDictionary<Type, IPropertyOrField[]> PropertyCache = new();
 
         private IPropertyOrField[] EnumerateUniqueDataMembers()
         {
-            // 'new' props where the type changes will result
-            // in duplications of property keys, so here we should
-            // behave like one would expect in compiled land: use the
-            // prop/field from the closest type to the hosting type
-            var allProps = _wrappedType.GetProperties(ProxyFlags)
-                // FIXME: what about indexed props?
-                .Where(pi => pi.GetIndexParameters().Length == 0)
-                .Select(pi => new PropertyOrField(pi))
-                .Union(_wrappedType.GetFields(ProxyFlags)
-                    .Select(fi => new PropertyOrField(fi)))
-                .Cast<IPropertyOrField>()
-                .Where(p => !string.IsNullOrWhiteSpace(p.Name))
-                .ToList();
-            var countedProps = allProps.Aggregate(
-                new List<NameWithCount>(),
-                (acc, cur) =>
+            return PropertyCache.FindOrAdd(
+                _wrappedType,
+                () =>
                 {
-                    var counter = acc.FindOrAdd(
-                        o => o.Name == cur.Name,
-                        () => new NameWithCount(cur.Name)
+                    // 'new' props where the type changes will result
+                    // in duplications of property keys, so here we should
+                    // behave like one would expect in compiled land: use the
+                    // prop/field from the closest type to the hosting type
+                    var allProps = _wrappedType.GetProperties(ProxyFlags)
+                        // FIXME: what about indexed props?
+                        .Where(pi => pi.GetIndexParameters().Length == 0)
+                        .Select(pi => new PropertyOrField(pi))
+                        .Union(
+                            _wrappedType.GetFields(ProxyFlags)
+                                .Select(fi => new PropertyOrField(fi))
+                        )
+                        .Cast<IPropertyOrField>()
+                        .Where(p => !string.IsNullOrWhiteSpace(p.Name))
+                        .ToList();
+                    var countedProps = allProps.Aggregate(
+                        new List<NameWithCount>(),
+                        (acc, cur) =>
+                        {
+                            var counter = acc.FindOrAdd(
+                                o => o.Name == cur.Name,
+                                () => new NameWithCount(cur.Name)
+                            );
+                            counter.Count++;
+                            return acc;
+                        }
                     );
-                    counter.Count++;
-                    return acc;
+                    var duplicates = countedProps.Where(o => o.Count > 1).ToArray();
+                    duplicates.ForEach(
+                        dup =>
+                        {
+                            var dupes = allProps.Where(p => p.Name == dup.Name)
+                                .OrderBy(d => d.AncestralDistance)
+                                .ToArray();
+                            var toRemove = dupes.Skip(1).ToArray();
+                            toRemove.ForEach(remove => allProps.Remove(remove));
+                        }
+                    );
+                    return allProps.ToArray();
                 });
-            var duplicates = countedProps.Where(o => o.Count > 1).ToArray();
-            duplicates.ForEach(dup =>
-            {
-                var dupes = allProps.Where(p => p.Name == dup.Name)
-                    .OrderBy(d => d.AncestralDistance)
-                    .ToArray();
-                var toRemove = dupes.Skip(1).ToArray();
-                toRemove.ForEach(remove => allProps.Remove(remove));
-            });
-            return allProps.ToArray();
         }
 
         private static readonly BindingFlags ProxyFlags = BindingFlags.Instance | BindingFlags.Public;
@@ -658,8 +671,8 @@ namespace PeanutButter.Utils.Dictionaries
 
             DictionaryWrappingObject WrapAndCache()
             {
-                return _wrapperCache[rawValue]
-                    = new DictionaryWrappingObject(
+                return _wrapperCache[rawValue] = 
+                    new DictionaryWrappingObject(
                         rawValue,
                         Comparer,
                         _options,
