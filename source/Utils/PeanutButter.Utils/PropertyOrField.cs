@@ -268,10 +268,12 @@ namespace PeanutButter.Utils
         public Type HostingType { get; }
 
         /// <inheritdoc />
-        public int AncestralDistance { get; }
+        public int AncestralDistance
+            => _ancestralDistance ??= CalculateAncestralDistance();
+
+        int? _ancestralDistance;
 
         private readonly Func<object, object> _getValue;
-        private readonly Func<object, object[], object> _getValueIndexed;
         private readonly Action<object, object> _setValue;
 
         /// <summary>
@@ -296,15 +298,9 @@ namespace PeanutButter.Utils
             Type hostingType
         )
         {
-            if (prop is null)
-            {
-                throw new ArgumentNullException(nameof(prop));
-            }
-
-            PropertyInfo = prop;
+            PropertyInfo = prop ?? throw new ArgumentNullException(nameof(prop));
 
             _getValue = prop.GetValue;
-            _getValueIndexed = prop.GetValue;
             _setValue = prop.SetValue;
 
             Name = prop.Name;
@@ -314,7 +310,6 @@ namespace PeanutButter.Utils
             CanRead = prop.CanRead;
             CanWrite = prop.CanWrite;
             HostingType = hostingType ?? throw new ArgumentNullException(nameof(hostingType));
-            AncestralDistance = CalculateAncestralDistance();
         }
 
         /// <summary>
@@ -379,7 +374,6 @@ namespace PeanutButter.Utils
             CanRead = true;
             CanWrite = true;
             HostingType = hostingType ?? throw new ArgumentNullException(nameof(hostingType));
-            AncestralDistance = CalculateAncestralDistance();
         }
 
         /// <inheritdoc />
