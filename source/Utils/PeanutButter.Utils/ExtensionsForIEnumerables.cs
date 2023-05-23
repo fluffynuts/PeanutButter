@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -33,6 +34,25 @@ namespace PeanutButter.Utils
             foreach (var item in collection)
             {
                 toRun(item);
+            }
+        }
+
+        /// <summary>
+        /// call Thread.Join for each thread in the collection
+        /// </summary>
+        /// <param name="threads"></param>
+        public static void JoinAll(
+            this IEnumerable<Thread> threads
+        )
+        {
+            if (threads is null)
+            {
+                return;
+            }
+
+            foreach (var t in threads)
+            {
+                t.Join();
             }
         }
 

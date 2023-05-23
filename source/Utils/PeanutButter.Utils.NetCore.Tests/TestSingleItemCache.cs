@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Collections.Concurrent;
 using NUnit.Framework;
 using NExpect;
 using static NExpect.Expectations;
@@ -143,6 +142,53 @@ namespace PeanutButter.Utils.NetCore.Tests
                 .To.Equal(expected2);
             Expect(callCount)
                 .To.Equal(2);
+        }
+
+        [Test]
+        public void ShouldBeThreadSafe()
+        {
+            // Arrange
+            var semaphore = new SemaphoreSlim(1, 1);
+            var results = new ConcurrentBag<bool>();
+            var threadCount = 64;
+            var threadWaitTime = TimeSpan.FromMilliseconds(10);
+            var semaphoreWaitTime = threadWaitTime.Add(TimeSpan.FromMilliseconds(10));
+            var cacheTime = threadWaitTime.Add(threadWaitTime.Add(TimeSpan.FromMilliseconds(-5)));
+            var sut = Create(() =>
+            {
+                if (semaphore.Wait(semaphoreWaitTime))
+                {
+                    Thread.Sleep(threadWaitTime);
+                    semaphore.Release();
+                    results.Add(true);
+                }
+                else
+                {
+                    results.Add(false);
+                }
+                return results.Count;
+            }, cacheTime);
+            // Act
+            var threads = new List<Thread>();
+            var collected = new ConcurrentBag<int>();
+            var barrier = new Barrier(threadCount + 1);
+            for (var i = 0; i < threadCount; i++)
+            {
+                var t = new Thread(() =>
+                {
+                    collected.Add(sut.Value);
+                    Thread.Sleep(threadWaitTime);
+                    barrier.SignalAndWait();
+                });
+                t.Start();
+                threads.Add(t);
+            }
+            
+            // Assert
+            barrier.SignalAndWait();
+            threads.JoinAll();
+            Expect(results.ToArray())
+                .To.Contain.All.Matched.By(o => o);
         }
 
         private static SingleItemCache<T> Create<T>(

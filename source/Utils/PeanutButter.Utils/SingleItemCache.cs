@@ -59,10 +59,8 @@ namespace PeanutButter.Utils
     {
         private readonly Func<T> _generator;
         private readonly long _timeToLive;
-        private readonly object _lockObject = new();
         private T _cachedValue;
-
-        private long _freshUntilMs;
+        private long _lastFetched;
 
         /// <summary>
         /// The value for the generator, or a cached value,
@@ -82,18 +80,14 @@ namespace PeanutButter.Utils
 
         private T RetrieveValue()
         {
-            lock (_lockObject)
+            var now = DateTime.Now.Ticks;
+            var lastFetched = Interlocked.Exchange(ref _lastFetched, now);
+            if (now - lastFetched < _timeToLive)
             {
-                if (_freshUntilMs > DateTime.Now.Ticks)
-                {
-                    return _cachedValue;
-                }
-
-                _cachedValue = _generator();
-                _freshUntilMs = DateTime.Now.Ticks + _timeToLive;
+                return _cachedValue;
             }
 
-            return _cachedValue;
+            return _cachedValue = _generator();
         }
 
         /// <summary>
@@ -120,7 +114,7 @@ namespace PeanutButter.Utils
         /// <exception cref="NotImplementedException"></exception>
         public void Invalidate()
         {
-            Interlocked.Exchange(ref _freshUntilMs, 0);
+            Interlocked.Exchange(ref _lastFetched, 0);
         }
     }
 }
