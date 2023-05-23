@@ -48,26 +48,23 @@ namespace PeanutButter.Utils
             {
                 return filePath;
             }
-
-            using (var io = ProcessIO.Start("ls", "-l", filePath))
+            
+            var script = @$"if test -x ""{ filePath }""; then
+    exit 0
+else
+    exit 1
+fi";
+            using var tmp = new AutoTempFile();
+            File.WriteAllText(tmp.Path, script);
+            using var io = ProcessIO.Start("sh", tmp.Path);
+            if (!io.Started)
             {
-                if (!io.Started)
-                {
-                    return null;
-                }
-
-                var first = io.StandardOutput.FirstOrDefault();
-                if (first == null)
-                {
-                    return null;
-                }
-
-                var parts = first.Split(' ');
-                // look for the attribs section, and assume executable if any 'x'
-                return parts[0].Contains("x")
-                    ? filePath
-                    : null;
+                return null;
             }
+            io.WaitForExit();
+            return io.ExitCode == 0
+                ? filePath
+                : null;
         }
 
         private static string[] GenerateWindowsExecutableExtensionsList()

@@ -24,5 +24,26 @@ namespace PeanutButter.Utils.Tests
             // Assert
             Expect(result.ToLowerInvariant()).To.Equal(expected.ToLowerInvariant());
         }
+        
+        [Test]
+        [Explicit("requires local redis-server")]
+        public void ShouldBeAbleToFindRedisOnOsx()
+        {
+            if (!Platform.IsUnixy)
+            {
+                Assert.Ignore("Looking for redis-server on windows will fail");
+                return;
+            }
+
+            // Arrange
+            var search = "redis-server";
+            // Act
+            var result = Find.InPath(search);
+            // Assert
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result)
+                .To.Exist();
+        }
     }
 }
