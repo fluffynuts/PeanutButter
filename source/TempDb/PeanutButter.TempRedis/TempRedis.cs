@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using System.Threading;
 using PeanutButter.Utils;
 using StackExchange.Redis;
 
@@ -103,11 +105,36 @@ namespace PeanutButter.TempRedis
             RedisLocatorStrategies.FindInPath |
             RedisLocatorStrategies.FindAsWindowsService |
             RedisLocatorStrategies.DownloadForWindowsIfNecessary;
+
+        /// <summary>
+        /// Enables save-to-disk, which means redis-server should
+        /// (mostly) survive a crash.
+        /// </summary>
+        public bool EnableSaveToDisk { get; set; } = true;
+
+        /// <summary>
+        /// When enabled (default), only bind to 127.0.0.1
+        /// - default redis binding is to all interfaces,
+        /// this option is defaulted to true such that the
+        /// default TempRedis behavior is to bind to localhost
+        /// _only_
+        /// </summary>
+        public bool BindToLocalhostOnly { get; set; } = true;
+
+        /// <summary>
+        /// How many databases to provide for (default is 1)
+        /// </summary>
+        public int DatabaseCount { get; set; } = 1;
     }
 
     /// <inheritdoc />
     public class TempRedis : ITempRedis
     {
+        /// <summary>
+        /// For diagnostic purposes: monitor the actual server process
+        /// </summary>
+        public Process ServerProcess => _serverProcess;
+
         private Process _serverProcess;
 
         /// <inheritdoc />
@@ -119,6 +146,11 @@ namespace PeanutButter.TempRedis
 
         private string _executable;
 
+        private bool _stopped = false;
+        private Thread _watcherThread;
+        private AutoTempFile _configFile;
+        private AutoTempFile _saveFile;
+
         /// <summary>
         /// Possible strategies for locating a redis server executable
         /// </summary>
@@ -127,7 +159,22 @@ namespace PeanutButter.TempRedis
         /// <inheritdoc />
         public ConnectionMultiplexer Connect() =>
             ConnectionMultiplexer.Connect(
-                $"localhost:{this.Port}"
+                new ConfigurationOptions()
+                {
+                    EndPoints =
+                    {
+                        {
+                            "127.0.0.1",
+                            Port
+                        },
+                    },
+                    AbortOnConnectFail = false,
+                    // don't want infinite - rather fail a test than stall
+                    ConnectRetry = 10,
+                    ConnectTimeout = 500,
+                    AsyncTimeout = 1000,
+                    SyncTimeout = 1000,
+                }
             );
 
 
@@ -151,14 +198,41 @@ namespace PeanutButter.TempRedis
             _executable = options.PathToRedisService;
             LocatorStrategies = options.LocatorStrategies;
             Port = PortFinder.FindOpenPort();
+            GenerateConfig(options);
             if (options.AutoStart)
             {
                 Start();
             }
         }
 
+        private void GenerateConfig(TempRedisOptions options)
+        {
+            _saveFile = new AutoTempFile();
+            _configFile = new AutoTempFile();
+            File.WriteAllText(
+                _configFile.Path,
+                @$"
+# putting in the port for completeness, though it will be
+# specified on the commandline to make it easier to find
+# this instance via process monitoring
+port {Port}
+{(options.BindToLocalhostOnly ? "bind 127.0.0.1" : "")}
+databases {options.DatabaseCount}
+aof-load-truncated yes
+appendfsync {(options.EnableSaveToDisk ? "always" : "no")}
+appendonly yes
+appendfilename {Path.GetFileName(_saveFile.Path)}
+".Trim()
+            );
+        }
+
         /// <inheritdoc />
         public void Start()
+        {
+            StartInternal(startWatcher: true);
+        }
+
+        private void StartInternal(bool startWatcher)
         {
             var canStart = _serverProcess?.HasExited ?? true;
             if (!canStart)
@@ -173,11 +247,12 @@ namespace PeanutButter.TempRedis
             {
                 StartInfo =
                 {
+                    WorkingDirectory = Path.GetDirectoryName(_configFile.Path)!,
                     FileName = RedisExecutable,
                     CreateNoWindow = true,
                     RedirectStandardError = true,
                     RedirectStandardOutput = true,
-                    Arguments = $"--port {Port}",
+                    Arguments = $"\"{_configFile.Path}\" --port {Port}",
                     UseShellExecute = false
                 }
             };
@@ -185,6 +260,97 @@ namespace PeanutButter.TempRedis
             {
                 throw new Exception($"Unable to start {RedisExecutable} on port {Port}");
             }
+
+            TestServerIsUp();
+
+            if (startWatcher)
+            {
+                WatchServerProcess();
+            }
+        }
+
+        private void TestServerIsUp()
+        {
+            try
+            {
+                using var db = ConnectionMultiplexer.Connect(
+                    new ConfigurationOptions()
+                    {
+                        EndPoints =
+                        {
+                            {
+                                "127.0.0.1",
+                                Port
+                            }
+                        },
+                        ConnectTimeout = 50,
+                        ConnectRetry = 10,
+                        AbortOnConnectFail = false
+                    }
+                );
+                Console.Error.WriteLine("TempRedis is up");
+            }
+            catch (RedisConnectionException)
+            {
+                if (!_serverProcess.HasExited)
+                {
+                    _serverProcess.Kill();
+                }
+
+                var stdout = _serverProcess.StandardOutput.ReadToEnd();
+                var stderr = _serverProcess.StandardOutput.ReadToEnd();
+                throw new Exception(
+                    $@"Unable to start {RedisExecutable} on port {Port}:
+stdout:
+{stdout}
+stderr:
+{stderr}
+"
+                );
+            }
+        }
+
+        private void WatchServerProcess()
+        {
+            var t = new Thread(
+                () =>
+                {
+                    while (!_stopped)
+                    {
+                        RestartServerIfRequired();
+                        Thread.Sleep(100);
+                    }
+                }
+            );
+            t.Start();
+            var existingWatcher = Interlocked.Exchange(ref _watcherThread, t);
+            if (existingWatcher is not null)
+            {
+                existingWatcher.Join();
+            }
+        }
+
+        private void RestartServerIfRequired()
+        {
+            if (_stopped)
+            {
+                return;
+            }
+
+            var serverProcess = _serverProcess;
+            if (serverProcess is null)
+            {
+                return;
+            }
+
+            if (!serverProcess.HasExited)
+            {
+                return;
+            }
+
+            _serverProcess = null;
+            Console.Error.WriteLine("Restarting!");
+            StartInternal(startWatcher: false);
         }
 
         /// <inheritdoc />
@@ -192,6 +358,9 @@ namespace PeanutButter.TempRedis
         {
             try
             {
+                var watcher = Interlocked.Exchange(ref _watcherThread, null);
+                _stopped = true;
+                watcher?.Join();
                 _serverProcess?.Kill();
                 _serverProcess?.WaitForExit();
                 _serverProcess = null;
@@ -213,6 +382,10 @@ namespace PeanutButter.TempRedis
         public void Dispose()
         {
             Stop();
+            _configFile?.Dispose();
+            _configFile = null;
+            _saveFile?.Dispose();
+            _saveFile = null;
         }
 
         private string FindRedisExecutable()
@@ -256,20 +429,22 @@ namespace PeanutButter.TempRedis
             }
 
             var downloadError = "unknown";
-            var result = Async.RunSync(() =>
-            {
-                var downloader = new MicrosoftRedisDownloader();
-                try
+            var result = Async.RunSync(
+                () =>
                 {
-                    return downloader.Fetch();
+                    var downloader = new MicrosoftRedisDownloader();
+                    try
+                    {
+                        return downloader.Fetch();
+                    }
+                    catch (Exception ex)
+                    {
+                        downloadError = ex.Message;
+                        return null;
+                    }
                 }
-                catch (Exception ex)
-                {
-                    downloadError = ex.Message;
-                    return null;
-                }
-            });
-            
+            );
+
             if (result is not null)
             {
                 return result;
@@ -278,7 +453,6 @@ namespace PeanutButter.TempRedis
             throw new NotSupportedException(
                 GenerateFailMessageFor(lookInPath, lookForService, true, downloadError)
             );
-
         }
 
         private static string GenerateFailMessageFor(

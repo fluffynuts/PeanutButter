@@ -14,10 +14,11 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.3.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
     <PackageReference Include="Quackers.TestLogger" Version="1.0.12" />
-    <PackageReference Include="StackExchange.Redis" Version="2.6.48" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.111" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
     <ProjectReference Include="..\PeanutButter.TempRedis\PeanutButter.TempRedis.csproj" />
   </ItemGroup>
 
