@@ -24,19 +24,27 @@ namespace PeanutButter.Utils
             : ";";
 
         /// <summary>
+        /// Produces a fresh list of the folders in your path according
+        /// to the current value of the PATH environment variable on
+        /// every invocation.
+        /// </summary>
+        public static string[] FoldersInPath =>
+            (Environment.GetEnvironmentVariable("PATH") ?? "").Split(
+                new[] { PathItemSeparator },
+                StringSplitOptions.RemoveEmptyEntries
+            );
+
+        /// <summary>
         /// Finds the first match for a given filename in the PATH
         /// </summary>
         /// <param name="search"></param>
         /// <returns></returns>
         public static string InPath(string search)
         {
-            var paths = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(
-                new[] { PathItemSeparator },
-                StringSplitOptions.RemoveEmptyEntries);
             var extensions = Platform.IsUnixy
                 ? new string[0]
                 : GenerateWindowsExecutableExtensionsList();
-            return paths.Aggregate(
+            return FoldersInPath.Aggregate(
                 null as string,
                 (acc, cur) => acc ?? ValidateExecutable(SearchFor(search, cur, extensions))
             );
@@ -48,8 +56,8 @@ namespace PeanutButter.Utils
             {
                 return filePath;
             }
-            
-            var script = @$"if test -x ""{ filePath }""; then
+
+            var script = @$"if test -x ""{filePath}""; then
     exit 0
 else
     exit 1
@@ -61,6 +69,7 @@ fi";
             {
                 return null;
             }
+
             io.WaitForExit();
             return io.ExitCode == 0
                 ? filePath
@@ -76,7 +85,8 @@ fi";
         private static string SearchFor(
             string search,
             string inFolder,
-            IEnumerable<string> withExecutableExtensions)
+            IEnumerable<string> withExecutableExtensions
+        )
         {
             var fullPath = Path.Combine(inFolder, search);
             if (File.Exists(fullPath))
@@ -98,7 +108,8 @@ fi";
                     return File.Exists(thisTest)
                         ? thisTest
                         : null;
-                });
+                }
+            );
         }
     }
 }

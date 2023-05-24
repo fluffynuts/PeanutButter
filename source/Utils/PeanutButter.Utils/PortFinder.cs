@@ -132,6 +132,64 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Attempt to find an open port on the ipv4 loopback interface
+        /// (localhost / 127.0.0.1), starting at the provided
+        /// value and sequentially testing ports in order, until
+        /// one can (probably) be used.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <returns></returns>
+        public static int FindOpenPortFrom(
+            int start
+        )
+        {
+            return FindOpenPortFrom(
+                IPAddress.Loopback,
+                start
+            );
+        }
+
+        /// <summary>
+        /// Attempt to find an open port, starting at the provided
+        /// value and sequentially testing ports in order, until
+        /// one can (probably) be used.
+        /// </summary>
+        /// <param name="forAddress"></param>
+        /// <param name="start"></param>
+        /// <returns></returns>
+        public static int FindOpenPortFrom(
+            IPAddress forAddress,
+            int start
+        )
+        {
+            return FindOpenPort(
+                forAddress,
+                start,
+                MAX_PORT,
+                SequentialPortLister,
+                NullLogger
+            );
+        }
+
+        private static int SequentialPortLister(
+            int min,
+            int max,
+            int current
+        )
+        {
+            if (current < min)
+            {
+                return min;
+            }
+
+            if (current > max)
+            {
+                return max;
+            }
+            return current + 1;
+        }
+
+        /// <summary>
         /// Attempts to find an unbound port on the provided ip address
         /// within the provided range using the provided port attempt generator
         /// The portAttemptGenerator callback is called with 3 arguments:
@@ -155,27 +213,27 @@ namespace PeanutButter.Utils
         )
         {
             var maxTries = Math.Abs(max - min);
-            var test = 0;
+            var current = 0;
             for (var i = 0; i < maxTries; i++)
             {
                 lock (Used)
                 {
                     do
                     {
-                        test = portAttemptGenerator(min, max, test);
-                    } while (Used.Contains(test));
+                        current = portAttemptGenerator(min, max, current);
+                    } while (Used.Contains(current));
 
-                    Used.Add(test);
+                    Used.Add(current);
                 }
 
-                attemptLogger?.Invoke($"Testing if port {test} is already bound on {forAddress}");
-                if (PortIsActivelyInUse(forAddress, test))
+                attemptLogger?.Invoke($"Testing if port {current} is already bound on {forAddress}");
+                if (PortIsActivelyInUse(forAddress, current))
                 {
                     continue;
                 }
 
-                attemptLogger?.Invoke($"Looks like {forAddress}:{test} is not bound");
-                return test;
+                attemptLogger?.Invoke($"Looks like {forAddress}:{current} is not bound");
+                return current;
             }
 
             throw new UnableToFindOpenPortException(

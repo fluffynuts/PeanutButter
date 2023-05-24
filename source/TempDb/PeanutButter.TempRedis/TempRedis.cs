@@ -125,6 +125,30 @@ namespace PeanutButter.TempRedis
         /// How many databases to provide for (default is 1)
         /// </summary>
         public int DatabaseCount { get; set; } = 1;
+
+        /// <summary>
+        /// Environment variable observed for a preference of port
+        /// to run on (may make debugging easier). This port is tried
+        /// first, if set, and ports are sequentially tried after that
+        /// in the event that it is not available.
+        /// </summary>
+        public const string TEMPREDIS_PORT_HINT = nameof(TEMPREDIS_PORT_HINT);
+
+        /// <summary>
+        /// The preferred port to run on. If set, TempRedis will attempt
+        /// to start a server on this port. If not available, ports will
+        /// be sequentially tested from this value upward to find an
+        /// available one. May make debugging easier.
+        /// </summary>
+        public int? PortHint { get; set; } =
+            int.TryParse(Environment.GetEnvironmentVariable(TEMPREDIS_PORT_HINT), out var env)
+                ? env
+                : null;
+
+        /// <summary>
+        /// Set this to get debug logs, eg around startup and restart
+        /// </summary>
+        public Action<string> DebugLogger { get; set; }
     }
 
     /// <inheritdoc />
@@ -136,6 +160,27 @@ namespace PeanutButter.TempRedis
         public Process ServerProcess => _serverProcess;
 
         private Process _serverProcess;
+        
+        /// <summary>
+        /// Test if the server process is running. If we're in the
+        /// middle of a restart, it's possible to get the exception
+        /// "No process is associated with this object" when attempting
+        /// to read HasExited off of the exposed ServerProcess
+        /// </summary>
+        public bool ServerProcessIsRunning => ReadProcessIsRunning();
+
+        private bool ReadProcessIsRunning()
+        {
+            try
+            {
+                return ServerProcess is not null &&
+                    !ServerProcess.HasExited;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         /// <inheritdoc />
         public int Port { get; }
@@ -150,6 +195,7 @@ namespace PeanutButter.TempRedis
         private Thread _watcherThread;
         private AutoTempFile _configFile;
         private AutoTempFile _saveFile;
+        private readonly Action<string> _logger;
 
         /// <summary>
         /// Possible strategies for locating a redis server executable
@@ -195,9 +241,12 @@ namespace PeanutButter.TempRedis
         /// <param name="options"></param>
         public TempRedis(TempRedisOptions options)
         {
+            _logger = options.DebugLogger ?? NullLogger;
             _executable = options.PathToRedisService;
             LocatorStrategies = options.LocatorStrategies;
-            Port = PortFinder.FindOpenPort();
+            Port = options.PortHint.HasValue
+                ? PortFinder.FindOpenPortFrom(options.PortHint.Value)
+                : PortFinder.FindOpenPort();
             GenerateConfig(options);
             if (options.AutoStart)
             {
@@ -205,10 +254,16 @@ namespace PeanutButter.TempRedis
             }
         }
 
+        private static void NullLogger(string s)
+        {
+            // intentionally left blank
+        }
+
         private void GenerateConfig(TempRedisOptions options)
         {
             _saveFile = new AutoTempFile();
             _configFile = new AutoTempFile();
+            _logger.Invoke($"writing config at {_configFile.Path} with append storage at {_saveFile.Path}");
             File.WriteAllText(
                 _configFile.Path,
                 @$"
@@ -237,11 +292,13 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
             var canStart = _serverProcess?.HasExited ?? true;
             if (!canStart)
             {
-                Console.WriteLine(
-                    $"-- temp redis already running with pid: {_serverProcess.Id}"
+                _logger(
+                    $"{nameof(TempRedis)} already running with pid: {_serverProcess.Id}"
                 );
                 return;
             }
+
+            _logger($"attempting to start up on port: {Port}");
 
             _serverProcess = new Process()
             {
@@ -261,6 +318,7 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
                 throw new Exception($"Unable to start {RedisExecutable} on port {Port}");
             }
 
+            _logger($"redis-server process started: {_serverProcess.Id}");
             TestServerIsUp();
 
             if (startWatcher)
@@ -273,6 +331,7 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
         {
             try
             {
+                _logger("testing connection to server...");
                 using var db = ConnectionMultiplexer.Connect(
                     new ConfigurationOptions()
                     {
@@ -288,7 +347,7 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
                         AbortOnConnectFail = false
                     }
                 );
-                Console.Error.WriteLine("TempRedis is up");
+                _logger("server is up!");
             }
             catch (RedisConnectionException)
             {
@@ -348,8 +407,8 @@ stderr:
                 return;
             }
 
+            _logger("redis-server appears to have exited... restarting...");
             _serverProcess = null;
-            Console.Error.WriteLine("Restarting!");
             StartInternal(startWatcher: false);
         }
 
@@ -360,7 +419,9 @@ stderr:
             {
                 var watcher = Interlocked.Exchange(ref _watcherThread, null);
                 _stopped = true;
+                _logger("stopping redis-server watcher thread");
                 watcher?.Join();
+                _logger("killing redis-server");
                 _serverProcess?.Kill();
                 _serverProcess?.WaitForExit();
                 _serverProcess = null;
@@ -374,6 +435,7 @@ stderr:
         /// <inheritdoc />
         public void Restart()
         {
+            _logger("manual restart invoked");
             Stop();
             Start();
         }
@@ -405,8 +467,8 @@ stderr:
             {
                 throw new NotSupportedException(
                     lookInPath
-                        ? $"{nameof(TempRedis)} requires redis-server to be in your path for this platform. Is redis installed on this system?"
-                        : $"{nameof(TempRedis)} only supports finding redis-server in your path for this platform. Please enable the flag or pass in a path to redis-server"
+                        ? $"{nameof(TempRedis)} requires redis-server to be in your path for this platform. Is redis installed on this system? Searched folders:\n{string.Join("\n", Find.FoldersInPath)}"
+                        : $"{nameof(TempRedis)} only supports finding redis-server in your path for this platform. Please enable the flag or pass in a path to redis-server."
                 );
             }
 
