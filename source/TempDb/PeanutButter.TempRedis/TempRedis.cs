@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using PeanutButter.Utils;
 using StackExchange.Redis;
@@ -160,7 +163,7 @@ namespace PeanutButter.TempRedis
         public Process ServerProcess => _serverProcess;
 
         private Process _serverProcess;
-        
+
         /// <summary>
         /// Test if the server process is running. If we're in the
         /// middle of a restart, it's possible to get the exception
@@ -271,13 +274,27 @@ namespace PeanutButter.TempRedis
 # specified on the commandline to make it easier to find
 # this instance via process monitoring
 port {Port}
-{(options.BindToLocalhostOnly ? "bind ::1 127.0.0.1" : "")}
+{(options.BindToLocalhostOnly ? $"bind {ListLocalHostAddresses()}" : "")}
 databases {options.DatabaseCount}
 aof-load-truncated yes
 appendfsync {(options.EnableSaveToDisk ? "always" : "no")}
 appendonly yes
 appendfilename {Path.GetFileName(_saveFile.Path)}
 ".Trim()
+            );
+        }
+
+        private string ListLocalHostAddresses()
+        {
+            var entry = Dns.GetHostEntry("localhost");
+            return string.Join(
+                " ",
+                entry.AddressList
+                    // during testing, I found that if the ipv6 address was specified
+                    // second, it would not be bound, so we order here to get any
+                    // ipv6 address (if available) first
+                    .OrderBy(a => a.AddressFamily != AddressFamily.InterNetworkV6)
+                    .Select(a => $"{a}")
             );
         }
 

@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using StackExchange.Redis;
 using NUnit.Framework;
@@ -33,6 +35,29 @@ public class TestTempRedis
         // Assert
         Expect(server)
             .Not.To.Be.Null(() => "Can't determine the redis server");
+    }
+
+    [Test]
+    [Explicit(
+        @"Discovery: 
+    we should only use valid values mapped back to localhost 
+    - a system without ipv6 may fail if we configure binding 
+    to include ::1"
+    )]
+    public void WhatLoopbackDevicesDoIHave()
+    {
+        // Arrange
+        // Act
+        var entry = Dns.GetHostEntry("localhost");
+        var result = string.Join(
+            " ",
+            entry.AddressList
+                .OrderBy(a => a.AddressFamily != AddressFamily.InterNetworkV6)
+                .Select(a => $"{a}")
+        );
+        // Assert
+        Expect(result)
+            .To.Equal("::1 127.0.0.1");
     }
 
     [Test]
@@ -96,6 +121,7 @@ public class TestTempRedis
                 {
                     throw;
                 }
+
                 // because of tighter timings in this test,
                 // a single read may, occasionally, fail
                 Thread.Sleep(10);
