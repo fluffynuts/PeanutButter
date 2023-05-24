@@ -271,7 +271,7 @@ namespace PeanutButter.TempRedis
 # specified on the commandline to make it easier to find
 # this instance via process monitoring
 port {Port}
-{(options.BindToLocalhostOnly ? "bind 127.0.0.1" : "")}
+{(options.BindToLocalhostOnly ? "bind ::1 127.0.0.1" : "")}
 databases {options.DatabaseCount}
 aof-load-truncated yes
 appendfsync {(options.EnableSaveToDisk ? "always" : "no")}

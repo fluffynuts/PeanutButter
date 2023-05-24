@@ -13,19 +13,21 @@ namespace PeanutButter.TempRedis.Tests;
 [TestFixture]
 public class TestTempRedis
 {
-    [Test]
-    public void ShouldStartUp()
+    [TestCase("127.0.0.1")]
+    [TestCase("localhost")]
+    public void ShouldStartUp(string ipOrHostName)
     {
         // Arrange
         using var sut = Create();
 
         // Act
-        var connection = ConnectionMultiplexer.Connect(
-            $"127.0.0.1:{sut.Port}"
+        var connection1 = ConnectionMultiplexer.Connect(
+            $"{ipOrHostName}:{sut.Port}",
+            o => o.ConnectTimeout = 1000
         );
-        connection.GetDatabase();
-        var server = connection.GetEndPoints()
-            .Select(e => connection.GetServer(e))
+        connection1.GetDatabase();
+        var server = connection1.GetEndPoints()
+            .Select(e => connection1.GetServer(e))
             .FirstOrDefault();
 
         // Assert
