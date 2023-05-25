@@ -27,6 +27,20 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
             return With(o => o.Model = model);
         }
 
+        /// <summary>
+        /// Add arbitrary data to the view data
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public ViewDataDictionaryBuilder With(
+            string key,
+            object value
+        )
+        {
+            return With(o => o[key] = value);
+        }
+
         /// <inheritdoc />
         protected override ViewDataDictionary ConstructEntity()
         {

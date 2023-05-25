@@ -3,8 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Options;
+using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
@@ -81,6 +83,19 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
     {
         // To do WriteJsonAsync, the writer needs to know about json options...
         RegisterInstance<IOptions<JsonOptions>>(new DefaultJsonOptions());
+        RegisterInstance<IActionResultExecutor<ContentResult>>(
+            new FakeContentResultExecutor()
+        );
+        RegisterInstance<IActionResultExecutor<ObjectResult>>(
+            new FakeObjectResultExecutor()
+        );
+        var viewResultExecutor = new FakeViewResultExecutor();
+        RegisterInstance<IActionResultExecutor<PartialViewResult>>(
+            viewResultExecutor
+        );
+        RegisterInstance<IActionResultExecutor<ViewResult>>(
+            viewResultExecutor
+        );
     }
 
     /// <inheritdoc />
@@ -136,17 +151,19 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
     {
         var resolved = false;
         TService resolvedValue = default;
-        Register<TService>(() =>
-        {
-            if (resolved)
+        Register<TService>(
+            () =>
             {
+                if (resolved)
+                {
+                    return resolvedValue;
+                }
+
+                resolvedValue = factory();
+                resolved = true;
                 return resolvedValue;
             }
-
-            resolvedValue = factory();
-            resolved = true;
-            return resolvedValue;
-        });
+        );
     }
 
     private bool TryRegisterAutoFactory(Type serviceType, out Func<object> factory)
@@ -282,7 +299,8 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
         throw new ArgumentException(
             $@"Unable to resolve constructor parameters for {type}. Manually resolve one of the following constructors:
 {string.Join("\n", unresolved.Select(l => string.Join(",", l)))}
-");
+"
+        );
     }
 
     private readonly ConcurrentDictionary<Type, Func<object>> _factories = new();

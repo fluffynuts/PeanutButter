@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -35,6 +36,10 @@ public class FakeHttpResponse : HttpResponse, IFake
     /// <inheritdoc />
     public override void Redirect(string location, bool permanent)
     {
+        StatusCode = permanent 
+            ? (int)HttpStatusCode.PermanentRedirect 
+            : (int)HttpStatusCode.Redirect;
+        Headers.Location = location;
         _onRedirect.ForEach(func => func?.Invoke(location, permanent));
     }
 

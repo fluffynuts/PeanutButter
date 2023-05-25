@@ -265,7 +265,8 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
                 var form = request.Form.As<FakeFormCollection>();
                 var files = form.Files.As<FakeFormFileCollection>();
                 files.Add(new FakeFormFile(content, name, fileName));
-            });
+            }
+        );
     }
 
 
@@ -468,18 +469,20 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
     /// <exception cref="NotSupportedException"></exception>
     public HttpContextBuilder WithServicesMutator(Action<HttpContext, MinimalServiceProvider> mutator)
     {
-        return With(o =>
-        {
-            if (o.RequestServices is not MinimalServiceProvider provider)
+        return With(
+            o =>
             {
-                throw new NotSupportedException(
-                    $@"Only the {nameof(MinimalServiceProvider)} provider is supported for service registration
+                if (o.RequestServices is not MinimalServiceProvider provider)
+                {
+                    throw new NotSupportedException(
+                        $@"Only the {nameof(MinimalServiceProvider)} provider is supported for service registration
 via builder methods. If you're providing your own RequestServices, you'll have to register elsewhere."
-                );
-            }
+                    );
+                }
 
-            mutator(o, provider);
-        });
+                mutator(o, provider);
+            }
+        );
     }
 
     /// <summary>
@@ -490,18 +493,20 @@ via builder methods. If you're providing your own RequestServices, you'll have t
     /// <exception cref="NotSupportedException"></exception>
     public HttpContextBuilder WithServicesMutator(Action<MinimalServiceProvider> mutator)
     {
-        return With(o =>
-        {
-            if (o.RequestServices is not MinimalServiceProvider provider)
+        return With(
+            o =>
             {
-                throw new NotSupportedException(
-                    $@"Only the {nameof(MinimalServiceProvider)} provider is supported for service registration
+                if (o.RequestServices is not MinimalServiceProvider provider)
+                {
+                    throw new NotSupportedException(
+                        $@"Only the {nameof(MinimalServiceProvider)} provider is supported for service registration
 via builder methods. If you're providing your own RequestServices, you'll have to register elsewhere."
-                );
-            }
+                    );
+                }
 
-            mutator(provider);
-        });
+                mutator(provider);
+            }
+        );
     }
 
     /// <summary>
