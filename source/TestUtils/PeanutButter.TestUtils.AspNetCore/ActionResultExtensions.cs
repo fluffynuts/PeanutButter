@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PeanutButter.TestUtils.AspNetCore.Builders;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.AspNetCore
 {
@@ -14,11 +15,24 @@ namespace PeanutButter.TestUtils.AspNetCore
     {
         /// <summary>
         /// Resolve the HttpResponse that would be generated for
+        /// the provided action result (synchronous overload)
+        /// </summary>
+        /// <param name="actionResult"></param>
+        /// <returns></returns>
+        public static HttpResponse ResolveResponse(
+            this IActionResult actionResult
+        )
+        {
+            return Async.RunSync(actionResult.ResolveResponseAsync);
+        }
+
+        /// <summary>
+        /// Resolve the HttpResponse that would be generated for
         /// the provided action result
         /// </summary>
         /// <param name="actionResult"></param>
         /// <returns></returns>
-        public static async Task<HttpResponse> ResolveResponse(
+        public static async Task<HttpResponse> ResolveResponseAsync(
             this IActionResult actionResult
         )
         {
