@@ -129,6 +129,13 @@ public class TestMinimalServiceProvider
         }
 
         public Service5(
+            IService4 service4
+        )
+        {
+            Service4 = service4;
+        }
+
+        public Service5(
             IService4 service4,
             IService3 service3
         )

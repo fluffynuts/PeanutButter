@@ -262,6 +262,7 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
                 return true;
             }
         }
+
         return false;
     }
 
@@ -274,6 +275,7 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
                 return false;
             }
         }
+
         return true;
     }
 
@@ -324,27 +326,20 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
 
     private object[] ResolveConstructorParametersFor(Type type)
     {
-        var constructors = type.GetConstructors();
+        var constructorInfo = type.GetConstructors()
+            .Where(c => c.IsPublic)
+            .Select(c => (constructor: c, parameters: c.GetParameters()))
+            .OrderByDescending(o => o.parameters.Length)
+            .ToArray();
 
         var unresolved = new List<List<Type>>();
-        foreach (var constructor in constructors)
+        foreach (var info in constructorInfo)
         {
-            if (constructor.IsPrivate)
-            {
-                continue;
-            }
-            var constructorParameters = constructor.GetParameters();
-            if (constructorParameters.Length == 0)
-            {
-                // prefer the fullest constructor
-                continue;
-            }
-
             var thisUnresolved = new List<Type>();
             unresolved.Add(thisUnresolved);
             var parameters = new List<object>();
             var allResolved = true;
-            foreach (var pt in constructor.GetParameters().Select(p => p.ParameterType))
+            foreach (var pt in info.parameters.Select(p => p.ParameterType))
             {
                 try
                 {
@@ -361,11 +356,6 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
             {
                 return parameters.ToArray();
             }
-        }
-        
-        if (constructors.Any(c => c.GetParameters().Length == 0))
-        {
-            return new object[0];
         }
 
         throw new ArgumentException(
