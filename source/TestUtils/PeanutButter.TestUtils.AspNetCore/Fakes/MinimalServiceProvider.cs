@@ -101,17 +101,30 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
     /// <inheritdoc />
     public object GetService(Type serviceType)
     {
+        return TryGetService(serviceType)
+            ?? throw new NotImplementedException(
+                $"No factory registered or could be generated for {serviceType}"
+            );
+    }
+
+    /// <summary>
+    /// Attempt to resolve the service, returning null if we can't
+    /// </summary>
+    /// <param name="serviceType"></param>
+    /// <returns></returns>
+    public object TryGetService(Type serviceType)
+    {
         if (_factories.TryGetValue(serviceType, out var factory))
         {
             return factory();
         }
 
-        if (!TryRegisterAutoFactory(serviceType, out factory))
+        if (TryRegisterAutoFactory(serviceType, out factory))
         {
-            throw new NotImplementedException($"No factory registered for {serviceType}");
+            return factory();
         }
 
-        return factory();
+        return null;
     }
 
     /// <inheritdoc />
@@ -202,7 +215,8 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
         foreach (var t in AllTypes)
         {
             var interfaces = AllInterfacesFor(t);
-            if (interfaces.Contains(serviceType))
+            if (interfaces.Contains(serviceType) &&
+                !t.IsAbstract)
             {
                 possible.Add(t);
             }
@@ -214,7 +228,53 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
             impl = possible[0];
         }
 
-        return hasSingleImplementation;
+        // try to find one with no parameters
+        var parameterless = possible.FirstOrDefault(
+            t => t.GetConstructors().Any(
+                c => c.IsPublic && c.GetParameters().Length == 0
+            )
+        );
+        if (parameterless is not null)
+        {
+            impl = parameterless;
+            return true;
+        }
+
+        var constructable = possible.FirstOrDefault(
+            CanResolveAllConstructorParameters
+        );
+
+        if (constructable is not null)
+        {
+            impl = constructable;
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool CanResolveAllConstructorParameters(Type arg)
+    {
+        foreach (var constructor in arg.GetConstructors())
+        {
+            if (CanResolveAllParameters(constructor))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool CanResolveAllParameters(ConstructorInfo constructor)
+    {
+        foreach (var p in constructor.GetParameters())
+        {
+            if (TryGetService(p.ParameterType) is null)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static HashSet<Type> AllInterfacesFor(Type t)
@@ -265,14 +325,21 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
     private object[] ResolveConstructorParametersFor(Type type)
     {
         var constructors = type.GetConstructors();
-        if (constructors.Any(c => c.GetParameters().Length == 0))
-        {
-            return new object[0];
-        }
 
         var unresolved = new List<List<Type>>();
         foreach (var constructor in constructors)
         {
+            if (constructor.IsPrivate)
+            {
+                continue;
+            }
+            var constructorParameters = constructor.GetParameters();
+            if (constructorParameters.Length == 0)
+            {
+                // prefer the fullest constructor
+                continue;
+            }
+
             var thisUnresolved = new List<Type>();
             unresolved.Add(thisUnresolved);
             var parameters = new List<object>();
@@ -294,6 +361,11 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
             {
                 return parameters.ToArray();
             }
+        }
+        
+        if (constructors.Any(c => c.GetParameters().Length == 0))
+        {
+            return new object[0];
         }
 
         throw new ArgumentException(
