@@ -52,16 +52,22 @@ namespace PeanutButter.Utils
 
         private static string ValidateExecutable(string filePath)
         {
-            if (filePath == null || !Platform.IsUnixy)
+            if (filePath is null || !Platform.IsUnixy)
             {
                 return filePath;
             }
 
-            var script = @$"if test -x ""{filePath}""; then
-    exit 0
-else
-    exit 1
-fi";
+            var lines = new[]
+            {
+                $"if test -x \"{filePath.Trim('"').Replace("\"", "\\\"")}\"; then",
+                "  exit 0",
+                "else",
+                "  exit 1",
+                "fi",
+                ""
+            };
+
+            var script = string.Join("\n", lines);
             using var tmp = new AutoTempFile();
             File.WriteAllText(tmp.Path, script);
             using var io = ProcessIO.Start("sh", tmp.Path);
