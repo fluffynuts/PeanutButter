@@ -46,6 +46,37 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests.Utils
             }
 
             [Test]
+            public void ShouldBeAbleToSetNullLogic()
+            {
+                // Arrange
+                var (ctx, next) = RequestDelegateTestArenaBuilder.Create()
+                    .WithDelegateLogic(null)
+                    .Build();
+                // Act
+                Expect(async () => await next.Invoke(ctx))
+                    .Not.To.Throw();
+                // Assert
+            }
+
+            [Test]
+            public void ShouldIgnoreNullHttpContextMutator()
+            {
+                // Arrange
+                Expect(
+                        async () =>
+                        {
+                            var (ctx, next) = RequestDelegateTestArenaBuilder.Create()
+                                .WithContextMutator(null)
+                                .Build();
+                            // Act
+                            await next.Invoke(ctx);
+                        }
+                    )
+                    .Not.To.Throw();
+                // Assert
+            }
+
+            [Test]
             public void ShouldRecordTheCalls()
             {
                 // Arrange

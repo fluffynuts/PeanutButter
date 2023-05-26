@@ -84,7 +84,7 @@ public class RequestDelegateTestArena
     {
         return ctx =>
         {
-            delegateLogic.Invoke(ctx);
+            delegateLogic?.Invoke(ctx);
             return Task.CompletedTask;
         };
     }
@@ -114,6 +114,19 @@ public class RequestDelegateTestArena
     private static Func<HttpContext, Task> GenerateDefaultNextLogic()
     {
         return _ => Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Constructs a RequestDelegateTestArena with the provided
+    /// synchronous http logic and context mutator
+    /// </summary>
+    /// <param name="logic"></param>
+    /// <param name="httpContextMutator"></param>
+    public RequestDelegateTestArena(
+        Action<HttpContext> logic,
+        Action<HttpContextBuilder> httpContextMutator
+    ): this(WrapSynchronousLogic(logic), httpContextMutator)
+    {
     }
 
     /// <summary>
