@@ -84,13 +84,49 @@ namespace PeanutButter.TestUtils.AspNetCore.Utils
         /// <param name="mutator"></param>
         /// <returns></returns>
         public RequestDelegateTestArenaBuilder WithContextMutator(
-            Action<HttpContextBuilder> mutator)
+            Action<HttpContextBuilder> mutator
+        )
         {
             if (mutator is not null)
             {
                 _contextMutators.Add(mutator);
             }
 
+            return this;
+        }
+
+        /// <summary>
+        /// Add a mutation on the request for the context
+        /// </summary>
+        /// <param name="mutator"></param>
+        /// <returns></returns>
+        public RequestDelegateTestArenaBuilder WithRequestMutator(
+            Action<HttpRequest> mutator
+        )
+        {
+            if (mutator is not null)
+            {
+                _contextMutators.Add(
+                    builder =>
+                        builder.WithRequestMutator(mutator)
+                );
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Set the entire request for the context
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public RequestDelegateTestArenaBuilder WithRequest(
+            HttpRequest request
+        )
+        {
+            _contextMutators.Add(
+                builder => builder.WithRequest(request)
+            );
             return this;
         }
 
