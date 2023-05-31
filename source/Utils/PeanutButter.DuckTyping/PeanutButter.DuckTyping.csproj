@@ -65,9 +65,6 @@
     <Compile Include="..\PeanutButter.Utils\Platform.cs" Link="Imported\Platform.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Imported\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="system.reflection.emit" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>

@@ -39,7 +39,7 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
-    <PackageReference Include="NExpect" Version="2.0.19" />
+    <PackageReference Include="NExpect" Version="2.0.29" />
     <PackageReference Include="NSubstitute" Version="4.4.0" />
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
