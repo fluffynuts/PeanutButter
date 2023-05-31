@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using PeanutButter.TestUtils.AspNetCore.Builders;
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes
 {
@@ -12,7 +11,10 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes
         /// <inheritdoc />
         public ITempDataDictionary GetTempData(HttpContext context)
         {
-            if (context.Items.TryGetValue(Key, out var result))
+            if (
+                context.Items.TryGetValue(Key, out var result) &&
+                result is not null
+            )
             {
                 return (ITempDataDictionary) result;
             }
