@@ -57,21 +57,24 @@ namespace PeanutButter.RandomGenerators
 
         private static void InitRandomValueGenIn(Assembly asm)
         {
-            if (asm == ThisAssembly ||
-                SeenAssemblies.Contains(asm))
+            lock (SeenAssemblies)
             {
-                return;
+                if (asm == ThisAssembly ||
+                    SeenAssemblies.Contains(asm))
+                {
+                    return;
+                }
+
+                SeenAssemblies.Add(asm);
+
+                var initializers = asm.GetTypes()
+                    .Where(t => t.IsNotPublic && t.Name == nameof(RandomValueGen))
+                    .Select(t => t.GetMethods().Where(mi => mi.IsStatic).ToArray())
+                    .SelectMany(m => m)
+                    .Where(m => m.Name == "Init" && m.GetParameters().Length == 0)
+                    .ToArray();
+                initializers.ForEach(mi => mi.Invoke(null, new object[0]));
             }
-
-            SeenAssemblies.Add(asm);
-
-            var initializers = asm.GetTypes()
-                .Where(t => t.IsNotPublic && t.Name == nameof(RandomValueGen))
-                .Select(t => t.GetMethods().Where(mi => mi.IsStatic).ToArray())
-                .SelectMany(m => m)
-                .Where(m => m.Name == "Init" && m.GetParameters().Length == 0)
-                .ToArray();
-            initializers.ForEach(mi => mi.Invoke(null, new object[0]));
         }
     }
 }
