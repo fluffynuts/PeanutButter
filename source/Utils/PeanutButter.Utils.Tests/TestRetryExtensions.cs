@@ -11,15 +11,19 @@ namespace PeanutButter.Utils.Tests
     public class TestRetryExtensions
     {
         [TestFixture]
+        [Parallelizable]
         public class SynchronousCode
         {
             [TestFixture]
+            [Parallelizable]
             public class RetryingAnAction
             {
                 [TestFixture]
+                [Parallelizable]
                 public class GivenZeroRetries
                 {
                     [Test]
+                    [Parallelizable]
                     public void ShouldRunActionOnce()
                     {
                         // Arrange
@@ -34,23 +38,28 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldRetryTheSpecifiedNumberOfTime()
                 {
                     // Arrange
                     var count = 0;
                     var runTo = 1000;
-                    var action = new Action(() =>
-                    {
-                        if (++count < runTo)
+                    var action = new Action(
+                        () =>
                         {
-                            throw new Exception("moo");
+                            if (++count < runTo)
+                            {
+                                throw new Exception("moo");
+                            }
                         }
-                    });
+                    );
                     // Act
-                    Expect(() =>
-                    {
-                        action.RunWithRetries(runTo);
-                    }).Not.To.Throw();
+                    Expect(
+                        () =>
+                        {
+                            action.RunWithRetries(runTo);
+                        }
+                    ).Not.To.Throw();
                     // Assert
 
                     Expect(count)
@@ -58,6 +67,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldExitTheFirstTimeTheActionRunsProperly()
                 {
                     // Arrange
@@ -72,24 +82,30 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldBackOffByTheSingleProvidedTimeSpan()
                 {
                     // Arrange
                     var count = 0;
                     var runTo = GetRandomInt(3, 5);
-                    var action = new Action(() =>
-                    {
-                        if (++count < runTo)
+                    var action = new Action(
+                        () =>
                         {
-                            throw new Exception("moo");
+                            if (++count < runTo)
+                            {
+                                throw new Exception("moo");
+                            }
                         }
-                    });
+                    );
                     // Act
-                    var runTime = Benchmark.Time(() =>
-                        Expect(() =>
-                        {
-                            action.RunWithRetries(runTo, TimeSpan.FromMilliseconds(100));
-                        }).Not.To.Throw()
+                    var runTime = Benchmark.Time(
+                        () =>
+                            Expect(
+                                () =>
+                                {
+                                    action.RunWithRetries(runTo, TimeSpan.FromMilliseconds(100));
+                                }
+                            ).Not.To.Throw()
                     );
                     // Assert
 
@@ -100,31 +116,36 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldBackOffByTheProvidedTimeSpans()
                 {
                     // Arrange
                     var count = 0;
                     var runTo = 4;
-                    var action = new Action(() =>
-                    {
-                        if (++count < runTo)
+                    var action = new Action(
+                        () =>
                         {
-                            throw new Exception("moo");
+                            if (++count < runTo)
+                            {
+                                throw new Exception("moo");
+                            }
                         }
-                    });
+                    );
                     // Act
                     var runTime = Benchmark.Time(
                         () =>
-                            Expect(() =>
-                            {
-                                action.RunWithRetries(
-                                    runTo,
-                                    TimeSpan.FromMilliseconds(100),
-                                    TimeSpan.FromMilliseconds(200),
-                                    TimeSpan.FromMilliseconds(300),
-                                    TimeSpan.FromMilliseconds(400)
-                                );
-                            }).Not.To.Throw()
+                            Expect(
+                                () =>
+                                {
+                                    action.RunWithRetries(
+                                        runTo,
+                                        TimeSpan.FromMilliseconds(100),
+                                        TimeSpan.FromMilliseconds(200),
+                                        TimeSpan.FromMilliseconds(300),
+                                        TimeSpan.FromMilliseconds(400)
+                                    );
+                                }
+                            ).Not.To.Throw()
                     );
                     // Assert
 
@@ -132,40 +153,48 @@ namespace PeanutButter.Utils.Tests
                         .To.Equal(runTo);
                     Expect(runTime.TotalMilliseconds)
                         .To.Be.Greater.Than(
-                            600, () => "should have exhausted the first three delays"
+                            600,
+                            () => "should have exhausted the first three delays"
                         ).And.To.Be.Less.Than(
-                            1000, () => "should not have hit the final delay"
+                            1000,
+                            () => "should not have hit the final delay"
                         );
                 }
             }
 
             [TestFixture]
+            [Parallelizable]
             public class RetryingAFunc
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldRetryTheSpecifiedNumberOfTime()
                 {
                     // Arrange
                     var count = 0;
                     var runTo = 1000;
                     var expected = GetRandomInt(1);
-                    var func = new Func<int>(() =>
-                    {
-                        if (++count < runTo)
+                    var func = new Func<int>(
+                        () =>
                         {
-                            throw new Exception("moo");
-                        }
+                            if (++count < runTo)
+                            {
+                                throw new Exception("moo");
+                            }
 
-                        return expected;
-                    });
+                            return expected;
+                        }
+                    );
                     // Act
                     var result = -1;
                     var runTime = Benchmark.Time(
                         () =>
-                            Expect(() =>
-                            {
-                                result = func.RunWithRetries(runTo);
-                            }).Not.To.Throw()
+                            Expect(
+                                () =>
+                                {
+                                    result = func.RunWithRetries(runTo);
+                                }
+                            ).Not.To.Throw()
                     );
                     Console.WriteLine($"Runtime: {runTime}");
                     // Assert
@@ -177,6 +206,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldExitTheFirstTimeTheFuncRunsProperly()
                 {
                     // Arrange
@@ -191,26 +221,32 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldBackOffByTheSingleProvidedTimeSpan()
                 {
                     // Arrange
                     var count = 0;
                     var runTo = GetRandomInt(3, 5);
-                    var action = new Func<int>(() =>
-                    {
-                        if (++count < runTo)
+                    var action = new Func<int>(
+                        () =>
                         {
-                            throw new Exception("moo");
-                        }
+                            if (++count < runTo)
+                            {
+                                throw new Exception("moo");
+                            }
 
-                        return 0;
-                    });
+                            return 0;
+                        }
+                    );
                     // Act
-                    var runTime = Benchmark.Time(() =>
-                        Expect(() =>
-                        {
-                            action.RunWithRetries(runTo, TimeSpan.FromMilliseconds(100));
-                        }).Not.To.Throw()
+                    var runTime = Benchmark.Time(
+                        () =>
+                            Expect(
+                                () =>
+                                {
+                                    action.RunWithRetries(runTo, TimeSpan.FromMilliseconds(100));
+                                }
+                            ).Not.To.Throw()
                     );
                     // Assert
 
@@ -221,33 +257,38 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldBackOffByTheProvidedTimeSpans()
                 {
                     // Arrange
                     var count = 0;
                     var runTo = 4;
-                    var action = new Func<int>(() =>
-                    {
-                        if (++count < runTo)
+                    var action = new Func<int>(
+                        () =>
                         {
-                            throw new Exception("moo");
-                        }
+                            if (++count < runTo)
+                            {
+                                throw new Exception("moo");
+                            }
 
-                        return 0;
-                    });
+                            return 0;
+                        }
+                    );
                     // Act
                     var runTime = Benchmark.Time(
                         () =>
-                            Expect(() =>
-                            {
-                                action.RunWithRetries(
-                                    runTo,
-                                    TimeSpan.FromMilliseconds(100),
-                                    TimeSpan.FromMilliseconds(200),
-                                    TimeSpan.FromMilliseconds(300),
-                                    TimeSpan.FromMilliseconds(400)
-                                );
-                            }).Not.To.Throw()
+                            Expect(
+                                () =>
+                                {
+                                    action.RunWithRetries(
+                                        runTo,
+                                        TimeSpan.FromMilliseconds(100),
+                                        TimeSpan.FromMilliseconds(200),
+                                        TimeSpan.FromMilliseconds(300),
+                                        TimeSpan.FromMilliseconds(400)
+                                    );
+                                }
+                            ).Not.To.Throw()
                     );
                     // Assert
 
@@ -255,33 +296,41 @@ namespace PeanutButter.Utils.Tests
                         .To.Equal(runTo);
                     Expect(runTime.TotalMilliseconds)
                         .To.Be.Greater.Than(
-                            600, () => "should have exhausted the first three delays"
+                            600,
+                            () => "should have exhausted the first three delays"
                         ).And.To.Be.Less.Than(
-                            1000, () => "should not have hit the final delay"
+                            1000,
+                            () => "should not have hit the final delay"
                         );
                 }
             }
         }
 
         [TestFixture]
+        [Parallelizable]
         public class AsynchronousCode
         {
             [TestFixture]
+            [Parallelizable]
             public class RetryingAnAsyncAction
             {
                 [TestFixture]
+                [Parallelizable]
                 public class WhenRetriesIsZero
                 {
                     [Test]
+                    [Parallelizable]
                     public async Task ShouldRunTheCodeOnce()
                     {
                         // Arrange
                         var calls = 0;
-                        var func = new Func<Task>(() =>
-                        {
-                            calls++;
-                            return Task.CompletedTask;
-                        });
+                        var func = new Func<Task>(
+                            () =>
+                            {
+                                calls++;
+                                return Task.CompletedTask;
+                            }
+                        );
                         // Act
                         await func.RunWithRetries(0);
                         // Assert
@@ -291,20 +340,23 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public async Task ShouldRetryTheSpecifiedNumberOfTime()
                 {
                     // Arrange
                     var count = 0;
                     var runTo = 1000;
-                    var action = new Func<Task>(() =>
-                    {
-                        if (++count < runTo)
+                    var action = new Func<Task>(
+                        () =>
                         {
-                            throw new Exception("moo");
-                        }
+                            if (++count < runTo)
+                            {
+                                throw new Exception("moo");
+                            }
 
-                        return Task.CompletedTask;
-                    });
+                            return Task.CompletedTask;
+                        }
+                    );
                     // Act
                     await action.RunWithRetries(runTo);
                     // Assert
@@ -314,15 +366,18 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public async Task ShouldExitTheFirstTimeTheActionRunsProperly()
                 {
                     // Arrange
                     var count = 0;
-                    var action = new Func<Task>(() =>
-                    {
-                        count++;
-                        return Task.CompletedTask;
-                    });
+                    var action = new Func<Task>(
+                        () =>
+                        {
+                            count++;
+                            return Task.CompletedTask;
+                        }
+                    );
 
                     // Act
                     await action.RunWithRetries(5);
@@ -332,26 +387,32 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldBackOffByTheSingleProvidedTimeSpan()
                 {
                     // Arrange
                     var count = 0;
                     var runTo = GetRandomInt(3, 5);
-                    var action = new Func<Task>(() =>
-                    {
-                        if (++count < runTo)
+                    var action = new Func<Task>(
+                        () =>
                         {
-                            throw new Exception("moo");
-                        }
+                            if (++count < runTo)
+                            {
+                                throw new Exception("moo");
+                            }
 
-                        return Task.CompletedTask;
-                    });
+                            return Task.CompletedTask;
+                        }
+                    );
                     // Act
-                    var runTime = Benchmark.Time(() =>
-                        Expect(async () =>
-                        {
-                            await action.RunWithRetries(runTo, TimeSpan.FromMilliseconds(100));
-                        }).Not.To.Throw()
+                    var runTime = Benchmark.Time(
+                        () =>
+                            Expect(
+                                async () =>
+                                {
+                                    await action.RunWithRetries(runTo, TimeSpan.FromMilliseconds(100));
+                                }
+                            ).Not.To.Throw()
                     );
                     // Assert
 
@@ -362,33 +423,38 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldBackOffByTheProvidedTimeSpans()
                 {
                     // Arrange
                     var count = 0;
                     var runTo = 4;
-                    var action = new Func<Task>(() =>
-                    {
-                        if (++count < runTo)
+                    var action = new Func<Task>(
+                        () =>
                         {
-                            throw new Exception("moo");
-                        }
+                            if (++count < runTo)
+                            {
+                                throw new Exception("moo");
+                            }
 
-                        return Task.CompletedTask;
-                    });
+                            return Task.CompletedTask;
+                        }
+                    );
                     // Act
                     var runTime = Benchmark.Time(
                         () =>
-                            Expect(async () =>
-                            {
-                                await action.RunWithRetries(
-                                    runTo,
-                                    TimeSpan.FromMilliseconds(100),
-                                    TimeSpan.FromMilliseconds(200),
-                                    TimeSpan.FromMilliseconds(300),
-                                    TimeSpan.FromMilliseconds(400)
-                                );
-                            }).Not.To.Throw()
+                            Expect(
+                                async () =>
+                                {
+                                    await action.RunWithRetries(
+                                        runTo,
+                                        TimeSpan.FromMilliseconds(100),
+                                        TimeSpan.FromMilliseconds(200),
+                                        TimeSpan.FromMilliseconds(300),
+                                        TimeSpan.FromMilliseconds(400)
+                                    );
+                                }
+                            ).Not.To.Throw()
                     );
                     // Assert
 
@@ -396,40 +462,48 @@ namespace PeanutButter.Utils.Tests
                         .To.Equal(runTo);
                     Expect(runTime.TotalMilliseconds)
                         .To.Be.Greater.Than(
-                            600, () => "should have exhausted the first three delays"
+                            600,
+                            () => "should have exhausted the first three delays"
                         ).And.To.Be.Less.Than(
-                            1000, () => "should not have hit the final delay"
+                            1000,
+                            () => "should not have hit the final delay"
                         );
                 }
             }
 
             [TestFixture]
+            [Parallelizable]
             public class RetryingAnAsyncFunc
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldRetryTheSpecifiedNumberOfTime()
                 {
                     // Arrange
                     var count = 0;
                     var runTo = 1000;
                     var expected = GetRandomInt(1);
-                    var func = new Func<Task<int>>(() =>
-                    {
-                        if (++count < runTo)
+                    var func = new Func<Task<int>>(
+                        () =>
                         {
-                            throw new Exception("moo");
-                        }
+                            if (++count < runTo)
+                            {
+                                throw new Exception("moo");
+                            }
 
-                        return Task.FromResult(expected);
-                    });
+                            return Task.FromResult(expected);
+                        }
+                    );
                     // Act
                     var result = -1;
                     var runTime = Benchmark.Time(
                         () =>
-                            Expect(async () =>
-                            {
-                                result = await func.RunWithRetries(runTo);
-                            }).Not.To.Throw()
+                            Expect(
+                                async () =>
+                                {
+                                    result = await func.RunWithRetries(runTo);
+                                }
+                            ).Not.To.Throw()
                     );
                     Console.WriteLine($"Runtime: {runTime}");
                     // Assert
@@ -441,6 +515,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldExitTheFirstTimeTheFuncRunsProperly()
                 {
                     // Arrange
@@ -455,26 +530,32 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldBackOffByTheSingleProvidedTimeSpan()
                 {
                     // Arrange
                     var count = 0;
                     var runTo = GetRandomInt(3, 5);
-                    var action = new Func<Task<int>>(() =>
-                    {
-                        if (++count < runTo)
+                    var action = new Func<Task<int>>(
+                        () =>
                         {
-                            throw new Exception("moo");
-                        }
+                            if (++count < runTo)
+                            {
+                                throw new Exception("moo");
+                            }
 
-                        return Task.FromResult(0);
-                    });
+                            return Task.FromResult(0);
+                        }
+                    );
                     // Act
-                    var runTime = Benchmark.Time(() =>
-                        Expect(async () =>
-                        {
-                            await action.RunWithRetries(runTo, TimeSpan.FromMilliseconds(100));
-                        }).Not.To.Throw()
+                    var runTime = Benchmark.Time(
+                        () =>
+                            Expect(
+                                async () =>
+                                {
+                                    await action.RunWithRetries(runTo, TimeSpan.FromMilliseconds(100));
+                                }
+                            ).Not.To.Throw()
                     );
                     // Assert
 
@@ -485,33 +566,38 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldBackOffByTheProvidedTimeSpans()
                 {
                     // Arrange
                     var count = 0;
                     var runTo = 4;
-                    var action = new Func<Task<int>>(() =>
-                    {
-                        if (++count < runTo)
+                    var action = new Func<Task<int>>(
+                        () =>
                         {
-                            throw new Exception("moo");
-                        }
+                            if (++count < runTo)
+                            {
+                                throw new Exception("moo");
+                            }
 
-                        return Task.FromResult(0);
-                    });
+                            return Task.FromResult(0);
+                        }
+                    );
                     // Act
                     var runTime = Benchmark.Time(
                         () =>
-                            Expect(async () =>
-                            {
-                                await action.RunWithRetries(
-                                    runTo,
-                                    TimeSpan.FromMilliseconds(100),
-                                    TimeSpan.FromMilliseconds(200),
-                                    TimeSpan.FromMilliseconds(300),
-                                    TimeSpan.FromMilliseconds(400)
-                                );
-                            }).Not.To.Throw()
+                            Expect(
+                                async () =>
+                                {
+                                    await action.RunWithRetries(
+                                        runTo,
+                                        TimeSpan.FromMilliseconds(100),
+                                        TimeSpan.FromMilliseconds(200),
+                                        TimeSpan.FromMilliseconds(300),
+                                        TimeSpan.FromMilliseconds(400)
+                                    );
+                                }
+                            ).Not.To.Throw()
                     );
                     // Assert
 
@@ -519,9 +605,11 @@ namespace PeanutButter.Utils.Tests
                         .To.Equal(runTo);
                     Expect(runTime.TotalMilliseconds)
                         .To.Be.Greater.Than(
-                            600, () => "should have exhausted the first three delays"
+                            600,
+                            () => "should have exhausted the first three delays"
                         ).And.To.Be.Less.Than(
-                            1000, () => "should not have hit the final delay"
+                            1000,
+                            () => "should not have hit the final delay"
                         );
                 }
             }

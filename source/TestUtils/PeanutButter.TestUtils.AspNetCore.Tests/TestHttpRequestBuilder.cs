@@ -785,106 +785,141 @@ public class TestHttpRequestBuilder
             Expect(result)
                 .To.Equal("bar");
         }
+    }
 
-        [TestFixture]
-        public class WithUrl
+    [TestFixture]
+    public class CommonHeaders
+    {
+        [Test]
+        public void ShouldBeAbleToSetOriginHeader()
         {
-            [Test]
-            public void ShouldSetHost()
-            {
-                // Arrange
-                var url = GetRandomHttpUrlWithPathAndParameters();
-                var uri = new Uri(url);
-                // Act
-                var result = HttpRequestBuilder.Create()
-                    .WithUrl(url)
-                    .Build();
-                // Assert
-                Expect(result.Host.Host)
-                    .To.Equal(uri.Host);
-            }
+            // Arrange
+            var expected = GetRandomHttpsUrl();
+            var sut = HttpRequestBuilder.Create()
+                .WithOrigin(expected)
+                .Build();
+            // Act
+            var result = sut.Headers["Origin"];
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
 
-            [Test]
-            public void ShouldSetPort()
-            {
-                // Arrange
-                var expected = GetRandomInt(80, 1024);
-                var url = $"http://{GetRandomHostname()}:{expected}/{GetRandomHttpPathAndParameters()}";
-                // Act
-                var result = HttpRequestBuilder.Create()
-                    .WithUrl(url)
-                    .Build();
-                // Assert
-                Expect(result.Host.Port)
-                    .To.Equal(expected);
-            }
+        [Test]
+        public void ShouldBeAbleToSetSelfOrigin()
+        {
+            // Arrange
+            var sut = HttpRequestBuilder.Create()
+                .WithRandomUrl()
+                .WithSelfOrigin()
+                .Build();
+            var expected = sut.FullUrl().ToString().UriRoot(); 
+            // Act
+            var result = sut.Headers["Origin"];
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
+    }
 
-            [Test]
-            public void ShouldSetScheme()
-            {
-                // Arrange
-                var expected = GetRandomBoolean()
-                    ? "http"
-                    : "https";
-                var url = $"{expected}://{GetRandomHostname()}/{GetRandomHttpPathAndParameters()}";
-                // Act
-                var result = HttpRequestBuilder.Create()
-                    .WithUrl(url)
-                    .Build();
-                // Assert
-                Expect(result.Scheme)
-                    .To.Equal(expected);
-            }
+    [TestFixture]
+    public class WithUrl
+    {
+        [Test]
+        public void ShouldSetHost()
+        {
+            // Arrange
+            var url = GetRandomHttpUrlWithPathAndParameters();
+            var uri = new Uri(url);
+            // Act
+            var result = HttpRequestBuilder.Create()
+                .WithUrl(url)
+                .Build();
+            // Assert
+            Expect(result.Host.Host)
+                .To.Equal(uri.Host);
+        }
 
-            [Test]
-            public void ShouldSetPath()
-            {
-                // Arrange
-                var url = GetRandomHttpUrlWithPathAndParameters();
-                var uri = new Uri(url);
-                var expected = uri.AbsolutePath;
-                // Act
-                var result = HttpRequestBuilder.Create()
-                    .WithUrl(url)
-                    .Build();
-                // Assert
-                Expect(result.Path)
-                    .To.Equal(expected);
-                Expect(result.PathBase)
-                    .To.Equal("");
-            }
+        [Test]
+        public void ShouldSetPort()
+        {
+            // Arrange
+            var expected = GetRandomInt(80, 1024);
+            var url = $"http://{GetRandomHostname()}:{expected}/{GetRandomHttpPathAndParameters()}";
+            // Act
+            var result = HttpRequestBuilder.Create()
+                .WithUrl(url)
+                .Build();
+            // Assert
+            Expect(result.Host.Port)
+                .To.Equal(expected);
+        }
 
-            [Test]
-            public void ShouldSetQuery()
-            {
-                // Arrange
-                var parameters = GetRandom<Dictionary<string, string>>();
-                var url = $"{GetRandomHttpUrlWithPath()}?{parameters.AsQueryStringParameters()}";
+        [Test]
+        public void ShouldSetScheme()
+        {
+            // Arrange
+            var expected = GetRandomBoolean()
+                ? "http"
+                : "https";
+            var url = $"{expected}://{GetRandomHostname()}/{GetRandomHttpPathAndParameters()}";
+            // Act
+            var result = HttpRequestBuilder.Create()
+                .WithUrl(url)
+                .Build();
+            // Assert
+            Expect(result.Scheme)
+                .To.Equal(expected);
+        }
 
-                // Act
-                var result = HttpRequestBuilder.Create()
-                    .WithUrl(url)
-                    .Build();
-                // Assert
-                Expect(result.QueryString)
-                    .To.Equal(parameters);
-            }
+        [Test]
+        public void ShouldSetPath()
+        {
+            // Arrange
+            var url = GetRandomHttpUrlWithPathAndParameters();
+            var uri = new Uri(url);
+            var expected = uri.AbsolutePath;
+            // Act
+            var result = HttpRequestBuilder.Create()
+                .WithUrl(url)
+                .Build();
+            // Assert
+            Expect(result.Path)
+                .To.Equal(expected);
+            Expect(result.PathBase)
+                .To.Equal("");
+        }
 
-            [Test]
-            public void ShouldSetQueryCollection()
-            {
-                // Arrange
-                var parameters = GetRandom<Dictionary<string, StringValues>>();
-                var url = $"{GetRandomHttpUrlWithPath()}?{parameters.AsQueryStringParameters()}";
+        [Test]
+        public void ShouldSetQuery()
+        {
+            // Arrange
+            var parameters = GetRandom<Dictionary<string, string>>();
+            var url = $"{GetRandomHttpUrlWithPath()}?{parameters.AsQueryStringParameters()}";
 
-                // Act
-                var result = HttpRequestBuilder.Create()
-                    .WithUrl(url)
-                    .Build();
-                // Assert
-                Expect(result.Query)
-                    .To.Be.Equivalent.To(parameters);
-            }
+            // Act
+            var result = HttpRequestBuilder.Create()
+                .WithUrl(url)
+                .Build();
+            // Assert
+            Expect(result.QueryString)
+                .To.Equal(parameters);
+        }
+
+        [Test]
+        public void ShouldSetQueryCollection()
+        {
+            // Arrange
+            var parameters = GetRandom<Dictionary<string, StringValues>>();
+            var url = $"{GetRandomHttpUrlWithPath()}?{parameters.AsQueryStringParameters()}";
+
+            // Act
+            var result = HttpRequestBuilder.Create()
+                .WithUrl(url)
+                .Build();
+            // Assert
+            Expect(result.Query)
+                .To.Be.Equivalent.To(parameters);
         }
     }
 

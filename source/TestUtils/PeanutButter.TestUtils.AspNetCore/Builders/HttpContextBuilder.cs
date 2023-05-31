@@ -391,8 +391,8 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
 
     private bool IsDefaultPortForScheme(string uriScheme, int uriPort)
     {
-        return DefaultPortsPerScheme.TryGetValue(uriScheme, out var defaultPort)
-            && defaultPort == uriPort;
+        var newUri = new Uri($"{uriScheme}://test");
+        return newUri.Port == uriPort;
     }
 
     private static readonly Dictionary<string, int> DefaultPortsPerScheme = new(StringComparer.OrdinalIgnoreCase)

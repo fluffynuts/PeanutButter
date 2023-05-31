@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 
+namespace PeanutButter.TestUtils.AspNetCore.Builders;
+
 /// <summary>
 /// simplify some routines around HttpRequests
 /// </summary>
@@ -26,6 +28,21 @@ public static class HttpRequestExtensions
         request.Path = url.AbsolutePath;
         request.PathBase = "";
         request.QueryString = new QueryString(url.Query);
+    }
+
+    /// <summary>
+    /// Set the request up as if it came from the provided url
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="url"></param>
+    public static void SetUrl(
+        this HttpRequest request,
+        string url
+    )
+    {
+        request.SetUrl(
+            new Uri(url)
+        );
     }
 
     private static readonly Dictionary<string, int> DefaultPorts = new(StringComparer.OrdinalIgnoreCase)

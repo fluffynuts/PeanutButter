@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
+using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -42,13 +43,15 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
                 RequestCookieCollectionBuilder
                     .Create()
                     .Build()
-            ).WithPostBuild(request =>
-            {
-                if (request.Cookies is FakeRequestCookieCollection fake)
+            ).WithPostBuild(
+                request =>
                 {
-                    fake.HttpRequest = request;
+                    if (request.Cookies is FakeRequestCookieCollection fake)
+                    {
+                        fake.HttpRequest = request;
+                    }
                 }
-            });
+            );
         if (!noContext)
         {
             WithHttpContext(
@@ -261,7 +264,8 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
             o =>
             {
                 o.Headers.Remove(CookieUtil.HEADER);
-            });
+            }
+        );
     }
 
     /// <summary>
@@ -648,6 +652,43 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
         return With(
             o => o.Form.Files.As<FakeFormFileCollection>()
                 .Add(new FakeFormFile(content, name, fileName))
+        );
+    }
+
+
+    /// <summary>
+    /// Sets the origin header to be the root of the request's uri
+    /// </summary>
+    /// <returns></returns>
+    public HttpRequestBuilder WithSelfOrigin()
+    {
+        return With(
+            o => o.Headers["Origin"] = o.FullUrl().ToString().UriRoot()
+        );
+    }
+
+    /// <summary>
+    /// Sets a random url for this request
+    /// </summary>
+    /// <returns></returns>
+    public HttpRequestBuilder WithRandomUrl()
+    {
+        return WithRandomMethod()
+            .WithRandomScheme()
+            .WithRandomPath()
+            .WithRandomHost()
+            .WithRandomPort();
+    }
+
+    /// <summary>
+    /// Sets the Origin header
+    /// </summary>
+    /// <param name="origin"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithOrigin(string origin)
+    {
+        return With(
+            o => o.Headers["Origin"] = origin
         );
     }
 

@@ -16,16 +16,19 @@ using static NExpect.Expectations;
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
+    [Parallelizable]
     public class TestStringExtensions
     {
         [TestCase("Hello World", "^Hello", "Goodbye", "Goodbye World")]
         [TestCase("Hello World", "Wor.*", "Goodbye", "Hello Goodbye")]
         [TestCase("Hello World", "Hello$", "Goodbye", "Hello World")]
+        [Parallelizable]
         public void RegexReplace_ShouldReplaceAccordingToRegexWithSuppliedValue(
             string input,
             string re,
             string replaceWith,
-            string expected)
+            string expected
+        )
         {
             //---------------Set up test pack-------------------
 
@@ -40,12 +43,15 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class ReplaceAll
         {
             [TestFixture]
+            [Parallelizable]
             public class WorkingWithChars
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReplaceAllParamsCharsWithReplacementChar()
                 {
                     // Arrange
@@ -64,9 +70,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class WorkingWithStrings
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReplaceAllParamsCharsWithReplacementChar()
                 {
                     // Arrange
@@ -85,9 +93,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class Performance
             {
                 [Test]
+                [Parallelizable]
                 public void SingleCharStringsVsChars()
                 {
                     // Arrange
@@ -98,22 +108,34 @@ namespace PeanutButter.Utils.Tests
                     string foo = null;
 
                     // Act
-                    var stringTime = Benchmark.Time(() =>
-                    {
-                        foo = input.ReplaceAll(strings, " ");
-                    }, 100);
-                    var charTime = Benchmark.Time(() =>
-                    {
-                        foo = input.ReplaceAll(chars, ' ');
-                    }, 100);
-                    stringTime = Benchmark.Time(() =>
-                    {
-                        foo = input.ReplaceAll(strings, " ");
-                    }, iterations);
-                    charTime = Benchmark.Time(() =>
-                    {
-                        foo = input.ReplaceAll(chars, ' ');
-                    }, iterations);
+                    var stringTime = Benchmark.Time(
+                        () =>
+                        {
+                            foo = input.ReplaceAll(strings, " ");
+                        },
+                        100
+                    );
+                    var charTime = Benchmark.Time(
+                        () =>
+                        {
+                            foo = input.ReplaceAll(chars, ' ');
+                        },
+                        100
+                    );
+                    stringTime = Benchmark.Time(
+                        () =>
+                        {
+                            foo = input.ReplaceAll(strings, " ");
+                        },
+                        iterations
+                    );
+                    charTime = Benchmark.Time(
+                        () =>
+                        {
+                            foo = input.ReplaceAll(chars, ' ');
+                        },
+                        iterations
+                    );
                     // Assert
                     Expect(foo)
                         .Not.To.Be.Null();
@@ -124,9 +146,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class RemoveAll
         {
             [Test]
+            [Parallelizable]
             public void ShouldRemoveAllTheProvidedChars()
             {
                 // Arrange
@@ -134,7 +158,10 @@ namespace PeanutButter.Utils.Tests
                 var expected = "foobarquuxwat";
                 // Act
                 var result = input.RemoveAll(
-                    '-', '.', '_', ':'
+                    '-',
+                    '.',
+                    '_',
+                    ':'
                 );
                 // Assert
                 Expect(result)
@@ -144,9 +171,11 @@ namespace PeanutButter.Utils.Tests
 
 
         [TestFixture]
+        [Parallelizable]
         public class RegexReplaceAll
         {
             [Test]
+            [Parallelizable]
             public void ShouldReplaceSinglePatternAllMatches()
             {
                 // Arrange
@@ -162,6 +191,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldReplaceMultiplePatterns()
             {
                 // Arrange
@@ -180,12 +210,15 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class Or
         {
             [TestCase(null)]
             [TestCase("")]
+            [Parallelizable]
             public void ShouldReturnOtherStringWhenPrimaryIs_(
-                string value)
+                string value
+            )
             {
                 // think equivalent to Javascript:
                 //  var left = null;
@@ -207,6 +240,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldChainUntilFirstValidValue()
             {
                 //---------------Set up test pack-------------------
@@ -225,6 +259,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class AsBoolean
         {
             [TestCase("Yes", true)]
@@ -239,9 +274,11 @@ namespace PeanutButter.Utils.Tests
             [TestCase(" ", false)]
             [TestCase("\t", false)]
             [TestCase(null, false)]
+            [Parallelizable]
             public void ShouldResolveToBooleanValue(
                 string input,
-                bool expected)
+                bool expected
+            )
             {
                 //---------------Set up test pack-------------------
 
@@ -256,12 +293,15 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class AsString
         {
             [TestFixture]
+            [Parallelizable]
             public class OperatingOnByteArray
             {
                 [Test]
+                [Parallelizable]
                 public void GivenNull_ShouldReturnNull()
                 {
                     // Arrange
@@ -274,6 +314,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void GivenNoEncoding_ShouldReturnUTF8String()
                 {
                     // Arrange
@@ -287,6 +328,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void GivenEncoding_ShouldReturnFromThatEncoding()
                 {
                     // Arrange
@@ -303,9 +345,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class AsBytes
         {
             [Test]
+            [Parallelizable]
             public void WhenStringIsNull_ShouldReturnNull()
             {
                 //---------------Set up test pack-------------------
@@ -320,6 +364,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void OperatingOnEmptyString_ShouldReturnEmptyByteArray()
             {
                 //---------------Set up test pack-------------------
@@ -335,6 +380,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void OperatingOnNonEmptyString_ShouldReturnStringEncodedAsBytesFromUTF8()
             {
                 //---------------Set up test pack-------------------
@@ -360,9 +406,11 @@ namespace PeanutButter.Utils.Tests
             };
 
             [TestCaseSource(nameof(Encodings))]
+            [Parallelizable]
             public void
                 OperatingOnNonEmptyString_WhenGivenEncoding_ShouldReturnStringEncodedAsBytesFromEncoding(
-                    Encoding encoding)
+                    Encoding encoding
+                )
             {
                 //---------------Set up test pack-------------------
                 var input = GetRandomString(50, 100);
@@ -379,9 +427,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class AsStream
         {
             [Test]
+            [Parallelizable]
             public void ActingOnNull_ShouldReturnNull()
             {
                 // Arrange
@@ -394,6 +444,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ActingOnEmptyString_ShouldReturnEmptyStream()
             {
                 // Arrange
@@ -407,6 +458,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ActingOnNonEmptyString_ShouldReturnStreamContainingData()
             {
                 // Arrange
@@ -421,12 +473,15 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class IsInteger
         {
             [TestFixture]
+            [Parallelizable]
             public class WhenStringIsInteger
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnTrue()
                 {
                     //---------------Set up test pack-------------------
@@ -444,9 +499,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class WhenStringIsNotInteger
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnFalse()
                 {
                     //---------------Set up test pack-------------------
@@ -465,12 +522,15 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class AsInteger
         {
             [TestFixture]
+            [Parallelizable]
             public class WhenStringIsInteger
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnThatIntegerValue()
                 {
                     //---------------Set up test pack-------------------
@@ -489,9 +549,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class WhenStringIsFloatingPointWithPeriod
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnTruncatedIntPart()
                 {
                     //---------------Set up test pack-------------------
@@ -509,9 +571,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class WhenStringIsFloatingPointWithComma
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnTruncatedIntPart()
                 {
                     //---------------Set up test pack-------------------
@@ -529,9 +593,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class WhenStringContainsAlphaChars
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnIntPartOfBeginning()
                 {
                     //---------------Set up test pack-------------------
@@ -550,9 +616,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class WhenStringHasLeadingAlphaPart
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnIntPartOfBeginning()
                 {
                     //---------------Set up test pack-------------------
@@ -571,12 +639,14 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class WhenStringIsNotAnInteger
             {
                 [TestCase("a")]
                 [TestCase("")]
                 [TestCase("\r\n")]
                 [TestCase(null)]
+                [Parallelizable]
                 public void ShouldReturnZeroFor_(string input)
                 {
                     //---------------Set up test pack-------------------
@@ -594,9 +664,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class IsNullOrWhitespace
         {
             [TestFixture]
+            [Parallelizable]
             public class WhenOperatingOnNullOrWhitespace
             {
                 // ReSharper disable once MemberHidesStaticFromOuterClass
@@ -609,8 +681,10 @@ namespace PeanutButter.Utils.Tests
                 };
 
                 [TestCaseSource(nameof(NullOrWhitespaceStrings))]
+                [Parallelizable]
                 public void ShouldReturnTrueFor_(
-                    string src)
+                    string src
+                )
                 {
                     //---------------Set up test pack-------------------
 
@@ -625,9 +699,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class WhenOperatingOnNonWhitespaceString
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnFalse()
                 {
                     //---------------Set up test pack-------------------
@@ -653,12 +729,15 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class IsNullOrEmpty
         {
             [TestCase(null)]
             [TestCase("")]
+            [Parallelizable]
             public void ShouldReturnTrue_For_(
-                string src)
+                string src
+            )
             {
                 //---------------Set up test pack-------------------
 
@@ -675,8 +754,10 @@ namespace PeanutButter.Utils.Tests
             [TestCase("\t")]
             [TestCase("\n")]
             [TestCase("\r")]
+            [Parallelizable]
             public void ShouldReturnFalse_For_(
-                string src)
+                string src
+            )
             {
                 //---------------Set up test pack-------------------
 
@@ -691,9 +772,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class WhenStringIsNotWhitespaceOrNull
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnFalse()
                 {
                     //---------------Set up test pack-------------------
@@ -711,9 +794,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class ContainsOneOf
         {
             [Test]
+            [Parallelizable]
             public void GivenNoNeedles_ShouldThrow()
             {
                 //--------------- Arrange -------------------
@@ -727,6 +812,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void GivenNullNeedle_ShouldThrow()
             {
                 //--------------- Arrange -------------------
@@ -740,6 +826,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void OperatingOnNull_ShouldReturnFalse()
             {
                 //--------------- Arrange -------------------
@@ -754,6 +841,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void OperatingOnStringContainingNoneOfTheNeedles_ShouldReturnFalse()
             {
                 //--------------- Arrange -------------------
@@ -770,6 +858,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void OperatingOnStringContainingOnneOfTheNeedles_ShouldReturnTrue()
             {
                 //--------------- Arrange -------------------
@@ -787,9 +876,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class ContainsAllOf
         {
             [Test]
+            [Parallelizable]
             public void GivenNoNeedles_ShouldThrow()
             {
                 //--------------- Arrange -------------------
@@ -803,6 +894,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void GivenNullNeedle_ShouldThrow()
             {
                 //--------------- Arrange -------------------
@@ -816,6 +908,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void OperatingOnNull_ShouldReturnFalse()
             {
                 //--------------- Arrange -------------------
@@ -829,6 +922,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void WhenHaystackContainsAllConstituents_ShouldReturnTrue()
             {
                 //--------------- Arrange -------------------
@@ -845,6 +939,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void WhenHaystackMissingNeedle_ShouldReturnFalse()
             {
                 //--------------- Arrange -------------------
@@ -862,12 +957,14 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class IsWhiteSpace
         {
             [TestCase(" ")]
             [TestCase("\t")]
             [TestCase("\r")]
             [TestCase("\n")]
+            [Parallelizable]
             public void ShouldReturnTrueFor_(string input)
             {
                 // Arrange
@@ -883,6 +980,7 @@ namespace PeanutButter.Utils.Tests
             [TestCase("a")]
             [TestCase(" a")]
             [TestCase("a ")]
+            [Parallelizable]
             public void ShouldReturnFalseFor_(string input)
             {
                 // Arrange
@@ -895,6 +993,7 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class IsEmptyOrWhiteSpace
         {
             [TestCase("")]
@@ -902,6 +1001,7 @@ namespace PeanutButter.Utils.Tests
             [TestCase("\t")]
             [TestCase("\r")]
             [TestCase("\n")]
+            [Parallelizable]
             public void ShouldReturnTrueFor_(string input)
             {
                 // Arrange
@@ -916,6 +1016,7 @@ namespace PeanutButter.Utils.Tests
             [TestCase("a")]
             [TestCase(" a")]
             [TestCase("a ")]
+            [Parallelizable]
             public void ShouldReturnFalseFor_(string input)
             {
                 // Arrange
@@ -928,9 +1029,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class ToBase64
         {
             [Test]
+            [Parallelizable]
             public void OperatingOnNullString_ShouldReturnNull()
             {
                 //--------------- Arrange -------------------
@@ -947,6 +1050,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void OperatingOnEmptyString()
             {
                 //--------------- Arrange -------------------
@@ -962,6 +1066,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void OperatingOnNonEmptyString()
             {
                 //--------------- Arrange -------------------
@@ -979,9 +1084,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class ToKebabCase
         {
             [Test]
+            [Parallelizable]
             public void OperatingOnNull_ShouldReturnNull()
             {
                 // Arrange
@@ -1008,9 +1115,11 @@ namespace PeanutButter.Utils.Tests
             [TestCase("Some Service 2", "some-service-2")]
             [TestCase("some-service-2", "some-service-2")]
             [TestCase("Some Service 2 Moo", "some-service-2-moo")]
+            [Parallelizable]
             public void ShouldConvert_(
                 string from,
-                string expected)
+                string expected
+            )
             {
                 // Arrange
 
@@ -1024,6 +1133,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldPreserveGuids()
             {
                 // Arrange
@@ -1039,9 +1149,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class ToSnakeCase
         {
             [Test]
+            [Parallelizable]
             public void OperatingOnNull_ShouldReturnNull()
             {
                 // Arrange
@@ -1060,9 +1172,11 @@ namespace PeanutButter.Utils.Tests
             [TestCase("MooCow", "moo_cow")]
             [TestCase("i_am_snake", "i_am_snake")]
             [TestCase("is-already-kebabed", "is_already_kebabed")]
+            [Parallelizable]
             public void ShouldConvert_(
                 string from,
-                string expected)
+                string expected
+            )
             {
                 // Arrange
 
@@ -1077,9 +1191,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class ToPascalCase
         {
             [Test]
+            [Parallelizable]
             public void OperatingOnNull_ShouldReturnNull()
             {
                 // Arrange
@@ -1104,6 +1220,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestCaseSource(nameof(PascalCaseTestCases))]
+            [Parallelizable]
             public void ShouldConvert_((string input, string expected) testCase)
             {
                 // Arrange
@@ -1119,6 +1236,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestCaseSource(nameof(PascalCaseTestCases))]
+            [Parallelizable]
             public void ToTitleCaseAlias_ShouldConvert_((string input, string expected) testCase)
             {
                 // Arrange
@@ -1136,9 +1254,11 @@ namespace PeanutButter.Utils.Tests
 
 
         [TestFixture]
+        [Parallelizable]
         public class ToCamelCase
         {
             [Test]
+            [Parallelizable]
             public void OperatingOnNull_ShouldReturnNull()
             {
                 // Arrange
@@ -1157,9 +1277,11 @@ namespace PeanutButter.Utils.Tests
             [TestCase("MooCow", "mooCow")]
             [TestCase("i_am_snake", "iAmSnake")]
             [TestCase("is-already-kebabed", "isAlreadyKebabed")]
+            [Parallelizable]
             public void ShouldConvert_(
                 string from,
-                string expected)
+                string expected
+            )
             {
                 // Arrange
 
@@ -1174,9 +1296,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class ToWords
         {
             [Test]
+            [Parallelizable]
             public void OperatingOnNull_ShouldReturnNull()
             {
                 // Arrange
@@ -1196,9 +1320,11 @@ namespace PeanutButter.Utils.Tests
             [TestCase("i_am_snake", "i am snake")]
             [TestCase("i am already words", "i am already words")]
             [TestCase("is-already-kebabed", "is already kebabed")]
+            [Parallelizable]
             public void ShouldConvert_(
                 string from,
-                string expected)
+                string expected
+            )
             {
                 // Arrange
 
@@ -1213,9 +1339,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class ToRandomCase
         {
             [Test]
+            [Parallelizable]
             public void ShouldRandomiseCasingOfAlphaString()
             {
                 // Arrange
@@ -1238,6 +1366,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldReturnNumericStringImmediately()
             {
                 // Arrange
@@ -1251,6 +1380,7 @@ namespace PeanutButter.Utils.Tests
             [TestCase("")]
             [TestCase(" ")]
             [TestCase(null)]
+            [Parallelizable]
             public void ShouldReturnImmediatelyFor_(string input)
             {
                 // Arrange
@@ -1262,9 +1392,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class OperatingOnCollections
         {
             [Test]
+            [Parallelizable]
             public void ToUpper_ShouldUpperCaseAll()
             {
                 // Arrange
@@ -1280,6 +1412,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ToLower_ShouldOwerCaseAll()
             {
                 // Arrange
@@ -1296,12 +1429,15 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class CharacterClasses
         {
             [TestFixture]
+            [Parallelizable]
             public class IsNumeric
             {
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_Null_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1314,6 +1450,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_EmptyString_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1326,6 +1463,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_Whitespace_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1338,6 +1476,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_NumericString_ShouldReturnTrue()
                 {
                     // Arrange
@@ -1350,6 +1489,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_AlphaString_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1362,6 +1502,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_AlphaNumericString_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1379,9 +1520,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class IsAlpha
             {
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_Null_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1394,6 +1537,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_EmptyString_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1406,6 +1550,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_Whitespace_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1418,6 +1563,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_NumericString_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1430,6 +1576,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_AlphaString_ShouldReturnTrue()
                 {
                     // Arrange
@@ -1442,6 +1589,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_AlphaNumericString_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1461,9 +1609,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class IsAlphanumeric
             {
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_Null_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1476,6 +1626,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_EmptyString_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1488,6 +1639,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_Whitespace_ShouldReturnFalse()
                 {
                     // Arrange
@@ -1500,6 +1652,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_NumericString_ShouldReturnTrue()
                 {
                     // Arrange
@@ -1512,6 +1665,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_AlphaString_ShouldReturnTrue()
                 {
                     // Arrange
@@ -1524,6 +1678,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void OperatingOn_AlphaNumericString_ShouldReturnTrue()
                 {
                     // Arrange
@@ -1556,9 +1711,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class ToMemoryStream
         {
             [Test]
+            [Parallelizable]
             public void ShouldConvertNonEmptyString()
             {
                 // Arrange
@@ -1570,6 +1727,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldConvertEmptyByteArray()
             {
                 // Arrange
@@ -1581,6 +1739,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldTreatNullAsEmpty()
             {
                 // Arrange
@@ -1593,9 +1752,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class SplitCommandline
         {
             [Test]
+            [Parallelizable]
             public void ShouldReturnEmptyCollectionForNull()
             {
                 // Arrange
@@ -1608,6 +1769,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldReturnSingleProgramNameWhenNoSpaces()
             {
                 // Arrange
@@ -1620,6 +1782,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldReturnSingleQuotedProgramWithoutQuotes()
             {
                 // Arrange
@@ -1633,6 +1796,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldReturnSpacedProgramWithoutQuotes()
             {
                 // Arrange
@@ -1646,6 +1810,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldReturnSpacedProgramAndNonSpacedArguments()
             {
                 // Arrange
@@ -1659,6 +1824,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldReturnSpacedProgramAndSpacedArgumentsUnQuoted()
             {
                 // Arrange
@@ -1673,11 +1839,13 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class DeQuote
         {
             [TestCase(" ")]
             [TestCase(null)]
             [TestCase("\t\r")]
+            [Parallelizable]
             public void ShouldReturnNullOrWhitespace(string input)
             {
                 // Arrange
@@ -1688,6 +1856,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldNotInterfereWithNonQuotedString()
             {
                 // Arrange
@@ -1700,6 +1869,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldNotDeQuoteLonelyQuote()
             {
                 // Arrange
@@ -1713,6 +1883,7 @@ namespace PeanutButter.Utils.Tests
 
             [TestCase("\"foo")]
             [TestCase("foo\"")]
+            [Parallelizable]
             public void ShouldNotRemoveUnmatchedQuotes(string input)
             {
                 // Arrange
@@ -1723,6 +1894,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldRemoveBoundingQuotes()
             {
                 // Arrange
@@ -1736,6 +1908,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldNotRemoveInternalQuotes()
             {
                 // Arrange
@@ -1750,9 +1923,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class Matches
         {
             [Test]
+            [Parallelizable]
             public void ShouldMatchEmptyCollections()
             {
                 // Arrange
@@ -1766,6 +1941,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldMatchIdenticalCollections()
             {
                 // Arrange
@@ -1779,6 +1955,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldUseGivenStringComparison()
             {
                 // Arrange
@@ -1793,9 +1970,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class Substr
         {
             [Test]
+            [Parallelizable]
             public void ShouldReturnEmptyStringForNullAndAnyRange()
             {
                 // Arrange
@@ -1811,6 +1990,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldReturnPartialStringWhenGivenStartOnlyAndStartWithinString()
             {
                 // Arrange
@@ -1823,6 +2003,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldReturnPartialStringWhenGivenStartAndLengthWithinString()
             {
                 // Arrange
@@ -1835,6 +2016,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldReturnRemainderOfStringWhenLengthOutsideString()
             {
                 // Arrange
@@ -1847,6 +2029,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldReturnEntireStringIfStartLessThanZero()
             {
                 // Arrange
@@ -1859,6 +2042,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldTreatNegativeLengthAsOffsetFromEnd()
             {
                 // Arrange
@@ -1872,9 +2056,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class UnBase64
         {
             [Test]
+            [Parallelizable]
             public void ShouldBeAbleToUnBase64ByteData()
             {
                 // Arrange
@@ -1889,6 +2075,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldBeAbleToUnBase64UnpaddedByteData()
             {
                 // Arrange
@@ -1910,6 +2097,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldBeAbleToUnBase64AString()
             {
                 // Arrange
@@ -1923,6 +2111,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldBeAbleToUnBase64AnUnPaddedString()
             {
                 // Arrange
@@ -1952,6 +2141,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldBeAbleToUnBase64StringDataWithProvidedConverterToAnyType()
             {
                 // Arrange
@@ -1968,6 +2158,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldBeAbleToUnBase64StringUnPaddedBase64StringWithDeserializer()
             {
                 // Arrange
@@ -1993,6 +2184,7 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldDefaultStringDecodeToBeUTF8String()
             {
                 // Arrange
@@ -2013,9 +2205,11 @@ namespace PeanutButter.Utils.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class TrimBlock
         {
             [Test]
+            [Parallelizable]
             public void ShouldReturnEmptyStringForNull()
             {
                 // Arrange
@@ -2027,9 +2221,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            [Parallelizable]
             public class WhenIndentationIsBySpaces
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldOutdentASingleLine()
                 {
                     // Arrange
@@ -2044,6 +2240,7 @@ namespace PeanutButter.Utils.Tests
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldOutdentLinesAllAtSameIndent()
                 {
                     // Arrange
@@ -2064,6 +2261,7 @@ line 2
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldOutdentLinesToShallowestIndent()
                 {
                     // Arrange
@@ -2091,6 +2289,7 @@ function foo() {
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldTrimEndByDefault()
                 {
                     // Arrange
@@ -2118,6 +2317,7 @@ function foo() {
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldHandleTabsAutomatically()
                 {
                     // Arrange
@@ -2132,6 +2332,7 @@ function foo() {
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldIndentToRequiredLevel()
                 {
                     // Arrange
@@ -2148,12 +2349,15 @@ function foo() {
         }
 
         [TestFixture]
+        [Parallelizable]
         public class SplitOnce
         {
             [TestFixture]
+            [Parallelizable]
             public class GivenNull
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnEmptyArray()
                 {
                     // Arrange
@@ -2167,9 +2371,11 @@ function foo() {
             }
 
             [TestFixture]
+            [Parallelizable]
             public class GivenEmptyString
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnSingleElementEmpty()
                 {
                     // Arrange
@@ -2183,9 +2389,11 @@ function foo() {
             }
 
             [TestFixture]
+            [Parallelizable]
             public class GivenNonEmptyStringWithoutDelimiter
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnSingleElement()
                 {
                     // Arrange
@@ -2199,9 +2407,11 @@ function foo() {
             }
 
             [TestFixture]
+            [Parallelizable]
             public class GivenStringWithTwoElements
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnThoseTwoElements()
                 {
                     // Arrange
@@ -2216,9 +2426,11 @@ function foo() {
             }
 
             [TestFixture]
+            [Parallelizable]
             public class GivenStringWithThreeElements
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnOnlyTwoItemsInArray()
                 {
                     // Arrange
@@ -2233,9 +2445,11 @@ function foo() {
             }
 
             [TestFixture]
+            [Parallelizable]
             public class GivenNullSplitter
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldThrow()
                 {
                     // Arrange
@@ -2249,9 +2463,11 @@ function foo() {
         }
 
         [TestFixture]
+        [Parallelizable]
         public class SplitPath
         {
             [Test]
+            [Parallelizable]
             public void ShouldSplitWindowsPath()
             {
                 // Arrange
@@ -2265,6 +2481,7 @@ function foo() {
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldSplitByUnixPath()
             {
                 // Arrange
@@ -2278,6 +2495,7 @@ function foo() {
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldSplitPathWithMixedDelimiters()
             {
                 // Arrange
@@ -2298,6 +2516,7 @@ function foo() {
             }
 
             [Test]
+            [Parallelizable]
             public void ShouldSplitNullToEmptyArray()
             {
                 // Arrange
@@ -2311,12 +2530,15 @@ function foo() {
         }
 
         [TestFixture]
+        [Parallelizable]
         public class RelativeTo
         {
             [TestFixture]
+            [Parallelizable]
             public class GivenTheSamePath
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnEmptyString()
                 {
                     // Arrange
@@ -2330,9 +2552,11 @@ function foo() {
             }
 
             [TestFixture]
+            [Parallelizable]
             public class GivenAParentFolder
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnOnlyTheChildPart()
                 {
                     // Arrange
@@ -2347,9 +2571,11 @@ function foo() {
             }
 
             [TestFixture]
+            [Parallelizable]
             public class GivenAnAncestorFolder
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnTheFullRelativeChildPath()
                 {
                     // Arrange
@@ -2367,9 +2593,11 @@ function foo() {
             }
 
             [TestFixture]
+            [Parallelizable]
             public class GivenAChildPath
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnTheRelativeDottedPath()
                 {
                     // Arrange
@@ -2387,9 +2615,11 @@ function foo() {
             }
 
             [TestFixture]
+            [Parallelizable]
             public class GivenDivergentBranches
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldReturnTheRelativeDottedPath()
                 {
                     // Arrange
@@ -2404,9 +2634,11 @@ function foo() {
             }
 
             [TestFixture]
+            [Parallelizable]
             public class RealWorld
             {
                 [Test]
+                [Parallelizable]
                 public void ShouldProduceRelativePathFromWwwRoot()
                 {
                     // Arrange
@@ -2420,6 +2652,7 @@ function foo() {
                 }
 
                 [Test]
+                [Parallelizable]
                 public void ShouldProduceRelativePathFromWwwRootMixedTypes()
                 {
                     // Arrange

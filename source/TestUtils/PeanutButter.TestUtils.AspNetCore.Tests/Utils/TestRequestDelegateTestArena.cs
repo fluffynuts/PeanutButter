@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using NExpect;
 using NUnit.Framework;
@@ -7,6 +8,7 @@ using PeanutButter.TestUtils.AspNetCore.Utils;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.AspNetCoreExpectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests.Utils;
 
@@ -14,6 +16,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests.Utils;
 public class TestRequestDelegateTestArena
 {
     [Test]
+    [Parallelizable]
     public void ShouldDeconstruct()
     {
         // Arrange
@@ -27,9 +30,11 @@ public class TestRequestDelegateTestArena
     }
 
     [TestFixture]
+    [Parallelizable]
     public class Fluently
     {
         [Test]
+        [Parallelizable]
         public void ShouldBeAbleToSetCustomLogic()
         {
             // Arrange
@@ -46,6 +51,7 @@ public class TestRequestDelegateTestArena
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldBeAbleToSetNullLogic()
         {
             // Arrange
@@ -59,6 +65,7 @@ public class TestRequestDelegateTestArena
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldIgnoreNullHttpContextMutator()
         {
             // Arrange
@@ -77,6 +84,7 @@ public class TestRequestDelegateTestArena
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldRecordTheCalls()
         {
             // Arrange
@@ -95,6 +103,7 @@ public class TestRequestDelegateTestArena
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldBeAbleToMutateTheContext()
         {
             // Arrange
@@ -110,6 +119,7 @@ public class TestRequestDelegateTestArena
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldHaveEasierAccessToModifyTheRequest()
         {
             // Arrange
@@ -124,6 +134,7 @@ public class TestRequestDelegateTestArena
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldHaveEasierAccessToSetTheRequest()
         {
             // Arrange
@@ -138,6 +149,42 @@ public class TestRequestDelegateTestArena
         }
 
         [Test]
+        [Parallelizable]
+        public void ShouldHaveEasyMethodToAddOriginHeader()
+        {
+            // Arrange
+            var expected = GetRandomHttpsUrl();
+            // Act
+            var (ctx, _) = RequestDelegateTestArenaBuilder.Create()
+                .WithOriginHeader(expected)
+                .Build();
+            // Assert
+            Expect(ctx.Request.Headers)
+                .To.Contain.Key("Origin")
+                .With.Value(expected);
+        }
+
+        [Test]
+        [Parallelizable]
+        public void ShouldHaveEasyMethodToAddSelfOrigin()
+        {
+            // Arrange
+            var requestUrl = GetRandomHttpsUrlWithPathAndParameters();
+            var expected = new Uri(requestUrl).ToString().UriRoot();
+
+            // Act
+            var (ctx, _) = RequestDelegateTestArenaBuilder.Create()
+                .WithRequestMutator(req => req.SetUrl(requestUrl))
+                .WithOriginHeader()
+                .Build();
+            // Assert
+            Expect(ctx.Request.Headers)
+                .To.Contain.Key("Origin")
+                .With.Value(expected);
+        }
+
+        [Test]
+        [Parallelizable]
         public void ShouldBeAbleToOutrightSetTheContext()
         {
             // Arrange

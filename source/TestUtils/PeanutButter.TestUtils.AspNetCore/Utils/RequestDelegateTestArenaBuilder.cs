@@ -155,10 +155,38 @@ namespace PeanutButter.TestUtils.AspNetCore.Utils
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public RequestDelegateTestArenaBuilder WithContext(HttpContext context)
+        public RequestDelegateTestArenaBuilder WithContext(
+            HttpContext context
+        )
         {
             _httpContext = context;
             return this;
+        }
+
+        /// <summary>
+        /// Sets the origin header on the request to be the root
+        /// of the request url
+        /// </summary>
+        /// <returns></returns>
+        public RequestDelegateTestArenaBuilder WithOriginHeader()
+        {
+            return WithRequestMutator(
+                req => req.Headers["Origin"] = req.FullUrl().ToString().UriRoot()
+            );
+        }
+
+        /// <summary>
+        /// Sets the Origin header on the request to the provided value
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <returns></returns>
+        public RequestDelegateTestArenaBuilder WithOriginHeader(
+            string origin
+        )
+        {
+            return WithRequestMutator(
+                req => req.Headers["Origin"] = origin
+            );
         }
     }
 }
