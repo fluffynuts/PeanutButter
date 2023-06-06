@@ -32,6 +32,20 @@ namespace PeanutButter.Utils
             string label,
             Func<Task> activity
         );
+        
+        /// <summary>
+        /// Simply log within the context of the steps (ie with the
+        /// same io &amp; prefixing)
+        /// </summary>
+        /// <param name="str"></param>
+        void Log(string str);
+        
+        /// <summary>
+        /// Simply log within the context of the steps (ie with the
+        /// same io &amp; prefixing)
+        /// </summary>
+        /// <param name="str"></param>
+        Task LogAsync(string str);
     }
 
     /// <summary>
@@ -303,11 +317,7 @@ namespace PeanutButter.Utils
 
         private readonly SemaphoreSlim _ioLock = new(1, 1);
 
-        /// <summary>
-        /// Run the provided activity with the given label
-        /// </summary>
-        /// <param name="label"></param>
-        /// <param name="activity"></param>
+        /// <inheritdoc />
         public void Run(
             string label,
             Action activity
@@ -330,11 +340,7 @@ namespace PeanutButter.Utils
             );
         }
 
-        /// <summary>
-        /// Run the provided async activity with the given label
-        /// </summary>
-        /// <param name="label"></param>
-        /// <param name="activity"></param>
+        /// <inheritdoc />
         public async Task RunAsync(
             string label,
             Func<Task> activity
@@ -355,6 +361,22 @@ namespace PeanutButter.Utils
                     return await InvokeExceptionHandlerOrFailAsync(ex);
                 }
             );
+        }
+
+        /// <inheritdoc />
+        public void Log(string str)
+        {
+            using var _ = new AutoLocker(_ioLock);
+            InvokeWriter($"{_prefixAllStatusLines()}{str}");
+            InvokeFlush();
+        }
+
+        /// <inheritdoc />
+        public async Task LogAsync(string str)
+        {
+            using var _ = new AutoLocker(_ioLock);
+            await InvokeWriterAsync($"{_prefixAllStatusLines()}{str}");
+            await InvokeFlushAsync();
         }
 
         private void Start(string label)

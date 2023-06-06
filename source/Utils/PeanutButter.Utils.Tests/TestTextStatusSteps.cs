@@ -34,7 +34,7 @@ public class TestTextStatusSteps
                     ok,
                     fail,
                     s => collected.Add(s),
-                    () => collected.Add("-- flush --")
+                    () => collected.Add(FLUSH_MARKER)
                 );
                 var label = GetRandomString();
 
@@ -50,11 +50,11 @@ public class TestTextStatusSteps
                         new[]
                         {
                             s1,
-                            "-- flush --",
+                            FLUSH_MARKER,
                             $"-- action --",
                             $"\r{new String(' ', s1.Length)}\r",
                             $"{ok} {prefix}{label}\n",
-                            "-- flush --"
+                            FLUSH_MARKER
                         }
                     );
             }
@@ -73,7 +73,7 @@ public class TestTextStatusSteps
                     ok,
                     fail,
                     s => collected.Add(s),
-                    () => collected.Add("-- flush --")
+                    () => collected.Add(FLUSH_MARKER)
                 );
                 var label = GetRandomString();
 
@@ -89,11 +89,11 @@ public class TestTextStatusSteps
                         new[]
                         {
                             s1,
-                            "-- flush --",
+                            FLUSH_MARKER,
                             $"-- action --",
                             $"\r{new String(' ', s1.Length)}\r",
                             $"{ok} {prefix}{label}\n",
-                            "-- flush --"
+                            FLUSH_MARKER
                         }
                     );
             }
@@ -116,7 +116,7 @@ public class TestTextStatusSteps
                     ok,
                     fail,
                     s => collected.Add(s),
-                    () => collected.Add("-- flush --")
+                    () => collected.Add(FLUSH_MARKER)
                 );
                 var label = GetRandomString();
 
@@ -138,10 +138,10 @@ public class TestTextStatusSteps
                         new[]
                         {
                             s1,
-                            "-- flush --",
+                            FLUSH_MARKER,
                             $"\r{new String(' ', s1.Length)}\r",
                             $"{fail} {prefix}{label}\n",
-                            "-- flush --"
+                            FLUSH_MARKER
                         }
                     );
             }
@@ -170,7 +170,7 @@ public class TestTextStatusSteps
                     ok,
                     fail,
                     s => collected.Add(s),
-                    () => collected.Add("-- flush --")
+                    () => collected.Add(FLUSH_MARKER)
                 );
                 var label = GetRandomString();
 
@@ -186,15 +186,15 @@ public class TestTextStatusSteps
                         new[]
                         {
                             s1,
-                            "-- flush --",
+                            FLUSH_MARKER,
                             $"-- action --",
                             $"\r{new String(' ', s1.Length)}\r",
                             $"{ok} {prefix}{label}\n",
-                            "-- flush --"
+                            FLUSH_MARKER
                         }
                     );
             }
-            
+
             [Test]
             public async Task ShouldUseLengthOfLongestMarkerForSpacing()
             {
@@ -209,7 +209,7 @@ public class TestTextStatusSteps
                     ok,
                     fail,
                     s => collected.Add(s),
-                    () => collected.Add("-- flush --")
+                    () => collected.Add(FLUSH_MARKER)
                 );
                 var label = GetRandomString();
 
@@ -225,11 +225,11 @@ public class TestTextStatusSteps
                         new[]
                         {
                             s1,
-                            "-- flush --",
+                            FLUSH_MARKER,
                             $"-- action --",
                             $"\r{new String(' ', s1.Length)}\r",
                             $"{ok} {prefix}{label}\n",
-                            "-- flush --"
+                            FLUSH_MARKER
                         }
                     );
             }
@@ -252,7 +252,7 @@ public class TestTextStatusSteps
                     ok,
                     fail,
                     s => collected.Add(s),
-                    () => collected.Add("-- flush --")
+                    () => collected.Add(FLUSH_MARKER)
                 );
                 var label = GetRandomString();
 
@@ -274,10 +274,10 @@ public class TestTextStatusSteps
                         new[]
                         {
                             s1,
-                            "-- flush --",
+                            FLUSH_MARKER,
                             $"\r{new String(' ', s1.Length)}\r",
                             $"{fail} {prefix}{label}\n",
-                            "-- flush --"
+                            FLUSH_MARKER
                         }
                     );
             }
@@ -285,14 +285,76 @@ public class TestTextStatusSteps
 
         private static Func<Task> MakeAsync(Action action)
         {
-            return new Func<Task>(async () =>
+            return new Func<Task>(
+                async () =>
+                {
+                    // give up control
+                    await Task.Delay(0);
+                    action();
+                    // and again
+                    await Task.Delay(0);
+                }
+            );
+        }
+    }
+
+    private const string FLUSH_MARKER = "-- flush --";
+
+    [TestFixture]
+    public class PureLogging
+    {
+        [Test]
+        public void ShouldLogViaWriterAndFlush()
+        {
+            // Arrange
+            var prefix = GetRandomString();
+            var captured = new List<string>();
+            var sut = Create(
+                prefix,
+                GetRandomString(),
+                GetRandomString(),
+                GetRandomString(),
+                s => captured.Add(s),
+                () => captured.Add("-- flush --")
+            );
+            var toLog = GetRandomString();
+            var expected = new[]
             {
-                // give up control
-                await Task.Delay(0);
-                action();
-                // and again
-                await Task.Delay(0);
-            });
+                $"{prefix}{toLog}",
+                FLUSH_MARKER
+            };
+            // Act
+            sut.Log(toLog);
+            // Assert
+            Expect(captured)
+                .To.Equal(expected);
+        }
+
+        [Test]
+        public async Task ShouldLogViaWriterAndFlushAsync()
+        {
+            // Arrange
+            var prefix = GetRandomString();
+            var captured = new List<string>();
+            var sut = Create(
+                prefix,
+                GetRandomString(),
+                GetRandomString(),
+                GetRandomString(),
+                s => captured.Add(s),
+                () => captured.Add("-- flush --")
+            );
+            var toLog = GetRandomString();
+            var expected = new[]
+            {
+                $"{prefix}{toLog}",
+                FLUSH_MARKER
+            };
+            // Act
+            await sut.LogAsync(toLog);
+            // Assert
+            Expect(captured)
+                .To.Equal(expected);
         }
     }
 
