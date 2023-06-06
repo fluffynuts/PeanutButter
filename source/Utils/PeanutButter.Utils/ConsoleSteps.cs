@@ -17,7 +17,7 @@ namespace PeanutButter.Utils
         /// - failure marked with [FAIL]
         /// </summary>
         /// <returns></returns>
-        public static TextStatusSteps Basic()
+        public static ITextStatusSteps Basic()
         {
             return Basic("");
         }
@@ -30,7 +30,7 @@ namespace PeanutButter.Utils
         /// - failure marked with [FAIL]
         /// </summary>
         /// <returns></returns>
-        public static TextStatusSteps Basic(string prefix)
+        public static ITextStatusSteps Basic(string prefix)
         {
             return Basic(prefix, Console.Out);
         }
@@ -42,7 +42,7 @@ namespace PeanutButter.Utils
         /// - ascii only
         /// </summary>
         /// <returns></returns>
-        public static TextStatusSteps Basic(
+        public static ITextStatusSteps Basic(
             string prefix,
             string startLabel,
             string okLabel,
@@ -50,7 +50,7 @@ namespace PeanutButter.Utils
             TextWriter target
         )
         {
-            return new(
+            return new TextStatusSteps(
                 prefix,
                 startLabel,
                 okLabel,
@@ -80,7 +80,7 @@ namespace PeanutButter.Utils
         /// - failure marked with [FAIL]
         /// </summary>
         /// <returns></returns>
-        public static TextStatusSteps Basic(TextWriter writer)
+        public static ITextStatusSteps Basic(TextWriter writer)
         {
             return Basic("", writer);
         }
@@ -93,7 +93,7 @@ namespace PeanutButter.Utils
         /// - failure marked with [FAIL]
         /// </summary>
         /// <returns></returns>
-        public static TextStatusSteps Basic(
+        public static ITextStatusSteps Basic(
             string prefix,
             TextWriter writer
         )
@@ -109,27 +109,31 @@ namespace PeanutButter.Utils
 
         // ------
         /// <summary>
-        /// Creates the most basic steps:
+        /// Creates the most basic steps for test output:
         /// - no color
         /// - ascii only
         /// - success marked with [ OK ]
         /// - failure marked with [FAIL]
+        /// - no line re-writing (each status on a new line)
+        /// - errors are surfaced
         /// </summary>
         /// <returns></returns>
-        public static TextStatusSteps ForTesting()
+        public static ITextStatusSteps ForTesting()
         {
             return ForTesting("");
         }
 
         /// <summary>
-        /// Creates the most basic steps:
+        /// Creates the most basic steps for test output:
         /// - no color
         /// - ascii only
         /// - success marked with [ OK ]
         /// - failure marked with [FAIL]
+        /// - no line re-writing (each status on a new line)
+        /// - errors are surfaced
         /// </summary>
         /// <returns></returns>
-        public static TextStatusSteps ForTesting(string prefix)
+        public static ITextStatusSteps ForTesting(string prefix)
         {
             return ForTesting(prefix, Console.Error);
         }
@@ -139,9 +143,11 @@ namespace PeanutButter.Utils
         /// labels and writer
         /// - no color
         /// - ascii only
+        /// - no line re-writing (each status on a new line)
+        /// - errors are surfaced
         /// </summary>
         /// <returns></returns>
-        public static TextStatusSteps ForTesting(
+        public static ITextStatusSteps ForTesting(
             string prefix,
             string startLabel,
             string okLabel,
@@ -152,7 +158,7 @@ namespace PeanutButter.Utils
             var spacer = string.IsNullOrEmpty(prefix)
                 ? ""
                 : " ";
-            return new(
+            return new TextStatusSteps(
                 () => $"[{DateTime.Now:u}]{spacer}{prefix}",
                 startLabel,
                 okLabel,
@@ -198,9 +204,11 @@ namespace PeanutButter.Utils
         /// - ascii only
         /// - success marked with [ OK ]
         /// - failure marked with [FAIL]
+        /// - no line re-writing (each status on a new line)
+        /// - errors are surfaced
         /// </summary>
         /// <returns></returns>
-        public static TextStatusSteps ForTesting(TextWriter writer)
+        public static ITextStatusSteps ForTesting(TextWriter writer)
         {
             return ForTesting("", writer);
         }
@@ -211,9 +219,11 @@ namespace PeanutButter.Utils
         /// - ascii only
         /// - success marked with [ OK ]
         /// - failure marked with [FAIL]
+        /// - no line re-writing (each status on a new line)
+        /// - errors are surfaced
         /// </summary>
         /// <returns></returns>
-        public static TextStatusSteps ForTesting(
+        public static ITextStatusSteps ForTesting(
             string prefix,
             TextWriter writer
         )

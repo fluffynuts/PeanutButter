@@ -8,10 +8,38 @@ using System.Threading.Tasks;
 namespace PeanutButter.Utils
 {
     /// <summary>
+    /// Describes the contract for textural feedback around
+    /// running activities.
+    /// </summary>
+    public interface ITextStatusSteps
+    {
+        /// <summary>
+        /// Run the provided activity with the given label
+        /// </summary>
+        /// <param name="label"></param>
+        /// <param name="activity"></param>
+        void Run(
+            string label,
+            Action activity
+        );
+
+        /// <summary>
+        /// Run the provided async activity with the given label
+        /// </summary>
+        /// <param name="label"></param>
+        /// <param name="activity"></param>
+        Task RunAsync(
+            string label,
+            Func<Task> activity
+        );
+    }
+
+    /// <summary>
     /// Provides an easy mechanism for steps of a process with
     /// status feedback, ie "starting X..." / {does X} / {"completed" / "failed"}
     /// </summary>
     public class TextStatusSteps
+        : ITextStatusSteps
     {
         private readonly Func<string, Task> _asyncWriter;
         private readonly Func<Task> _asyncFlushAction;
