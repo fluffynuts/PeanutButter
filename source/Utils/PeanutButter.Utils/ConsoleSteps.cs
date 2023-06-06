@@ -7,7 +7,7 @@ namespace PeanutButter.Utils
     /// <summary>
     /// Provides factory methods for basic console steps
     /// </summary>
-    public static class ConsoleSteps
+    public static partial class ConsoleSteps
     {
         /// <summary>
         /// Creates the most basic steps:
@@ -227,4 +227,5 @@ namespace PeanutButter.Utils
             );
         }
     }
+    
 }

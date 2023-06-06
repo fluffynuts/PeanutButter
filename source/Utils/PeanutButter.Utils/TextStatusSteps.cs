@@ -1,5 +1,8 @@
 using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils
@@ -10,6 +13,9 @@ namespace PeanutButter.Utils
     /// </summary>
     public class TextStatusSteps
     {
+        private readonly Func<string, Task> _asyncWriter;
+        private readonly Func<Task> _asyncFlushAction;
+        private readonly Func<Exception, Task<ErrorHandlerResult>> _asyncExceptionHandler;
         private readonly Func<string> _prefixAllStatusLines;
         private readonly string _startMarker;
         private readonly string _completedMarker;
@@ -202,14 +208,25 @@ namespace PeanutButter.Utils
             Action<string> writer,
             Action flushAction,
             Func<Exception, ErrorHandlerResult> exceptionHandler
+        ) : this(prefixAllStatusLines, startMarker, completedMarker, failedMarker)
+        {
+            _writer = writer;
+            _flushAction = flushAction;
+            _exceptionHandler = exceptionHandler;
+            _steps = new Steps();
+        }
+
+        private TextStatusSteps(
+            Func<string> prefixAllStatusLines,
+            string startMarker,
+            string completedMarker,
+            string failedMarker
         )
         {
             _prefixAllStatusLines = prefixAllStatusLines;
             _completedMarker = completedMarker;
             _failedMarker = failedMarker;
-            _writer = writer;
-            _flushAction = flushAction;
-            _exceptionHandler = exceptionHandler;
+
             var longestMarkerLength = new[]
             {
                 startMarker.Length,
@@ -220,9 +237,43 @@ namespace PeanutButter.Utils
                 ? startMarker
                 // ReSharper disable once BuiltInTypeReferenceStyle
                 : $"{startMarker}{new String(' ', longestMarkerLength - startMarker.Length)}";
-
-            _steps = new Steps();
         }
+
+        /// <summary>
+        /// Create the status steps with:
+        /// - a default prefix (eg "Starting")
+        /// - a completed marker (eg "[ OK ]" or "✔️")
+        /// - a failed marker (eg "[FAIL]" or "❌")
+        /// - a callback to write status information
+        /// - a callback to flush status information when appropriate
+        ///   - this is only necessary if your writer callback buffers
+        /// </summary>
+        /// <param name="prefixAllStatusLines">Prefix all status lines with this (after the start/ok/fail marker)</param>
+        /// <param name="startMarker">Marker/placeholder when activity starts</param>
+        /// <param name="completedMarker">Marker for a completed activity</param>
+        /// <param name="failedMarker">Marker for a failed activity</param>
+        /// <param name="asyncWriter">Action to call to write a message</param>
+        /// <param name="asyncFlushAction">Action to call to flush any buffered messages</param>
+        /// <param name="asyncExceptionHandler">
+        /// (optional) - if provided, if an error is thrown by the activity,
+        /// this is invoked. If this returns true, the exception will be rethrown,
+        /// otherwise it will be suppressed</param>
+        public TextStatusSteps(
+            Func<string> prefixAllStatusLines,
+            string startMarker,
+            string completedMarker,
+            string failedMarker,
+            Func<string, Task> asyncWriter,
+            Func<Task> asyncFlushAction,
+            Func<Exception, Task<ErrorHandlerResult>> asyncExceptionHandler
+        ) : this(prefixAllStatusLines, startMarker, completedMarker, failedMarker)
+        {
+            _asyncWriter = asyncWriter;
+            _asyncFlushAction = asyncFlushAction;
+            _asyncExceptionHandler = asyncExceptionHandler;
+        }
+
+        private readonly SemaphoreSlim _ioLock = new(1, 1);
 
         /// <summary>
         /// Run the provided activity with the given label
@@ -246,23 +297,224 @@ namespace PeanutButter.Utils
                     }
 
                     Fail(label);
-                    return _exceptionHandler?.Invoke(ex) ?? ErrorHandlerResult.Rethrow;
+                    return InvokeExceptionHandlerOrFail(ex);
+                }
+            );
+        }
+
+        /// <summary>
+        /// Run the provided async activity with the given label
+        /// </summary>
+        /// <param name="label"></param>
+        /// <param name="activity"></param>
+        public async Task RunAsync(
+            string label,
+            Func<Task> activity
+        )
+        {
+            await _steps.RunAsync(
+                () => StartAsync(label),
+                activity,
+                async ex =>
+                {
+                    if (ex is null)
+                    {
+                        await OkAsync(label);
+                        return ErrorHandlerResult.NoError;
+                    }
+
+                    await FailAsync(label);
+                    return await InvokeExceptionHandlerOrFailAsync(ex);
+                }
+            );
+        }
+
+        private void Start(string label)
+        {
+            RunWithIoLocking(
+                () =>
+                {
+                    var toWrite = $"{_startMarker} {_prefixAllStatusLines?.Invoke()}{label}";
+                    _lastWriteLength = toWrite.Length;
+                    InvokeWriter(toWrite);
+                    InvokeFlush();
+                }
+            );
+        }
+
+        private async Task StartAsync(string label)
+        {
+            await RunWithIoLockingAsync(
+                async () =>
+                {
+                    var toWrite = $"{_startMarker} {_prefixAllStatusLines?.Invoke()}{label}";
+                    _lastWriteLength = toWrite.Length;
+                    await InvokeWriterAsync(toWrite);
+                    await InvokeFlushAsync();
+                }
+            );
+        }
+
+        private void Ok(string label)
+        {
+            RunWithIoLocking(
+                () =>
+                {
+                    ClearLastLine();
+                    InvokeWriter($"{_completedMarker} {_prefixAllStatusLines?.Invoke()}{label}\n");
+                    InvokeFlush();
+                }
+            );
+        }
+
+        private async Task OkAsync(string label)
+        {
+            await RunWithIoLockingAsync(
+                async () =>
+                {
+                    await ClearLastLineAsync();
+                    await InvokeWriterAsync($"{_completedMarker} {_prefixAllStatusLines?.Invoke()}{label}\n");
+                    await InvokeFlushAsync();
                 }
             );
         }
 
         private void Fail(string label)
         {
-            ClearLastLine();
-            _writer?.Invoke($"{_failedMarker} {_prefixAllStatusLines?.Invoke()}{label}\n");
-            _flushAction?.Invoke();
+            RunWithIoLocking(
+                () =>
+                {
+                    ClearLastLine();
+                    InvokeWriter($"{_failedMarker} {_prefixAllStatusLines?.Invoke()}{label}\n");
+                    InvokeFlush();
+                }
+            );
         }
 
-        private void Ok(string label)
+        private async Task FailAsync(string label)
         {
-            ClearLastLine();
-            _writer?.Invoke($"{_completedMarker} {_prefixAllStatusLines?.Invoke()}{label}\n");
-            _flushAction?.Invoke();
+            await RunWithIoLockingAsync(
+                async () =>
+                {
+                    await ClearLastLineAsync();
+                    await InvokeWriterAsync($"{_failedMarker} {_prefixAllStatusLines?.Invoke()}{label}\n");
+                    await InvokeFlushAsync();
+                }
+            );
+        }
+
+        private ErrorHandlerResult InvokeExceptionHandlerOrFail(Exception ex)
+        {
+            return RunWithIoLocking(
+                () =>
+                {
+                    if (_exceptionHandler is not null)
+                    {
+                        return _exceptionHandler.Invoke(ex);
+                    }
+
+                    if (_asyncExceptionHandler is not null)
+                    {
+                        return Async.RunSync(() => _asyncExceptionHandler.Invoke(ex));
+                    }
+
+                    return ErrorHandlerResult.Rethrow;
+                }
+            );
+        }
+
+        private async Task<ErrorHandlerResult> InvokeExceptionHandlerOrFailAsync(Exception ex)
+        {
+            return await RunWithIoLockingAsync(
+                async () =>
+                {
+                    if (_exceptionHandler is not null)
+                    {
+                        return _exceptionHandler.Invoke(ex);
+                    }
+
+                    if (_asyncExceptionHandler is not null)
+                    {
+                        return await _asyncExceptionHandler.Invoke(ex);
+                    }
+
+                    return ErrorHandlerResult.Rethrow;
+                }
+            );
+        }
+
+        private void InvokeWriter(string toWrite)
+        {
+            if (Wrote(toWrite))
+            {
+                return;
+            }
+
+            if (_asyncWriter is not null)
+            {
+                Async.RunSync(() => _asyncWriter.Invoke(toWrite));
+            }
+        }
+
+        private async Task InvokeWriterAsync(string toWrite)
+        {
+            if (Wrote(toWrite))
+            {
+                return;
+            }
+
+            if (_asyncWriter is not null)
+            {
+                await _asyncWriter.Invoke(toWrite);
+            }
+        }
+
+        private bool Wrote(string str)
+        {
+            if (_writer is null)
+            {
+                return false;
+            }
+
+            _writer.Invoke(str);
+            return true;
+        }
+
+        private void InvokeFlush()
+        {
+            if (Flushed())
+            {
+                return;
+            }
+
+            if (_asyncFlushAction is not null)
+            {
+                Async.RunSync(() => _asyncFlushAction.Invoke());
+            }
+        }
+
+        private async Task InvokeFlushAsync()
+        {
+            if (Flushed())
+            {
+                return;
+            }
+
+            if (_asyncFlushAction is not null)
+            {
+                await _asyncFlushAction.Invoke();
+            }
+        }
+
+        private bool Flushed()
+        {
+            if (_flushAction is null)
+            {
+                return false;
+            }
+
+            _flushAction.Invoke();
+            return true;
         }
 
         private void ClearLastLine()
@@ -272,16 +524,43 @@ namespace PeanutButter.Utils
                 return;
             }
 
-            _writer?.Invoke($"\r{new String(' ', _lastWriteLength)}\r");
+            InvokeWriter($"\r{new String(' ', _lastWriteLength)}\r");
             _lastWriteLength = 0;
         }
 
-        private void Start(string label)
+        private async Task ClearLastLineAsync()
         {
-            var toWrite = $"{_startMarker} {_prefixAllStatusLines?.Invoke()}{label}";
-            _lastWriteLength = toWrite.Length;
-            _writer?.Invoke(toWrite);
-            _flushAction?.Invoke();
+            if (_lastWriteLength == 0)
+            {
+                return;
+            }
+
+            await InvokeWriterAsync($"\r{new String(' ', _lastWriteLength)}\r");
+            _lastWriteLength = 0;
+        }
+
+        private void RunWithIoLocking(Action activity)
+        {
+            using var _ = new AutoLocker(_ioLock);
+            activity();
+        }
+
+        private async Task RunWithIoLockingAsync(Func<Task> activity)
+        {
+            using var _ = new AutoLocker(_ioLock);
+            await activity();
+        }
+
+        private T RunWithIoLocking<T>(Func<T> activity)
+        {
+            using var _ = new AutoLocker(_ioLock);
+            return activity();
+        }
+
+        private async Task<T> RunWithIoLockingAsync<T>(Func<Task<T>> activity)
+        {
+            using var _ = new AutoLocker(_ioLock);
+            return await activity();
         }
     }
 }
