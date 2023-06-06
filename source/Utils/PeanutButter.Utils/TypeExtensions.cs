@@ -217,7 +217,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// provides the method normally found on a .net framework
-        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// Type object, but reachable on .net standard only via GetTypeInfo();
         /// </summary>
         public static PropertyInfo[] GetProperties(this Type t, BindingFlags flags)
         {
@@ -226,7 +226,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// provides the method normally found on a .net framework
-        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// Type object, but reachable on .net standard only via GetTypeInfo();
         /// </summary>
         public static FieldInfo[] GetFields(this Type t, BindingFlags flags)
         {
@@ -235,7 +235,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// provides the method normally found on a .net framework
-        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// Type object, but reachable on .net standard only via GetTypeInfo();
         /// </summary>
         public static bool IsAssignableFrom(this Type t, Type other)
         {
@@ -244,7 +244,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// provides the method normally found on a .net framework
-        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// Type object, but reachable on .net standard only via GetTypeInfo();
         /// </summary>
         public static Type[] GetInterfaces(this Type t)
         {
@@ -253,7 +253,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// provides the method normally found on a .net framework
-        /// Type object, but reachabole on .net standard only via GetTypeInfo();
+        /// Type object, but reachable on .net standard only via GetTypeInfo();
         /// </summary>
         public static Type[] GetGenericArguments(this Type t)
         {
