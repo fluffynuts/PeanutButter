@@ -36,7 +36,8 @@ namespace PeanutButter.Utils
         public static string RegexReplace(
             this string input,
             string pattern,
-            string replaceWith)
+            string replaceWith
+        )
         {
             return input.RegexReplaceAll(replaceWith, pattern);
         }
@@ -87,7 +88,8 @@ namespace PeanutButter.Utils
         /// <returns>The original string when it is not null or empty; the alternative when the original is null or empty</returns>
         public static string Or(
             this string input,
-            string alternative)
+            string alternative
+        )
         {
             return string.IsNullOrEmpty(input)
                 ? alternative
@@ -105,7 +107,8 @@ namespace PeanutButter.Utils
         /// <param name="input">String to attempt to convert</param>
         /// <returns>True for truthy values, False otherwise</returns>
         public static bool AsBoolean(
-            this string input)
+            this string input
+        )
         {
             return !string.IsNullOrWhiteSpace(input) &&
                 Truthy.Any(item => item == input.ToLower());
@@ -122,7 +125,8 @@ namespace PeanutButter.Utils
         /// <returns>True if any of the needles are found in the haystack; False otherwise</returns>
         public static bool ContainsOneOf(
             this string haystack,
-            params string[] needles)
+            params string[] needles
+        )
         {
             return MultiMatch(
                 haystack,
@@ -134,7 +138,10 @@ namespace PeanutButter.Utils
 #else
                             CultureInfo.CurrentCulture
 #endif
-                        ))));
+                        )
+                    )
+                )
+            );
         }
 
         /// <summary>
@@ -166,12 +173,14 @@ namespace PeanutButter.Utils
         /// <returns>True if all of the needles are found in the haystack; False otherwise</returns>
         public static bool ContainsAllOf(
             this string haystack,
-            params string[] needles)
+            params string[] needles
+        )
         {
             return MultiMatch(
                 haystack,
                 needles,
-                h => needles.All(n => h.Contains(n.ToLower(CultureInfo.CurrentCulture))));
+                h => needles.All(n => h.Contains(n.ToLower(CultureInfo.CurrentCulture)))
+            );
         }
 
         private static bool MultiMatch(
@@ -182,11 +191,26 @@ namespace PeanutButter.Utils
         )
         {
             if (needles.Length == 0)
-                throw new ArgumentException("No needles provided to search haystack for");
+            {
+                throw new ArgumentException(
+                    "No needles provided to search haystack for",
+                    nameof(needles)
+                );
+            }
+
             if (needles.Any(n => n == null))
-                throw new ArgumentException("Null needle provided. Boo!");
+            {
+                throw new ArgumentException(
+                    "Null needle provided",
+                    nameof(needles)
+                );
+            }
+
             if (haystack == null)
+            {
                 return false;
+            }
+
             haystack = haystack.ToLower(CultureInfo.InvariantCulture);
             return operation(haystack);
         }
@@ -199,10 +223,14 @@ namespace PeanutButter.Utils
         /// <returns>True if {src} starts with any one of provided search strings; False otherwise</returns>
         public static bool StartsWithOneOf(
             this string src,
-            params string[] search)
+            params string[] search
+        )
         {
             if (src == null)
+            {
                 return false;
+            }
+
             src = src.ToLower(CultureInfo.InvariantCulture);
             return search.Any(s => src.StartsWith(s.ToLower(CultureInfo.InvariantCulture)));
         }
@@ -213,7 +241,8 @@ namespace PeanutButter.Utils
         /// <param name="src">String to operate on</param>
         /// <returns>Byte array representing string, from UTF8 encoding</returns>
         public static byte[] AsBytes(
-            this string src)
+            this string src
+        )
         {
             return src.AsBytes(Encoding.UTF8);
         }
@@ -226,7 +255,8 @@ namespace PeanutButter.Utils
         /// <returns>Byte array of the {src} string when decoded as UTF-8</returns>
         public static byte[] AsBytes(
             this string src,
-            Encoding encoding)
+            Encoding encoding
+        )
         {
             return src == null
                 ? null
@@ -239,7 +269,8 @@ namespace PeanutButter.Utils
         /// <param name="src">String to convert</param>
         /// <returns>Stream or null if src is null</returns>
         public static Stream AsStream(
-            this string src)
+            this string src
+        )
         {
             return src.AsStream(Encoding.UTF8);
         }
@@ -309,7 +340,8 @@ namespace PeanutButter.Utils
         /// <returns>Stream or null if src is null</returns>
         public static Stream AsStream(
             this string src,
-            Encoding encoding)
+            Encoding encoding
+        )
         {
             return src?.AsBytes(encoding)?.AsStream();
         }
@@ -364,7 +396,8 @@ namespace PeanutButter.Utils
         /// <param name="src">String to test</param>
         /// <returns>True if the string can be converted to an integer; False otherwise</returns>
         public static bool IsInteger(
-            this string src)
+            this string src
+        )
         {
             return int.TryParse(src, out var _);
         }
@@ -492,7 +525,8 @@ namespace PeanutButter.Utils
         /// <param name="input">String to test</param>
         /// <returns>Original string or "0" if empty or null</returns>
         public static string ZeroIfEmptyOrNull(
-            this string input)
+            this string input
+        )
         {
             return input.DefaultIfEmptyOrNull("0");
         }
@@ -506,7 +540,8 @@ namespace PeanutButter.Utils
         // ReSharper disable once MemberCanBePrivate.Global
         public static string DefaultIfEmptyOrNull(
             this string input,
-            string fallback)
+            string fallback
+        )
         {
             return string.IsNullOrWhiteSpace(input)
                 ? fallback
@@ -521,7 +556,8 @@ namespace PeanutButter.Utils
         /// <returns>Empty string if input is null, otherwise trimmed input</returns>
         public static string SafeTrim(
             this string input,
-            params char[] trimChars)
+            params char[] trimChars
+        )
         {
             return input?.Trim(trimChars) ?? "";
         }
@@ -532,7 +568,8 @@ namespace PeanutButter.Utils
         /// <param name="input">string to convert</param>
         /// <returns>kebab-cased-output</returns>
         public static string ToKebabCase(
-            this string input)
+            this string input
+        )
         {
             return input?
                 .Replace('_', '-')
@@ -562,7 +599,7 @@ namespace PeanutButter.Utils
 
             if (needles is null)
             {
-                throw new ArgumentException(nameof(needles));
+                throw new ArgumentNullException(nameof(needles));
             }
             // we could do this:
             // return needles.Aggregate(
@@ -574,7 +611,7 @@ namespace PeanutButter.Utils
             //    (on small-enough needle collections),
             //    but memory-wise, it makes a little difference
             //    - fewer strings to GC
-            
+
             var arr = haystack.ToCharArray();
             var seek = new HashSet<char>(needles);
             for (var i = 0; i < arr.Length; i++)
@@ -584,10 +621,10 @@ namespace PeanutButter.Utils
                     arr[i] = replaceWith;
                 }
             }
-            
+
             return new String(arr);
         }
-        
+
         /// <summary>
         /// Replace all occurrences of strings in needles with the replaceWith string
         /// </summary>
@@ -608,7 +645,7 @@ namespace PeanutButter.Utils
 
             if (needles is null)
             {
-                throw new ArgumentException(nameof(needles));
+                throw new ArgumentNullException(nameof(needles));
             }
 
             return needles.Aggregate(
@@ -638,6 +675,7 @@ namespace PeanutButter.Utils
                     result.Add(c);
                 }
             }
+
             return new String(result.ToArray());
         }
 
@@ -647,7 +685,8 @@ namespace PeanutButter.Utils
         /// <param name="input">string to convert</param>
         /// <returns>snake_cased_output</returns>
         public static string ToSnakeCase(
-            this string input)
+            this string input
+        )
         {
             return input.ToKebabCase()?.Replace('-', '_');
         }
@@ -690,7 +729,8 @@ namespace PeanutButter.Utils
         /// <param name="input">string to convert</param>
         /// <returns>camelCasedOutput</returns>
         public static string ToCamelCase(
-            this string input)
+            this string input
+        )
         {
             return input.ToPascalCase().ToLowerCasedFirstLetter();
         }
@@ -701,7 +741,8 @@ namespace PeanutButter.Utils
         /// <param name="input"></param>
         /// <returns></returns>
         public static string ToRandomCase(
-            this string input)
+            this string input
+        )
         {
             if (string.IsNullOrWhiteSpace(input))
             {
@@ -734,7 +775,8 @@ namespace PeanutButter.Utils
                         c => RandomNumber.NextDouble() < 0.5
                             ? c.ToLowerInvariant()
                             : c.ToUpperInvariant()
-                    ));
+                    )
+            );
         }
 
         /// <summary>
@@ -746,7 +788,8 @@ namespace PeanutButter.Utils
         /// <param name="input"></param>
         /// <returns></returns>
         public static string ToWords(
-            this string input)
+            this string input
+        )
         {
             return input.ToKebabCase()?.Replace("-", " ");
         }
@@ -758,7 +801,8 @@ namespace PeanutButter.Utils
         /// <returns>string with lower-cased first letter or null if input was null</returns>
         // ReSharper disable once MemberCanBePrivate.Global
         public static string ToLowerCasedFirstLetter(
-            this string input)
+            this string input
+        )
         {
             return (input?.Length ?? 0) > 0
                 // ReSharper disable once PossibleNullReferenceException
@@ -773,7 +817,8 @@ namespace PeanutButter.Utils
         /// <returns>string with upper-cased first letter or null if input was null</returns>
         // ReSharper disable once MemberCanBePrivate.Global
         public static string ToUpperCasedFirstLetter(
-            this string input)
+            this string input
+        )
         {
             return (input?.Length ?? 0) > 0
                 // ReSharper disable once PossibleNullReferenceException
@@ -796,7 +841,8 @@ namespace PeanutButter.Utils
 
         private static IEnumerable<string> SplitWhenNonContinuousAnd(
             this string input,
-            params char[] others)
+            params char[] others
+        )
         {
             var collector = new List<char>();
             foreach (var c in input)
@@ -883,7 +929,8 @@ namespace PeanutButter.Utils
         }
 
         private static string GetLeadingIntegerCharsFrom(
-            string value)
+            string value
+        )
         {
             var collected = new List<string>();
             var intMarker = 0;
@@ -891,7 +938,10 @@ namespace PeanutButter.Utils
                 c =>
                 {
                     if (intMarker > 1)
+                    {
                         return;
+                    }
+
                     var asString = c.ToString();
                     if ("1234567890".Contains(asString))
                     {
@@ -904,7 +954,8 @@ namespace PeanutButter.Utils
                     {
                         intMarker++;
                     }
-                });
+                }
+            );
             return collected.JoinWith(string.Empty);
         }
 
@@ -914,7 +965,8 @@ namespace PeanutButter.Utils
         /// <param name="str">string to test</param>
         /// <returns></returns>
         public static bool IsNumeric(
-            this string str)
+            this string str
+        )
         {
             return !string.IsNullOrWhiteSpace(str) &&
                 str.All(IsNumeric);
@@ -926,7 +978,8 @@ namespace PeanutButter.Utils
         /// <param name="str"></param>
         /// <returns></returns>
         public static bool IsAlphanumeric(
-            this string str)
+            this string str
+        )
         {
             return !string.IsNullOrWhiteSpace(str) &&
                 str.All(c => IsAlpha(c) || IsNumeric(c));
@@ -938,7 +991,8 @@ namespace PeanutButter.Utils
         /// <param name="str"></param>
         /// <returns></returns>
         public static bool IsAlpha(
-            this string str)
+            this string str
+        )
         {
             return !string.IsNullOrWhiteSpace(str) &&
                 str.All(IsAlpha);
@@ -950,7 +1004,8 @@ namespace PeanutButter.Utils
         /// <param name="c"></param>
         /// <returns></returns>
         public static bool IsNumeric(
-            this char c)
+            this char c
+        )
         {
             return c >= '0' && c <= '9';
         }
@@ -961,7 +1016,8 @@ namespace PeanutButter.Utils
         /// <param name="c"></param>
         /// <returns></returns>
         public static bool IsAlpha(
-            this char c)
+            this char c
+        )
         {
             return (c >= 'A' && c <= 'Z') ||
                 (c >= 'a' && c <= 'z');
@@ -973,7 +1029,8 @@ namespace PeanutButter.Utils
         /// <param name="str"></param>
         /// <returns></returns>
         public static MemoryStream ToMemoryStream(
-            this string str)
+            this string str
+        )
         {
             var asBytes = str.AsBytes();
             return new MemoryStream(asBytes);
@@ -985,7 +1042,8 @@ namespace PeanutButter.Utils
         /// <param name="str"></param>
         /// <returns></returns>
         public static string QuoteIfSpaced(
-            this string str)
+            this string str
+        )
         {
             if (str.IsNullOrEmpty())
             {
@@ -1003,7 +1061,8 @@ namespace PeanutButter.Utils
         /// <param name="str"></param>
         /// <returns></returns>
         public static string[] SplitCommandline(
-            this string str)
+            this string str
+        )
         {
             if (string.IsNullOrWhiteSpace(str))
             {
@@ -1059,9 +1118,11 @@ namespace PeanutButter.Utils
         public static bool Matches(
             this IEnumerable<string> left,
             IEnumerable<string> right,
-            StringComparison comparison)
+            StringComparison comparison
+        )
         {
-            return left.Matches(right,
+            return left.Matches(
+                right,
                 (a, b) =>
                 {
                     if (a is null && b is null)
@@ -1075,7 +1136,8 @@ namespace PeanutButter.Utils
                     }
 
                     return a.Equals(b, comparison);
-                });
+                }
+            );
         }
 
         private static readonly Regex CommandlinePartsMatcher =

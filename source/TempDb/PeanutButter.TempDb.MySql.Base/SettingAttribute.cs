@@ -77,7 +77,7 @@ namespace PeanutButter.TempDb.MySql.Base
             bool ignoreIfNull
         )
         {
-            Name = name ?? throw new ArgumentException("setting name may not be null");
+            Name = name ?? throw new ArgumentNullException(nameof(name));
             Section = section ?? DEFAULT_SECTION;
             IsBare = isBare;
             IgnoreIfNull = ignoreIfNull;

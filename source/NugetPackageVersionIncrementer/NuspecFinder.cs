@@ -14,14 +14,30 @@ namespace NugetPackageVersionIncrementer
     public class NuspecFinder : INuspecFinder
     {
         public IEnumerable<string> NuspecPaths => _foundNuspecPaths ?? new string[] { }.AsEnumerable();
-        private readonly List<string> _foundNuspecPaths = new List<string>();
+        private readonly List<string> _foundNuspecPaths = new();
 
         public void FindNuspecsUnder(string basePath)
         {
-            if (!Directory.Exists(basePath))
-                throw new ArgumentException(basePath + " not found", nameof(basePath));
-            _foundNuspecPaths.AddRange(Directory.EnumerateFileSystemEntries(basePath, "*.nuspec", SearchOption.AllDirectories));
-        }
+            if (basePath is null)
+            {
+                throw new ArgumentNullException(nameof(basePath));
+            }
 
+            if (!Directory.Exists(basePath))
+            {
+                throw new ArgumentException(
+                    $"{basePath} not found",
+                    nameof(basePath)
+                );
+            }
+
+            _foundNuspecPaths.AddRange(
+                Directory.EnumerateFileSystemEntries(
+                    basePath,
+                    "*.nuspec",
+                    SearchOption.AllDirectories
+                )
+            );
+        }
     }
 }

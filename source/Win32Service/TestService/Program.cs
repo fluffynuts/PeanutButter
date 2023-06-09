@@ -12,7 +12,7 @@ namespace TestService
             // hack: since we're kinda taking over args here
             // we want --help to be useful, so parse to _all_
             // options and discard
-            var opts = args.ParseTo<ServiceOptions>(
+            var opts = args.ParseTo<IServiceOptions>(
                 out _,
                 new ParserOptions()
                 {

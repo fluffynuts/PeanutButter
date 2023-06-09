@@ -220,7 +220,7 @@ namespace PeanutButter.RandomGenerators
             }
         }
 
-        private static readonly Dictionary<Type, Func<object>> RandomGenerators = new()
+        private static readonly ConcurrentDictionary<Type, Func<object>> RandomGenerators = new()
         {
             [typeof(IPAddress)] = () => IPAddress.Parse(GetRandomIPv4Address()),
             [typeof(NameValueCollection)] = GetRandomNameValueCollection
@@ -268,12 +268,15 @@ namespace PeanutButter.RandomGenerators
         {
             if (type is null)
             {
-                throw new ArgumentException(nameof(type));
+                throw new ArgumentNullException(nameof(type));
             }
 
             if (type.IsGenericTypeDefinition)
             {
-                throw new ArgumentException($"A generic type definition can't be generated: {type.Name}");
+                throw new ArgumentException(
+                    $"A generic type definition can't be generated: {type.Name}",
+                    nameof(type)
+                );
             }
 
             return PrimitiveGenerators.TryGetValue(
@@ -290,10 +293,13 @@ namespace PeanutButter.RandomGenerators
         {
             var builder = GetBuilderFor(type);
             if (builder == null)
+            {
                 throw new Exception(
                     "Can't get random value for type: '" + type.Name +
                     "': either too complex or I missed a simple type?"
                 );
+            }
+
             return builder.GenericWithRandomProps().GenericBuild();
         }
 
@@ -425,7 +431,7 @@ namespace PeanutButter.RandomGenerators
             public const int ONE_DAY_IN_SECONDS = 86400;
         }
 
-        private static readonly Random RandomGenerator = new Random();
+        private static readonly ThreadSafeRandom RandomGenerator = new();
         private const string DEFAULT_RANDOM_STRING_CHARS = "abcdefghijklmnopqrstuvwxyz1234567890";
 
         /// <summary>
@@ -568,7 +574,11 @@ namespace PeanutButter.RandomGenerators
             var actualMaxLength = maxLength ?? minLength + DefaultRanges.MINLENGTH_STRING;
             var actualLength = GetRandomInt(minLength, actualMaxLength);
             var chars = new List<char>();
-            if (charSet == null) charSet = DEFAULT_RANDOM_STRING_CHARS;
+            if (charSet == null)
+            {
+                charSet = DEFAULT_RANDOM_STRING_CHARS;
+            }
+
             var charSetLength = charSet.Length;
             for (var i = 0; i < actualLength; i++)
             {
@@ -1932,10 +1942,13 @@ namespace PeanutButter.RandomGenerators
         {
             var type = typeof(T);
             if (!type.IsEnum())
+            {
                 throw new ArgumentException(
-                    "GetRandomEnum cannot be called on something other than an enum ('" +
-                    type.Name + "')"
+                    $"GetRandomEnum cannot be called on something other than an enum ('{type.Name}')",
+                    nameof(T)
                 );
+            }
+
             var possible = Enum.GetValues(type).Cast<T>();
             return GetRandomFrom(possible);
         }
@@ -1954,10 +1967,13 @@ namespace PeanutButter.RandomGenerators
         )
         {
             if (!enumType.IsEnum())
+            {
                 throw new ArgumentException(
-                    "GetRandomEnum cannot be called on something other than an enum ('" +
-                    enumType.Name + "')"
+                    $"GetRandomEnum cannot be called on something other than an enum ('{enumType.Name}')",
+                    nameof(enumType)
                 );
+            }
+
             var possible = Enum.GetValues(enumType).Cast<object>();
             return GetRandomFrom(possible);
         }
@@ -1972,14 +1988,16 @@ namespace PeanutButter.RandomGenerators
             if (!typeof(Delegate).IsAssignableFrom(delegateType))
             {
                 throw new ArgumentException(
-                    $"{nameof(GetEmptyDelegate)} cannot be called on something other than a delegate ('{delegateType.Name}')"
+                    $"{nameof(GetEmptyDelegate)} cannot be called on something other than a delegate ('{delegateType.Name}')",
+                    nameof(delegateType)
                 );
             }
 
             if (delegateType.IsGenericTypeDefinition)
             {
                 throw new ArgumentException(
-                    $"{nameof(GetEmptyDelegate)} must be called on a concrete delegate type ('{delegateType.Name}')"
+                    $"{nameof(GetEmptyDelegate)} must be called on a concrete delegate type ('{delegateType.Name}')",
+                    nameof(delegateType)
                 );
             }
 
@@ -1987,7 +2005,8 @@ namespace PeanutButter.RandomGenerators
             if (method is null)
             {
                 throw new ArgumentException(
-                    "Provided delegate has no method 'Invoke'"
+                    "Provided delegate has no method 'Invoke'",
+                    nameof(delegateType)
                 );
             }
 
@@ -2059,9 +2078,13 @@ namespace PeanutButter.RandomGenerators
             var itemsArray = items as T[] ?? items.ToArray();
             var notHash = new HashSet<T>(butNot);
             if (itemsArray.Except(notHash).IsEmpty())
+            {
                 throw new ArgumentException(
-                    "Items collection does not contain enough items to apply the exclusion list, assuming the exclusions are actually in the source list"
+                    "Items collection does not contain enough items to apply the exclusion list, assuming the exclusions are actually in the source list",
+                    nameof(notHash)
                 );
+            }
+
             T result;
             do
             {
@@ -2087,18 +2110,29 @@ namespace PeanutButter.RandomGenerators
         {
             var itemArray = items as T[] ?? items.ToArray();
             if (itemArray.Length == 0)
+            {
                 return new T[] { };
+            }
+
             if (minValues >= itemArray.Length)
+            {
                 return itemArray.Randomize();
+            }
+
             if (maxValues > itemArray.Length)
+            {
                 maxValues = itemArray.Length;
+            }
+
             var howMany = GetRandomInt(minValues, maxValues);
             var result = new List<T>();
             while (result.Count < howMany)
             {
                 var toAdd = GetRandomFrom(itemArray);
                 if (!result.Contains(toAdd))
+                {
                     result.Add(toAdd);
+                }
             }
 
             return result;
@@ -2407,9 +2441,15 @@ namespace PeanutButter.RandomGenerators
         )
         {
             if (left == null && right == null)
+            {
                 return true;
+            }
+
             if (left == null || right == null)
+            {
                 return false;
+            }
+
             return left.Equals(right) && right.Equals(left);
         }
 
@@ -2424,9 +2464,14 @@ namespace PeanutButter.RandomGenerators
             {
                 var result = usingThisGenerator();
                 if (isANewValue(result))
+                {
                     return result;
+                }
+
                 if (++attempts >= MAX_DIFFERENT_RANDOM_VALUE_ATTEMPTS)
+                {
                     throw new CannotGetAnotherDifferentRandomValueException<T2>(differentFromThisValue);
+                }
             } while (true);
         }
 

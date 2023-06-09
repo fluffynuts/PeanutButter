@@ -11,23 +11,37 @@ namespace NugetPackageVersionIncrementer
 
         public NuspecPackageDependencyHelper(string xml)
         {
-            if (string.IsNullOrWhiteSpace(xml)) throw new ArgumentException(nameof(xml));
+            if (string.IsNullOrWhiteSpace(xml))
+            {
+                throw new ArgumentException(
+                    "Invalid xml supplied",
+                    nameof(xml)
+                );
+            }
+
             try
             {
                 _doc = XDocument.Parse(xml);
             }
             catch (Exception ex)
             {
-                throw new ArgumentException("Unable to parse argument as XDocument: " + ex.Message, nameof(xml));
+                throw new ArgumentException(
+                    $"Unable to parse argument as XDocument: {ex.Message}",
+                    nameof(xml)
+                );
             }
         }
 
         public void SetExistingPackageDependencyVersion(
-            string packageId, 
-            string version)
+            string packageId,
+            string version
+        )
         {
             if (_doc.GetDependencyVersionFor(packageId) == null)
+            {
                 return;
+            }
+
             _doc.SetDependencyVersionIfExistsFor(packageId, version);
         }
     }

@@ -156,7 +156,7 @@ namespace PeanutButter.Utils
 
             if (bytes is null)
             {
-                throw new ArgumentException(nameof(bytes));
+                throw new ArgumentNullException(nameof(bytes));
             }
 
             if (offset < 0 || offset > bytes.Length)

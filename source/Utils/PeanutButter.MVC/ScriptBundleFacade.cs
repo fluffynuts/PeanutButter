@@ -17,7 +17,13 @@ namespace PeanutButter.MVC
         public ScriptBundleFacade(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("A ScriptBundle name may not be null, empty or whitespace", nameof(name));
+            {
+                throw new ArgumentException(
+                    "A ScriptBundle name may not be null, empty or whitespace",
+                    nameof(name)
+                );
+            }
+
             Name = name;
             _actual = new ScriptBundle(name);
         }

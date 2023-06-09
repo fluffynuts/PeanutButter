@@ -14,7 +14,13 @@ namespace PeanutButter.MVC
         public StyleBundleFacade(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("A StyleBundle name may not be null, empty or whitespace", nameof(name));
+            {
+                throw new ArgumentException(
+                    "A StyleBundle name may not be null, empty or whitespace",
+                    nameof(name)
+                );
+            }
+
             _actual = new StyleBundle(name);
         }
 

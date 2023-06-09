@@ -37,7 +37,7 @@ namespace PeanutButter.Utils
 
         public InfiniteEnumerator(IEnumerable<T> collection)
         {
-            _collection = collection ?? throw new ArgumentException(nameof(collection));
+            _collection = collection ?? throw new ArgumentNullException(nameof(collection));
             ResetCollectionEnumerator();
         }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using PeanutButter.XmlUtils;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace NugetPackageVersionIncrementer
@@ -16,7 +17,14 @@ namespace NugetPackageVersionIncrementer
 
         public NuspecVersionIncrementer(string nuspec)
         {
-            if (string.IsNullOrWhiteSpace(nuspec)) throw new ArgumentException("Nuspec is not valid XML", nameof(nuspec));
+            if (string.IsNullOrWhiteSpace(nuspec))
+            {
+                throw new ArgumentException(
+                    "Nuspec is not valid XML",
+                    nameof(nuspec)
+                );
+            }
+
             Parse(nuspec.Trim());
         }
 
@@ -28,8 +36,12 @@ namespace NugetPackageVersionIncrementer
             }
             catch (Exception ex)
             {
-                throw new ArgumentException("Nuspec is not valid XML: " + ex.Message, nameof(nuspec));
+                throw new ArgumentException(
+                    $"Nuspec is not valid XML: {ex.Message}",
+                    nameof(nuspec)
+                );
             }
+
             GrokVersion();
             GrokPackageId();
         }
@@ -37,14 +49,22 @@ namespace NugetPackageVersionIncrementer
         private void GrokPackageId()
         {
             var idNode = _doc.XPathSelectElements("/package/metadata/id").FirstOrDefault();
-            if (idNode == null) throw new Exception("No package id node found");
+            if (idNode == null)
+            {
+                throw new Exception("No package id node found");
+            }
+
             PackageId = idNode.Text();
         }
 
         private void GrokVersion()
         {
             var node = FindVersionNode();
-            if (node == null) return;
+            if (node == null)
+            {
+                return;
+            }
+
             Version = node.Text();
         }
 
@@ -60,10 +80,11 @@ namespace NugetPackageVersionIncrementer
                 Version = "0.0.1";
                 return;
             }
+
             var versionNumbers = GetVersionAsNumbers().ToArray();
             var minor = versionNumbers.Last();
             var preMinor = versionNumbers.Reverse().Skip(1).Reverse();
-            var incremented = new List<int>(preMinor) {minor + 1};
+            var incremented = new List<int>(preMinor) { minor + 1 };
             Version = string.Join(".", incremented);
         }
 
@@ -76,14 +97,21 @@ namespace NugetPackageVersionIncrementer
         {
             int result;
             if (int.TryParse(part, out result))
+            {
                 return result;
+            }
+
             return 0;
         }
 
         public string GetUpdatedNuspec()
         {
             var versionNode = FindVersionNode();
-            if (versionNode == null) throw new Exception("Unable to find version node in nuspec");
+            if (versionNode == null)
+            {
+                throw new Exception("Unable to find version node in nuspec");
+            }
+
             versionNode.Value = Version;
             return _doc.ToString();
         }

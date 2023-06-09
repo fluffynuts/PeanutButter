@@ -65,10 +65,12 @@ namespace PeanutButter.Utils
         public static void ForEach<T>(this IEnumerable<T> collection, Action<T, int> toRunWithIndex)
         {
             var idx = 0;
-            collection.ForEach(o =>
-            {
-                toRunWithIndex(o, idx++);
-            });
+            collection.ForEach(
+                o =>
+                {
+                    toRunWithIndex(o, idx++);
+                }
+            );
         }
 
         /// <summary>
@@ -168,7 +170,8 @@ namespace PeanutButter.Utils
         [Obsolete("This redirects to IsEquivalentTo and will be removed at some point")]
         public static bool IsSameAs<T>(
             this IEnumerable<T> collection,
-            IEnumerable<T> otherCollection)
+            IEnumerable<T> otherCollection
+        )
         {
             return collection.IsEquivalentTo(otherCollection);
         }
@@ -186,7 +189,8 @@ namespace PeanutButter.Utils
         /// </returns>
         public static string JoinWith<T>(
             this IEnumerable<T> collection,
-            string joinWith)
+            string joinWith
+        )
         {
             if (collection is null)
             {
@@ -365,7 +369,8 @@ namespace PeanutButter.Utils
         /// </returns>
         public static IEnumerable<TResult> SelectNonNull<TCollection, TResult>(
             this IEnumerable<TCollection> collection,
-            Func<TCollection, TResult?> grabber) where TResult : struct
+            Func<TCollection, TResult?> grabber
+        ) where TResult : struct
         {
             return collection
                 .Select(grabber)
@@ -387,7 +392,8 @@ namespace PeanutButter.Utils
         /// </returns>
         public static IEnumerable<TResult> SelectNonNull<TCollection, TResult>(
             this IEnumerable<TCollection> collection,
-            Func<TCollection, TResult> grabber) where TResult : class
+            Func<TCollection, TResult> grabber
+        ) where TResult : class
         {
             return collection
                 .Select(grabber)
@@ -601,9 +607,17 @@ namespace PeanutButter.Utils
         public static void TimesDo(this int howMany, Action<int> toRun)
         {
             if (howMany < 0)
-                throw new ArgumentException("TimesDo must be called on positive integer", nameof(howMany));
+            {
+                throw new ArgumentException(
+                    "TimesDo must be called on positive integer",
+                    nameof(howMany)
+                );
+            }
+
             for (var i = 0; i < howMany; i++)
+            {
                 toRun(i);
+            }
         }
 
         /// <summary>
@@ -748,7 +762,8 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static bool None<T>(
             this IEnumerable<T> collection,
-            Func<T, bool> test)
+            Func<T, bool> test
+        )
         {
             return (collection ?? new T[0]).All(o => !test(o));
         }
@@ -814,7 +829,8 @@ namespace PeanutButter.Utils
         /// <typeparam name="TOther"></typeparam>
         /// <returns></returns>
         public static IEnumerable<TOther> ImplicitCast<TOther>(
-            this IEnumerable collection)
+            this IEnumerable collection
+        )
         {
             MethodInfo implicitOp = null;
 
@@ -835,8 +851,9 @@ namespace PeanutButter.Utils
 
                 var candidates = otherType
                     .GetMethods(BindingFlags.Static | BindingFlags.Public)
-                    .Where(mi => mi.Name == "op_Implicit" &&
-                        mi.ReturnType == otherType
+                    .Where(
+                        mi => mi.Name == "op_Implicit" &&
+                            mi.ReturnType == otherType
                     );
                 foreach (var candidate in candidates)
                 {
@@ -872,7 +889,8 @@ namespace PeanutButter.Utils
         /// <returns>A new collection of Tuple&lt;TLeft, TRight&gt;</returns>
         public static IEnumerable<Tuple<TLeft, TRight>> StrictZip<TLeft, TRight>(
             this IEnumerable<TLeft> left,
-            IEnumerable<TRight> right)
+            IEnumerable<TRight> right
+        )
         {
             return left.StrictZip(right, Tuple.Create);
         }
@@ -893,7 +911,8 @@ namespace PeanutButter.Utils
         public static IEnumerable<TResult> StrictZip<TLeft, TRight, TResult>(
             this IEnumerable<TLeft> left,
             IEnumerable<TRight> right,
-            Func<TLeft, TRight, TResult> generator)
+            Func<TLeft, TRight, TResult> generator
+        )
 
         {
             if (left is null || right is null)
@@ -932,20 +951,23 @@ namespace PeanutButter.Utils
             IEnumerable<T> right
         )
         {
-            return left.Matches(right, (a, b) =>
-            {
-                if (a is null && b is null)
+            return left.Matches(
+                right,
+                (a, b) =>
                 {
-                    return true;
-                }
+                    if (a is null && b is null)
+                    {
+                        return true;
+                    }
 
-                if (a is null || b is null)
-                {
-                    return false;
-                }
+                    if (a is null || b is null)
+                    {
+                        return false;
+                    }
 
-                return a.Equals(b);
-            });
+                    return a.Equals(b);
+                }
+            );
         }
 
         /// <summary>
@@ -962,7 +984,8 @@ namespace PeanutButter.Utils
         public static bool Matches<T>(
             this IEnumerable<T> left,
             IEnumerable<T> right,
-            Func<T, T, bool> comparer)
+            Func<T, T, bool> comparer
+        )
         {
             return left.CrossMatches(right, comparer);
         }
@@ -998,11 +1021,12 @@ namespace PeanutButter.Utils
             try
             {
                 return left.StrictZip(right)
-                    .All(item =>
-                        comparer(
-                            item.Item1,
-                            item.Item2
-                        )
+                    .All(
+                        item =>
+                            comparer(
+                                item.Item1,
+                                item.Item2
+                            )
                     );
             }
             catch (UnevenZipException)

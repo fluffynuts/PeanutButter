@@ -55,12 +55,15 @@ namespace NugetPackageVersionIncrementer
         {
             if (string.IsNullOrWhiteSpace(nuspecPath))
             {
-                throw new ArgumentException(nameof(nuspecPath));
+                throw new ArgumentException(
+                    "Invalid nuspec path provided",
+                    nameof(nuspecPath)
+                );
             }
 
             if (!File.Exists(nuspecPath))
             {
-                throw new FileNotFoundException(nuspecPath + " not found");
+                throw new FileNotFoundException($"{nuspecPath} not found");
             }
         }
 
@@ -99,7 +102,7 @@ namespace NugetPackageVersionIncrementer
         {
             var allDependencies = _reader.Document.XPathSelectElements(
                 "/package/metadata/dependencies/group/dependency"
-                ).ToArray();
+            ).ToArray();
             var parent = _reader.Document.XPathSelectElement(
                 "/package/metadata/dependencies"
             );
@@ -110,34 +113,43 @@ namespace NugetPackageVersionIncrementer
 
             var frameworks = FindTargetedFrameworks();
             var deps = allDependencies
-                .Select(node => 
-                    new 
-                    { 
-                        id = node.Attribute("id")?.Value,
-                        version = node.Attribute("version")?.Value
+                .Select(
+                    node =>
+                        new
+                        {
+                            id = node.Attribute("id")?.Value,
+                            version = node.Attribute("version")?.Value
                         }
-                    )
-                .Where(dep => !dep.id.IsNullOrWhiteSpace() && 
-                    !dep.version.IsNullOrWhiteSpace())
+                )
+                .Where(
+                    dep => !dep.id.IsNullOrWhiteSpace() &&
+                        !dep.version.IsNullOrWhiteSpace()
+                )
                 .Distinct();
             var parents = allDependencies.Select(dep => dep.Parent)
                 .Distinct()
                 .ToArray();
             parents.ForEach(dep => dep.Remove());
-            
-            frameworks.ForEach(framework =>
-            {
-                var group = new XElement("group", new XAttribute("targetFramework", framework));
-                deps.ForEach(dep =>
+
+            frameworks.ForEach(
+                framework =>
                 {
-                    group.Add(new XElement(
-                        "dependency",
-                        new XAttribute("id", dep.id),
-                        new XAttribute("version", dep.version)
-                    ));
-                });
-                parent.Add(group);
-            });
+                    var group = new XElement("group", new XAttribute("targetFramework", framework));
+                    deps.ForEach(
+                        dep =>
+                        {
+                            group.Add(
+                                new XElement(
+                                    "dependency",
+                                    new XAttribute("id", dep.id),
+                                    new XAttribute("version", dep.version)
+                                )
+                            );
+                        }
+                    );
+                    parent.Add(group);
+                }
+            );
         }
     }
 }

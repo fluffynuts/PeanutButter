@@ -1025,25 +1025,47 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             string program,
             params string[] args)
         {
-            using var proc = new Process();
-            var si = proc.StartInfo;
-            si.FileName = program;
-            si.Arguments = args.Select(QuoteIfNecessary).JoinWith(" ");
-            si.RedirectStandardError = true;
-            si.RedirectStandardInput = true;
-            si.RedirectStandardOutput = true;
-            si.CreateNoWindow = true;
-            si.UseShellExecute = false;
-
-            if (!proc.Start())
+            // using var proc = new Process();
+            // var si = proc.StartInfo;
+            // si.FileName = program;
+            // si.Arguments = args.Select(QuoteIfNecessary).JoinWith(" ");
+            // si.RedirectStandardError = true;
+            // si.RedirectStandardInput = true;
+            // si.RedirectStandardOutput = true;
+            // si.CreateNoWindow = true;
+            // si.UseShellExecute = false;
+            //
+            // if (!proc.Start())
+            // {
+            //     throw new ApplicationException($"Can't start {program} {args.JoinWith(" ")}");
+            // }
+            //
+            // proc.WaitForExit();
+            // if (proc.ExitCode != 0)
+            // {
+            //     throw new Exception($"{program} {args.JoinWith(" ")}\nexited with code {proc.ExitCode}");
+            // }
+            
+            using var io = ProcessIO.Start(program, args);
+            io.WaitForExit();
+            if (io.ExitCode != 0)
             {
-                throw new ApplicationException($"Can't start {program} {args.JoinWith(" ")}");
-            }
+                var stderr = io.StandardError.ToArray();
+                var stdout = io.StandardError.ToArray();
+                var output = new List<string>();
+                if (stderr.Any())
+                {
+                    output.Add("stderr:");
+                    output.AddRange(stderr);
+                }
 
-            proc.WaitForExit();
-            if (proc.ExitCode != 0)
-            {
-                throw new Exception($"{program} {args.JoinWith(" ")}\nexited with code {proc.ExitCode}");
+                if (stdout.Any())
+                {
+                    output.Add("stdout:");
+                    output.AddRange(stdout);
+                }
+
+                throw new Exception($"{program} {args.JoinWith(" ")}\nexited with code {io.ExitCode}\n{output.JoinWith("\n")}");
             }
         }
 

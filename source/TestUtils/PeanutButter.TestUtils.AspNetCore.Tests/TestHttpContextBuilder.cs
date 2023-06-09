@@ -301,16 +301,21 @@ public class TestHttpContextBuilder
         var serviceProvider = Substitute.For<IServiceProvider>();
         var expected = new AService();
         serviceProvider.GetService(Arg.Any<Type>())
-            .Returns(ci =>
-            {
-                var t = ci.Arg<Type>();
-                if (t != typeof(AService))
+            .Returns(
+                ci =>
                 {
-                    throw new ArgumentException("Unable to make type {t}");
-                }
+                    var t = ci.Arg<Type>();
+                    if (t != typeof(AService))
+                    {
+                        throw new ArgumentException(
+                            $"Unable to make type {t}",
+                            nameof(t)
+                        );
+                    }
 
-                return expected;
-            });
+                    return expected;
+                }
+            );
         // Act
         var result = HttpContextBuilder.Create()
             .WithRequestServices(serviceProvider)
@@ -451,15 +456,19 @@ public class TestHttpContextBuilder
         var header1 =
             $"{key1}={value1}; Domain={domain}; Path={path}; Max-Age={maxAge}; Secure; HttpOnly; SameSite=None";
         var header2 = $"{key2}={value2}";
-        var expected1 = new FakeCookie(key1, value1, new CookieOptions()
-        {
-            Path = path,
-            Domain = domain,
-            MaxAge = TimeSpan.FromSeconds(maxAge),
-            Secure = true,
-            SameSite = SameSiteMode.None,
-            HttpOnly = true,
-        });
+        var expected1 = new FakeCookie(
+            key1,
+            value1,
+            new CookieOptions()
+            {
+                Path = path,
+                Domain = domain,
+                MaxAge = TimeSpan.FromSeconds(maxAge),
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                HttpOnly = true,
+            }
+        );
         var expected2 = new FakeCookie(key2, value2, new CookieOptions());
         // Act
         response.Headers["set-cookie"] = new StringValues(

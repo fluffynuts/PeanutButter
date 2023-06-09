@@ -99,7 +99,7 @@ namespace PeanutButter.Utils
         {
             if (src is null)
             {
-                throw new ArgumentException(nameof(src));
+                throw new ArgumentException("cannot rewind null stream", nameof(src));
             }
 
             if (src.Position == 0)

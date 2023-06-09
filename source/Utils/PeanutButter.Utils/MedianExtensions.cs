@@ -180,7 +180,8 @@ namespace PeanutButter.Utils
             if (sorted.Length == 0)
             {
                 throw new ArgumentException(
-                    "unable to calculate Median of empty collection"
+                    "unable to calculate Median of empty collection",
+                    nameof(collection)
                 );
             }
 

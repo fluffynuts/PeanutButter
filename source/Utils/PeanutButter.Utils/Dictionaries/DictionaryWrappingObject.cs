@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+#if !NETSTANDARD
 using System.Configuration;
+#endif
 using System.Linq;
 using System.Reflection;
 
@@ -375,7 +377,8 @@ namespace PeanutButter.Utils.Dictionaries
             }
 
             throw new ArgumentException(
-                $"Attempted to wrap a dictionary with non-string keys. If this is intentional, then set the relevant flag at construction time."
+                "Attempted to wrap a dictionary with non-string keys. If this is intentional, then set the relevant flag at construction time.",
+                nameof(_wrapped)
             );
         }
 
@@ -391,15 +394,17 @@ namespace PeanutButter.Utils.Dictionaries
             if (valueType is null)
             {
                 throw new InvalidOperationException(
-                    $"Can't determine the value type for the dictionary"
+                    "Can't determine the value type for the dictionary"
                 );
             }
 
             var itemGetter = _wrappedType.GetMethod("get_Item") ?? throw new ArgumentException(
-                $"Expected to wrap a dictionary, but required method 'get_Item' is missing"
+                "Expected to wrap a dictionary, but required method 'get_Item' is missing",
+                nameof(_wrapped)
             );
             var itemSetter = _wrappedType.GetMethod("set_Item") ?? throw new ArgumentException(
-                $"Expected to wrap a dictionary, but required method 'set_Item' is missing"
+                "Expected to wrap a dictionary, but required method 'set_Item' is missing",
+                nameof(_wrapped)
             );
             _props = _keys.Keys.Select(k =>
             {
@@ -409,7 +414,7 @@ namespace PeanutButter.Utils.Dictionaries
                     true, // FIXME: what about read-only dictionaries? `IsReadOnly` appears to be eluding {object}.Get<bool>()
                     true,
                     _wrapped.GetType(),
-                    (host) =>
+                    host =>
                     {
                         return itemGetter.Invoke(host, new object[] { k });
                     },
@@ -609,7 +614,8 @@ namespace PeanutButter.Utils.Dictionaries
             }
 
             throw new ArgumentException(
-                $@"Attempt to set property '{key}' to value of type '{valueType}' will fail: target type is '{targetType}'"
+                $@"Attempt to set property '{key}' to value of type '{valueType}' will fail: target type is '{targetType}'",
+                nameof(value)
             );
         }
 

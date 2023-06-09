@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using PeanutButter.Utils;
+
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Global
 
@@ -14,7 +16,9 @@ namespace PeanutButter.RandomGenerators.Tests
             var type = typeof(TObject);
             var propInfo = type.GetProperty(propertyName);
             if (propInfo == null)
+            {
                 throw new Exception(string.Join("", "Unable to find property '", propertyName, "' on type '", type.Name));
+            }
 
             IEnumerable<TProperty> values = null;
             try
@@ -35,9 +39,14 @@ namespace PeanutButter.RandomGenerators.Tests
         )
         {
             if (collection.Count() < 2)
+            {
                 return;
+            }
+
             if (collection.Distinct(comparer).Count() == 1)
+            {
                 Assert.Fail(failMessage, collection.Count());
+            }
         }
     }
 }

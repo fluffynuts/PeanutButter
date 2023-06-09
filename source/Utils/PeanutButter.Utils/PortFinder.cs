@@ -99,6 +99,22 @@ namespace PeanutButter.Utils
             );
         }
 
+        /// <summary>
+        /// PortFinder will store ports which have been handed out
+        /// before so as to avoid race conditions between contenders.
+        /// Ordinarily, this shouldn't be a problem - there are 64k
+        /// ports to choose from - but if you are sure you don't mind
+        /// a conflict and have the need to, you can reset the used
+        /// history here.
+        /// </summary>
+        public static void ResetUsedHistory()
+        {
+            lock (Used)
+            {
+                Used.Clear();
+            }
+        }
+
         private static readonly HashSet<int> Used = new();
 
         /// <summary>

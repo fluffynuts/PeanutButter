@@ -200,7 +200,7 @@ namespace PeanutButter.ServiceShell
                 opts.IgnoreUnknownSwitches = false;
             }
 
-            var parsed = args.ParseTo<ServiceCommandlineOptions>(
+            var parsed = args.ParseTo<IServiceCommandlineOptions>(
                 out _,
                 opts
             );

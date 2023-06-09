@@ -31,11 +31,11 @@ Namespace Executors
     Public Function Build() As DbDataReader Implements IDataReaderBuilder.Build
       Dim sql = GetSQLString()
       If sql Is Nothing Then
-        Throw New ArgumentException(Me.GetType().Name & " :: sql not set and no builder provided")
+        Throw New ArgumentException(Me.GetType().Name & " :: sql not set and no builder provided", "sql")
       End If
 
       If _connectionResolver Is Nothing Then
-        Throw New Exception("No connection resolver defined for DbDataReader.Build")
+        Throw New ArgumentException("No connection resolver defined for DbDataReader.Build", "_connectionResolver")
       End If
       Dim connection = _connectionResolver()
 

@@ -973,7 +973,7 @@ namespace PeanutButter.INI
         {
             if (encoding is null)
             {
-                throw new ArgumentException(nameof(encoding));
+                throw new ArgumentNullException(nameof(encoding));
             }
 
             saveToPath = CheckPersistencePath(saveToPath);

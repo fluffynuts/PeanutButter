@@ -1141,7 +1141,7 @@ namespace PeanutButter.Utils.Tests
             public class HasThrowingProp
             {
                 public int Id { get; set; }
-                public int Thrower => throw new ArgumentException(nameof(Id), "Invalid id");
+                public int Thrower => throw new ArgumentException("Invalid id", nameof(Id));
             }
 
             public enum LogLevel

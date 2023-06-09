@@ -446,7 +446,10 @@ namespace PeanutButter.Utils
             {
                 if (!Type.IsNullableType())
                 {
-                    throw new ArgumentException($"Cannot set type {Type} to null");
+                    throw new ArgumentException(
+                        $"Cannot set type {Type} to null",
+                        nameof(value)
+                    );
                 }
 
                 _setValue(host, null);
@@ -456,7 +459,8 @@ namespace PeanutButter.Utils
             if (!value.TryImplicitlyCastTo(Type, out var castValue))
             {
                 throw new ArgumentException(
-                    $"Cannot set value '{value}' of type {value.GetType()} for target {Type}"
+                    $"Cannot set value '{value}' of type {value.GetType()} for target {Type}",
+                    nameof(value)
                 );
             }
 
@@ -534,7 +538,8 @@ namespace PeanutButter.Utils
             if (current is null && DeclaringType != typeof(object))
             {
                 throw new ArgumentException(
-                    $"{DeclaringType} is not an ancestor of {HostingType}"
+                    $"{DeclaringType} is not an ancestor of {HostingType}",
+                    nameof(DeclaringType)
                 );
             }
 

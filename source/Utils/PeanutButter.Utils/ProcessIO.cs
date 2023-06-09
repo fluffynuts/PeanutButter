@@ -94,7 +94,7 @@ namespace PeanutButter.Utils
         /// <param name="workingDirectory"></param>
         /// <returns></returns>
         IUnstartedProcessIO In(string workingDirectory);
-        
+
         /// <summary>
         /// Establish a set of environment variables for the process
         /// </summary>
@@ -128,7 +128,8 @@ namespace PeanutButter.Utils
         /// <param name="filename">app to run</param>
         /// <param name="arguments">args for that app</param>
         [Obsolete(
-            "Please use the static Process.Start or Process.In helpers; this constructor will be made internal in the future")]
+            "Please use the static Process.Start or Process.In helpers; this constructor will be made internal in the future"
+        )]
         public ProcessIO(
             string filename,
             params string[] arguments
@@ -163,7 +164,10 @@ namespace PeanutButter.Utils
             {
                 if (string.IsNullOrWhiteSpace(workingDirectory))
                 {
-                    throw new ArgumentException($"{nameof(workingDirectory)} must be provided");
+                    throw new ArgumentException(
+                        $"{nameof(workingDirectory)} must be provided",
+                        nameof(workingDirectory)
+                    );
                 }
 
                 if (!Directory.Exists(workingDirectory))
@@ -175,7 +179,8 @@ namespace PeanutButter.Utils
                     catch
                     {
                         throw new ArgumentException(
-                            $"Unable to find or create working directory '{workingDirectory}'"
+                            $"Unable to find or create working directory '{workingDirectory}'",
+                            nameof(workingDirectory)
                         );
                     }
                 }
@@ -282,10 +287,12 @@ namespace PeanutButter.Utils
                         Environment = { }
                     }
                 };
-                processEnvironment.ForEach(kvp =>
-                {
-                    _process.StartInfo.Environment[kvp.Key] = kvp.Value;
-                });
+                processEnvironment.ForEach(
+                    kvp =>
+                    {
+                        _process.StartInfo.Environment[kvp.Key] = kvp.Value;
+                    }
+                );
                 _process.Start();
                 Started = true;
             }
@@ -299,24 +306,27 @@ namespace PeanutButter.Utils
         }
 
         private static IDictionary<string, string> GenerateProcessEnvironmentFor(
-            IDictionary<string, string> environment)
+            IDictionary<string, string> environment
+        )
         {
             var processEnvironment = Environment.GetEnvironmentVariables()
                 .ToDictionary<string, string>();
-            environment?.ForEach(kvp =>
-            {
-                if (kvp.Value is null)
+            environment?.ForEach(
+                kvp =>
                 {
-                    if (processEnvironment.ContainsKey(kvp.Key))
+                    if (kvp.Value is null)
                     {
-                        processEnvironment.Remove(kvp.Key);
+                        if (processEnvironment.ContainsKey(kvp.Key))
+                        {
+                            processEnvironment.Remove(kvp.Key);
+                        }
+                    }
+                    else
+                    {
+                        processEnvironment[kvp.Key] = kvp.Value;
                     }
                 }
-                else
-                {
-                    processEnvironment[kvp.Key] = kvp.Value;
-                }
-            });
+            );
             return processEnvironment;
         }
 
@@ -381,11 +391,14 @@ namespace PeanutButter.Utils
 
         private string MakeArgsFrom(string[] parameters)
         {
-            return string.Join(" ", parameters
-                .Select(p => p.Contains(" ")
-                    ? $"\"{p}\""
-                    : p
-                )
+            return string.Join(
+                " ",
+                parameters
+                    .Select(
+                        p => p.Contains(" ")
+                            ? $"\"{p}\""
+                            : p
+                    )
             );
         }
 

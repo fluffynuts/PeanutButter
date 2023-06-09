@@ -361,7 +361,8 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
         throw new ArgumentException(
             $@"Unable to resolve constructor parameters for {type}. Manually resolve one of the following constructors:
 {string.Join("\n", unresolved.Select(l => string.Join(",", l)))}
-"
+",
+            nameof(type)
         );
     }
 

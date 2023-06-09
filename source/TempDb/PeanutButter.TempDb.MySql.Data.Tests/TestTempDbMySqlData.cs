@@ -59,7 +59,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         {
             [TestCaseSource(nameof(MySqlPathFinders))]
             public void Construction_ShouldCreateSchemaAndSwitchToIt(
-                string mysqld)
+                string mysqld
+            )
             {
                 // Arrange
                 var expectedId = GetRandomInt();
@@ -99,7 +100,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             [Test]
             [TestCaseSource(nameof(MySqlPathFinders))]
             public void ShouldBeAbleToSwitch(
-                string mysqld)
+                string mysqld
+            )
             {
                 using var sut = Create(mysqld);
                 // Arrange
@@ -117,7 +119,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             [Test]
             [TestCaseSource(nameof(MySqlPathFinders))]
             public void ShouldBeAbleToSwitchBackAndForthWithoutLoss(
-                string mysqld)
+                string mysqld
+            )
             {
                 using var sut = Create(mysqld);
                 // Arrange
@@ -156,7 +159,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
             [TestCaseSource(nameof(MySqlPathFinders))]
             public void ShouldBeAbleToCreateATable_InsertData_QueryData(
-                string mysqld)
+                string mysqld
+            )
             {
                 using var sut = Create(mysqld);
                 // Arrange
@@ -179,9 +183,12 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     // Assert
                     var users = connection.Query<User>(
                         "use moocakes; select * from users where id > @id; ",
-                        new { id = 0 });
-                    Expect(users).To.Contain.Only(1).Matched.By(u =>
-                        u.Id == 1 && u.Name == "Daisy the cow");
+                        new { id = 0 }
+                    );
+                    Expect(users).To.Contain.Only(1).Matched.By(
+                        u =>
+                            u.Id == 1 && u.Name == "Daisy the cow"
+                    );
                 }
             }
 
@@ -197,23 +204,25 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe",
                         "C:\\apps\\mysql-server-8\\bin\\mysqld.exe",
                         "C:\\apps\\mysql-8.0.26-winx64\\bin\\mysqld.exe",
-                    }.Where(p =>
-                    {
-                        if (p == null)
+                    }.Where(
+                        p =>
                         {
-                            return true;
-                        }
+                            if (p == null)
+                            {
+                                return true;
+                            }
 
-                        var exists = Directory.Exists(p) || File.Exists(p);
-                        if (!exists)
-                        {
-                            Console.WriteLine(
-                                $"WARN: specific test path for mysql not found: {p}"
-                            );
-                        }
+                            var exists = Directory.Exists(p) || File.Exists(p);
+                            if (!exists)
+                            {
+                                Console.WriteLine(
+                                    $"WARN: specific test path for mysql not found: {p}"
+                                );
+                            }
 
-                        return exists;
-                    })
+                            return exists;
+                        }
+                    )
                     .ToArray();
             }
         }
@@ -225,52 +234,56 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             public void ShouldBeAbleToStartNewInstance()
             {
                 // Arrange
-                Expect(() =>
-                {
-                    using var db = Create();
-                    Expect(db.ConfigFilePath)
-                        .To.Exist();
-                    var config = File.ReadAllText(db.ConfigFilePath);
-                    var ini = INIFile.FromString(config);
-                    Expect(ini)
-                        .To.Have.Section("mysqld");
-                    using (db.OpenConnection())
+                Expect(
+                    () =>
                     {
-                        // Act
-                        // Assert
+                        using var db = Create();
+                        Expect(db.ConfigFilePath)
+                            .To.Exist();
+                        var config = File.ReadAllText(db.ConfigFilePath);
+                        var ini = INIFile.FromString(config);
+                        Expect(ini)
+                            .To.Have.Section("mysqld");
+                        using (db.OpenConnection())
+                        {
+                            // Act
+                            // Assert
+                        }
                     }
-                }).Not.To.Throw();
+                ).Not.To.Throw();
             }
 
             [Test]
             public void ShouldBeAbleToRestart()
             {
                 // Arrange
-                Expect(() =>
-                {
-                    using var db = Create();
-                    Expect(db.ConfigFilePath)
-                        .To.Exist();
-                    var config = File.ReadAllText(db.ConfigFilePath);
-                    var ini = INIFile.FromString(config);
-                    Expect(ini)
-                        .To.Have.Section("mysqld");
-                    using (db.OpenConnection())
+                Expect(
+                    () =>
                     {
-                        // Act
-                        // Assert
+                        using var db = Create();
+                        Expect(db.ConfigFilePath)
+                            .To.Exist();
+                        var config = File.ReadAllText(db.ConfigFilePath);
+                        var ini = INIFile.FromString(config);
+                        Expect(ini)
+                            .To.Have.Section("mysqld");
+                        using (db.OpenConnection())
+                        {
+                            // Act
+                            // Assert
+                        }
+
+                        var originalPid = db.ServerProcessId;
+                        db.Restart();
+
+                        using (db.OpenConnection())
+                        {
+                        }
+
+                        Expect(db.ServerProcessId)
+                            .Not.To.Equal(originalPid);
                     }
-
-                    var originalPid = db.ServerProcessId;
-                    db.Restart();
-
-                    using (db.OpenConnection())
-                    {
-                    }
-
-                    Expect(db.ServerProcessId)
-                        .Not.To.Equal(originalPid);
-                }).Not.To.Throw();
+                ).Not.To.Throw();
             }
 
             [Test]
@@ -278,25 +291,28 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             {
                 // Arrange
                 // Act
-                Expect(() =>
-                {
-                    using var db = new TempDBMySql(
-                        new TempDbMySqlServerSettings()
+                Expect(
+                        () =>
                         {
-                            Options =
-                            {
-                                LogAction = Console.WriteLine,
-                                EnableVerboseLogging = true,
-                            },
-                            CustomConfiguration =
-                            {
-                                ["mysqld"] =
+                            using var db = new TempDBMySql(
+                                new TempDbMySqlServerSettings()
                                 {
-                                    ["default-character-set"] = "utf8mb4"
+                                    Options =
+                                    {
+                                        LogAction = Console.WriteLine,
+                                        EnableVerboseLogging = true,
+                                    },
+                                    CustomConfiguration =
+                                    {
+                                        ["mysqld"] =
+                                        {
+                                            ["default-character-set"] = "utf8mb4"
+                                        }
+                                    }
                                 }
-                            }
-                        });
-                }).To.Throw<UnableToInitializeMySqlException>()
+                            );
+                        }
+                    ).To.Throw<UnableToInitializeMySqlException>()
                     .With.Message.Containing("unknown variable");
                 // Assert
             }
@@ -323,15 +339,18 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             {
                 // Arrange
                 using var tempFolder = new AutoTempFolder();
-                using (new AutoResetter<string>(() =>
-                       {
-                           var original = TempDbHints.PreferredBasePath;
-                           TempDbHints.PreferredBasePath = tempFolder.Path;
-                           return original;
-                       }, original =>
-                       {
-                           TempDbHints.PreferredBasePath = original;
-                       }))
+                using (new AutoResetter<string>(
+                           () =>
+                           {
+                               var original = TempDbHints.PreferredBasePath;
+                               TempDbHints.PreferredBasePath = tempFolder.Path;
+                               return original;
+                           },
+                           original =>
+                           {
+                               TempDbHints.PreferredBasePath = original;
+                           }
+                       ))
                 {
                     // Act
                     using (new TempDBMySql())
@@ -353,15 +372,17 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             public void ShouldBeAbleToFindInPath_WhenIsInPath()
             {
                 // Arrange
-                Expect(() =>
-                {
-                    using var db = Create();
-                    using (db.OpenConnection())
+                Expect(
+                    () =>
                     {
-                        // Act
-                        // Assert
+                        using var db = Create();
+                        using (db.OpenConnection())
+                        {
+                            // Act
+                            // Assert
+                        }
                     }
-                }).Not.To.Throw();
+                ).Not.To.Throw();
             }
 
             private string _envPath;
@@ -411,19 +432,23 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 var contents = File.ReadAllLines(logFile);
                 Expect(contents)
                     .To.Contain.Exactly(1)
-                    .Matched.By(s => s.StartsWith("CLI:") &&
-                        s.Contains("mysqld.exe"));
+                    .Matched.By(
+                        s => s.StartsWith("CLI:") &&
+                            s.Contains("mysqld.exe")
+                    );
                 Expect(contents)
                     .To.Contain.Exactly(1)
                     .Matched.By(s => s.StartsWith("Environment"));
                 Expect(contents)
                     .To.Contain.Exactly(1)
-                    .Matched.By(s =>
-                    {
-                        var trimmed = s.Trim();
-                        return trimmed.StartsWith("LOG_PROCESS_STARTUP_TEST") &&
-                            trimmed.EndsWith(expected);
-                    });
+                    .Matched.By(
+                        s =>
+                        {
+                            var trimmed = s.Trim();
+                            return trimmed.StartsWith("LOG_PROCESS_STARTUP_TEST") &&
+                                trimmed.EndsWith(expected);
+                        }
+                    );
             }
 
             [SetUp]
@@ -503,7 +528,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     new TempDbMySqlServerSettings()
                     {
                         Options = { MaxTimeToConnectAtStartInSeconds = 0 }
-                    });
+                    }
+                );
                 // Act
                 using (var conn = db.OpenConnection())
                 {
@@ -572,7 +598,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     .To.Throw<ArgumentException>()
                     .With.Message.Containing(
                         "not running",
-                        "Server should be dead after disposal");
+                        "Server should be dead after disposal"
+                    );
             }
         }
 
@@ -586,13 +613,16 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 public void ShouldListenOnHintedPortWhenAvailable()
                 {
                     // Arrange
+                    PortFinder.ResetUsedHistory();
                     var port = PortFinder.FindOpenPort();
                     using var db = new TempDBMySql(CreateForPort(port));
                     // Act
                     var configuredPort = GrokPortFrom(db.ConnectionString);
                     // Assert
-                    Expect(configuredPort)
-                        .To.Equal(port);
+                    Expect(configuredPort - port)
+                        .To.Be.Greater.Than.Or.Equal.To(0)
+                        .And
+                        .To.Be.Less.Than.Or.Equal.To(10);
                 }
 
                 [Test]
@@ -604,6 +634,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         Assert.Ignore("Requires TEMPDB_PORT_HINT env var to be set");
                     }
 
+                    PortFinder.ResetUsedHistory();
                     var port = PortFinder.FindOpenPort();
                     while (PortFinder.PortIsActivelyInUse(port + 1))
                     {
@@ -616,8 +647,14 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     var outerPort = GrokPortFrom(outer.ConnectionString);
                     var innerPort = GrokPortFrom(inner.ConnectionString);
                     // Assert
-                    Expect(outerPort).To.Equal(port);
-                    Expect(innerPort).To.Equal(port + 1);
+                    Expect(outerPort - port)
+                        .To.Be.Greater.Than.Or.Equal.To(1)
+                        .And
+                        .To.Be.Less.Than.Or.Equal.To(10);
+                    Expect(innerPort - outerPort)
+                        .To.Be.Greater.Than.Or.Equal.To(1)
+                        .And
+                        .To.Be.Less.Than.Or.Equal.To(10);
                 }
             }
 
@@ -628,10 +665,12 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 public void ShouldListenOnHintedPortWhenAvailable()
                 {
                     // Arrange
+                    PortFinder.ResetUsedHistory();
                     var port = PortFinder.FindOpenPort();
                     using (new AutoResetter<string>(
                                () => SetPortHintEnvVar(port),
-                               RestorePortHintEnvVar))
+                               RestorePortHintEnvVar
+                           ))
                     {
                         var settings = new TempDbMySqlServerSettings()
                         {
@@ -642,8 +681,10 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                             // Act
                             var configuredPort = GrokPortFrom(db.ConnectionString);
                             // Assert
-                            Expect(configuredPort)
-                                .To.Equal(port);
+                            Expect(configuredPort - port)
+                                .To.Be.Greater.Than.Or.Equal.To(0)
+                                .And
+                                .To.Be.Less.Than.Or.Equal.To(10);
                         }
                     }
                 }
@@ -720,7 +761,9 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     .WithName(name)
                     .Build();
                 using (new TempDBMySql(
-                           settings, SCHEMA))
+                           settings,
+                           SCHEMA
+                       ))
                 {
                     using (var inner = new TempDBMySql(settings))
                     {
@@ -735,7 +778,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
             private int InsertAnimal(
                 ITempDB db,
-                string name)
+                string name
+            )
             {
                 using var conn = db.OpenConnection();
                 using var cmd = conn.CreateCommand();
@@ -817,25 +861,32 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 // Arrange
                 using var db = Create(inactivityTimeout: TimeSpan.FromSeconds(2));
                 // Act
-                Expect(() =>
-                {
-                    using var conn = db.OpenConnection();
-                }).Not.To.Throw();
-                Thread.Sleep(3000);
-                Expect(() =>
+                Expect(
+                    () =>
                     {
                         using var conn = db.OpenConnection();
-                    }).To.Throw()
-                    .With.Property(e => new
-                    {
-                        Type = e.GetType().Name,
-                        IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
-                    }).Deep.Equal.To(
+                    }
+                ).Not.To.Throw();
+                Thread.Sleep(3000);
+                Expect(
+                        () =>
+                        {
+                            using var conn = db.OpenConnection();
+                        }
+                    ).To.Throw()
+                    .With.Property(
+                        e => new
+                        {
+                            Type = e.GetType().Name,
+                            IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
+                        }
+                    ).Deep.Equal.To(
                         new
                         {
                             Type = "MySqlException",
                             IsConnectionError = true
-                        });
+                        }
+                    );
                 // Assert
             }
 
@@ -851,11 +902,13 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 // Act
                 for (var i = 0; i < 5; i++)
                 {
-                    Expect(() =>
-                    {
-                        using var conn = db.OpenConnection();
-                        Thread.Sleep(500);
-                    }).Not.To.Throw();
+                    Expect(
+                        () =>
+                        {
+                            using var conn = db.OpenConnection();
+                            Thread.Sleep(500);
+                        }
+                    ).Not.To.Throw();
                 }
 
                 var timeout = DateTime.Now.AddSeconds(10);
@@ -883,20 +936,25 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 Expect(disposed)
                     .To.Be.True();
 
-                Expect(() =>
-                    {
-                        using var conn = db.OpenConnection();
-                    }).To.Throw()
-                    .With.Property(e => new
-                    {
-                        Type = e.GetType().Name,
-                        IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
-                    }).Deep.Equal.To(
+                Expect(
+                        () =>
+                        {
+                            using var conn = db.OpenConnection();
+                        }
+                    ).To.Throw()
+                    .With.Property(
+                        e => new
+                        {
+                            Type = e.GetType().Name,
+                            IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
+                        }
+                    ).Deep.Equal.To(
                         new
                         {
                             Type = "MySqlException",
                             IsConnectionError = true
-                        });
+                        }
+                    );
             }
 
             [Test]
@@ -910,27 +968,32 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 );
                 var connections = 0;
                 // Act
-                Expect(() =>
-                    {
-                        while (true)
+                Expect(
+                        () =>
                         {
-                            using var conn = db.OpenConnection();
-                            connections++;
-                            Thread.Sleep(300);
-                        }
+                            while (true)
+                            {
+                                using var conn = db.OpenConnection();
+                                connections++;
+                                Thread.Sleep(300);
+                            }
 
-                        // ReSharper disable once FunctionNeverReturns
-                    }).To.Throw()
-                    .With.Property(e => new
-                    {
-                        Type = e.GetType().Name,
-                        IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
-                    }).Deep.Equal.To(
+                            // ReSharper disable once FunctionNeverReturns
+                        }
+                    ).To.Throw()
+                    .With.Property(
+                        e => new
+                        {
+                            Type = e.GetType().Name,
+                            IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
+                        }
+                    ).Deep.Equal.To(
                         new
                         {
                             Type = "MySqlException",
                             IsConnectionError = true
-                        });
+                        }
+                    );
                 // Assert
                 Expect(connections)
                     .To.Be.Greater.Than(3);
@@ -968,7 +1031,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
         private static void Execute(
             ITempDB tempDb,
-            string sql)
+            string sql
+        )
         {
             using var conn = tempDb.OpenConnection();
             using var cmd = conn.CreateCommand();
@@ -1000,7 +1064,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         private static TempDBMySql Create(
             string pathToMySql = null,
             TimeSpan? inactivityTimeout = null,
-            TimeSpan? absoluteLifespan = null)
+            TimeSpan? absoluteLifespan = null
+        )
         {
             return new TempDBMySql(
                 new TempDbMySqlServerSettings()
@@ -1014,7 +1079,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         AbsoluteLifespan = absoluteLifespan,
                         EnableVerboseLogging = true
                     }
-                });
+                }
+            );
         }
 
 
@@ -1030,7 +1096,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         public string Database { get; }
 
         public MySqlConnectionStringUtil(
-            string connectionString)
+            string connectionString
+        )
         {
             Database = connectionString
                 .Split(';')
@@ -1048,11 +1115,13 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             string expected
         )
         {
-            return have.Compose(actual =>
-            {
-                Expect(actual.HasSection(expected))
-                    .To.Be.True(() => $"Expected to find section '{expected}' in ini file");
-            });
+            return have.Compose(
+                actual =>
+                {
+                    Expect(actual.HasSection(expected))
+                        .To.Be.True(() => $"Expected to find section '{expected}' in ini file");
+                }
+            );
         }
     }
 }

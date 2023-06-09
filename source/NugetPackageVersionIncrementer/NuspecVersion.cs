@@ -21,7 +21,10 @@ namespace NugetPackageVersionIncrementer
         public override string ToString()
         {
             if (Minimum == Maximum)
+            {
                 return Minimum;
+            }
+
             return $"[{Minimum},{Maximum}]";
         }
 

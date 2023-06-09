@@ -316,7 +316,8 @@ namespace PeanutButter.WindowsServiceManagement
                 ? "No"
                 : "Multiple";
             throw new ArgumentException(
-                $"{msg} matches for queried service path {path}"
+                $"{msg} matches for queried service path {path}",
+                nameof(path)
             );
         }
 

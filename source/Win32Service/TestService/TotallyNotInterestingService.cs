@@ -23,7 +23,7 @@ namespace TestService
                 INIFILE
             );
 
-        public static ServiceOptions Options { get; set; }
+        public static IServiceOptions Options { get; set; }
 
         public TotallyNotInterestingService()
         {
@@ -117,37 +117,26 @@ namespace TestService
         }
     }
 
-    public class ServiceOptions : IServiceCommandlineOptions
+    public interface IServiceOptions : IServiceCommandlineOptions
     {
         [Description("Set the short name for this service")]
         [DisableGeneratedShortName]
-        public string Name { get; set; }
+        string Name { get; set; }
 
         [Description("Set the long name for this service")]
         [DisableGeneratedShortName]
-        public string DisplayName { get; set; }
+        string DisplayName { get; set; }
 
         [Description("Delay, in ms, when starting up")]
         [DisableGeneratedShortName]
-        public int StartDelay { get; set; }
+        int StartDelay { get; set; }
 
         [Description("Delay, in ms, when pausing")]
         [DisableGeneratedShortName]
-        public int PauseDelay { get; set; }
+        int PauseDelay { get; set; }
 
         [Description("Delay, in ms, when stopping")]
         [DisableGeneratedShortName]
-        public int StopDelay { get; set; }
-
-        public bool Install { get; set; }
-        public bool Uninstall { get; set; }
-        public bool RunOnce { get; set; }
-        public bool Debug { get; set; }
-        public int Wait { get; set; }
-        public bool ShowVersion { get; set; }
-        public bool StartService { get; set; }
-        public bool StopService { get; set; }
-        public bool ManualStart { get; set; }
-        public bool Disabled { get; set; }
+        int StopDelay { get; set; }
     }
 }

@@ -32,16 +32,19 @@ namespace PeanutButter.ServiceShell
         /// </summary>
         /// <param name="message"></param>
         void LogDebug(string message);
+
         /// <summary>
         /// Log an info message
         /// </summary>
         /// <param name="message"></param>
         void LogInfo(string message);
+
         /// <summary>
         /// Log a warning message
         /// </summary>
         /// <param name="message"></param>
         void LogWarning(string message);
+
         /// <summary>
         /// Log a fatal message - service should probably quit
         /// </summary>
@@ -64,6 +67,7 @@ namespace PeanutButter.ServiceShell
         /// The current version of the service
         /// </summary>
         public VersionInfo Version { get; private set; }
+
         /// <summary>
         /// Whether or not the service was invoked from the commandline (as
         /// opposed to being invoked via the SCM)
@@ -132,10 +136,12 @@ namespace PeanutButter.ServiceShell
             /// Major version number
             /// </summary>
             public int Major { get; set; }
+
             /// <summary>
             /// Minor version number
             /// </summary>
             public int Minor { get; set; }
+
             /// <summary>
             /// Patch version number
             /// </summary>
@@ -321,7 +327,8 @@ namespace PeanutButter.ServiceShell
             return null;
         }
 
-        private static int? PerformServiceShellTasksFor<T>(T instance, ServiceCommandlineOptions cli) where T : Shell, new()
+        private static int? PerformServiceShellTasksFor<T>(T instance, ServiceCommandlineOptions cli)
+            where T : Shell, new()
         {
             var task = ShellTasks.FirstOrDefault(t => t.Selector(cli));
             return task?.Logic.Invoke(cli, instance);
@@ -338,7 +345,8 @@ namespace PeanutButter.ServiceShell
 
         private static int StopIfPossible(
             ServiceCommandlineOptions cli,
-            Shell instance)
+            Shell instance
+        )
         {
             if (!instance.ServiceUtil.IsStoppable)
             {
@@ -347,12 +355,14 @@ namespace PeanutButter.ServiceShell
 
             return TryRunShellTask(
                 () => instance.ServiceUtil.Stop(true),
-                ex => $"Unable to stop '{instance.ServiceName}': {ex.Message}");
+                ex => $"Unable to stop '{instance.ServiceName}': {ex.Message}"
+            );
         }
 
         private static int TryRunShellTask(
             Action toRun,
-            Func<Exception, string> errorMessageGenerator)
+            Func<Exception, string> errorMessageGenerator
+        )
         {
             try
             {
@@ -375,7 +385,8 @@ namespace PeanutButter.ServiceShell
 
         private static int StartIfPossible(
             ServiceCommandlineOptions arg1,
-            Shell arg2)
+            Shell arg2
+        )
         {
             var svc = new WindowsServiceUtil(arg2.ServiceName);
             if (svc.State == ServiceState.Unknown ||
@@ -441,19 +452,22 @@ namespace PeanutButter.ServiceShell
             {
                 Console.WriteLine(line);
             }
+
             return (int) ServiceCommandlineOptions.ExitCodes.Failure;
         }
 
         private static int ShowVersionFor(
             ServiceCommandlineOptions cli,
-            Shell shell)
+            Shell shell
+        )
         {
             return shell.ShowVersion();
         }
 
         private static int InstallAndPerhapsStart(
             ServiceCommandlineOptions cli,
-            Shell instance)
+            Shell instance
+        )
         {
             var result = instance.InstallMe(cli);
             return cli.StartService
@@ -463,7 +477,8 @@ namespace PeanutButter.ServiceShell
 
         private static int StopAndUninstall(
             ServiceCommandlineOptions options,
-            Shell shell)
+            Shell shell
+        )
         {
             shell.StopMe(true);
             return shell.UninstallMe();
@@ -471,7 +486,8 @@ namespace PeanutButter.ServiceShell
 
         private static ShellTaskStrategy ShellTask(
             Func<ServiceCommandlineOptions, bool> selector,
-            Func<ServiceCommandlineOptions, Shell, int> logic)
+            Func<ServiceCommandlineOptions, Shell, int> logic
+        )
         {
             return new ShellTaskStrategy(selector, logic);
         }
@@ -483,7 +499,8 @@ namespace PeanutButter.ServiceShell
 
             public ShellTaskStrategy(
                 Func<ServiceCommandlineOptions, bool> selector,
-                Func<ServiceCommandlineOptions, Shell, int> logic)
+                Func<ServiceCommandlineOptions, Shell, int> logic
+            )
             {
                 Selector = selector;
                 Logic = logic;
@@ -580,8 +597,10 @@ namespace PeanutButter.ServiceShell
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Service already installed at: " + existingSvcUtil.Commandline +
-                    " and I can't uninstall it: " + ex.Message);
+                Console.WriteLine(
+                    "Service already installed at: " + existingSvcUtil.Commandline +
+                    " and I can't uninstall it: " + ex.Message
+                );
                 return (int) ServiceCommandlineOptions.ExitCodes.InstallFailed;
             }
 
@@ -609,9 +628,12 @@ namespace PeanutButter.ServiceShell
 
             if (cli.ManualStart && cli.Disabled)
             {
-                throw new ArgumentException("Cannot specify that the service be both disabled and manual start");
+                throw new ArgumentException(
+                    "Cannot specify that the service be both disabled and manual start",
+                    nameof(cli)
+                );
             }
-            
+
             return cli.ManualStart
                 ? ServiceStartupTypes.Manual
                 : ServiceStartupTypes.Disabled;
@@ -641,14 +663,18 @@ namespace PeanutButter.ServiceShell
 
         private int ShowVersion()
         {
-            Console.WriteLine(string.Join(" ",
-                new[]
-                {
-                    Path.GetFileName(
-                        Environment.GetCommandLineArgs()[0]
-                    ),
-                    "version:", Version.ToString()
-                }));
+            Console.WriteLine(
+                string.Join(
+                    " ",
+                    new[]
+                    {
+                        Path.GetFileName(
+                            Environment.GetCommandLineArgs()[0]
+                        ),
+                        "version:", Version.ToString()
+                    }
+                )
+            );
 
             return (int) ServiceCommandlineOptions.ExitCodes.Success;
         }

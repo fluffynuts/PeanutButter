@@ -24,10 +24,10 @@ Public Class ConnectionStringBuilder
     End Function
     Private Sub CheckParameters()
         If _provider Is Nothing Then
-            Throw New ArgumentException("ConnectionStringBuilder: provider not set")
+            Throw New ArgumentException("ConnectionStringBuilder: provider not set", "_provider")
         End If
         If _source Is Nothing Then
-            Throw New ArgumentException("ConnectionStringBuilder: source not set")
+            Throw New ArgumentException("ConnectionStringBuilder: source not set", "_source")
         End If
     End Sub
     Public Overridable Function WithProvider(provider As String) As IConnectionStringBuilder Implements IConnectionStringBuilder.WithProvider

@@ -52,7 +52,11 @@ namespace PeanutButter.Utils
             Run(
                 before,
                 activity,
-                _ => ErrorHandlerResult.Rethrow
+                ex =>
+                {
+                    after(ex);
+                    return ErrorHandlerResult.Suppress;
+                }
             );
         }
 
