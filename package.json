@@ -18,6 +18,7 @@
         "zarro": "cross-env TEMPDB_PORT_HINT=\"\" BUILD_TOOLS_FOLDER=build-tools zarro",
         "release": "run-s test \"zarro release\"",
         "quick-release": "run-s \"zarro release\"",
+        "release-beta": "cross-env PACK_INCREMENT_VERSION=1 VERSION_INCREMENT_STRATEGY=prerelease run-s \"zarro release\"",
         "pack": "cross-env BUILD_CONFIGURATION=Release run-s \"zarro pack\"",
         "list-project-assemblies": "run-s \"zarro list-project-assemblies\""
     },
