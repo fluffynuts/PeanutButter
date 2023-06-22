@@ -1,6 +1,7 @@
 using System;
 using NUnit.Framework;
 using NExpect;
+using NExpect.MatcherLogic;
 using PeanutButter.Utils.Tests.TypeFinderTypes;
 using static NExpect.Expectations;
 
@@ -150,20 +151,28 @@ namespace PeanutButter.Utils.Tests
             public void ShouldNotCacheFailuresBetweenDifferentAssemblySets()
             {
                 // Arrange
-                var t = typeof(Expectations);
+                var t = typeof(MatcherResult);
                 // Act
                 var result1 = TypeFinder.TryFind(
                     t.FullName,
                     typeof(TestTypeFinder).Assembly
                 );
                 var result2 = TypeFinder.TryFind(
+                    t.FullName.ToRandomCase()
+                );
+                result2 = TypeFinder.TryFind(
+                    t.FullName.ToRandomCase()
+                );
+                var result3 = TypeFinder.TryFind(
                     t.FullName
                 );
                 // Assert
                 Expect(result1)
                     .To.Be.Null();
                 Expect(result2)
-                    .To.Be(typeof(Expectations));
+                    .To.Be.Null();
+                Expect(result3)
+                    .To.Be(typeof(MatcherResult));
             }
 
             [Test]

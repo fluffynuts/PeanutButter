@@ -76,14 +76,24 @@ namespace PeanutButter.Utils
                     .OrderBy(a => a.FullName)
                     .ToArray();
             }
+            
+            var isCaseInsensitive = stringComparison is
+                StringComparison.OrdinalIgnoreCase or
+                StringComparison.CurrentCultureIgnoreCase or
+                StringComparison.InvariantCultureIgnoreCase;
 
             var assembliesHash = GenerateHashOf(assemblies);
-            if (AssemblyMissCache.ContainsKey(assembliesHash))
+            var missKey = $"{assembliesHash}-{name}-{stringComparison}";
+            if (AssemblyMissCache.ContainsKey(missKey))
             {
                 return null;
             }
+            
+            var cache = isCaseInsensitive
+                ? CaseInsensitiveTypeLookup
+                : TypeLookup;
 
-            var result = TypeLookup.FindOrAdd(
+            var result = cache.FindOrAdd(
                 name,
                 () =>
                 {
@@ -92,10 +102,7 @@ namespace PeanutButter.Utils
                         var perhaps = Type.GetType(
                             name,
                             false,
-                            stringComparison is 
-                                StringComparison.OrdinalIgnoreCase or 
-                                StringComparison.CurrentCultureIgnoreCase or 
-                                StringComparison.InvariantCultureIgnoreCase
+                            isCaseInsensitive
                         );
                         if (perhaps is not null)
                         {
@@ -133,7 +140,7 @@ namespace PeanutButter.Utils
 
             if (result is null)
             {
-                AssemblyMissCache.TryAdd(assembliesHash, assembliesHash);
+                AssemblyMissCache.TryAdd(missKey, assembliesHash);
             }
 
             return result;
@@ -179,8 +186,9 @@ namespace PeanutButter.Utils
             return null;
         }
 
-        private static readonly ConcurrentDictionary<int, int> AssemblyMissCache = new();
+        private static readonly ConcurrentDictionary<string, int> AssemblyMissCache = new();
         private static readonly ConcurrentDictionary<string, Type> TypeLookup = new();
+        private static readonly ConcurrentDictionary<string, Type> CaseInsensitiveTypeLookup = new(StringComparer.OrdinalIgnoreCase);
         private static readonly ConcurrentDictionary<Assembly, Type[]> AssemblyTypes = new();
 
         /// <summary>
