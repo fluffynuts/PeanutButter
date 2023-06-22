@@ -100,17 +100,6 @@ public class RequestDelegateTestArena
     {
     }
 
-    /// <summary>
-    /// Create the test arena with http context mutations
-    /// and no custom delegate logic
-    /// </summary>
-    /// <param name="httpContextMutator"></param>
-    public RequestDelegateTestArena(
-        Action<HttpContextBuilder> httpContextMutator
-    ) : this(GenerateDefaultNextLogic(), httpContextMutator)
-    {
-    }
-
     private static Func<HttpContext, Task> GenerateDefaultNextLogic()
     {
         return _ => Task.CompletedTask;

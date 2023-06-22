@@ -58,6 +58,7 @@ namespace PeanutButter.Utils
         : ISingleItemCache<T>
     {
         private readonly Func<T> _generator;
+        private readonly Func<bool> _cacheInvalidator;
         private readonly long _timeToLive;
         private T _cachedValue;
         private long _lastFetched;
@@ -78,7 +79,29 @@ namespace PeanutButter.Utils
         /// </summary>
         public TimeSpan TimeToLive { get; }
 
+        /// <summary>
+        /// When provided via the alternative constructor
+        /// </summary>
+        public Func<bool> CacheInvalidator => _cacheInvalidator;
+
         private T RetrieveValue()
+        {
+            return _cacheInvalidator is null
+                ? RetrieveValueWithTimeToLive()
+                : RetrieveValueWithCacheInvalidator();
+        }
+
+        private T RetrieveValueWithCacheInvalidator()
+        {
+            var now = DateTime.Now.Ticks;
+            var lastFetched = Interlocked.Exchange(ref _lastFetched, now);
+            var shouldGenerate = lastFetched == 0 || CacheInvalidator();
+            return shouldGenerate
+                ? _cachedValue = Generator()
+                : _cachedValue;
+        }
+
+        private T RetrieveValueWithTimeToLive()
         {
             var now = DateTime.Now.Ticks;
             var lastFetched = Interlocked.Exchange(ref _lastFetched, now);
@@ -105,6 +128,24 @@ namespace PeanutButter.Utils
             _generator = generator;
             _timeToLive = timeToLive.Ticks;
             TimeToLive = timeToLive;
+        }
+
+        /// <summary>
+        /// SingleItemCache provides a light, fast, caching wrapper
+        /// around a function to generate a value with a provided
+        /// function to test if the cache should be invalidated
+        /// before the each read
+        /// </summary>
+        /// <param name="generator"></param>
+        /// <param name="cacheInvalidator"></param>
+        public SingleItemCache(
+            Func<T> generator,
+            Func<bool> cacheInvalidator
+        )
+        {
+            _generator = generator;
+            _cacheInvalidator = cacheInvalidator;
+            TimeToLive = TimeSpan.MaxValue;
         }
 
         /// <summary>
