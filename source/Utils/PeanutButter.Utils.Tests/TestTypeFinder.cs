@@ -43,12 +43,26 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
-            public void ShouldLoadTypeByFullName()
+            public void ShouldLoadTypeByFullName1()
             {
                 // Arrange
                 // Act
                 var result = TypeFinder.TryFind(
                     "PeanutButter.Utils.Tests.TypeFinderTypes.MooCowBeefCake",
+                    typeof(TestTypeFinder).Assembly
+                );
+                // Assert
+                Expect(result)
+                    .To.Be(typeof(MooCowBeefCake));
+            }
+
+            [Test]
+            public void ShouldLoadTypeByFullName2()
+            {
+                // Arrange
+                // Act
+                var result = TypeFinder.TryFind(
+                    typeof(MooCowBeefCake).FullName,
                     typeof(TestTypeFinder).Assembly
                 );
                 // Assert
@@ -103,12 +117,29 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
-            public void ShouldLoadTypeByFullName()
+            public void ShouldLoadTypeByFullName1()
             {
                 // Arrange
                 // Act
                 var result = TypeFinder.TryFind(
                     "NExpect.Expectations"
+                );
+                // Assert
+                Expect(result)
+                    .To.Be(typeof(Expectations));
+            }
+
+            [Test]
+            public void ShouldLoadTypeByFullName2()
+            {
+                // Arrange
+                var t = typeof(Expectations);
+                var constructed = $"{t.Namespace}.{t.Name}";
+                Expect(constructed)
+                    .To.Equal(t.FullName);
+                // Act
+                var result = TypeFinder.TryFind(
+                    typeof(Expectations).FullName
                 );
                 // Assert
                 Expect(result)

@@ -64,7 +64,9 @@ namespace PeanutButter.Utils
             assemblies = assemblies.Where(a => a is not null).ToArray();
             if (assemblies.Length == 0)
             {
-                assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                    .OrderBy(a => a.FullName)
+                    .ToArray();
             }
 
             return TypeLookup.FindOrAdd(
@@ -73,12 +75,23 @@ namespace PeanutButter.Utils
                 {
                     foreach (var asm in assemblies)
                     {
-                        var types = FindTypesIn(asm);
-                        return FindBestNameMatch(
-                            types,
-                            name,
-                            stringComparison
-                        );
+                        try
+                        {
+                            var types = FindTypesIn(asm);
+                            var potential = FindBestNameMatch(
+                                types,
+                                name,
+                                stringComparison
+                            );
+                            if (potential is not null)
+                            {
+                                return potential;
+                            }
+                        }
+                        catch
+                        {
+                            // suppress: can't read from assembly?
+                        }
                     }
 
                     return null;
@@ -94,15 +107,21 @@ namespace PeanutButter.Utils
         {
             foreach (var t in types)
             {
-                if (t.Name.Equals(name, stringComparison))
+                try
                 {
-                    return t;
-                }
+                    if (t.Name.Equals(name, stringComparison))
+                    {
+                        return t;
+                    }
 
-                var qualifiedName = $"{t.Namespace}.{t.Name}";
-                if (qualifiedName.Equals(name, stringComparison))
+                    if (t.FullName?.Equals(name, stringComparison) ?? false)
+                    {
+                        return t;
+                    }
+                }
+                catch
                 {
-                    return t;
+                    // suppress: can't read from type
                 }
             }
 
@@ -128,7 +147,9 @@ namespace PeanutButter.Utils
                 {
                     try
                     {
-                        return assembly.GetExportedTypes();
+                        return assembly.GetExportedTypes()
+                            .OrderBy(t => t.FullName)
+                            .ToArray();
                     }
                     catch
                     {
