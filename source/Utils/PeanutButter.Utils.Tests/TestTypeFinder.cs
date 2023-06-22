@@ -193,6 +193,19 @@ namespace PeanutButter.Utils.Tests
             Expect(result)
                 .To.Be(typeof(TypeExtensions));
         }
+
+        [Test]
+        public void ShouldLoadTypeByAssemblyQualifiedNameCaseInsensitive()
+        {
+            // Arrange
+            var input = typeof(TypeExtensions)
+                .AssemblyQualifiedName.ToRandomCase();
+            // Act
+            var result = TypeFinder.TryFind(input, StringComparison.OrdinalIgnoreCase);
+            // Assert
+            Expect(result)
+                .To.Be(typeof(TypeExtensions));
+        }
     }
 }
 

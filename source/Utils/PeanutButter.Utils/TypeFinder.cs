@@ -76,7 +76,7 @@ namespace PeanutButter.Utils
                     .OrderBy(a => a.FullName)
                     .ToArray();
             }
-            
+
             var assembliesHash = GenerateHashOf(assemblies);
             if (AssemblyMissCache.ContainsKey(assembliesHash))
             {
@@ -89,7 +89,14 @@ namespace PeanutButter.Utils
                 {
                     if (name.Contains("="))
                     {
-                        var perhaps = Type.GetType(name);
+                        var perhaps = Type.GetType(
+                            name,
+                            false,
+                            stringComparison is 
+                                StringComparison.OrdinalIgnoreCase or 
+                                StringComparison.CurrentCultureIgnoreCase or 
+                                StringComparison.InvariantCultureIgnoreCase
+                        );
                         if (perhaps is not null)
                         {
                             return perhaps;
@@ -123,7 +130,7 @@ namespace PeanutButter.Utils
                 },
                 o => o is null
             );
-            
+
             if (result is null)
             {
                 AssemblyMissCache.TryAdd(assembliesHash, assembliesHash);
@@ -134,7 +141,7 @@ namespace PeanutButter.Utils
 
         private static int GenerateHashOf(Assembly[] assemblies)
         {
-            return ((IStructuralEquatable)assemblies)
+            return ((IStructuralEquatable) assemblies)
                 .GetHashCode(EqualityComparer<Assembly>.Default);
         }
 
