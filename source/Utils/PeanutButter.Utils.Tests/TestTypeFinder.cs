@@ -147,6 +147,26 @@ namespace PeanutButter.Utils.Tests
             }
 
             [Test]
+            public void ShouldNotCacheFailuresBetweenDifferentAssemblySets()
+            {
+                // Arrange
+                var t = typeof(Expectations);
+                // Act
+                var result1 = TypeFinder.TryFind(
+                    t.FullName,
+                    typeof(TestTypeFinder).Assembly
+                );
+                var result2 = TypeFinder.TryFind(
+                    t.FullName
+                );
+                // Assert
+                Expect(result1)
+                    .To.Be.Null();
+                Expect(result2)
+                    .To.Be(typeof(Expectations));
+            }
+
+            [Test]
             public void ShouldLoadTypeByFullNameWithStringComparison()
             {
                 // Arrange
@@ -159,6 +179,19 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Be(typeof(Expectations));
             }
+        }
+
+        [Test]
+        public void ShouldLoadTypeByAssemblyQualifiedName()
+        {
+            // Arrange
+            var input = typeof(TypeExtensions)
+                .AssemblyQualifiedName;
+            // Act
+            var result = TypeFinder.TryFind(input);
+            // Assert
+            Expect(result)
+                .To.Be(typeof(TypeExtensions));
         }
     }
 }

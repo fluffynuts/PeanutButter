@@ -1,7 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils
@@ -60,6 +63,11 @@ namespace PeanutButter.Utils
             params Assembly[] assemblies
         )
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return null;
+            }
+
             assemblies ??= Array.Empty<Assembly>();
             assemblies = assemblies.Where(a => a is not null).ToArray();
             if (assemblies.Length == 0)
@@ -68,11 +76,27 @@ namespace PeanutButter.Utils
                     .OrderBy(a => a.FullName)
                     .ToArray();
             }
+            
+            var assembliesHash = GenerateHashOf(assemblies);
+            if (AssemblyMissCache.ContainsKey(assembliesHash))
+            {
+                return null;
+            }
 
-            return TypeLookup.FindOrAdd(
+            var result = TypeLookup.FindOrAdd(
                 name,
                 () =>
                 {
+                    if (name.Contains("="))
+                    {
+                        var perhaps = Type.GetType(name);
+                        if (perhaps is not null)
+                        {
+                            return perhaps;
+                        }
+                    }
+
+                    var testFullName = name.Contains(".");
                     foreach (var asm in assemblies)
                     {
                         try
@@ -81,7 +105,8 @@ namespace PeanutButter.Utils
                             var potential = FindBestNameMatch(
                                 types,
                                 name,
-                                stringComparison
+                                stringComparison,
+                                testFullName
                             );
                             if (potential is not null)
                             {
@@ -95,14 +120,29 @@ namespace PeanutButter.Utils
                     }
 
                     return null;
-                }
+                },
+                o => o is null
             );
+            
+            if (result is null)
+            {
+                AssemblyMissCache.TryAdd(assembliesHash, assembliesHash);
+            }
+
+            return result;
+        }
+
+        private static int GenerateHashOf(Assembly[] assemblies)
+        {
+            return ((IStructuralEquatable)assemblies)
+                .GetHashCode(EqualityComparer<Assembly>.Default);
         }
 
         private static Type FindBestNameMatch(
             Type[] types,
             string name,
-            StringComparison stringComparison
+            StringComparison stringComparison,
+            bool testFullName
         )
         {
             foreach (var t in types)
@@ -114,7 +154,11 @@ namespace PeanutButter.Utils
                         return t;
                     }
 
-                    if (t.FullName?.Equals(name, stringComparison) ?? false)
+                    if (
+                        testFullName &&
+                        t.FullName is not null &&
+                        t.FullName.Equals(name, stringComparison)
+                    )
                     {
                         return t;
                     }
@@ -128,8 +172,8 @@ namespace PeanutButter.Utils
             return null;
         }
 
+        private static readonly ConcurrentDictionary<int, int> AssemblyMissCache = new();
         private static readonly ConcurrentDictionary<string, Type> TypeLookup = new();
-
         private static readonly ConcurrentDictionary<Assembly, Type[]> AssemblyTypes = new();
 
         /// <summary>

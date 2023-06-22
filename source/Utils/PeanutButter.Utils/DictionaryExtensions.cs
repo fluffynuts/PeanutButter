@@ -121,6 +121,35 @@ namespace PeanutButter.Utils
             return dict.FindOrAdd(
                 key,
                 generator,
+                null
+            );
+        }
+
+        /// <summary>
+        /// Find an item in or add an item to a dictionary
+        /// - operation is thread-safe:
+        ///     - concurrent dictionaries are optionally locked during search &amp; add (see alwaysLock)
+        ///     - other dictionaries are locked during search &amp; add
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <param name="key"></param>
+        /// <param name="generator"></param>
+        /// <param name="skipCaching"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TValue FindOrAdd<TKey, TValue>(
+            this IDictionary<TKey, TValue> dict,
+            TKey key,
+            Func<TValue> generator,
+            Func<TValue, bool> skipCaching
+        )
+        {
+            return dict.FindOrAdd(
+                key,
+                generator,
+                skipCaching,
                 alwaysLock: false
             );
         }
@@ -149,6 +178,40 @@ namespace PeanutButter.Utils
             bool alwaysLock
         )
         {
+            return dict.FindOrAdd(
+                key,
+                generator,
+                null,
+                alwaysLock
+            );
+        }
+
+        /// <summary>
+        /// Find an item in or add an item to a dictionary
+        /// - operation is thread-safe:
+        ///     - concurrent dictionaries are optionally locked during search &amp; add (see alwaysLock)
+        ///     - other dictionaries are locked during search &amp; add
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <param name="key"></param>
+        /// <param name="generator"></param>
+        /// <param name="skipCaching"></param>
+        /// <param name="alwaysLock">When true, always lock during operations, even on ConcurrentDictionaries.
+        /// This prevents the generator potentially being called twice by concurrent request. If that doesn't matter
+        /// and you're operating on a ConcurrentDictionary, leave as false. Has no effect on anything other than
+        /// ConcurrentDictionary.</param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static TValue FindOrAdd<TKey, TValue>(
+            this IDictionary<TKey, TValue> dict,
+            TKey key,
+            Func<TValue> generator,
+            Func<TValue, bool> skipCaching,
+            bool alwaysLock
+        )
+        {
             if (dict is null)
             {
                 throw new ArgumentNullException(nameof(dict));
@@ -168,13 +231,26 @@ namespace PeanutButter.Utils
             {
                 TValue generated = default;
                 var wasGenerated = false;
-                concurrentDictionary.GetOrAdd(key, _ =>
-                {
-                    wasGenerated = true;
-                    return generated = generator();
-                });
+                concurrentDictionary.GetOrAdd(
+                    key,
+                    _ =>
+                    {
+                        wasGenerated = true;
+                        return generated = generator();
+                    }
+                );
                 if (concurrentDictionary.TryGetValue(key, out var result))
                 {
+                    if (skipCaching?.Invoke(result) ?? false)
+                    {
+                        concurrentDictionary.TryRemove(key, out var stored);
+                        if (!skipCaching.Invoke(stored))
+                        {
+                            // someone else got in here and put in an "ok" value
+                            concurrentDictionary.TryAdd(key, stored);
+                        }
+                    }
+
                     return result;
                 }
 
@@ -194,7 +270,10 @@ namespace PeanutButter.Utils
                 }
 
                 var generated = generator();
-                dict.Add(key, generated);
+                if (!(skipCaching?.Invoke(generated) ?? false))
+                {
+                    dict.Add(key, generated);
+                }
 
                 return generated;
             }
@@ -379,7 +458,8 @@ namespace PeanutButter.Utils
         /// <param name="dict"></param>
         /// <returns></returns>
         public static NameValueCollection ToNameValueCollection(
-            this IDictionary<string, string> dict)
+            this IDictionary<string, string> dict
+        )
         {
             var result = new NameValueCollection();
             foreach (var kvp in dict)
