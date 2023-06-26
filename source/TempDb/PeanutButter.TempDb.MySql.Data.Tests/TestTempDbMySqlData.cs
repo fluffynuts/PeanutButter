@@ -13,7 +13,6 @@ using NExpect.Interfaces;
 using NExpect.MatcherLogic;
 using NUnit.Framework;
 using PeanutButter.INI;
-using PeanutButter.SimpleTcpServer;
 using PeanutButter.TempDb.MySql.Base;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
@@ -320,14 +319,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             [SetUp]
             public void Setup()
             {
-                var mysqlServices =
-                    ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
-                if (!mysqlServices.Any())
-                {
-                    Assert.Ignore(
-                        "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
-                    );
-                }
+                SkipIfNotOnWindows();
+                SkipIfOnWindowsButNoMySqlInstalled();
             }
         }
 
@@ -454,14 +447,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             [SetUp]
             public void Setup()
             {
-                var mysqlServices =
-                    ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
-                if (!mysqlServices.Any())
-                {
-                    Assert.Ignore(
-                        "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
-                    );
-                }
+                SkipIfNotOnWindows();
+                SkipIfOnWindowsButNoMySqlInstalled();
             }
         }
 
@@ -1088,6 +1075,26 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        private static void SkipIfNotOnWindows()
+        {
+            if (!Platform.IsWindows)
+            {
+                Assert.Ignore("This test is designed for a windows environment");
+            }
+        }
+
+        private static void SkipIfOnWindowsButNoMySqlInstalled()
+        {
+            var mysqlServices =
+                ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
+            if (!mysqlServices.Any())
+            {
+                Assert.Ignore(
+                    "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
+                );
+            }
         }
     }
 

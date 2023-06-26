@@ -23,5 +23,8 @@
   <ItemGroup>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Runtime" Condition="'$(OS)' != 'Windows_NT'" />
+  </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />
 </Project>

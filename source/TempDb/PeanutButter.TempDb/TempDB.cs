@@ -368,7 +368,20 @@ namespace PeanutButter.TempDb
 
                 foreach (var script in scripts)
                 {
-                    Exec(script);
+                    if (string.IsNullOrWhiteSpace(script))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        Exec(script);
+                    }
+                    catch (Exception ex)
+                    {
+                        var foo = script;
+                        throw;
+                    }
                 }
             }
         }

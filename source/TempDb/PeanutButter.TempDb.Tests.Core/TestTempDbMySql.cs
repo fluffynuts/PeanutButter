@@ -11,19 +11,6 @@ namespace PeanutButter.TempDb.Tests.Core
 {
     public class TestTempDbMySql
     {
-        [SetUp]
-        public void Setup()
-        {
-            var mysqlServices =
-                ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
-            if (!mysqlServices.Any())
-            {
-                Assert.Ignore(
-                    "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
-                );
-            }
-        }
-
         [Test]
         public void ShouldBeAbleToInitializeOnWindows()
         {
@@ -31,6 +18,7 @@ namespace PeanutButter.TempDb.Tests.Core
             // Act
             if (Platform.IsWindows)
             {
+                SkipIfOnWindowsWithoutMySqlInstalled();
                 var mysqld = MySqlWindowsServiceFinder.FindPathToMySql();
                 Expect(mysqld).Not.To.Be.Null(
                     "Unable to find mysql service via sc command on this platform"
@@ -42,7 +30,7 @@ namespace PeanutButter.TempDb.Tests.Core
                         {
                         }
                     })
-                    .Not.To.Throw<FatalTempDbInitializationException>();
+                    .Not.To.Throw();
             }
             else
             {
@@ -52,7 +40,40 @@ namespace PeanutButter.TempDb.Tests.Core
                         {
                         }
                     })
-                    .To.Throw<FatalTempDbInitializationException>();
+                    .Not.To.Throw();
+            }
+        }
+
+        private static void SkipIfNotOnWindowsAndMySqlNotInPath()
+        {
+            if (Platform.IsWindows)
+            {
+                return;
+            }
+
+            var mysqld = Find.InPath("mysqld");
+            if (mysqld is null)
+            {
+                Assert.Ignore(
+                    "Test only works when mysqld is in your PATH"
+                );
+            }
+        }
+
+        private static void SkipIfOnWindowsWithoutMySqlInstalled()
+        {
+            if (!Platform.IsWindows)
+            {
+                return;
+            }
+
+            var mysqlServices =
+                ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
+            if (!mysqlServices.Any())
+            {
+                Assert.Ignore(
+                    "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
+                );
             }
         }
     }

@@ -28,7 +28,7 @@
     <copyright>Copyright 2015</copyright>
     <dependencies>
       <group targetFramework="net462" />
-      <group targetFramework="netcoreapp3.1" />
+      <group targetFramework="net7.0" />
     </dependencies>
     <references />
     <tags />

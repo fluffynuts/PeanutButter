@@ -380,9 +380,13 @@ namespace PeanutButter.TempDb.MySql.Base
 
             if (!File.Exists(mysqldump))
             {
-                throw new InvalidOperationException(
-                    $"Unable to find mysqldump at {mysqldump}"
-                );
+                mysqldump = Find.InPath("mysqldump");
+                if (mysqldump is null)
+                {
+                    throw new InvalidOperationException(
+                        $"Unable to find mysqldump at {mysqldump}"
+                    );
+                }
             }
 
             using var io = ProcessIO.Start(
@@ -391,7 +395,9 @@ namespace PeanutButter.TempDb.MySql.Base
                 $"--password={Settings.Options.RootUserPassword}",
                 "-h", "localhost",
                 "-P", Port.ToString(),
+                "--protocol", "TCP",
                 SchemaName);
+            io.WaitForExit();
             return string.Join("\n", io.StandardOutput);
         }
 
