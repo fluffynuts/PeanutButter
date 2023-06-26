@@ -163,6 +163,9 @@ namespace PeanutButter.TempDb.MySql.Base
         /// </summary>
         public TempDbOptions Options { get; } = new();
 
+        [Setting("innodb_use_native_aio")]
+        public int InnoDbUseNativeAIO { get; set; } = 0;
+
         /// <summary>
         /// mysql setting
         /// </summary>
