@@ -58,6 +58,18 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <returns></returns>
         int WaitForExit();
+
+        /// <summary>
+        /// Writes a line to the process' stdin
+        /// </summary>
+        /// <param name="str"></param>
+        void WriteLine(string str);
+
+        /// <summary>
+        /// Writes data to the process' stdin
+        /// </summary>
+        /// <param name="str"></param>
+        void Write(string str);
     }
 
     /// <summary>
@@ -303,6 +315,24 @@ namespace PeanutButter.Utils
             }
 
             return this;
+        }
+
+        /// <summary>
+        /// Writes a line to the process' stdin
+        /// </summary>
+        /// <param name="str"></param>
+        public void WriteLine(string str)
+        {
+            Process.StandardInput.WriteLine(str);
+        }
+
+        /// <summary>
+        /// Writes data to the process' stdin
+        /// </summary>
+        /// <param name="str"></param>
+        public void Write(string str)
+        {
+            Process.StandardInput.Write(str);
         }
 
         private static IDictionary<string, string> GenerateProcessEnvironmentFor(

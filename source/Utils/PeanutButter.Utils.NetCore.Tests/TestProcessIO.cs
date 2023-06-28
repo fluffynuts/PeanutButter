@@ -21,7 +21,10 @@ namespace PeanutButter.Utils.NetCore.Tests
             // Arrange
             // Act
             using var io = ProcessIO.Start(
-                "cmd", "/c", "echo", "moo"
+                "cmd",
+                "/c",
+                "echo",
+                "moo"
             );
             Expect(io.StartException)
                 .To.Be.Null();
@@ -136,7 +139,7 @@ namespace PeanutButter.Utils.NetCore.Tests
             Expect(lines)
                 .To.Equal(new[] { expected });
         }
-        
+
         [Test]
         public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder4()
         {
@@ -158,7 +161,7 @@ namespace PeanutButter.Utils.NetCore.Tests
             Expect(lines)
                 .To.Equal(new[] { expected });
         }
-        
+
         [Test]
         public void ShouldNotBreakGivenNullEnvironment()
         {
@@ -176,6 +179,48 @@ namespace PeanutButter.Utils.NetCore.Tests
             var lines = io.StandardOutput.ToArray().Trim();
             Expect(lines)
                 .To.Equal(new[] { expected });
+        }
+
+        [Test]
+        public void ShouldBeAbleToWriteToStdIn()
+        {
+            if (Platform.IsWindows)
+            {
+                Assert.Ignore("This test cannot be run on windows");
+            }
+
+            // Arrange
+            var lines = GetRandomArray<string>(3, 5);
+            using var f = new AutoTempFile(
+                @"#!/bin/bash
+while read line; do
+    if test ""$line"" = ""quit""; then
+        exit 0
+    fi
+    echo ""$line""
+done < /dev/stdin
+"
+            );
+            // Act
+            using var io = ProcessIO.Start(
+                "/bin/bash",
+                f.Path
+            );
+            foreach (var line in lines)
+            {
+                io.WriteLine(line);
+            }
+
+            io.WriteLine("quit");
+            var collected = new List<string>();
+            foreach (var line in io.StandardOutput)
+            {
+                collected.Add(line);
+            }
+            io.WaitForExit();
+            // Assert
+            Expect(collected)
+                .To.Equal(lines);
         }
     }
 }
