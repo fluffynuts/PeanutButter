@@ -178,7 +178,8 @@ namespace PeanutButter.TempDb.MySql.Base
                 o =>
                 {
                 },
-                creationScripts)
+                creationScripts
+            )
         {
         }
 
@@ -203,7 +204,8 @@ namespace PeanutButter.TempDb.MySql.Base
         protected static void BeforeInit(
             TempDBMySqlBase<T> self,
             Action<object> beforeInit,
-            TempDbMySqlServerSettings settings)
+            TempDbMySqlServerSettings settings
+        )
         {
             self.LogAction = WrapWithDebugLogger(self, settings?.Options?.LogAction);
             self._autoDeleter = new AutoDeleter();
@@ -213,7 +215,8 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private static Action<string> WrapWithDebugLogger(
             TempDBMySqlBase<T> tempDb,
-            Action<string> optionsLogAction)
+            Action<string> optionsLogAction
+        )
         {
             if (optionsLogAction is null)
             {
@@ -255,11 +258,13 @@ namespace PeanutButter.TempDb.MySql.Base
             var servicePath = MySqlWindowsServiceFinder.FindPathToMySql();
             // prefer the pathed mysqld, but fall back on service path if available
             var resolved = mysqld ?? servicePath;
-            Log($@"mysqld from path: {
-                mysqld ?? "(not found)"
-            }; mysqld from service finder: {
-                servicePath ?? "(not found)"
-            }");
+            Log(
+                $@"mysqld from path: {
+                    mysqld ?? "(not found)"
+                }; mysqld from service finder: {
+                    servicePath ?? "(not found)"
+                }"
+            );
             return resolved ?? throw _noMySqlFoundException;
         }
 
@@ -281,7 +286,9 @@ namespace PeanutButter.TempDb.MySql.Base
 
             // mysql 5.7 wants an empty data base dir, so we have to use
             // a temp defaults file for init only, which 8 seems to be ok with
-            using var tempFolder = new AutoTempFolder();
+            using var tempFolder = new AutoTempFolder(
+                Environment.GetEnvironmentVariable("TEMPDB_BASE_PATH")
+            );
             Log($"temp folder created at {tempFolder}");
             Log($"dumping defaults in temp folder {tempFolder.Path} for initialization");
             DumpDefaultsFileAt(tempFolder.Path);
@@ -391,12 +398,17 @@ namespace PeanutButter.TempDb.MySql.Base
 
             using var io = ProcessIO.Start(
                 mysqldump,
-                "-u", "root",
+                "-u",
+                "root",
                 $"--password={Settings.Options.RootUserPassword}",
-                "-h", "localhost",
-                "-P", Port.ToString(),
-                "--protocol", "TCP",
-                SchemaName);
+                "-h",
+                "localhost",
+                "-P",
+                Port.ToString(),
+                "--protocol",
+                "TCP",
+                SchemaName
+            );
             io.WaitForExit();
             return string.Join("\n", io.StandardOutput);
         }
@@ -438,15 +450,18 @@ namespace PeanutButter.TempDb.MySql.Base
         public void CreateUser(
             string user,
             string password,
-            params string[] forSchemas)
+            params string[] forSchemas
+        )
         {
             Execute(
                 $"create user {Quote(user)}@'%' identified with mysql_native_password by {Quote(password)}"
             );
-            forSchemas.ForEach(schema =>
-            {
-                GrantAllPermissionsFor(user, schema, "%");
-            });
+            forSchemas.ForEach(
+                schema =>
+                {
+                    GrantAllPermissionsFor(user, schema, "%");
+                }
+            );
         }
 
         public void GrantAllPermissionsFor(
@@ -567,6 +582,7 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 _running = false;
             }
+
             _processWatcherThread?.Join();
             _processWatcherThread = null;
         }
@@ -607,18 +623,20 @@ namespace PeanutButter.TempDb.MySql.Base
             }
 
             Log("Attempting graceful shutdown of mysql server");
-            var task = Task.Run(() =>
-            {
-                try
+            var task = Task.Run(
+                () =>
                 {
-                    SwitchToSchema("mysql");
-                    Execute("SHUTDOWN");
+                    try
+                    {
+                        SwitchToSchema("mysql");
+                        Execute("SHUTDOWN");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log($"Unable to perform graceful shutdown: {ex.Message}");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Log($"Unable to perform graceful shutdown: {ex.Message}");
-                }
-            });
+            );
             task.ConfigureAwait(false);
             task.Wait(TimeSpan.FromSeconds(2));
         }
@@ -697,6 +715,7 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 throw new ObjectDisposedException("This instance has already been disposed");
             }
+
             Stop();
             StartServer(MySqld);
         }
@@ -772,7 +791,8 @@ namespace PeanutButter.TempDb.MySql.Base
             using var conn = OpenConnection();
             using var cmd = conn.CreateCommand();
             // first, check if the id is in there already (restart)
-            cmd.CommandText = $"select count(*) from sys.sys_config where `variable` = '__tempdb_id__' and `value` = '{InstanceId}';";
+            cmd.CommandText =
+                $"select count(*) from sys.sys_config where `variable` = '__tempdb_id__' and `value` = '{InstanceId}';";
             using (var reader = cmd.ExecuteReader())
             {
                 if (reader.Read() && int.TryParse(reader[0]?.ToString(), out var rows) && rows == 1)
@@ -947,7 +967,7 @@ stderr: {stderr}"
             {
                 errors.Add($"stderr:\n{stderr}");
             }
-            
+
             var errorFile = Path.Combine(DataDir, "mysql-err.log");
             if (File.Exists(errorFile))
             {
@@ -980,7 +1000,8 @@ stderr: {stderr}"
             var installFolder = Path.GetDirectoryName(
                 Path.GetDirectoryName(
                     mysqld
-                ));
+                )
+            );
             var dataDir = Path.Combine(
                 installFolder ??
                 throw new InvalidOperationException($"Unable to determine hosting folder for {mysqld}"),
@@ -1084,7 +1105,8 @@ stderr: {stderr}"
                     }
 
                     last = p;
-                });
+                }
+            );
             return versionInfo;
         }
 
