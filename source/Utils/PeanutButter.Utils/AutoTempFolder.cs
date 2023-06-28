@@ -244,6 +244,7 @@ namespace PeanutButter.Utils
         /// <param name="baseFolder">Folder within which to create the temporary folder</param>
         public AutoTempFolder(string baseFolder)
         {
+            baseFolder ??= System.IO.Path.GetTempPath();
             do
             {
                 Path = System.IO.Path.Combine(baseFolder, Guid.NewGuid().ToString());
