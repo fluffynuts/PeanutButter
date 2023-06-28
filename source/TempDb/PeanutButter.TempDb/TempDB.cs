@@ -71,7 +71,8 @@ namespace PeanutButter.TempDb
         /// <exception cref="InvalidOperationException">Will be thrown if this method is invoked more than once per instance</exception>
         void SetupAutoDispose(
             TimeSpan? absoluteTimeout,
-            TimeSpan? inactivityTimeout);
+            TimeSpan? inactivityTimeout
+        );
     }
 
     public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection : DbConnection
@@ -128,7 +129,8 @@ namespace PeanutButter.TempDb
                 {
                     Trace(
                         "An error was encountered whilst attempting to use the configured TempDbHints.PreferredBasePath: " +
-                        ex.Message);
+                        ex.Message
+                    );
                     Trace(" -> falling back on using %TEMP%");
                     AttemptToCreateDatabaseWith(Path.GetTempPath());
                     TempDbHints.PreferredBasePath = TempDbHints.DefaultBasePath;
@@ -153,7 +155,8 @@ namespace PeanutButter.TempDb
 
         public void SetupAutoDispose(
             TimeSpan? absoluteTimeout,
-            TimeSpan? inactivityTimeout)
+            TimeSpan? inactivityTimeout
+        )
         {
             if (_inactivityWatcherThread is not null)
             {
@@ -183,11 +186,13 @@ namespace PeanutButter.TempDb
                 _absoluteEol = DateTime.MaxValue;
             }
 
-            Log($@"setting up inactivity watcher thread for absolute lifespan {
-                _absoluteLifespan
-            } and absolute EOL {
-                _absoluteEol
-            }");
+            Log(
+                $@"setting up inactivity watcher thread for absolute lifespan {
+                    _absoluteLifespan
+                } and absolute EOL {
+                    _absoluteEol
+                }"
+            );
             _inactivityWatcherThread = new Thread(CheckForInactivity);
             _inactivityWatcherThread.Start();
             _autoDisposeThread = null;
@@ -292,7 +297,8 @@ namespace PeanutButter.TempDb
                 else
                 {
                     Log(
-                        $"Error whilst trying to retrieve active database connection count: {ex.Message}\n{ex.StackTrace}");
+                        $"Error whilst trying to retrieve active database connection count: {ex.Message}\n{ex.StackTrace}"
+                    );
                 }
 
                 return -1;
@@ -373,15 +379,7 @@ namespace PeanutButter.TempDb
                         continue;
                     }
 
-                    try
-                    {
-                        Exec(script);
-                    }
-                    catch (Exception ex)
-                    {
-                        var foo = script;
-                        throw;
-                    }
+                    Exec(script);
                 }
             }
         }
@@ -416,13 +414,16 @@ namespace PeanutButter.TempDb
             var handlers = Disposed;
             try
             {
-                handlers?.Invoke(this, _autoDisposeInformation ??
+                handlers?.Invoke(
+                    this,
+                    _autoDisposeInformation ??
                     new TempDbDisposedEventArgs(
                         "TempDb instance was disposed",
                         false,
                         _timeout,
                         _absoluteLifespan
-                    ));
+                    )
+                );
             }
             catch
             {

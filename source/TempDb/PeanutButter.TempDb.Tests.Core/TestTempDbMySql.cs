@@ -12,7 +12,7 @@ namespace PeanutButter.TempDb.Tests.Core
     public class TestTempDbMySql
     {
         [Test]
-        public void ShouldBeAbleToInitializeOnWindows()
+        public void ShouldBeAbleToInitialize()
         {
             // Arrange
             // Act
@@ -68,6 +68,7 @@ namespace PeanutButter.TempDb.Tests.Core
             }
 
             var mysqlServices =
+#pragma warning disable CA1416
                 ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
             if (!mysqlServices.Any())
             {
@@ -75,6 +76,7 @@ namespace PeanutButter.TempDb.Tests.Core
                     "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
                 );
             }
+#pragma warning restore CA1416
         }
     }
 }

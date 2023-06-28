@@ -31,7 +31,8 @@ namespace PeanutButter.Utils
         /// <param name="objs"></param>
         /// <returns>Human-readable representation of collection</returns>
         public static string Stringify<T>(
-            this IEnumerable<T> objs)
+            this IEnumerable<T> objs
+        )
         {
             if (typeof(T) == typeof(char))
             {
@@ -68,9 +69,24 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// make-shift drop-in for LINQPad's .Dump(), to
+        /// use, eg, from csharprepl
+        /// </summary>
+        /// <param name="obj"></param>
+        public static void Dump(
+            this object obj
+        )
+        {
+            Console.WriteLine(
+                obj.Stringify()
+            );
+        }
+
+        /// <summary>
         /// The default value put into a stringified result when null is encountered
         /// </summary>
         public const string DEFAULT_NULL_PLACEHOLDER = "null";
+
         /// <summary>
         /// The placeholder put into a stringified result when a circular reference is
         /// encountered
@@ -148,7 +164,8 @@ namespace PeanutButter.Utils
 
         private static bool IsXElement(
             object arg1,
-            int arg2)
+            int arg2
+        )
         {
             return arg1 is XElement;
         }
@@ -165,7 +182,8 @@ namespace PeanutButter.Utils
 
         private static bool IsXDocument(
             object obj,
-            int level)
+            int level
+        )
         {
             return obj is XDocument;
         }
@@ -182,7 +200,8 @@ namespace PeanutButter.Utils
 
         private static bool IsType(
             object obj,
-            int level)
+            int level
+        )
         {
             return obj is Type;
         }
@@ -200,7 +219,8 @@ namespace PeanutButter.Utils
 
         private static bool IsDateTime(
             object obj,
-            int level)
+            int level
+        )
         {
             return obj is DateTime;
         }
@@ -226,7 +246,8 @@ namespace PeanutButter.Utils
 
         private static bool IsEnumerable(
             object obj,
-            int level)
+            int level
+        )
         {
             return obj.GetType().ImplementsEnumerableGenericType();
         }
@@ -243,7 +264,8 @@ namespace PeanutButter.Utils
 
         private static bool IsEnum(
             object obj,
-            int level)
+            int level
+        )
         {
 #if NETSTANDARD
             return obj.GetType().GetTypeInfo().IsEnum;
@@ -271,7 +293,8 @@ namespace PeanutButter.Utils
 
         private static bool LastPass(
             object arg1,
-            int arg2)
+            int arg2
+        )
         {
             return true;
         }
@@ -288,7 +311,8 @@ namespace PeanutButter.Utils
 
         private static bool IsNull(
             object obj,
-            int level)
+            int level
+        )
         {
             return obj == null;
         }
@@ -303,7 +327,8 @@ namespace PeanutButter.Utils
 
         private static bool IsPrimitive(
             object obj,
-            int level)
+            int level
+        )
         {
             return level >= MAX_STRINGIFY_DEPTH ||
                 Types.PrimitivesAndImmutables.Contains(obj.GetType());
@@ -311,7 +336,8 @@ namespace PeanutButter.Utils
 
         private static bool Default(
             object obj,
-            int level)
+            int level
+        )
         {
             return true;
         }
@@ -329,7 +355,8 @@ namespace PeanutButter.Utils
                 if (seen.Contains(obj))
                 {
                     var handle = GCHandle.Alloc(obj);
-                    var seenResult = $"{{ {objType.Name} {SEEN_OBJECT_PLACEHOLDER} {(long)GCHandle.ToIntPtr(handle):x8}) }}";
+                    var seenResult =
+                        $"{{ {objType.Name} {SEEN_OBJECT_PLACEHOLDER} {(long) GCHandle.ToIntPtr(handle):x8}) }}";
                     handle.Free();
                     return seenResult;
                 }
@@ -346,7 +373,8 @@ namespace PeanutButter.Utils
                 null as string,
                 (
                         acc,
-                        cur) => acc ??
+                        cur
+                    ) => acc ??
                     ApplyStrategy(
                         cur.Item1,
                         cur.Item2,
@@ -369,9 +397,10 @@ namespace PeanutButter.Utils
             return CustomToStringCache.FindOrAdd(
                 o?.GetType(),
                 () => o?.GetType().GetMethods()
-                    .Any(mi => mi.Name == nameof(ToString) &&
-                        mi.GetParameters().Length == 0 &&
-                        !BaseTypes.Contains(mi.DeclaringType)
+                    .Any(
+                        mi => mi.Name == nameof(ToString) &&
+                            mi.GetParameters().Length == 0 &&
+                            !BaseTypes.Contains(mi.DeclaringType)
                     ) ?? false
             );
         }
@@ -396,7 +425,8 @@ namespace PeanutButter.Utils
             object obj,
             int level,
             string nullRepresentation,
-            HashSet<object> seen)
+            HashSet<object> seen
+        )
         {
             try
             {
@@ -426,7 +456,8 @@ namespace PeanutButter.Utils
                     new List<string>(),
                     (
                         acc,
-                        cur) =>
+                        cur
+                    ) =>
                     {
                         var propValue = cur.GetValue(obj);
 
@@ -441,7 +472,9 @@ namespace PeanutButter.Utils
 #endif
                             ))
                         {
-                            acc.Add(string.Join("",
+                            acc.Add(
+                                string.Join(
+                                    "",
                                     cur.Name,
                                     ": ",
                                     SafeStringifier(propValue, level + 1, nullRepresentation, new HashSet<object>(seen))
@@ -455,11 +488,14 @@ namespace PeanutButter.Utils
                                     "",
                                     cur.Name,
                                     ": ",
-                                    SafeStringifier(propValue, level + 1, nullRepresentation, new HashSet<object>(seen))));
+                                    SafeStringifier(propValue, level + 1, nullRepresentation, new HashSet<object>(seen))
+                                )
+                            );
                         }
 
                         return acc;
-                    })
+                    }
+                )
                 .JoinWith($"\n{indent}");
             return ("{\n" +
                 string.Join(
@@ -487,7 +523,8 @@ namespace PeanutButter.Utils
     internal static class StringifierStringExtensions
     {
         internal static string Compact(
-            this string str)
+            this string str
+        )
         {
             return new[]
                 {
@@ -497,18 +534,21 @@ namespace PeanutButter.Utils
                     str,
                     (
                         acc,
-                        cur) =>
+                        cur
+                    ) =>
                     {
                         var twice = $"{cur}{cur}";
                         while (acc.Contains(twice))
                             acc = acc.Replace(twice, "");
                         return acc;
-                    })
+                    }
+                )
                 .SquashEmptyObjects();
         }
 
         private static string SquashEmptyObjects(
-            this string str)
+            this string str
+        )
         {
             return str.RegexReplace("{\\s*}", "{}");
         }
