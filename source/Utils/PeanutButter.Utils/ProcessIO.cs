@@ -43,6 +43,11 @@ namespace PeanutButter.Utils
         IEnumerable<string> StandardError { get; }
 
         /// <summary>
+        /// stdin for the process
+        /// </summary>
+        StreamWriter StandardInput { get; }
+
+        /// <summary>
         /// Access to the underlying Process
         /// </summary>
         Process Process { get; }
@@ -58,18 +63,6 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <returns></returns>
         int WaitForExit();
-
-        /// <summary>
-        /// Writes a line to the process' stdin
-        /// </summary>
-        /// <param name="str"></param>
-        void WriteLine(string str);
-
-        /// <summary>
-        /// Writes data to the process' stdin
-        /// </summary>
-        /// <param name="str"></param>
-        void Write(string str);
     }
 
     /// <summary>
@@ -317,24 +310,6 @@ namespace PeanutButter.Utils
             return this;
         }
 
-        /// <summary>
-        /// Writes a line to the process' stdin
-        /// </summary>
-        /// <param name="str"></param>
-        public void WriteLine(string str)
-        {
-            Process.StandardInput.WriteLine(str);
-        }
-
-        /// <summary>
-        /// Writes data to the process' stdin
-        /// </summary>
-        /// <param name="str"></param>
-        public void Write(string str)
-        {
-            Process.StandardInput.Write(str);
-        }
-
         private static IDictionary<string, string> GenerateProcessEnvironmentFor(
             IDictionary<string, string> environment
         )
@@ -399,6 +374,30 @@ namespace PeanutButter.Utils
                 {
                     yield return _process.StandardOutput.ReadLine();
                 }
+            }
+        }
+        
+        /// <summary>
+        /// Direct access to the StandardInput on the process
+        /// </summary>
+        public StreamWriter StandardInput =>
+            SafeProcessAccess.StandardInput;
+
+        private Process SafeProcessAccess
+        {
+            get
+            {
+                var p = _process;
+                if (p is null)
+                {
+                    throw new Exception("Process has not started");
+                }
+
+                if (p.HasExited)
+                {
+                    throw new Exception("Process has already exited");
+                }
+                return p;
             }
         }
 

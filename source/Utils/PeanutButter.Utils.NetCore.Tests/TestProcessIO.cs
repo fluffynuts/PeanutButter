@@ -182,11 +182,16 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [Test]
-        public void ShouldBeAbleToWriteToStdIn()
+        public void ShouldBeAbleToWriteToStdInBashScript()
         {
-            if (Platform.IsWindows)
+            var bash = Find.InPath("bash");
+            if (bash is null || Platform.IsWindows)
             {
-                Assert.Ignore("This test cannot be run on windows");
+                Assert.Ignore(
+                    Platform.IsWindows
+                        ? "This does not run reliably on Windows, even if you have bash available (eg from a git installation)"
+                        : "Cannot find bash in your path? This is madness!"
+                );
             }
 
             // Arrange
@@ -203,21 +208,63 @@ done < /dev/stdin
             );
             // Act
             using var io = ProcessIO.Start(
-                "/bin/bash",
+                bash,
                 f.Path
             );
             foreach (var line in lines)
             {
-                io.WriteLine(line);
+                io.StandardInput.WriteLine(line);
             }
 
-            io.WriteLine("quit");
-            var collected = new List<string>();
-            foreach (var line in io.StandardOutput)
+            io.StandardInput.WriteLine("quit");
+            var collected = io.StandardOutput.ToArray();
+            // Assert
+            Expect(collected)
+                .To.Equal(lines);
+        }
+
+        [Test]
+        public void ShouldBeAbleToWriteToStdInNodeScript()
+        {
+            // Arrange
+            var node = Find.InPath("node");
+            if (node is null)
             {
-                collected.Add(line);
+                Assert.Ignore(
+                    "This test requires node in your path to run"
+                );
             }
-            io.WaitForExit();
+
+            var lines = GetRandomArray<string>(3, 5);
+            using var f = new AutoTempFile(
+                @"var readline = require(""readline"");
+var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: false
+});
+
+rl.on(""line"", function(line) {
+    var trimmed = line.trim();
+    if (trimmed === ""quit"") {
+        process.exit(0);
+    }
+    console.log(line);
+});
+"
+            );
+
+            // Act
+            using var io = ProcessIO.Start(
+                node,
+                f.Path
+            );
+            foreach (var line in lines)
+            {
+                io.StandardInput.WriteLine(line);
+            }
+            io.StandardInput.WriteLine("quit");
+            var collected = io.StandardOutput.ToArray();
             // Assert
             Expect(collected)
                 .To.Equal(lines);
