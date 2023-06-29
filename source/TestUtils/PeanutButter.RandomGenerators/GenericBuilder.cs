@@ -4,11 +4,10 @@
  * */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Net.Mime;
 using System.Reflection;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -372,7 +371,9 @@ namespace PeanutButter.RandomGenerators
                         }
                     );
                     if (result.Equals(default(TEntity)))
+                    {
                         throw ex;
+                    }
 
                     return result;
                 }
@@ -429,7 +430,7 @@ namespace PeanutButter.RandomGenerators
                             parameters[0].ParameterType == typeof(IDictionary<string, object>);
                     }
                 );
-            if (method == null)
+            if (method is null)
             {
                 throw new Exception(
                     $"Found {DUCK_ASM}.{DUCK_TYPE}, but unable to find {DUCK_METHOD} with single parameter of type {DuckParameterType}"
@@ -483,7 +484,9 @@ namespace PeanutButter.RandomGenerators
             var assembly = typeof(TInterface).Assembly;
             var type = FindImplementingTypeFor<TInterface>(new[] { assembly });
             if (type == null)
+            {
                 throw new TypeLoadException();
+            }
 
             return ConstructInCurrentDomain<TInterface>(type);
         }
@@ -497,7 +500,9 @@ namespace PeanutButter.RandomGenerators
                         .GetAssemblies()
                 );
             if (type == null)
+            {
                 throw new TypeLoadException();
+            }
 
             return ConstructInCurrentDomain<TInterface>(type);
         }
@@ -536,7 +541,9 @@ namespace PeanutButter.RandomGenerators
                 .Select(c => c.GetParameters())
                 .ToArray();
             if (parameters.Any(p => p.Length == 0))
+            {
                 return null;
+            }
 
             return parameters
                 .OrderByDescending(p => p.Length)
@@ -622,9 +629,11 @@ namespace PeanutButter.RandomGenerators
                     BindingFlags.NonPublic | BindingFlags.Static
                 );
             if (method == null)
+            {
                 throw new InvalidOperationException(
                     $"Unable to find static, non-public method {nameof(GetDefaultFor)} on {GetType().PrettyName()}"
                 );
+            }
 
             return method
                 .MakeGenericMethod(correctType)
@@ -716,7 +725,9 @@ namespace PeanutButter.RandomGenerators
                         pi =>
                         {
                             if (pi.Type != typeof(DateTime))
+                            {
                                 return;
+                            }
 
                             var currentValue = (DateTime) (pi.GetValue(entity));
                             pi.SetValue(
@@ -823,10 +834,10 @@ namespace PeanutButter.RandomGenerators
                 ).ToArray();
         }
 
-        private static Dictionary<string, ActionRef<TEntity, int>>
+        private static ConcurrentDictionary<string, ActionRef<TEntity, int>>
             _randomPropSettersField;
 
-        private static Dictionary<string, ActionRef<TEntity, int>>
+        private static ConcurrentDictionary<string, ActionRef<TEntity, int>>
             RandomPropSetters
         {
             get
@@ -835,10 +846,12 @@ namespace PeanutButter.RandomGenerators
                 lock (LockObject)
                 {
                     if (_randomPropSettersField != null)
+                    {
                         return _randomPropSettersField;
+                    }
 
                     _randomPropSettersField =
-                        new Dictionary<string, ActionRef<TEntity, int>>();
+                        new ConcurrentDictionary<string, ActionRef<TEntity, int>>();
                     entityProps.ForEach(
                         prop =>
                         {
@@ -947,8 +960,15 @@ namespace PeanutButter.RandomGenerators
                 PropertyOrField pi
             )
         {
-            if (MayBeTaxOrInterestRate(pi)) return SimpleDecimal(GetRandomTaxRate);
-            if (MayBeMonetary(pi)) return SimpleDecimal(GetRandomMoney);
+            if (MayBeTaxOrInterestRate(pi))
+            {
+                return SimpleDecimal(GetRandomTaxRate);
+            }
+
+            if (MayBeMonetary(pi))
+            {
+                return SimpleDecimal(GetRandomMoney);
+            }
 
             return (
                 ref TEntity e,
@@ -977,26 +997,80 @@ namespace PeanutButter.RandomGenerators
                 PropertyOrField pi
             )
         {
-            if (MayBeEmail(pi)) return TargetedString(GenerateEmailFor);
-            if (MayBeUrl(pi)) return SimpleString(GetRandomHttpUrl);
+            if (MayBeEmail(pi))
+            {
+                return TargetedString(GenerateEmailFor);
+            }
+
+            if (MayBeUrl(pi))
+            {
+                return SimpleString(GetRandomHttpUrl);
+            }
+
             if (MayBePhone(pi))
+            {
                 return SimpleString(
                     () => GetRandomNumericString(
                         10,
                         10
                     )
                 );
-            if (MayBeFirstName(pi)) return SimpleString(GetRandomFirstName);
-            if (MayBeLastName(pi)) return SimpleString(GetRandomLastName);
-            if (MayBeUserNameOrLogin(pi)) return TargetedString(GenerateRandomUserNameFor);
-            if (MayBeName(pi)) return TargetedString(e => TryGenerateNameFor(e) ?? GetRandomName());
-            if (MayBeCountryCode(pi)) return SimpleString(GetRandomCountryCode);
-            if (MayBeCountry(pi)) return TargetedString(GenerateCountryFor);
-            if (MayBeStreet(pi)) return SimpleString(GetRandomStreetName);
-            if (MayBePostalCode(pi)) return SimpleString(GetRandomPostalCode);
-            if (MayBeCity(pi)) return SimpleString(GetRandomCityName);
-            if (MayBeStreetAddress(pi)) return SimpleString(GetRandomStreetAddress);
-            if (MayBeFullAddress(pi)) return TargetedString(GenerateFullAddressFor);
+            }
+
+            if (MayBeFirstName(pi))
+            {
+                return SimpleString(GetRandomFirstName);
+            }
+
+            if (MayBeLastName(pi))
+            {
+                return SimpleString(GetRandomLastName);
+            }
+
+            if (MayBeUserNameOrLogin(pi))
+            {
+                return TargetedString(GenerateRandomUserNameFor);
+            }
+
+            if (MayBeName(pi))
+            {
+                return TargetedString(e => TryGenerateNameFor(e) ?? GetRandomName());
+            }
+
+            if (MayBeCountryCode(pi))
+            {
+                return SimpleString(GetRandomCountryCode);
+            }
+
+            if (MayBeCountry(pi))
+            {
+                return TargetedString(GenerateCountryFor);
+            }
+
+            if (MayBeStreet(pi))
+            {
+                return SimpleString(GetRandomStreetName);
+            }
+
+            if (MayBePostalCode(pi))
+            {
+                return SimpleString(GetRandomPostalCode);
+            }
+
+            if (MayBeCity(pi))
+            {
+                return SimpleString(GetRandomCityName);
+            }
+
+            if (MayBeStreetAddress(pi))
+            {
+                return SimpleString(GetRandomStreetAddress);
+            }
+
+            if (MayBeFullAddress(pi))
+            {
+                return TargetedString(GenerateFullAddressFor);
+            }
 
             return (
                     ref TEntity e,
@@ -1453,6 +1527,7 @@ namespace PeanutButter.RandomGenerators
             )
         {
             if (pi.Name == "Enabled")
+            {
                 return (
                         ref TEntity e,
                         int _
@@ -1461,6 +1536,7 @@ namespace PeanutButter.RandomGenerators
                         ref e,
                         true
                     );
+            }
 
             return (
                     ref TEntity e,
@@ -1478,7 +1554,9 @@ namespace PeanutButter.RandomGenerators
         )
         {
             if (!type.IsCollection())
+            {
                 return false;
+            }
 
             SetCollectionSetterFor(propertyInfo);
             return true;
@@ -1522,9 +1600,11 @@ namespace PeanutButter.RandomGenerators
             var methodInfo = instance?.GetType()
                 .GetMethod("ToArray");
             if (methodInfo == null)
+            {
                 throw new InvalidOperationException(
                     $"No ToArray() method found on {instance?.GetType()} (or perhaps instance is null)"
                 );
+            }
 
             instance = methodInfo.Invoke(
                 instance,
@@ -1576,7 +1656,10 @@ namespace PeanutButter.RandomGenerators
             var container = CreateListContainerFor(pi);
             FillContainer(container);
             if (pi.Type.IsArray)
+            {
                 container = ConvertCollectionToArray(container);
+            }
+
             pi.SetValue(
                 ref entity,
                 container
@@ -1588,15 +1671,19 @@ namespace PeanutButter.RandomGenerators
         )
         {
             if (collectionInstance == null)
+            {
                 return;
+            }
 
             var collectionType = collectionInstance.GetType();
             var innerType = collectionType.GetGenericArguments()[0];
             var method = collectionType.GetMethod("Add");
             if (method == null)
+            {
                 throw new InvalidOperationException(
                     $"No 'Add()' method found on {collectionType.PrettyName()}"
                 );
+            }
 
             var data = GetRandomCollection(
                 () => GetRandom(innerType),
@@ -1672,7 +1759,9 @@ namespace PeanutButter.RandomGenerators
         )
         {
             if (!propertyType.IsEnum)
+            {
                 return false;
+            }
 
             RandomPropSetters[prop.Name] = (
                     ref TEntity entity,
@@ -1691,7 +1780,9 @@ namespace PeanutButter.RandomGenerators
         )
         {
             if (propertyType.IsGenericTypeDefinition || !typeof(Delegate).IsAssignableFrom(propertyType))
+            {
                 return false;
+            }
 
             RandomPropSetters[prop.Name] = (
                     ref TEntity entity,
@@ -1760,7 +1851,9 @@ namespace PeanutButter.RandomGenerators
         )
         {
             if (!IsNullableType(propertyType))
+            {
                 return false;
+            }
 
             var underlyingType = Nullable.GetUnderlyingType(propertyType);
             SetSetterForType(
@@ -1779,7 +1872,9 @@ namespace PeanutButter.RandomGenerators
             var builderType = TryFindUserBuilderFor(prop.Type) ??
                 FindOrCreateDynamicBuilderTypeFor(prop.Type);
             if (builderType == null)
+            {
                 return false;
+            }
 
             RandomPropSetters[prop.Name] = (
                 ref TEntity e,
@@ -1787,12 +1882,16 @@ namespace PeanutButter.RandomGenerators
             ) =>
             {
                 if (TraversedTooManyTurtles(depth))
+                {
                     return;
+                }
 
                 var dynamicBuilder =
                     Activator.CreateInstance(builderType) as IGenericBuilder;
                 if (dynamicBuilder == null)
+                {
                     return;
+                }
 
                 dynamicBuilder
                     .WithBuildLevel(depth)
@@ -1810,7 +1909,9 @@ namespace PeanutButter.RandomGenerators
         )
         {
             if (i > MaxRandomPropsLevel)
+            {
                 return true;
+            }
 
             var stackTrace = new StackTrace();
             var frames = stackTrace.GetFrames();
@@ -1852,7 +1953,9 @@ namespace PeanutButter.RandomGenerators
                     type,
                     out var builderType
                 ))
+            {
                 return builderType;
+            }
 
             try
             {
@@ -2009,7 +2112,9 @@ namespace PeanutButter.RandomGenerators
                     prop.Name,
                     out var result
                 ))
+            {
                 return result;
+            }
 
             Trace.WriteLine(
                 $@"No random property setter available for {
