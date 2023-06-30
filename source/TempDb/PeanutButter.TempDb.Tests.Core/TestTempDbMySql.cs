@@ -19,7 +19,7 @@ namespace PeanutButter.TempDb.Tests.Core
             if (Platform.IsWindows)
             {
                 SkipIfOnWindowsWithoutMySqlInstalled();
-                var mysqld = MySqlWindowsServiceFinder.FindPathToMySql();
+                var mysqld = MySqlWindowsServiceFinder.FindPathToMySqlD();
                 Expect(mysqld).Not.To.Be.Null(
                     "Unable to find mysql service via sc command on this platform"
                 );

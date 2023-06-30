@@ -16,7 +16,7 @@ namespace PeanutButter.TempDb.Tests
             var svc = new WindowsServiceUtil("mysql57");
             svc.Stop();
             // Act
-            var path = MySqlWindowsServiceFinder.FindPathToMySql();
+            var path = MySqlWindowsServiceFinder.FindPathToMySqlD();
             // Assert
             Expect(path).Not.To.Be.Null.Or.Empty();
         }

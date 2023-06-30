@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using PeanutButter.Utils;
 
@@ -14,12 +15,44 @@ namespace PeanutButter.TempDb.MySql.Base
         /// </summary>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static string FindPathToMySql()
+        public static string FindPathToMySqlD()
         {
             var mysqlServiceName = FindFirstMySqlServiceName();
-            return mysqlServiceName == null 
-                ? null 
+            return mysqlServiceName == null
+                ? null
                 : FindPathForService(mysqlServiceName);
+        }
+
+        public static string FindPathTo(string util)
+        {
+            if (string.IsNullOrWhiteSpace(util))
+            {
+                throw new ArgumentException(
+                    "util not specified",
+                    nameof(util)
+                );
+            }
+
+            var mysqld = FindPathToMySqlD();
+            if (mysqld is null)
+            {
+                return null;
+            }
+
+            var container = Path.GetDirectoryName(mysqld);
+            if (container is null)
+            {
+                throw new Exception("Unable to determine the containing folder for mysqld");
+            }
+
+            if (!util.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+            {
+                util = $"{util}.exe";
+            }
+            var seek = Path.Combine(container, util);
+            return File.Exists(seek)
+                ? seek
+                : null;
         }
 
         private static string FindPathForService(string mysqlServiceName)
@@ -40,6 +73,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 var nextQuote = commandLine.IndexOf("\"", 2, StringComparison.InvariantCulture);
                 return commandLine.Substring(1, nextQuote - 1);
             }
+
             return commandLine.Split(' ').First();
         }
 
@@ -53,7 +87,8 @@ namespace PeanutButter.TempDb.MySql.Base
                         var lower = l.ToLower();
                         return lower.StartsWith("service_name") &&
                             lower.Contains("mysql");
-                    })?.Split(':').Last().Trim();
+                    }
+                )?.Split(':').Last().Trim();
         }
     }
 }
