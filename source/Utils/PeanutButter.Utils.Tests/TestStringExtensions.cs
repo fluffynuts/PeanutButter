@@ -2529,6 +2529,211 @@ function foo() {
     }
 
     [TestFixture]
+    public class ResolvePath
+    {
+        [TestFixture]
+        public class GivenPathWithNoDots
+        {
+            [Test]
+            public void ShouldReturnPath()
+            {
+                // Arrange
+                var input = "/foo/bar/qux";
+                // Act
+                var result = input.ResolvePath();
+                // Assert
+                Expect(result)
+                    .To.Equal(input);
+            }
+        }
+
+        [TestFixture]
+        public class GivenPathWithSingleDots
+        {
+            [Test]
+            public void ShouldDropTheDots()
+            {
+                // Arrange
+                var input = "/foo/bar/./qux";
+                // Act
+                var result = input.ResolvePath();
+                // Assert
+                Expect(result)
+                    .To.Equal("/foo/bar/qux");
+            }
+        }
+
+        [TestFixture]
+        public class GivenPathWithDoubleDots
+        {
+            [Test]
+            public void ShouldGoUpOneFolderPerDoubleDot()
+            {
+                // Arrange
+                var input = "/foo/bar/quux/../../moo/./cakes";
+                // Act
+                var result = input.ResolvePath();
+                // Assert
+                Expect(result)
+                    .To.Equal("/foo/moo/cakes");
+            }
+
+            [Test]
+            public void ShouldNotStepOutsideUnixDomain()
+            {
+                // Arrange
+                var input = "/foo/../../bar";
+                // Act
+                var result = input.ResolvePath();
+                // Assert
+                Expect(result)
+                    .To.Equal("/bar");
+            }
+
+            [Test]
+            public void ShouldNotStepOutsideWindowsPath()
+            {
+                // Arrange
+                var input = "C:/foo/../.././bar";
+                // Act
+                var result = input.ResolvePath();
+                // Assert
+                Expect(result)
+                    .To.Equal("C:/bar");
+            }
+
+            [Test]
+            public void ShouldNotStepOutsideWindowsPathBacksSlashed()
+            {
+                // Arrange
+                var input = "C:\\foo\\..\\..\\.\\bar";
+                // Act
+                var result = input.ResolvePath();
+                // Assert
+                Expect(result)
+                    .To.Equal("C:\\bar");
+            }
+        }
+
+        [TestFixture]
+        public class ResolvingWithAnotherPathPart
+        {
+            [Test]
+            public void ShouldResolveJoinedPathsWithNoDots()
+            {
+                // Arrange
+                var input = "/foo/bar";
+                var extra = "moo/cakes";
+                // Act
+                var result = input.ResolvePath(extra);
+                // Assert
+                Expect(result)
+                    .To.Equal("/foo/bar/moo/cakes");
+            }
+
+            [Test]
+            public void ShouldResolveJoinedPathsWithSingleDot()
+            {
+                // Arrange
+                var input = "/foo/bar";
+                var extra = "./moo/cakes";
+                // Act
+                var result = input.ResolvePath(extra);
+                // Assert
+                Expect(result)
+                    .To.Equal("/foo/bar/moo/cakes");
+            }
+
+            [Test]
+            public void ShouldResolveJoinedPathsWithDoubleDot()
+            {
+                // Arrange
+                var input = "/foo/bar";
+                var extra = "../moo/cakes";
+                // Act
+                var result = input.ResolvePath(extra);
+                // Assert
+                Expect(result)
+                    .To.Equal("/foo/moo/cakes");
+            }
+
+            [Test]
+            public void ShouldResolveFromLastAbsolutePathInExtraList1()
+            {
+                // Arrange
+                var input = "/foo/bar";
+                var extra = "/moo/cakes";
+                // Act
+                var result = input.ResolvePath(extra);
+                // Assert
+                Expect(result)
+                    .To.Equal(extra);
+            }
+
+            [Test]
+            public void ShouldResolveFromLastAbsolutePathInExtraList1Win()
+            {
+                // Arrange
+                var input = "D:/foo/bar";
+                var extra = "C:/moo/cakes";
+                // Act
+                var result = input.ResolvePath(extra);
+                // Assert
+                Expect(result)
+                    .To.Equal(extra);
+            }
+
+            [Test]
+            public void ShouldResolveFromLastAbsolutePathInExtraList2()
+            {
+                // Arrange
+                var input = "/foo/bar";
+                var extra = "/moo/cakes";
+                var extra2 = "beefs";
+                // Act
+                var result = input.ResolvePath(extra, extra2);
+                // Assert
+                Expect(result)
+                    .To.Equal("/moo/cakes/beefs");
+            }
+
+            [Test]
+            public void ShouldResolveFromLastAbsolutePathInExtraList2Win()
+            {
+                // Arrange
+                var input = "D:/foo/bar";
+                var extra = "C:/moo/cakes";
+                var extra2 = "beefs";
+                // Act
+                var result = input.ResolvePath(extra, extra2);
+                // Assert
+                Expect(result)
+                    .To.Equal("C:/moo/cakes/beefs");
+            }
+        }
+
+        [TestCase("foo/bar", "../quux", "foo/quux")]
+        [TestCase("foo", "bar", "foo/bar")]
+        [TestCase("foo", "./bar", "foo/bar")]
+        [TestCase("/path/to/resource", "../../other/resource", "/path/other/resource")]
+        [TestCase("/path/to/resource", "../../other/../other2/resource", "/path/other2/resource")]
+        public void ShouldResolve_(
+            string original,
+            string other,
+            string expected
+        )
+        {
+            // Arrange
+            // Act
+            var result = original.ResolvePath(other);
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
+
+    }
+
+    [TestFixture]
     [Parallelizable]
     public class RelativeTo
     {

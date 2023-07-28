@@ -1644,6 +1644,95 @@ namespace PeanutButter.Utils
             return regex.Split(str);
         }
 
+        /// <summary>
+        /// Resolves the result of a path containing .. and/or .
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="others"></param>
+        /// <returns></returns>
+        public static string ResolvePath(
+            this string path,
+            params string[] others
+        )
+        {
+            if (path is null)
+            {
+                return "";
+            }
+            
+            var joinWith = path.IndexOf('\\') > -1
+                ? "\\"
+                : "/";
+            var all = new List<string>();
+            foreach (var item in new[] { path }.Concat(others).ToList())
+            {
+                if (item.IsAbsolutePath())
+                {
+                    all.Clear();
+                }
+                all.Add(item);
+            }
+
+            path = string.Join(joinWith, all);
+
+            var result = new List<string>();
+            var parts = path.SplitPath();
+            foreach (var part in parts)
+            {
+                switch (part)
+                {
+                    case ".":
+                        continue;
+                    case "..":
+                        if (result.Count > 0)
+                        {
+                            if (result.Count > 1 || !IsRootPathElement(result[0]))
+                            {
+                                result.RemoveAt(result.Count - 1);
+                            }
+                        }
+                        continue;
+                    default:
+                        result.Add(part);
+                        break;
+                }
+            }
+
+            return string.Join(joinWith, result);
+
+            bool IsRootPathElement(string str)
+            {
+                return str is "" or "/" ||
+                    WindowsDriveMatch.IsMatch(str);
+            }
+        }
+        
+        private static readonly Regex WindowsDriveMatch = new("^[A-Za-z]{1}:");
+
+        /// <summary>
+        /// Returns true if the given string looks like an absolute path,
+        /// ie starts with one of:
+        /// - /
+        /// - \
+        /// - windows drive (eg C:)
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool IsAbsolutePath(
+            this string str
+        )
+        {
+            if (string.IsNullOrWhiteSpace(str))
+            {
+                return false;
+            }
+            
+            return str.StartsWith("/") ||
+                str.StartsWith("\\") ||
+                WindowsDriveMatch.IsMatch(str);
+        }
+
+
 #if !BUILD_PEANUTBUTTER_INTERNAL
         /// <summary>
         /// Determine the relative path from the string being operated on
@@ -1691,9 +1780,13 @@ namespace PeanutButter.Utils
                 throw new ArgumentNullException(nameof(basePath));
             }
 
-            var compare = pathType == PathType.Windows
-                ? StringComparison.OrdinalIgnoreCase
-                : StringComparison.Ordinal;
+            var compare = pathType switch
+            {
+                PathType.Auto => Platform.IsWindows ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase,
+                PathType.Unix => StringComparison.Ordinal,
+                PathType.Windows => StringComparison.OrdinalIgnoreCase,
+                _ => throw new ArgumentOutOfRangeException(nameof(pathType), pathType, null)
+            };
             if (path.Equals(basePath, compare))
             {
                 return string.Empty;
