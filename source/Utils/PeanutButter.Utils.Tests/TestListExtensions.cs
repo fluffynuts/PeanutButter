@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using NExpect;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests
 {
@@ -49,6 +51,84 @@ namespace PeanutButter.Utils.Tests
                     .To.Throw<InvalidOperationException>()
                     .With.Message.Containing("List contains no elements");
                 // Assert
+            }
+        }
+
+        [TestFixture]
+        public class TryPop
+        {
+            [TestFixture]
+            public class WhenNoElements
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    // Arrange
+                    var l = new List<string>();
+                    // Act
+                    var result = l.TryPop(out _);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class WhenHaveElements
+            {
+                [Test]
+                public void ShouldPopLastOne()
+                {
+                    // Arrange
+                    var elements = GetRandomArray<string>(3);
+                    var l = new List<string>(elements);
+                    // Act
+                    var result = l.TryPop(out var element);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                    Expect(element)
+                        .To.Equal(elements.Last());
+                }
+            }
+        }
+
+        [TestFixture]
+        public class TryShift
+        {
+            [TestFixture]
+            public class WhenNoElements
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    // Arrange
+                    var l = new List<string>();
+                    // Act
+                    var result = l.TryShift(out _);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class WhenHaveElements
+            {
+                [Test]
+                public void ShouldShiftFirstOne()
+                {
+                    // Arrange
+                    var elements = GetRandomArray<string>(3);
+                    var l = new List<string>(elements);
+                    // Act
+                    var result = l.TryShift(out var element);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                    Expect(element)
+                        .To.Equal(elements.First());
+                }
             }
         }
 

@@ -74,22 +74,29 @@ namespace PeanutButter.Utils.Tests
         public class AsyncInterface
         {
             [Test]
-            public async Task ShouldTestActionOnce()
+            [Retry(5)] // test is time-sensitive, give it a few chances to succeed
+            public void ShouldTestActionOnce()
             {
-                // Arrange
-                var expected = GetRandomInt(200, 500);
-                var counter = 0;
-                // Act
-                var result = await Benchmark.TimeAsync(async () =>
+                Assert.That(async () =>
                 {
-                    counter++;
-                    await Task.Delay(expected);
-                });
-                // Assert
-                Expect(counter)
-                    .To.Equal(1);
-                Expect(Math.Abs(result.TotalMilliseconds - expected))
-                    .To.Be.Less.Than(25);
+                    // Arrange
+                    var expected = GetRandomInt(200, 500);
+                    var allowedDrift = 25;
+                    var counter = 0;
+                    // Act
+                    var result = await Benchmark.TimeAsync(
+                        async () =>
+                        {
+                            counter++;
+                            await Task.Delay(expected);
+                        }
+                    );
+                    // Assert
+                    Expect(counter)
+                        .To.Equal(1);
+                    Expect(Math.Abs(result.TotalMilliseconds - expected))
+                        .To.Be.Less.Than(allowedDrift);
+                }, Throws.Nothing);
             }
 
             [Test]

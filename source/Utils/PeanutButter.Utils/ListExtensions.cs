@@ -53,6 +53,56 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Attempt to pop the last element off of a list
+        /// - Returns true and sets the result when the list has elements
+        /// - Returns false if the list has no elements to pop
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="result"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool TryPop<T>(
+            this IList<T> list,
+            out T result
+        )
+        {
+            if (list.Count < 1)
+            {
+                result = default;
+                return false;
+            }
+
+            var idx = list.Count - 1;
+            result = list[idx];
+            list.RemoveAt(idx);
+            return true;
+        }
+
+        /// <summary>
+        /// Attempt to shift the first element off of a list
+        /// - Returns true and sets the result when the list has elements
+        /// - Returns false if the list has no elements to shift
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="result"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool TryShift<T>(
+            this IList<T> list,
+            out T result
+        )
+        {
+            if (list.Count < 1)
+            {
+                result = default;
+                return false;
+            }
+            result = list[0];
+            list.RemoveAt(0);
+            return true;
+        }
+
+        /// <summary>
         /// Inserts an item at the beginning of the list
         /// </summary>
         /// <param name="list"></param>
