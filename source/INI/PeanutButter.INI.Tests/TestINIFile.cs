@@ -1269,6 +1269,28 @@ key2=""value2""
                 // Assert
                 Expect(sut).Not.To.Have.Section(section);
             }
+
+            [Test]
+            public void ShouldBeAbleToPersistAfterRemovingSection()
+            {
+                // Arrange
+                using var tempFile = new AutoTempFile(
+@"[main]
+setting=value
+");
+                
+                var sut = Create(tempFile);
+                // Act
+                sut.RemoveSection("main");
+                sut.Persist();
+                // Assert
+                var other = Create(tempFile);
+                Expect(other.Sections)
+                    .To.Be.Empty();
+                var currentData = File.ReadAllText(tempFile.Path);
+                Expect(currentData)
+                    .To.Be.Empty();
+            }
         }
 
         [TestFixture]

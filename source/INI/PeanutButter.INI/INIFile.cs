@@ -1087,7 +1087,7 @@ namespace PeanutButter.INI
                 }
             }
 
-            if (addSeparator)
+            if (addSeparator && lines.Any())
             {
                 lines.RemoveAt(lines.Count - 1);
             }
