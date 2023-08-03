@@ -205,7 +205,8 @@ namespace PeanutButter.EasyArgs.Tests
                 .To.Contain.Only(1)
                 .Matched.By(
                     line => line.Contains(expected),
-                    () => $"expected: {expected}\nreceieved: {lines.JoinWith("\n")}");
+                    () => $"expected: {expected}\nreceieved: {lines.JoinWith("\n")}"
+                );
         }
 
         [Test]
@@ -236,7 +237,8 @@ namespace PeanutButter.EasyArgs.Tests
                 .To.Contain.Only(1)
                 .Matched.By(
                     line => line.Contains(expected),
-                    () => $"expected: {expected}\nreceieved: {lines.JoinWith("\n")}");
+                    () => $"expected: {expected}\nreceieved: {lines.JoinWith("\n")}"
+                );
         }
 
         [Test]
@@ -262,7 +264,8 @@ namespace PeanutButter.EasyArgs.Tests
             Expect(lines)
                 .To.Contain.Only(1)
                 .Matched.By(
-                    line => line.Contains("--listen-port specified more than once but only accepts one value"));
+                    line => line.Contains("--listen-port specified more than once but only accepts one value")
+                );
         }
 
         [Test]
@@ -314,6 +317,130 @@ namespace PeanutButter.EasyArgs.Tests
             Expect(lines)
                 .To.Contain.Only(1)
                 .Matched.By(l => l.Contains("--port is required"));
+        }
+
+        [Test]
+        public void ShouldVerifyExistingFile()
+        {
+            // Arrange
+            using var tmpFile = new AutoTempFile();
+            var validArgs = new[]
+            {
+                "--existing-file",
+                tmpFile.Path
+            };
+            var invalidArgs = new[]
+            {
+                "--existing-file",
+                $"{tmpFile.Path}.missing"
+            };
+            var exitCode = null as int?;
+            var lines = new List<string>();
+            var opts = new ParserOptions()
+            {
+                ExitAction = c => exitCode = c,
+                LineWriter = str => lines.Add(str)
+            };
+            // Act
+            var validParsed = validArgs.ParseTo<IHasFileAttributes>(opts);
+            Expect(exitCode)
+                .To.Be.Null();
+            Expect(validParsed.ExistingFile)
+                .To.Equal(tmpFile.Path);
+            Expect(lines)
+                .To.Be.Empty();
+            
+            var invalidParsed = invalidArgs.ParseTo<IHasFileAttributes>(opts);
+            Expect(exitCode)
+                .Not.To.Be.Null()
+                .And
+                .Not.To.Equal(0);
+            Expect(lines)
+                .To.Contain.Exactly(1)
+                .Matched.By(s => s.Contains(tmpFile.Path));
+            // Assert
+        }
+
+        [Test]
+        public void ShouldVerifyExistingFolder()
+        {
+            // Arrange
+            using var tmpFile = new AutoTempFolder();
+            var validArgs = new[]
+            {
+                "--existing-folder",
+                tmpFile.Path
+            };
+            var invalidArgs = new[]
+            {
+                "--existing-folder",
+                $"{tmpFile.Path}.missing"
+            };
+            var exitCode = null as int?;
+            var lines = new List<string>();
+            var opts = new ParserOptions()
+            {
+                ExitAction = c => exitCode = c,
+                LineWriter = str => lines.Add(str)
+            };
+            // Act
+            var validParsed = validArgs.ParseTo<IHasFileAttributes>(opts);
+            Expect(exitCode)
+                .To.Be.Null();
+            Expect(validParsed.ExistingFolder)
+                .To.Equal(tmpFile.Path);
+            Expect(lines)
+                .To.Be.Empty();
+            
+            var invalidParsed = invalidArgs.ParseTo<IHasFileAttributes>(opts);
+            Expect(exitCode)
+                .Not.To.Be.Null()
+                .And
+                .Not.To.Equal(0);
+            Expect(lines)
+                .To.Contain.Exactly(1)
+                .Matched.By(s => s.Contains(tmpFile.Path));
+            // Assert
+        }
+
+        [Test]
+        public void ShouldErrorOnRequiredExistingFileNotSet()
+        {
+            // Arrange
+            var lines = new List<string>();
+            var exitCode = null as int?;
+            var opts = new ParserOptions()
+            {
+                ExitAction = c => exitCode = c,
+                LineWriter = str => lines.Add(str)
+            };
+            // Act
+            new string[0].ParseTo<IHasRequiredFileAttributes>(opts);
+            // Assert
+            Expect(exitCode)
+                .Not.To.Be.Null()
+                .And
+                .Not.To.Equal(0);
+            Expect(lines)
+                .To.Contain.Exactly(1)
+                .Matched.By(s => s.Contains("required"));
+        }
+
+        public interface IHasFileAttributes
+        {
+            [ExistingFile]
+            string ExistingFile { get; set; }
+
+            [ExistingFolder]
+            string ExistingFolder { get; set; }
+        }
+
+        public interface IHasRequiredFileAttributes
+        {
+
+            [Required]
+            [ExistingFile]
+            string AnotherFile { get; set; }
         }
 
         public interface IHasRequiredArg
@@ -427,43 +554,50 @@ Report bugs to <no-one-cares@whatevs.org>
                     .To.Equal(2);
                 var output = lines.JoinWith("\r\n");
                 Expect(output)
-                    .To.Equal(expected, () =>
-                    {
-                        var i = 0;
-                        foreach (var c in output)
+                    .To.Equal(
+                        expected,
+                        () =>
                         {
-                            if (i > expected.Length)
+                            var i = 0;
+                            foreach (var c in output)
                             {
-                                return $"mismatch starts at {output.Substring(i)}";
-                            }
+                                if (i > expected.Length)
+                                {
+                                    return $"mismatch starts at {output.Substring(i)}";
+                                }
 
-                            if (c != expected[i])
-                            {
-                                return $@"difference at {i}: expected
+                                if (c != expected[i])
+                                {
+                                    return $@"difference at {i}: expected
 '{expected.Substring(i)}'
 received:
 '{output.Substring(i)}'";
+                                }
+
+                                i++;
                             }
 
-                            i++;
+                            ;
+                            return "dunno";
                         }
-
-                        ;
-                        return "dunno";
-                    });
+                    );
             }
 
-            [Attributes.Description(@"
+            [Attributes.Description(
+                @"
 Some Program Name
 This program is designed to make your life so much easier
 
 Usage: someprogram {args} ...files
-")]
-            [MoreInfo(@"
+"
+            )]
+            [MoreInfo(
+                @"
 This program was made with love and biscuits.
 Exit status codes are 0 for happy and non-zero for unhappy.
 Report bugs to <no-one-cares@whatevs.org>
-")]
+"
+            )]
             public interface IHelpArgs
             {
                 [Attributes.Description("user name to use")]
@@ -536,11 +670,13 @@ Report bugs to <no-one-cares@whatevs.org>
                 };
                 var collected = new List<string>();
                 // Act
-                var result = args.ParseTo<IChild>(new ParserOptions()
-                {
-                    ExitOnError = false,
-                    LineWriter = collected.Add
-                });
+                var result = args.ParseTo<IChild>(
+                    new ParserOptions()
+                    {
+                        ExitOnError = false,
+                        LineWriter = collected.Add
+                    }
+                );
                 // Assert
                 Expect(collected)
                     .To.Be.Empty();
@@ -909,9 +1045,10 @@ Report bugs to <no-one-cares@whatevs.org>
                         .To.Equal(ExitCodes.ARGUMENT_ERROR);
                     Expect(output)
                         .To.Contain.Exactly(1)
-                        .Matched.By(l => l.Contains("--some-number") &&
-                            l.Contains("should be at least 5") &&
-                            l.Contains("received: 4")
+                        .Matched.By(
+                            l => l.Contains("--some-number") &&
+                                l.Contains("should be at least 5") &&
+                                l.Contains("received: 4")
                         );
                 }
 
@@ -937,9 +1074,10 @@ Report bugs to <no-one-cares@whatevs.org>
                         .To.Equal(ExitCodes.ARGUMENT_ERROR);
                     Expect(output)
                         .To.Contain.Exactly(1)
-                        .Matched.By(l => l.Contains("--some-number") &&
-                            l.Contains("should be at most 10") &&
-                            l.Contains("received: 14")
+                        .Matched.By(
+                            l => l.Contains("--some-number") &&
+                                l.Contains("should be at most 10") &&
+                                l.Contains("received: 14")
                         );
                 }
             }

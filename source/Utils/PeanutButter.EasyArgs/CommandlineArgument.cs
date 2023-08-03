@@ -65,6 +65,18 @@ namespace PeanutButter.EasyArgs
         public decimal? MaxValue { get; set; }
 
         /// <summary>
+        /// Flag: if this is a string value and not null or empty,
+        /// verify that the file exists
+        /// </summary>
+        public bool VerifyFileExists { get; set; }
+
+        /// <summary>
+        /// Flag: if this is a string value and not null or empty,
+        /// verify that the folder exists
+        /// </summary>
+        public bool VerifyFolderExists { get; set; }
+
+        /// <summary>
         /// shortcut to determine if the switch is either the long or short
         /// switch for this arg
         /// </summary>

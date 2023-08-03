@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using PeanutButter.EasyArgs.Attributes;
@@ -166,9 +167,10 @@ namespace PeanutButter.EasyArgs
 
         private static IDictionary<string, IHasValue> GrabEnvVars<T>()
         {
-            var propertyNames = new HashSet<string>(typeof(T).GetProperties()
-                .Select(p => p.Name.ToLower())
-                .ToArray()
+            var propertyNames = new HashSet<string>(
+                typeof(T).GetProperties()
+                    .Select(p => p.Name.ToLower())
+                    .ToArray()
             );
             var result = new Dictionary<string, IHasValue>();
             foreach (DictionaryEntry e in Environment.GetEnvironmentVariables())
@@ -193,13 +195,15 @@ namespace PeanutButter.EasyArgs
             // and copy top-most props to the clean result
             var cleanObj = Activator.CreateInstance<T>();
             typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .ForEach(pi =>
-                {
-                    cleanObj.SetPropertyValue(
-                        pi.Name,
-                        asT.GetTopMostPropertyValue<object>(pi.Name)
-                    );
-                });
+                .ForEach(
+                    pi =>
+                    {
+                        cleanObj.SetPropertyValue(
+                            pi.Name,
+                            asT.GetTopMostPropertyValue<object>(pi.Name)
+                        );
+                    }
+                );
             return cleanObj;
         }
 
@@ -264,15 +268,17 @@ namespace PeanutButter.EasyArgs
                 .Distinct()
                 .Where(o => o.IsFlag)
                 .ToArray();
-            flags.ForEach(f =>
-            {
-                var negated = f.CloneNegated();
-                negated.IsImplicit = true;
-                if (!lookup.ContainsKey(negated.LongName))
+            flags.ForEach(
+                f =>
                 {
-                    lookup[negated.LongName] = negated;
+                    var negated = f.CloneNegated();
+                    negated.IsImplicit = true;
+                    if (!lookup.ContainsKey(negated.LongName))
+                    {
+                        lookup[negated.LongName] = negated;
+                    }
                 }
-            });
+            );
         }
 
         private static bool TryFindOption(
@@ -307,7 +313,8 @@ namespace PeanutButter.EasyArgs
             IDictionary<string, CommandlineArgument> lookup,
             IDictionary<string, IHasValue> collected,
             out string[] unmatched,
-            ParserOptions options)
+            ParserOptions options
+        )
         {
             var uncollectedArgs = new List<string>();
             var errored = new HashSet<string>();
@@ -347,16 +354,32 @@ namespace PeanutButter.EasyArgs
                         }
                         else
                         {
-                            StoreFlag(options, opt, acc, prop, errored, lookup, collected);
+                            StoreFlag(
+                                options,
+                                opt,
+                                acc,
+                                prop,
+                                errored,
+                                lookup,
+                                collected
+                            );
                         }
                     }
                     else
                     {
-                        StoreSingleValue(opt, input, options, uncollectedArgs, acc, errored);
+                        StoreSingleValue(
+                            opt,
+                            input,
+                            options,
+                            uncollectedArgs,
+                            acc,
+                            errored
+                        );
                     }
 
                     return acc;
-                });
+                }
+            );
 
             VerifyRequiredOptions(result, lookup, options, errored);
             if (errored.Any())
@@ -402,51 +425,60 @@ namespace PeanutButter.EasyArgs
             var hasMin = commandlineArguments.Values.Distinct()
                 .Where(o => o.MinValue is not null && specified.Contains(o.Key))
                 .ToArray();
-            hasMin.ForEach(opt =>
-            {
-                var stringValue = result[opt.Key] as string;
-                var dd = new DecimalDecorator(stringValue);
-                if (!dd.IsValidDecimal)
+            hasMin.ForEach(
+                opt =>
                 {
-                    return;
-                }
+                    var stringValue = result[opt.Key] as string;
+                    var dd = new DecimalDecorator(stringValue);
+                    if (!dd.IsValidDecimal)
+                    {
+                        return;
+                    }
 
-                var value = dd.ToDecimal();
+                    var value = dd.ToDecimal();
 
-                if (value < opt.MinValue)
-                {
-                    options.ReportMinimumViolation(
-                        $"--{opt.LongName}", opt.MinValue, value
-                    );
-                    errored.Add(opt.Key);
-                }
+                    if (value < opt.MinValue)
+                    {
+                        options.ReportMinimumViolation(
+                            $"--{opt.LongName}",
+                            opt.MinValue,
+                            value
+                        );
+                        errored.Add(opt.Key);
+                    }
 
-                if (value > opt.MaxValue)
-                {
-                    options.ReportMaximumViolation(
-                        $"--{opt.LongName}", opt.MaxValue, value
-                    );
-                    errored.Add(opt.Key);
+                    if (value > opt.MaxValue)
+                    {
+                        options.ReportMaximumViolation(
+                            $"--{opt.LongName}",
+                            opt.MaxValue,
+                            value
+                        );
+                        errored.Add(opt.Key);
+                    }
                 }
-            });
+            );
         }
 
         private static void VerifyRequiredOptions(
             Dictionary<string, object> result,
             IDictionary<string, CommandlineArgument> commandlineArguments,
             ParserOptions options,
-            HashSet<string> errored)
+            HashSet<string> errored
+        )
         {
             var specified = new HashSet<string>(result.Keys);
             var missing = commandlineArguments.Values
                 .Distinct()
                 .Where(o => o.IsRequired && !specified.Contains(o.Key))
                 .ToArray();
-            missing.ForEach(opt =>
-            {
-                options.ReportMissingRequiredOption(opt);
-                errored.Add(opt.Key);
-            });
+            missing.ForEach(
+                opt =>
+                {
+                    options.ReportMissingRequiredOption(opt);
+                    errored.Add(opt.Key);
+                }
+            );
         }
 
         private static void StoreSingleValue(
@@ -459,11 +491,13 @@ namespace PeanutButter.EasyArgs
         )
         {
             var prop = opt.Key;
-            uncollectedArgs.AddRange(input.AllValues.Except(
-                new[]
-                {
-                    input.SingleValue
-                })
+            uncollectedArgs.AddRange(
+                input.AllValues.Except(
+                    new[]
+                    {
+                        input.SingleValue
+                    }
+                )
             );
             if (store.ContainsKey(prop))
             {
@@ -474,10 +508,37 @@ namespace PeanutButter.EasyArgs
                 }
             }
 
+            if (opt.VerifyFileExists &&
+                // only error if the value was set; if it's required, it should be
+                // marked [Required] too, and that validation should fail on its own
+                !string.IsNullOrWhiteSpace(input.SingleValue)
+               )
+            {
+                if (!File.Exists(input.SingleValue))
+                {
+                    errored.Add(opt.Key);
+                    options.ReportMissingFile($"--{opt.LongName}", input.SingleValue);
+                }
+            }
+
+            if (opt.VerifyFolderExists &&
+                // only error if the value was set; if it's required, it should be
+                // marked [Required] too, and that validation should fail on its own
+                !string.IsNullOrWhiteSpace(input.SingleValue)
+               )
+            {
+                if (!Directory.Exists(input.SingleValue))
+                {
+                    errored.Add(opt.Key);
+                    options.ReportMissingFile($"--{opt.LongName}", input.SingleValue);
+                }
+            }
+
             store[prop] = input.SingleValue;
         }
 
-        private static void StoreFlag(ParserOptions options,
+        private static void StoreFlag(
+            ParserOptions options,
             CommandlineArgument opt,
             Dictionary<string, object> acc,
             string prop,
@@ -525,13 +586,17 @@ namespace PeanutButter.EasyArgs
                     .Distinct()
                     .ToArray();
 
-                allConflicts.ForEach(conflict =>
-                {
-                    specifiedSwitches.ForEach(sw =>
+                allConflicts.ForEach(
+                    conflict =>
                     {
-                        options.ReportConflict(sw, conflict);
-                    });
-                });
+                        specifiedSwitches.ForEach(
+                            sw =>
+                            {
+                                options.ReportConflict(sw, conflict);
+                            }
+                        );
+                    }
+                );
             }
             else
             {
@@ -542,7 +607,8 @@ namespace PeanutButter.EasyArgs
         private static void VerifyNoExplicitConflicts(
             Dictionary<string, object> result,
             CommandlineArgument[] options,
-            ParserOptions parserOptions)
+            ParserOptions parserOptions
+        )
         {
             var canConflict = options
                 .Where(o => !o.IsImplicit && o.ConflictsWithKeys.Any())
@@ -555,34 +621,38 @@ namespace PeanutButter.EasyArgs
 
             var errored = false;
             var reported = new HashSet<StringPair>();
-            canConflict.ForEach(o =>
-            {
-                o.ConflictsWith.ForEach(conflict =>
+            canConflict.ForEach(
+                o =>
                 {
-                    if (result.ContainsKey(o.Key) && result.ContainsKey(conflict))
-                    {
-                        errored = true;
-                        var ordered = new[]
-                            {
-                                o.Key,
-                                conflict
-                            }.Select(n => options.FirstOrDefault(opt => opt.Key == n))
-                            .OrderBy(opt => opt?.LongName)
-                            .ToArray();
-                        var left = ordered[0].LongName;
-                        var right = ordered[1].LongName;
-                        var thisConflict = new StringPair(left, right);
-                        var alreadyReported = reported.Contains(thisConflict);
-                        if (alreadyReported)
+                    o.ConflictsWith.ForEach(
+                        conflict =>
                         {
-                            return;
-                        }
+                            if (result.ContainsKey(o.Key) && result.ContainsKey(conflict))
+                            {
+                                errored = true;
+                                var ordered = new[]
+                                    {
+                                        o.Key,
+                                        conflict
+                                    }.Select(n => options.FirstOrDefault(opt => opt.Key == n))
+                                    .OrderBy(opt => opt?.LongName)
+                                    .ToArray();
+                                var left = ordered[0].LongName;
+                                var right = ordered[1].LongName;
+                                var thisConflict = new StringPair(left, right);
+                                var alreadyReported = reported.Contains(thisConflict);
+                                if (alreadyReported)
+                                {
+                                    return;
+                                }
 
-                        reported.Add(thisConflict);
-                        parserOptions.ReportConflict($"--{left}", $"--{right}");
-                    }
-                });
-            });
+                                reported.Add(thisConflict);
+                                parserOptions.ReportConflict($"--{left}", $"--{right}");
+                            }
+                        }
+                    );
+                }
+            );
             if (errored)
             {
                 parserOptions.ExitIfRequired(ExitCodes.ARGUMENT_ERROR);
@@ -591,22 +661,25 @@ namespace PeanutButter.EasyArgs
 
         private static void AddMissingDefaults(
             Dictionary<string, object> result,
-            CommandlineArgument[] options)
+            CommandlineArgument[] options
+        )
         {
-            options.ForEach(opt =>
-            {
-                if (result.ContainsKey(opt.Key))
+            options.ForEach(
+                opt =>
                 {
-                    return;
-                }
+                    if (result.ContainsKey(opt.Key))
+                    {
+                        return;
+                    }
 
-                if (opt.Default is null)
-                {
-                    return;
-                }
+                    if (opt.Default is null)
+                    {
+                        return;
+                    }
 
-                result[opt.Key] = opt.Default;
-            });
+                    result[opt.Key] = opt.Default;
+                }
+            );
         }
 
         private static readonly ConcurrentDictionary<Type, IDictionary<string, CommandlineArgument>>
@@ -623,20 +696,22 @@ namespace PeanutButter.EasyArgs
             var shortNames = CollectShortNamesFrom(options);
             var longNames = CollectLongNamesFrom(options);
             result = new Dictionary<string, CommandlineArgument>();
-            options.OrderByDescending(o => o.IsImplicit).ForEach(opt =>
-            {
-                SetShortNameIfMissing(opt, shortNames);
-                SetLongNameIfMissing(opt, longNames);
-                if (!string.IsNullOrWhiteSpace(opt.ShortName))
+            options.OrderByDescending(o => o.IsImplicit).ForEach(
+                opt =>
                 {
-                    result[opt.ShortName] = opt;
-                }
+                    SetShortNameIfMissing(opt, shortNames);
+                    SetLongNameIfMissing(opt, longNames);
+                    if (!string.IsNullOrWhiteSpace(opt.ShortName))
+                    {
+                        result[opt.ShortName] = opt;
+                    }
 
-                if (!string.IsNullOrWhiteSpace(opt.LongName))
-                {
-                    result[opt.LongName] = opt;
+                    if (!string.IsNullOrWhiteSpace(opt.LongName))
+                    {
+                        result[opt.LongName] = opt;
+                    }
                 }
-            });
+            );
             SwitchCache.TryAdd(typeof(T), result.Clone());
             return result;
         }
@@ -750,12 +825,17 @@ namespace PeanutButter.EasyArgs
                             MinValue = attribs.OfType<MinAttribute>()
                                 .FirstOrDefault()?.Value,
                             MaxValue = attribs.OfType<MaxAttribute>()
-                                .FirstOrDefault()?.Value
+                                .FirstOrDefault()?.Value,
+                            VerifyFileExists = attribs.OfType<ExistingFileAttribute>()
+                                .FirstOrDefault() is not null,
+                            VerifyFolderExists = attribs.OfType<ExistingFolderAttribute>()
+                                .FirstOrDefault() is not null
                         };
 
                         acc.Add(option);
                         return acc;
-                    });
+                    }
+                );
         }
 
         private static PropertyInfo[] GetAllPropertiesOf<T>()
@@ -805,7 +885,8 @@ namespace PeanutButter.EasyArgs
 
                     lastSwitch = cur;
                     return acc.Add(lastSwitch);
-                });
+                }
+            );
             ignored = ignoredCollection.ToArray();
             return result;
         }

@@ -65,6 +65,21 @@ namespace PeanutButter.EasyArgs
         }
 
         /// <summary>
+        /// Reports when an expected file is missing
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="value"></param>
+        public virtual void ReportMissingFile(
+            string arg,
+            string value
+        )
+        {
+            LineWriter(
+                $"{arg} should specify the path to an existing file, but '{value}' was not found"
+            );
+        }
+
+        /// <summary>
         /// Reports that two conflicting arguments were specified
         /// </summary>
         /// <param name="left"></param>
@@ -119,9 +134,11 @@ namespace PeanutButter.EasyArgs
             var headSpacer = head.Any()
                 ? OneLine
                 : NoLines;
-            var body = GenerateArgumentHelp<T>(options.Where(
-                o => !o.IsImplicit || o.Key == CommandlineArgument.HELP_FLAG_KEY
-            ).ToArray());
+            var body = GenerateArgumentHelp<T>(
+                options.Where(
+                    o => !o.IsImplicit || o.Key == CommandlineArgument.HELP_FLAG_KEY
+                ).ToArray()
+            );
             var footer = GenerateHelpFooter<T>(this);
             var footerSpacer = footer.Any()
                 ? OneLine
@@ -246,36 +263,40 @@ namespace PeanutButter.EasyArgs
         protected virtual string[] GenerateArgumentHelp<T>(CommandlineArgument[] options)
         {
             var result = new List<string>();
-            var longestLeftCol = options.Select(o =>
-                DashLength +
-                SHORT_NAME_LENGTH +
-                CommaAndSpaceLength +
-                DashLength + DashLength +
-                o.LongName.Length +
-                SingleSpaceLength +
-                LeftBracketLength +
-                o.Type.Length +
-                RightBracketLength +
-                COLUMN_PADDING_LENGTH
+            var longestLeftCol = options.Select(
+                o =>
+                    DashLength +
+                    SHORT_NAME_LENGTH +
+                    CommaAndSpaceLength +
+                    DashLength + DashLength +
+                    o.LongName.Length +
+                    SingleSpaceLength +
+                    LeftBracketLength +
+                    o.Type.Length +
+                    RightBracketLength +
+                    COLUMN_PADDING_LENGTH
             ).Max();
-            options.ForEach(opt =>
-            {
-                result.Add(FormatOptionHelp(
-                        opt.ShortName,
-                        opt.LongName,
-                        opt.Type,
-                        opt.IsFlag,
-                        FormatDescriptionText(
-                            opt.Description,
+            options.ForEach(
+                opt =>
+                {
+                    result.Add(
+                        FormatOptionHelp(
+                            opt.ShortName,
+                            opt.LongName,
+                            opt.Type,
                             opt.IsFlag,
-                            opt.Default,
-                            opt.LongName == "help"
-                        ),
-                        longestLeftCol,
-                        ConsoleWidth
-                    )
-                );
-            });
+                            FormatDescriptionText(
+                                opt.Description,
+                                opt.IsFlag,
+                                opt.Default,
+                                opt.LongName == "help"
+                            ),
+                            longestLeftCol,
+                            ConsoleWidth
+                        )
+                    );
+                }
+            );
             return result
                 .ToArray();
         }
@@ -410,7 +431,9 @@ namespace PeanutButter.EasyArgs
         {
             if (string.IsNullOrWhiteSpace(name))
             {
-                return new String(' ', dashes + 1 + (isFirst
+                return new String(
+                    ' ',
+                    dashes + 1 + (isFirst
                         ? 1
                         : 0)
                 );
