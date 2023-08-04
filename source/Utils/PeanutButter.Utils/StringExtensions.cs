@@ -134,6 +134,8 @@ namespace PeanutButter.Utils
                 h => needles.Any(
                     n => h.Contains(
                         n.ToLower(
+
+
 #if NETSTANDARD
 #else
                             CultureInfo.CurrentCulture
@@ -1207,6 +1209,52 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Finds a window into a string, centered around the given
+        /// centeredOn parameter, with maximum maxCharsLeftOrRight
+        /// of the center.
+        /// Eg: "12345".Window(2, 1) -> 234
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="centeredOn"></param>
+        /// <param name="maxCharsLeftOrRight"></param>
+        /// <returns></returns>
+        public static string Window(
+            this string str,
+            int centeredOn,
+            int maxCharsLeftOrRight
+        )
+        {
+            if (string.IsNullOrWhiteSpace(str))
+            {
+                return "";
+            }
+
+            if (centeredOn >= str.Length)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(centeredOn),
+                    $"{nameof(centeredOn)} should be an index within the string"
+                );
+            }
+
+            if (maxCharsLeftOrRight < 0)
+            {
+                maxCharsLeftOrRight = 0;
+            }
+
+            if (maxCharsLeftOrRight >= int.MaxValue / 2)
+            {
+                maxCharsLeftOrRight = int.MaxValue / 2 -1;
+            }
+
+            return str.Substr(
+                centeredOn - maxCharsLeftOrRight,
+                Math.Max(maxCharsLeftOrRight * 2 + 1, 1)
+            );
+        }
+
+
+        /// <summary>
         /// Converts a base64 string back to the original string
         /// - assumes the original string is UTF8
         /// </summary>
@@ -1659,7 +1707,7 @@ namespace PeanutButter.Utils
             {
                 return "";
             }
-            
+
             var joinWith = path.IndexOf('\\') > -1
                 ? "\\"
                 : "/";
@@ -1670,6 +1718,7 @@ namespace PeanutButter.Utils
                 {
                     all.Clear();
                 }
+
                 all.Add(item);
             }
 
@@ -1691,6 +1740,7 @@ namespace PeanutButter.Utils
                                 result.RemoveAt(result.Count - 1);
                             }
                         }
+
                         continue;
                     default:
                         result.Add(part);
@@ -1706,7 +1756,7 @@ namespace PeanutButter.Utils
                     WindowsDriveMatch.IsMatch(str);
             }
         }
-        
+
         private static readonly Regex WindowsDriveMatch = new("^[A-Za-z]{1}:");
 
         /// <summary>
@@ -1726,7 +1776,7 @@ namespace PeanutButter.Utils
             {
                 return false;
             }
-            
+
             return str.StartsWith("/") ||
                 str.StartsWith("\\") ||
                 WindowsDriveMatch.IsMatch(str);

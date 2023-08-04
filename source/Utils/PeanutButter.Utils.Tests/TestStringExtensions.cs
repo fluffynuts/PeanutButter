@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -39,6 +40,114 @@ public class TestStringExtensions
 
         //---------------Test Result -----------------------
         Expect(result).To.Equal(expected);
+    }
+
+    [TestFixture]
+    public class Window
+    {
+        [TestFixture]
+        public class GivenEmptyStringOrNull
+        {
+            [TestCase("")]
+            [TestCase(null)]
+            public void ShouldReturnEmptyString(
+                string subject
+            )
+            {
+                // Arrange
+                // Act
+                var result = subject.Window(1, 1);
+                // Assert
+                Expect(result)
+                    .To.Equal("");
+            }
+        }
+        
+        [TestFixture]
+        public class GivenCenterOutsideOfString
+        {
+            [Test]
+            public void ShouldThrow()
+            {
+                // Arrange
+                var str = "123";
+                var idx = 3;
+                // Act
+                Expect(() => str.Window(idx, 1))
+                    .To.Throw<ArgumentOutOfRangeException>()
+                    .For("centeredOn");
+                // Assert
+            }
+        }
+
+        [TestFixture]
+        public class GivenNegativeContext
+        {
+            [Test]
+            public void ShouldAssumeZero()
+            {
+                // Arrange
+                // Act
+                var result = "123".Window(1, -1);
+                // Assert
+                Expect(result)
+                    .To.Equal("2");
+            }
+        }
+
+        [TestFixture]
+        public class Given3CharStringWithZeroContext
+        {
+            [Test]
+            public void ShouldReturnMiddleChar()
+            {
+                // Arrange
+                var str = "123";
+                var idx = 1;
+                var ctx = 0;
+                // Act
+                var result = str.Window(idx, ctx);
+                // Assert
+                Expect(result)
+                    .To.Equal("2");
+            }
+        }
+
+        [TestFixture]
+        public class GivenStringWithMaxCharsOutsideString
+        {
+            [Test]
+            public void ShouldReturnTheFullString()
+            {
+                // Arrange
+                var str = "12345";
+                var idx = 2;
+                // Act
+                var result = str.Window(idx, int.MaxValue);
+                // Assert
+                Expect(result)
+                    .To.Equal(str);
+            }
+        }
+
+        [TestFixture]
+        public class GivenStringWithExtraCharsOutsideWindow
+        {
+            [Test]
+            public void ShouldReturnTheRequiredWindow()
+            {
+                // Arrange
+                var str = "0123456789";
+                var idx = 4;
+                var chars = 3;
+                var expected = "1234567";
+                // Act
+                var result = str.Window(idx, chars);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
     }
 
     [TestFixture]
@@ -2052,6 +2161,22 @@ public class TestStringExtensions
             Expect(result)
                 .To.Equal("2345");
         }
+
+        [TestFixture]
+        public class GivenIndexesOutsideOfString
+        {
+            [Test]
+            public void ShouldReturnTheEntireString()
+            {
+                // Arrange
+                var str = "12345";
+                // Act
+                var result = str.Substr(-10, int.MaxValue);
+                // Assert
+                Expect(result)
+                    .To.Equal(str);
+            }
+        }
     }
 
     [TestFixture]
@@ -2730,7 +2855,6 @@ function foo() {
             Expect(result)
                 .To.Equal(expected);
         }
-
     }
 
     [TestFixture]
