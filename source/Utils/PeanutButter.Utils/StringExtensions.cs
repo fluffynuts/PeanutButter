@@ -1225,8 +1225,38 @@ namespace PeanutButter.Utils
             int maxCharsLeftOrRight
         )
         {
+            return str.Window(
+                centeredOn,
+                maxCharsLeftOrRight,
+                out _,
+                out _
+            );
+        }
+
+        /// <summary>
+        /// Finds a window into a string, centered around the given
+        /// centeredOn parameter, with maximum maxCharsLeftOrRight
+        /// of the center.
+        /// Eg: "12345".Window(2, 1) -> 234
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="centeredOn"></param>
+        /// <param name="maxCharsLeftOrRight"></param>
+        /// <param name="startedAt"></param>
+        /// <param name="endedAt"></param>
+        /// <returns></returns>
+        public static string Window(
+            this string str,
+            int centeredOn,
+            int maxCharsLeftOrRight,
+            out int startedAt,
+            out int endedAt
+        )
+        {
             if (string.IsNullOrWhiteSpace(str))
             {
+                startedAt = 0;
+                endedAt = 0;
                 return "";
             }
 
@@ -1248,12 +1278,20 @@ namespace PeanutButter.Utils
                 maxCharsLeftOrRight = int.MaxValue / 2 - 1;
             }
 
+            startedAt = centeredOn - maxCharsLeftOrRight;
+            if (startedAt < 0)
+            {
+                startedAt = 0;
+            }
+
+            var len = Math.Max(maxCharsLeftOrRight * 2 + 1, 1);
+            endedAt = centeredOn + len;
+
             return str.Substr(
-                centeredOn - maxCharsLeftOrRight,
-                Math.Max(maxCharsLeftOrRight * 2 + 1, 1)
+                startedAt,
+                len
             );
         }
-
 
         /// <summary>
         /// Converts a base64 string back to the original string
