@@ -39,8 +39,8 @@ namespace PeanutButter.TempDb.Runner
                     Options =
                     {
                         LogAction = opts.Verbose
-                            ? s => Console.WriteLine($"debug: {s}")
-                            : null as Action<string>,
+                            ? new Action<string>(s => Console.WriteLine($"debug: {s}"))
+                            : null,
                         InactivityTimeout = TimeSpanFromSeconds(opts.IdleTimeoutSeconds),
                         AbsoluteLifespan = TimeSpanFromSeconds(opts.AbsoluteTimeoutSeconds)
                     }

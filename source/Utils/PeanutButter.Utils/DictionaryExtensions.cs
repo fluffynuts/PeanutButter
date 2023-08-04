@@ -74,7 +74,10 @@ namespace PeanutButter.Utils
                 this IDictionary dict
             )
         {
-            return dict.ToDictionary(o => (TKey) o.Key, o => (TValue) o.Value);
+            return dict.ToDictionary(
+                o => (TKey) o.Key,
+                o => (TValue) o.Value
+            );
         }
 
         /// <summary>
@@ -212,56 +215,33 @@ namespace PeanutButter.Utils
             bool alwaysLock
         )
         {
-            if (dict is null)
-            {
-                throw new ArgumentNullException(nameof(dict));
-            }
-
-            if (key is null)
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-
-            if (generator is null)
-            {
-                throw new ArgumentNullException(nameof(generator));
-            }
+            ValidateFindOrAddParameters(dict, key, generator);
 
             if (!alwaysLock && dict is ConcurrentDictionary<TKey, TValue> concurrentDictionary)
             {
-                TValue generated = default;
-                var wasGenerated = false;
-                concurrentDictionary.GetOrAdd(
+                return FindOrAddUnlocked(
                     key,
-                    _ =>
-                    {
-                        wasGenerated = true;
-                        return generated = generator();
-                    }
+                    generator,
+                    skipCaching,
+                    concurrentDictionary
                 );
-                if (concurrentDictionary.TryGetValue(key, out var result))
-                {
-                    if (skipCaching?.Invoke(result) ?? false)
-                    {
-                        concurrentDictionary.TryRemove(key, out var stored);
-                        if (!skipCaching.Invoke(stored))
-                        {
-                            // someone else got in here and put in an "ok" value
-                            concurrentDictionary.TryAdd(key, stored);
-                        }
-                    }
-
-                    return result;
-                }
-
-                // item has been removed, but technically, we can give it back
-                // if it was generated (or regen) - this is a threading scenario
-                // in the host app - not our immediate problem
-                return wasGenerated
-                    ? generated
-                    : generator();
             }
 
+            return FindOrAddLocked(
+                dict,
+                key,
+                generator,
+                skipCaching
+            );
+        }
+
+        private static TValue FindOrAddLocked<TKey, TValue>(
+            IDictionary<TKey, TValue> dict,
+            TKey key,
+            Func<TValue> generator,
+            Func<TValue, bool> skipCaching
+        )
+        {
             lock (dict)
             {
                 if (dict.TryGetValue(key, out var existing))
@@ -276,6 +256,68 @@ namespace PeanutButter.Utils
                 }
 
                 return generated;
+            }
+        }
+
+        private static TValue FindOrAddUnlocked<TKey, TValue>(
+            TKey key,
+            Func<TValue> generator,
+            Func<TValue, bool> skipCaching,
+            ConcurrentDictionary<TKey, TValue> concurrentDictionary
+        )
+        {
+            TValue generated = default;
+            var wasGenerated = false;
+            concurrentDictionary.GetOrAdd(
+                key,
+                _ =>
+                {
+                    wasGenerated = true;
+                    return generated = generator();
+                }
+            );
+            if (concurrentDictionary.TryGetValue(key, out var result))
+            {
+                if (skipCaching?.Invoke(result) ?? false)
+                {
+                    concurrentDictionary.TryRemove(key, out var stored);
+                    if (!skipCaching.Invoke(stored))
+                    {
+                        // someone else got in here and put in an "ok" value
+                        concurrentDictionary.TryAdd(key, stored);
+                    }
+                }
+
+                return result;
+            }
+
+            // item has been removed, but technically, we can give it back
+            // if it was generated (or regen) - this is a threading scenario
+            // in the host app - not our immediate problem
+            return wasGenerated
+                ? generated
+                : generator();
+        }
+
+        private static void ValidateFindOrAddParameters<TKey, TValue>(
+            IDictionary<TKey, TValue> dict,
+            TKey key,
+            Func<TValue> generator
+        )
+        {
+            if (dict is null)
+            {
+                throw new ArgumentNullException(nameof(dict));
+            }
+
+            if (key is null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
+            if (generator is null)
+            {
+                throw new ArgumentNullException(nameof(generator));
             }
         }
 
