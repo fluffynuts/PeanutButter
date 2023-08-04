@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -62,7 +61,7 @@ public class TestStringExtensions
                     .To.Equal("");
             }
         }
-        
+
         [TestFixture]
         public class GivenCenterOutsideOfString
         {
@@ -147,6 +146,93 @@ public class TestStringExtensions
                 Expect(result)
                     .To.Equal(expected);
             }
+        }
+    }
+
+    [TestFixture]
+    public class SplitLines
+    {
+        [Test]
+        public void ShouldReturnSingleElementArrayForTextWithNoNewlines()
+        {
+            // Arrange
+            var input = GetRandomWords();
+            // Act
+            var result = input.SplitIntoLines();
+            // Assert
+            Expect(result)
+                .To.Equal(new[] { input });
+        }
+
+        [Test]
+        public void ShouldSplitUnixLines()
+        {
+            // Arrange
+            var str = "foo\nbar";
+            // Act
+            var result = str.SplitIntoLines();
+            // Assert
+            Expect(result)
+                .To.Equal(
+                    new[]
+                    {
+                        "foo", "bar"
+                    }
+                );
+        }
+
+        [Test]
+        public void ShouldSplitDOSLines()
+        {
+            // Arrange
+            var str = "foo\r\nbar";
+            // Act
+            var result = str.SplitIntoLines();
+            // Assert
+            Expect(result)
+                .To.Equal(
+                    new[]
+                    {
+                        "foo", "bar"
+                    }
+                );
+        }
+
+        [Test]
+        public void ShouldSplitOldSchoolMacLines()
+        {
+            // Arrange
+            var str = "foo\rbar";
+            // Act
+            var result = str.SplitIntoLines();
+            // Assert
+            Expect(result)
+                .To.Equal(
+                    new[]
+                    {
+                        "foo", "bar"
+                    }
+                );
+        }
+
+        [Test]
+        public void ShouldSplitMixedLines()
+        {
+            // Arrange
+            var str = "foo\nbar\r\nquuz\rwibbles\n";
+            var expected = new[]
+            {
+                "foo",
+                "bar",
+                "quuz",
+                "wibbles",
+                ""
+            };
+            // Act
+            var result = str.SplitIntoLines();
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
         }
     }
 

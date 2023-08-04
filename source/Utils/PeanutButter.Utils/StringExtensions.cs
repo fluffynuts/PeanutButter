@@ -136,6 +136,7 @@ namespace PeanutButter.Utils
                         n.ToLower(
 
 
+
 #if NETSTANDARD
 #else
                             CultureInfo.CurrentCulture
@@ -1244,7 +1245,7 @@ namespace PeanutButter.Utils
 
             if (maxCharsLeftOrRight >= int.MaxValue / 2)
             {
-                maxCharsLeftOrRight = int.MaxValue / 2 -1;
+                maxCharsLeftOrRight = int.MaxValue / 2 - 1;
             }
 
             return str.Substr(
@@ -1438,6 +1439,39 @@ namespace PeanutButter.Utils
             var outdented = lines.Outdent(depth);
             return outdented.JoinWith(lineDelimiter);
         }
+
+        /// <summary>
+        /// Splits text into lines, based on UNIX or DOS line endings,
+        /// or a mixture of both
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public static string[] SplitIntoLines(
+            this string str
+        )
+        {
+            return str.MultiSplit("\r\n", "\n", "\r");
+        }
+
+        /// <summary>
+        /// Splits a string based on one or more delimiters
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="delimiter"></param>
+        /// <param name="moreDelimiters"></param>
+        /// <returns></returns>
+        public static string[] MultiSplit(
+            this string str,
+            string delimiter,
+            params string[] moreDelimiters
+        )
+        {
+            var allDelimiters = new[] { delimiter }.Concat(moreDelimiters).ToArray();
+            return str.Split(allDelimiters, StringSplitOptions.None);
+        }
+
+        private static readonly Regex NewLines = new("(\r\n|\n|\r)+");
 
         /// <summary>
         /// Outdents a block of text at most to the given depth. Will
