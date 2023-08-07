@@ -19,10 +19,12 @@ namespace PeanutButter.DuckTyping.Extensions
 #else
     public
 #endif
-    static class DuckTypingNameValueCollectionExtensions
+        static class DuckTypingNameValueCollectionExtensions
     {
-        internal static IDictionary<string, object> ToDictionary(this NameValueCollection src,
-            bool caseInsensitive = false)
+        internal static IDictionary<string, object> ToDictionary(
+            this NameValueCollection src,
+            bool caseInsensitive = false
+        )
         {
             return new DictionaryWrappingNameValueCollection<object>(src, caseInsensitive);
         }

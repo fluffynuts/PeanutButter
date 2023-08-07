@@ -9,6 +9,9 @@ using System.Collections.Concurrent;
 using System.Collections.Specialized;
 using NExpect;
 using NUnit.Framework;
+#if NETSTANDARD
+using PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -64,6 +67,7 @@ namespace PeanutButter.Utils.Tests
                 }
             }
         }
+
         [TestFixture]
         public class FindOrAdd
         {
@@ -136,18 +140,24 @@ namespace PeanutButter.Utils.Tests
                         var dict = new ConcurrentDictionary<string, int>();
                         // Act
 
-                        var t1 = new Thread(() =>
-                        {
-                            dict.FindOrAdd(
-                                key, firstGenerator
-                            );
-                        });
-                        var t2 = new Thread(() =>
-                        {
-                            dict.FindOrAdd(
-                                key, secondGenerator
-                            );
-                        });
+                        var t1 = new Thread(
+                            () =>
+                            {
+                                dict.FindOrAdd(
+                                    key,
+                                    firstGenerator
+                                );
+                            }
+                        );
+                        var t2 = new Thread(
+                            () =>
+                            {
+                                dict.FindOrAdd(
+                                    key,
+                                    secondGenerator
+                                );
+                            }
+                        );
                         t2.Start();
                         t1.Start();
                         t2.Join();
@@ -189,18 +199,26 @@ namespace PeanutButter.Utils.Tests
                         var dict = new ConcurrentDictionary<string, int>();
                         // Act
 
-                        var t1 = new Thread(() =>
-                        {
-                            dict.FindOrAdd(
-                                key, FirstGenerator, alwaysLock: true
-                            );
-                        });
-                        var t2 = new Thread(() =>
-                        {
-                            dict.FindOrAdd(
-                                key, SecondGenerator, alwaysLock: true
-                            );
-                        });
+                        var t1 = new Thread(
+                            () =>
+                            {
+                                dict.FindOrAdd(
+                                    key,
+                                    FirstGenerator,
+                                    alwaysLock: true
+                                );
+                            }
+                        );
+                        var t2 = new Thread(
+                            () =>
+                            {
+                                dict.FindOrAdd(
+                                    key,
+                                    SecondGenerator,
+                                    alwaysLock: true
+                                );
+                            }
+                        );
                         t2.Start();
                         t1.Start();
                         t2.Join();
@@ -284,6 +302,139 @@ namespace PeanutButter.Utils.Tests
                         .To.Equal(dict);
                 }
             }
+
+            [TestFixture]
+            public class OperatingOnEnvironmentVarsHashTable
+            {
+                [Test]
+                public void ShouldCopyKeyValuePairs()
+                {
+                    // Arrange
+                    var key = GetRandomString(10);
+                    var value = GetRandomString(10);
+                    Environment.SetEnvironmentVariable(key, value);
+                    // Act
+                    var result = Environment.GetEnvironmentVariables()
+                        .ToDictionary();
+                    // Assert
+                    Expect(result)
+                        .To.Contain.Key(key)
+                        .With.Value(value);
+                }
+            }
+
+            [TestFixture]
+            public class OperatingOnNameValueCollection
+            {
+                [Test]
+                public void ShouldReturnKeyValuePairs()
+                {
+                    // Arrange
+                    var (k1, v1, k2, v2) = FourRandomStrings();
+                    var input = new NameValueCollection
+                    {
+                        [k1] = v1,
+                        [k2] = v2
+                    };
+                    // Act
+                    var result = input.ToDictionary();
+                    // Assert
+                    Expect(result)
+                        .To.Contain.Key(k1)
+                        .With.Value(v1);
+                    Expect(result)
+                        .To.Contain.Key(k2)
+                        .With.Value(v2);
+                }
+            }
+
+            private static (string, string, string, string) FourRandomStrings()
+            {
+                return (
+                    GetRandomString(10),
+                    GetRandomString(10),
+                    GetRandomString(10),
+                    GetRandomString(10)
+                );
+            }
+
+#if NETSTANDARD
+            [TestFixture]
+            public class OperatingOnAspNetObjects
+            {
+                [TestFixture]
+                public class OperatingOnQuery
+                {
+                    [Test]
+                    public void ShouldReturnKeyValuePairs()
+                    {
+                        // Arrange
+                        var (k1, v1, k2, v2) = FourRandomStrings();
+                        var req = HttpRequestBuilder.Create()
+                            .WithQueryParameter(k1, v1)
+                            .WithQueryParameter(k2, v2)
+                            .Build();
+                        // Act
+                        var result = req.Query.ToDictionary();
+                        // Assert
+                        Expect(result)
+                            .To.Contain.Key(k1)
+                            .With.Value(v1);
+                        Expect(result)
+                            .To.Contain.Key(k2)
+                            .With.Value(v2);
+                    }
+                }
+
+                [TestFixture]
+                public class OperatingOnForm
+                {
+                    [Test]
+                    public void ShouldReturnKeyValuePairs()
+                    {
+                        // Arrange
+                        var (k1, v1, k2, v2) = FourRandomStrings();
+                        var req = HttpRequestBuilder.Create()
+                            .WithFormField(k1, v1)
+                            .WithFormField(k2, v2)
+                            .Build();
+                        // Act
+                        var result = req.Form.ToDictionary();
+                        // Assert
+                        Expect(result)
+                            .To.Contain.Key(k1)
+                            .With.Value(v1);
+                        Expect(result)
+                            .To.Contain.Key(k2)
+                            .With.Value(v2);
+                    }
+                }
+
+                [TestFixture]
+                public class OperatingOnHeaders
+                {
+                    [Test]
+                    public void ShouldReturnKeyValuePairs()
+                    {
+                        // Arrange
+                        var (k1, v1, k2, v2) = FourRandomStrings();
+                        var req = HttpRequestBuilder.Create()
+                            .WithHeader(k1, v1)
+                            .WithHeader(k2, v2)
+                            .Build();
+                        // Act
+                        var result = req.Headers.ToDictionary();
+                        // Assert
+                        Expect(result)
+                            .To.Contain.Key(k1)
+                            .With.Value(v1);
+                        Expect(result)
+                            .To.Contain.Key(k2)
+                            .With.Value(v2);
+                    }
+                }
+            }
+#endif
 
             [TestFixture]
             public class InvokedWithTransforms
@@ -610,10 +761,12 @@ namespace PeanutButter.Utils.Tests
                     var result = new Dictionary<string, string>()
                     {
                         ["two"] = "2"
-                    }.MergeInto(new Dictionary<string, string>()
-                    {
-                        ["three"] = "3"
-                    }).MergeInto(target);
+                    }.MergeInto(
+                        new Dictionary<string, string>()
+                        {
+                            ["three"] = "3"
+                        }
+                    ).MergeInto(target);
                     // Assert
                     Expect(result)
                         .To.Be(target);

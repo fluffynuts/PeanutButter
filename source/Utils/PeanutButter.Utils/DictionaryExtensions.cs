@@ -81,6 +81,77 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Converts a NameValueCollection 
+        /// </summary>
+        /// <param name="nameValueCollection"></param>
+        /// <returns></returns>
+        public static IDictionary<string, string> ToDictionary(
+            this NameValueCollection nameValueCollection
+        )
+        {
+            return nameValueCollection.AllKeys
+                .Select(k => new { key = k, value = nameValueCollection[k] })
+                .ToDictionary(
+                    o => o.key,
+                    o => o.value
+                );
+        }
+
+        /// <summary>
+        /// Provides a string/string dictionary for anything providing
+        /// the IEnumerable&lt;KeyValuePair&lt;T1, T2&gt;&gt; interface,
+        /// eg query / form collections
+        /// </summary>
+        /// <param name="src"></param>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <returns></returns>
+        public static IDictionary<string, string> ToDictionary<T1, T2>(
+            this IEnumerable<KeyValuePair<T1, T2>> src
+        )
+        {
+            return src.ToDictionary(
+                k => $"{k}",
+                v => $"{v}"
+            );
+        }
+
+        /// <summary>
+        /// Provides a string/string dictionary for anything providing
+        /// the IEnumerable&lt;KeyValuePair&lt;T1, T2&gt;&gt; interface,
+        /// providing the mechanism for the caller to convert to strings
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="keyConverter"></param>
+        /// <param name="valueConverter"></param>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <returns></returns>
+        public static IDictionary<string, string> ToDictionary<T1, T2>(
+            this IEnumerable<KeyValuePair<T1, T2>> src,
+            Func<T1, string> keyConverter,
+            Func<T2, string> valueConverter
+        )
+        {
+            return src?.ToDictionary(
+                kvp => keyConverter(kvp.Key),
+                kvp => valueConverter(kvp.Value)
+            ) ?? new Dictionary<string, string>();
+        }
+
+        /// <summary>
+        /// Shorthand for .ToDictionary&lt;string, string&gt;()
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <returns></returns>
+        public static IDictionary<string, string> ToDictionary(
+            this IDictionary dict
+        )
+        {
+            return dict.ToDictionary<string, string>();
+        }
+
+        /// <summary>
         /// Find an item in or add an item to a dictionary
         /// - operation is thread-safe: dictionary is locked during search &amp; add
         /// </summary>
@@ -458,19 +529,6 @@ namespace PeanutButter.Utils
             }
 
             return target;
-        }
-
-        /// <summary>
-        /// Converts a NameValueCollection to a dictionary with the
-        /// Ordinal key comparer
-        /// </summary>
-        /// <param name="collection"></param>
-        /// <returns></returns>
-        public static IDictionary<string, string> ToDictionary(
-            this NameValueCollection collection
-        )
-        {
-            return collection.ToDictionary(StringComparer.Ordinal);
         }
 
         /// <summary>

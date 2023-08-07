@@ -14,6 +14,7 @@ namespace PeanutButter.Utils.NetCore.Tests
     public class SlidingWindowTests
     {
         [Test]
+        [Parallelizable]
         public void ShouldBeAbleToStoreUpToWindowSize()
         {
             // Arrange
@@ -31,6 +32,7 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldBeAbleToClear()
         {
             // Arrange
@@ -45,6 +47,7 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldBeAbleToCopyValuesToAnotherArray()
         {
             // Arrange
@@ -61,6 +64,7 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldBeAbleToRemoveAValue()
         {
             // Arrange
@@ -78,6 +82,7 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldBeAbleToRemoveValuesUntilNoneLeftAndReturnsFalse()
         {
             // Arrange
@@ -101,6 +106,7 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldReturnTheFirstIndexOfAValue()
         {
             // Arrange
@@ -122,9 +128,11 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class Insert
         {
             [Test]
+            [Parallelizable]
             public void ShouldBeAbleToInsertAtTheProvidedIndex()
             {
                 // Arrange
@@ -136,12 +144,14 @@ namespace PeanutButter.Utils.NetCore.Tests
                 sut.Insert(1, 10);
                 // Assert
                 Expect((IList<int>) sut)
-                    .To.Equal(new[] { 10, 2, 3 },
+                    .To.Equal(
+                        new[] { 10, 2, 3 },
                         () => "Trimming after insertion should have chucked out the 1"
                     );
             }
 
             [Test]
+            [Parallelizable]
             public void InsertedItemsShouldHaveTheirCreatedInterpolated()
             {
                 // Arrange
@@ -167,6 +177,7 @@ namespace PeanutButter.Utils.NetCore.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ItemInsertedAtTheStartShouldGetStartingDateTime()
             {
                 // Arrange
@@ -187,6 +198,7 @@ namespace PeanutButter.Utils.NetCore.Tests
             }
 
             [Test]
+            [Parallelizable]
             public void ItemInsertedAtTheEndShouldGetCurrentDateTime()
             {
                 // Arrange
@@ -213,6 +225,7 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldBeAbleToSetTimeBasedWindow()
         {
             // Arrange
@@ -229,6 +242,7 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldBeAbleToRemoveItemAtIndex()
         {
             // Arrange
@@ -244,6 +258,7 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldBeAbleToIndexIntoListForRead()
         {
             // Arrange
@@ -259,6 +274,7 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [Test]
+        [Parallelizable]
         public void ShouldBeAbleToSetTheValueAtAnIndex()
         {
             // Arrange
@@ -284,6 +300,7 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class Rates
         {
             [Test]
@@ -364,6 +381,7 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [TestFixture]
+        [Parallelizable]
         public class EstimatedTimeRemaining
         {
             [Test]
