@@ -42,8 +42,8 @@
     <Reference Include="System.Runtime" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\PeanutButter.Utils.NetCore.Tests\SlidingWindowTests.cs">
-      <Link>SlidingWindowTests.cs</Link>
+    <Compile Include="..\PeanutButter.Utils.NetCore.Tests\TestSlidingWindow.cs">
+      <Link>TestSlidingWindow.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />

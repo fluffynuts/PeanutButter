@@ -11,7 +11,7 @@ using static NExpect.Expectations;
 namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
-    public class SlidingWindowTests
+    public class TestSlidingWindow
     {
         [Test]
         [Parallelizable]

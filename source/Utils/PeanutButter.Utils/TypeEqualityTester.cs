@@ -10,7 +10,7 @@ namespace PeanutButter.Utils
 #endif
 {
     /// <summary>
-    /// Tests shape equality between two types
+    /// Tests shape equality between two types (YMMV)
     /// </summary>
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
