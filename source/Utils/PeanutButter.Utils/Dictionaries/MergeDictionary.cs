@@ -26,9 +26,9 @@ namespace PeanutButter.Utils.Dictionaries
     {
         // ReSharper disable once StaticMemberInGenericType
         private static readonly InvalidOperationException ReadonlyException
-            = new InvalidOperationException($"{typeof(MergeDictionary<,>)} is ALWAYS read-only");
+            = new($"{typeof(MergeDictionary<,>)} is ALWAYS read-only");
 
-        private readonly IDictionary<TKey, TValue>[] _layers;
+        private readonly List<IDictionary<TKey, TValue>> _layers;
 
         /// <summary>
         /// Expose the first (or least-restrictive, for strings) key comparer
@@ -76,7 +76,10 @@ namespace PeanutButter.Utils.Dictionaries
             var propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .FirstOrDefault(pi => pi.Name == propertyName);
             if (propInfo == null)
+            {
                 throw new Exception($"Member \"${propertyName}\" not found on type \"${type}\"");
+            }
+
             return propInfo.GetValue(src, null);
         }
 
@@ -104,10 +107,11 @@ namespace PeanutButter.Utils.Dictionaries
         /// <param name="layers"></param>
         public MergeDictionary(params IDictionary<TKey, TValue>[] layers)
         {
-            // TODO: test that we have any layers
-            _layers = layers.Where(l => l != null).ToArray();
+            _layers = layers.Where(l => l != null).ToList();
             if (_layers.IsEmpty())
+            {
                 throw new InvalidOperationException("No non-null layers provided");
+            }
         }
 
         /// <summary>
@@ -117,7 +121,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <returns></returns>
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
-            return new GenericDictionaryEnumerator<TKey, TValue>(_layers);
+            return new GenericDictionaryEnumerator<TKey, TValue>(_layers.ToArray());
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -268,5 +272,53 @@ namespace PeanutButter.Utils.Dictionaries
         /// Returns a collection of ALL values in all layers
         /// </summary>
         public ICollection<TValue> Values => Keys.Select(k => this[k]).ToArray();
+        
+        // Specialist methods
+        /// <summary>
+        /// Append a layer to the collection
+        /// - being the lowest layer, only values which are not
+        ///   overridden by a higher layer will reflect
+        /// </summary>
+        /// <param name="layer"></param>
+        public void AppendLayer(
+            IDictionary<TKey, TValue> layer
+        )
+        {
+            if (layer is null)
+            {
+                return;
+            }
+            _layers.Add(layer);
+        }
+
+        /// <summary>
+        /// Insert a layer at the top of the stack
+        /// </summary>
+        /// <param name="layer"></param>
+        public void InsertLayer(
+            IDictionary<TKey, TValue> layer
+        )
+        {
+            InsertLayer(0, layer);
+        }
+
+        /// <summary>
+        /// Insert a layer at the provided index -
+        /// see LayerCount for the valid range.
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <param name="layer"></param>
+        public void InsertLayer(
+            int idx,
+            IDictionary<TKey, TValue> layer
+        )
+        {
+            _layers.Insert(idx, layer);
+        }
+
+        /// <summary>
+        /// Reflects the number of layers in this merged dictionary
+        /// </summary>
+        public int LayerCount => _layers.Count;
     }
 }
