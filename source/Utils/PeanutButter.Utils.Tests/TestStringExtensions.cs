@@ -504,7 +504,8 @@ public class TestStringExtensions
                 // Act
                 var result = src.AsString();
                 // Assert
-                Expect(result).To.Be.Null();
+                Expect(result)
+                    .To.Be.Empty();
             }
 
             [Test]
@@ -1348,7 +1349,7 @@ public class TestStringExtensions
     {
         [Test]
         [Parallelizable]
-        public void OperatingOnNull_ShouldReturnNull()
+        public void OperatingOnNull_ShouldReturnEmptyString()
         {
             // Arrange
             var input = null as string;
@@ -1359,13 +1360,15 @@ public class TestStringExtensions
             var result = input.ToSnakeCase();
 
             // Assert
-            Expect(result).To.Be.Null();
+            Expect(result)
+                .To.Be.Empty();
         }
 
         [TestCase("Moo", "moo")]
         [TestCase("MooCow", "moo_cow")]
         [TestCase("i_am_snake", "i_am_snake")]
         [TestCase("is-already-kebabed", "is_already_kebabed")]
+        [TestCase("DBIndex", "db_index")]
         [Parallelizable]
         public void ShouldConvert_(
             string from,
@@ -1401,7 +1404,8 @@ public class TestStringExtensions
             var result = input.ToPascalCase();
 
             // Assert
-            Expect(result).To.Be.Null();
+            Expect(result)
+                .To.Be.Empty();
         }
 
         public static IEnumerable<(string input, string expected)> PascalCaseTestCases()
@@ -1409,8 +1413,9 @@ public class TestStringExtensions
             yield return ("Moo", "Moo");
             yield return ("MooCow", "MooCow");
             yield return ("i_am_snake", "IAmSnake");
-            yield return ("i am words", "I Am Words");
+            yield return ("i am words", "IAmWords");
             yield return ("is-already-kebabed", "IsAlreadyKebabed");
+            yield return ("DBIndex", "DBIndex");
         }
 
         [TestCaseSource(nameof(PascalCaseTestCases))]
@@ -1464,7 +1469,8 @@ public class TestStringExtensions
             var result = input.ToCamelCase();
 
             // Assert
-            Expect(result).To.Be.Null();
+            Expect(result)
+                .To.Be.Empty();
         }
 
         [TestCase("Moo", "moo")]
@@ -1506,7 +1512,8 @@ public class TestStringExtensions
             var result = input.ToWords();
 
             // Assert
-            Expect(result).To.Be.Null();
+            Expect(result)
+                .To.Be.Empty();
         }
 
         [TestCase("Moo", "moo")]

@@ -375,7 +375,7 @@ namespace PeanutButter.Utils
         )
         {
             return data is null
-                ? null
+                ? ""
                 : encoding.GetString(data);
         }
 
@@ -574,12 +574,14 @@ namespace PeanutButter.Utils
             this string input
         )
         {
-            return input?
-                .Replace('_', '-')
-                .Replace(' ', '-')
-                .SplitWhenNonContinuousAnd('-')
-                .Select(s => s.ToLower())
-                .JoinWith("-");
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return input;
+            }
+
+            return input.ToWordsArray()
+                .JoinWith("-")
+                .ToLower();
         }
 
         /// <summary>
@@ -691,7 +693,9 @@ namespace PeanutButter.Utils
             this string input
         )
         {
-            return input.ToKebabCase()?.Replace('-', '_');
+            return input.ToWordsArray()
+                .JoinWith("_")
+                .ToLower();
         }
 
         /// <summary>
@@ -706,14 +710,9 @@ namespace PeanutButter.Utils
         /// </returns>
         public static string ToPascalCase(this string input)
         {
-            return input?
-                .Split(' ')
-                .Select(
-                    word => word
-                        .SplitWhenNonContinuousAnd('-', '_')
-                        .Select(ToUpperCasedFirstLetter)
-                        .JoinWith("")
-                ).JoinWith(" ");
+            return input.ToWordsArray()
+                .Select(ToUpperCasedFirstLetter)
+                .JoinWith("");
         }
 
         /// <summary>
@@ -735,7 +734,8 @@ namespace PeanutButter.Utils
             this string input
         )
         {
-            return input.ToPascalCase().ToLowerCasedFirstLetter();
+            return input.ToPascalCase()
+                .ToLowerCasedFirstLetter();
         }
 
         /// <summary>
@@ -794,8 +794,117 @@ namespace PeanutButter.Utils
             this string input
         )
         {
-            return input.ToKebabCase()?.Replace("-", " ");
+            return string.Join(
+                    " ",
+                    input.ToWordsArray()
+                ).ToLower();
         }
+
+        /// <summary>
+        /// Breaks a string into an array of words without
+        /// any modifications on casing. Ported from lodash's
+        /// unicodeWords
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string[] ToWordsArray(this string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return Array.Empty<string>();
+            }
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return new[] { input };
+            }
+
+            var result = new List<string>();
+            foreach (Match match in UnicodeWords.Matches(input))
+            {
+                result.Add(match.Value);
+            }
+
+            return result.ToArray();
+        }
+
+        const string rsAstralRange = "\\ud800-\\udfff";
+        const string rsComboMarksRange = "\\u0300-\\u036f";
+        const string reComboHalfMarksRange = "\\ufe20-\\ufe2f";
+        const string rsComboSymbolsRange = "\\u20d0-\\u20ff";
+        const string rsComboMarksExtendedRange = "\\u1ab0-\\u1aff";
+        const string rsComboMarksSupplementRange = "\\u1dc0-\\u1dff";
+
+        const string rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange +
+            rsComboMarksExtendedRange + rsComboMarksSupplementRange;
+
+        const string rsDingbatRange = "\\u2700-\\u27bf";
+        const string rsLowerRange = "a-z\\xdf-\\xf6\\xf8-\\xff";
+        const string rsMathOpRange = "\\xac\\xb1\\xd7\\xf7";
+        const string rsNonCharRange = "\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\xbf";
+        const string rsPunctuationRange = "\\u2000-\\u206f";
+
+        const string rsSpaceRange =
+            " \\t\\x0b\\f\\xa0\\ufeff\\n\\r\\u2028\\u2029\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000";
+
+        const string rsUpperRange = "A-Z\\xc0-\\xd6\\xd8-\\xde";
+        const string rsVarRange = "\\ufe0e\\ufe0f";
+        const string rsBreakRange = rsMathOpRange + rsNonCharRange + rsPunctuationRange + rsSpaceRange;
+
+        /** Used to compose unicode capture groups. */
+        const string rsApos = "['\u2019]";
+
+        const string rsBreak = $"[{rsBreakRange}]";
+        const string rsCombo = $"[{rsComboRange}]";
+        const string rsDigit = "\\d";
+        const string rsDingbat = $"[{rsDingbatRange}]";
+        const string rsLower = $"[{rsLowerRange}]";
+
+        const string rsMisc =
+            $"[^{rsAstralRange}{rsBreakRange + rsDigit + rsDingbatRange + rsLowerRange + rsUpperRange}]";
+
+        const string rsFitz = "\\ud83c[\\udffb-\\udfff]";
+        const string rsModifier = $"(?:{rsCombo}|{rsFitz})";
+        const string rsNonAstral = $"[^{rsAstralRange}]";
+        const string rsRegional = "(?:\\ud83c[\\udde6-\\uddff]){2}";
+        const string rsSurrPair = "[\\ud800-\\udbff][\\udc00-\\udfff]";
+        const string rsUpper = $"[{rsUpperRange}]";
+        const string rsZWJ = "\\u200d";
+
+        /** Used to compose unicode regexes. */
+        const string rsMiscLower = $"(?:{rsLower}|{rsMisc})";
+
+        const string rsMiscUpper = $"(?:{rsUpper}|{rsMisc})";
+        const string rsOptContrLower = $"(?:{rsApos}(?:d|ll|m|re|s|t|ve))?";
+        const string rsOptContrUpper = $"(?:{rsApos}(?:D|LL|M|RE|S|T|VE))?";
+        const string reOptMod = $"{rsModifier}?";
+        const string rsOptVar = $"[{rsVarRange}]?";
+
+        static readonly string rsOptJoin =
+            $"(?:{rsZWJ}(?:{string.Join("|", rsNonAstral, rsRegional, rsSurrPair)}){rsOptVar + reOptMod})*";
+
+        const string rsOrdLower = "\\d*(?:1st|2nd|3rd|(?![123])\\dth)(?=\\b|[A-Z_])";
+        const string rsOrdUpper = "\\d*(?:1ST|2ND|3RD|(?![123])\\dTH)(?=\\b|[a-z_])";
+        static readonly string rsSeq = rsOptVar + reOptMod + rsOptJoin;
+        static readonly string rsEmoji = $"(?:{string.Join("|", rsDingbat, rsRegional, rsSurrPair)}){rsSeq}";
+
+        const string rsUUID = "[a-f\\d]{4}(?:[a-f\\d]{4}-){4}[a-f\\d]{12}";
+
+        static readonly Regex UnicodeWords = new(
+            string.Join(
+                "|",
+                rsUUID,
+                $"{rsUpper}?{rsLower}+{rsOptContrLower}(?={string.Join("|", rsBreak, rsUpper, "$")})",
+                $"{rsMiscUpper}+{rsOptContrUpper}(?={string.Join("|", rsBreak, rsUpper + rsMiscLower, "$")})",
+                $"{rsUpper}?{rsMiscLower}+{rsOptContrLower}",
+                $"{rsUpper}+{rsOptContrUpper}",
+                rsOrdUpper,
+                rsOrdLower,
+                $"{rsDigit}+",
+                rsEmoji
+            ),
+            RegexOptions.Compiled
+        );
 
         /// <summary>
         /// Lower-cases the first letter in your string
@@ -831,105 +940,16 @@ namespace PeanutButter.Utils
 
 #if NETSTANDARD
         /// <summary>
-        /// Provides an in-place shum for the ToLower method
+        /// Provides an in-place shim for the ToLower method
         /// which is used from .net framework; the latter
         /// can accept a CultureInfo parameter, where .net standard
         /// cannot, so the parameter is just dropped
         /// </summary>
-        public static string ToLower(this string input, CultureInfo ci)
+        public static string ToLower(this string input, CultureInfo _)
         {
             return input.ToLower();
         }
 #endif
-
-        private static IEnumerable<string> SplitWhenNonContinuousAnd(
-            this string input,
-            params char[] others
-        )
-        {
-            var collector = new List<char>();
-            foreach (var c in input)
-            {
-                var isDefinitelyBoundary = others.Contains(c);
-                if (collector.Count == 0)
-                {
-                    // nothing gathered yet -> definitely do not yield
-                    if (!isDefinitelyBoundary)
-                    {
-                        // possibly this char is nice for later 
-                        collector.Add(c);
-                    }
-
-                    continue;
-                }
-
-                if (isDefinitelyBoundary)
-                {
-                    // boundary specified by delimiters
-                    // -> yield (even if empty: caller can choose to discard)
-                    yield return string.Join("", collector);
-                    collector.Clear();
-                    continue;
-                }
-
-                // not a defined break according to specified delimiters
-                //    but would be non-continuous -> yield
-                if (!WouldBeContinuous(collector, c))
-                {
-                    yield return string.Join("", collector);
-                    collector.Clear();
-                }
-
-                collector.Add(c);
-            }
-
-            // yield the remnants (again, caller can discard empty)
-            yield return string.Join("", collector);
-        }
-
-        private static bool WouldBeContinuous(IEnumerable<char> chars, char next)
-        {
-            var overall = StringFor(chars, next);
-
-            // it's continuous if:
-            //    1. string is alpha-numeric only
-            if (!AlphaNumericRegex.IsMatch(overall))
-            {
-                return false; // have non-alpha-numeric chars (spaces, dashes, whatever)
-            }
-
-            //     2. case doesn't change over the string, after position 1
-            //     eg:    aaa -> continuous
-            //            123 -> continuous
-            //            a12 -> continuous
-            //            aB1 -> not continuous (possible camelCase)
-            //            Ab1 -> continuous (start of word is ok)
-            var most = overall.Substring(1);
-            return most.Length == 0 ||
-                MatchesSelfLowered(most) ||
-                MatchesSelfUpperCased(most);
-        }
-
-        private static bool MatchesSelfLowered(string str)
-        {
-            var lower = str.ToLower(CultureInfo.CurrentCulture);
-            return str.Equals(lower, StringComparison.CurrentCulture);
-        }
-
-        private static bool MatchesSelfUpperCased(string str)
-        {
-            var upper = str.ToUpper(CultureInfo.CurrentCulture);
-            return str.Equals(upper, StringComparison.CurrentCulture);
-        }
-
-        private static readonly Regex AlphaNumericRegex = new Regex(
-            "^[A-Za-zÀ-ÿ0-9]+$"
-        );
-
-        private static string StringFor(IEnumerable<char> chars, char next)
-        {
-            return string.Join("", chars.Concat(new[] { next }));
-        }
 
         private static string GetLeadingIntegerCharsFrom(
             string value
@@ -1904,7 +1924,9 @@ namespace PeanutButter.Utils
 
             var compare = pathType switch
             {
-                PathType.Auto => Platform.IsWindows ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase,
+                PathType.Auto => Platform.IsWindows
+                    ? StringComparison.Ordinal
+                    : StringComparison.OrdinalIgnoreCase,
                 PathType.Unix => StringComparison.Ordinal,
                 PathType.Windows => StringComparison.OrdinalIgnoreCase,
                 _ => throw new ArgumentOutOfRangeException(nameof(pathType), pathType, null)
