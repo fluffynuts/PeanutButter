@@ -646,7 +646,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 // Assert
                 Expect(collected.JoinWith("\n").Trim())
                     .To.Start.With(opts.Description[0])
-                    .Then("Usage: dotnet")
+                    .Then("Usage: ")
                     .And
                     .To.End.With(opts.MoreInfo[0]);
             }

@@ -864,7 +864,7 @@ namespace PeanutButter.Utils
         {
             return new[] { input };
         }
-
+        
         /// <summary>
         /// Fluency extension to wrap a single item in a list, eg:
         /// new SomeBusinessObject().InList().Union(SomeOtherCollection);
