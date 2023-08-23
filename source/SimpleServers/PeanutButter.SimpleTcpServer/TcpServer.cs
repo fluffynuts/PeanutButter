@@ -24,11 +24,29 @@ namespace PeanutButter.SimpleTcpServer
     }
 
     /// <summary>
+    /// An IDisposable animal with a Disposed
+    /// property one can interrogate to find
+    /// out if the item has been disposed.
+    /// </summary>
+    public interface ITrackingDisposable : IDisposable
+    {
+        /// <summary>
+        /// Flag: should be true when the item has been disposed
+        /// </summary>
+        bool Disposed { get; }
+    }
+
+    /// <summary>
     /// Provides the base TCP server upon which more complex
     /// TCP-based servers can be built.
     /// </summary>
-    public abstract class TcpServer : IDisposable
+    public abstract class TcpServer : ITrackingDisposable
     {
+        /// <summary>
+        /// Flag: when true, this server has been disposed
+        /// </summary>
+        public bool Disposed { get; private set; }
+
         /// <summary>
         /// Maximum time, in milliseconds, to wait on the
         /// listener task when shutting down
@@ -46,6 +64,7 @@ namespace PeanutButter.SimpleTcpServer
         public Action<string> LogAction { get; set; } = Console.WriteLine;
 
         // ReSharper disable once MemberCanBePrivate.Global
+
 
         /// <summary>
         /// Port which this server has bound to
@@ -65,7 +84,6 @@ namespace PeanutButter.SimpleTcpServer
         private readonly Random _random = new Random(DateTime.Now.Millisecond);
         private readonly int _randomPortMin;
         private readonly int _randomPortMax;
-
 
         /// <summary>
         /// Construct the server with a random port within the provided range
@@ -327,6 +345,12 @@ namespace PeanutButter.SimpleTcpServer
         /// </summary>
         public virtual void Dispose()
         {
+            if (Disposed)
+            {
+                return;
+            }
+
+            Disposed = true;
             Stop();
         }
 

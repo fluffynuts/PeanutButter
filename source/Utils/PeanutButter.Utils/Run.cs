@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable once UnusedType.Global
@@ -103,6 +104,25 @@ namespace PeanutButter.Utils
                 second,
                 more
             ).RunAll(maxDegreeOfParallelism);
+        }
+
+        /// <summary>
+        /// Run a bunch of actions in parallel
+        /// </summary>
+        /// <param name="maxDegreeOfParallelism"></param>
+        /// <param name="actions"></param>
+        /// <returns></returns>
+        public static Exception[] InParallel(
+            int maxDegreeOfParallelism,
+            IEnumerable<Action> actions
+        )
+        {
+            var worker = new ParallelWorker();
+            foreach (var action in actions)
+            {
+                worker.AddWorker(action);
+            }
+            return worker.RunAll(maxDegreeOfParallelism);
         }
 
         private static ParallelWorker<T> CreateWorkerFor<T>(
