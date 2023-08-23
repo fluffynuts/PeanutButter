@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,7 +50,8 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static Type[] AncestryUntil(
             this Type type,
-            Type from)
+            Type from
+        )
         {
             var stopAtIsGenericDefinition =
                 from != null &&
@@ -92,9 +94,11 @@ namespace PeanutButter.Utils
         {
             // hybrid of http://stackoverflow.com/questions/10261824/how-can-i-get-all-constants-of-a-type-by-reflection
             //  and https://ruscoweb.wordpress.com/2011/02/09/c-using-reflection-to-get-constant-values/
-            return type.GetFields(BindingFlags.Public |
+            return type.GetFields(
+                    BindingFlags.Public |
                     BindingFlags.Static |
-                    BindingFlags.FlattenHierarchy)
+                    BindingFlags.FlattenHierarchy
+                )
                 .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
                 .ToDictionary(x => x.Name, y => y.GetRawConstantValue());
         }
@@ -308,8 +312,10 @@ namespace PeanutButter.Utils
 
 
         private static readonly MethodInfo GenericIsAssignableFromArrayOf
-            = typeof(TypeExtensions).GetMethod(nameof(IsAssignableFromArrayOf),
-                BindingFlags.Static | BindingFlags.Public);
+            = typeof(TypeExtensions).GetMethod(
+                nameof(IsAssignableFromArrayOf),
+                BindingFlags.Static | BindingFlags.Public
+            );
 
         /// <summary>
         /// Tests if a type is a generic of a given generic type (eg typeof(List&lt;&gt;))
@@ -432,6 +438,123 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Tests if a type is enumerable by the duck-typing
+        /// that .net understands (ie, could wrap with EnumerableWrapper)
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        public static bool IsEnumerable(this Type arg)
+        {
+            if (arg is null)
+            {
+                return false;
+            }
+
+            if (arg.Implements<IEnumerable>() ||
+                arg.IsGenericOfIEnumerable())
+            {
+                return true;
+            }
+
+            var getEnumerator = arg.GetMethod("GetEnumerator");
+            if (getEnumerator is null)
+            {
+                return false;
+            }
+
+            var returnType = getEnumerator.ReturnType;
+            return returnType.HasProperty("Current") &&
+                returnType.HasMethod("MoveNext", typeof(bool)) &&
+                returnType.HasVoidMethod("Reset");
+        }
+
+        /// <summary>
+        /// Tests if a type has a named method, without
+        /// testing return type or parameters
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="methodName"></param>
+        /// <returns></returns>
+        public static bool HasMethod(
+            this Type t,
+            string methodName
+        )
+        {
+            return t?.GetMethod(methodName) is not null;
+        }
+
+        /// <summary>
+        /// Test if a type has a method returning void,
+        /// with the optional list of parameter types
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="methodName"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public static bool HasVoidMethod(
+            this Type t,
+            string methodName,
+            params Type[] parameters
+        )
+        {
+            return t.HasMethod(
+                methodName,
+                typeof(void)
+            );
+        }
+
+        /// <summary>
+        /// Tests if a type has the named method with the
+        /// provided return type and optional parameter types
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="name"></param>
+        /// <param name="returnType"></param>
+        /// <param name="parameterTypes"></param>
+        /// <returns></returns>
+        public static bool HasMethod(
+            this Type t,
+            string name,
+            Type returnType,
+            params Type[] parameterTypes
+        )
+        {
+            var method = t?.GetMethod(name);
+            if (method is null)
+            {
+                return false;
+            }
+
+            if (method.ReturnType != returnType)
+            {
+                return false;
+            }
+
+            if (!parameterTypes.Any())
+            {
+                return true;
+            }
+
+            var methodParams = method.GetParameters()
+                .Select(p => p.ParameterType)
+                .ToArray();
+            if (methodParams.Length != parameterTypes.Length)
+            {
+                return false;
+            }
+
+            foreach (var parameterPair in methodParams.Zip(parameterTypes, Tuple.Create))
+            {
+                if (parameterPair.Item1 != parameterPair.Item2)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Attempts to get the item type of a collection
         /// </summary>
         /// <param name="collectionType">Type to inspect</param>
@@ -517,12 +640,16 @@ namespace PeanutButter.Utils
                     ?.Substring(0, type.FullName?.IndexOf("`") ?? 0)
                     .Split('.') ??
                 new[] { type.Name };
-            return string.Join("",
+            return string.Join(
+                "",
                 parts.Last(),
                 "<",
-                string.Join(", ",
-                    type.GetGenericArguments().Select(PrettyName)),
-                ">");
+                string.Join(
+                    ", ",
+                    type.GetGenericArguments().Select(PrettyName)
+                ),
+                ">"
+            );
         }
 
         /// <summary>
@@ -1083,8 +1210,9 @@ namespace PeanutButter.Utils
             var propertyType = typeof(T);
             var props = type
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(pi => pi.Name == propertyName && (
-                    propertyType == typeof(object) || pi.PropertyType == propertyType)
+                .Where(
+                    pi => pi.Name == propertyName && (
+                        propertyType == typeof(object) || pi.PropertyType == propertyType)
                 )
                 .ToArray();
             if (!props.Any())
@@ -1168,16 +1296,18 @@ namespace PeanutButter.Utils
             if (!expected.IsInterface)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(Implements)} tests for implemented interfaces, not for ancestry");
+                    $"{nameof(Implements)} tests for implemented interfaces, not for ancestry"
+                );
             }
 
             var interfaces = type.GetInterfaces();
             if (expected.IsGenericType)
             {
                 return interfaces
-                    .Any(i =>
-                        i.IsGenericType &&
-                        i.GetGenericTypeDefinition() == expected
+                    .Any(
+                        i =>
+                            i.IsGenericType &&
+                            i.GetGenericTypeDefinition() == expected
                     );
             }
 
@@ -1553,9 +1683,10 @@ namespace PeanutButter.Utils
         )
         {
             return parameterInfo.GetCustomAttributes()
-                .Any(a => a is { } attr &&
-                    a.GetType() == attributeType &&
-                    matcher(attr)
+                .Any(
+                    a => a is { } attr &&
+                        a.GetType() == attributeType &&
+                        matcher(attr)
                 );
         }
 
@@ -1605,8 +1736,9 @@ namespace PeanutButter.Utils
             var attributes = MethodAttributeCache.GetOrAdd(
                 key,
                 _ => methodInfo.GetCustomAttributes(inherit)
-                    .Where(a => a is Attribute attr &&
-                        attr.GetType() == attributeType
+                    .Where(
+                        a => a is Attribute attr &&
+                            attr.GetType() == attributeType
                     ).Cast<Attribute>().ToArray()
             );
             return attributes.Any(matcher);
@@ -1718,9 +1850,10 @@ namespace PeanutButter.Utils
                                 attr.GetType() == attributeType
                         ).ToArray()
                     : propertyInfo.GetCustomAttributes(false)
-                        .Where(a =>
-                            a is Attribute attr &&
-                            attr.GetType() == attributeType
+                        .Where(
+                            a =>
+                                a is Attribute attr &&
+                                attr.GetType() == attributeType
                         ).Cast<Attribute>().ToArray()
             );
             return attributes.Any(matcher);

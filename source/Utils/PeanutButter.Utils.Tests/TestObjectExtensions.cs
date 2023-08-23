@@ -431,7 +431,7 @@ public class TestObjectExtensions
             //--------------- Assert -----------------------
             Assert.IsFalse(result);
         }
-
+        
         [Test]
         public void ShouldNotStackOverflowLikeInTheWild()
         {
@@ -889,6 +889,19 @@ public class TestObjectExtensions
 
                 //--------------- Assert -----------------------
                 Expect(result).To.Be.False();
+            }
+        }
+
+        [TestFixture]
+        public class DebugDeepEquals
+        {
+            [Test]
+            public void ShouldWriteOutTheDiffToTheProvidedWriter()
+            {
+                // Arrange
+                
+                // Act
+                // Assert
             }
         }
     }

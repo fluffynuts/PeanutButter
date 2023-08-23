@@ -864,7 +864,7 @@ namespace PeanutButter.Utils
         {
             return new[] { input };
         }
-        
+
         /// <summary>
         /// Fluency extension to wrap a single item in a list, eg:
         /// new SomeBusinessObject().InList().Union(SomeOtherCollection);
@@ -1137,7 +1137,9 @@ namespace PeanutButter.Utils
 
                 var index = indexes?.FirstOrDefault();
 
-                var type = src.GetType();
+                var type = src.IsRuntimeType()
+                    ? src as Type
+                    : src.GetType();
                 var memberInfo = fetchers.Aggregate(
                     null as PropertyOrField,
                     (acc, cur) => acc ?? cur(type).FirstOrDefault(mi => mi.Name == name)

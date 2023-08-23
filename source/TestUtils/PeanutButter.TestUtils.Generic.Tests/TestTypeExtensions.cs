@@ -182,8 +182,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Expect(() =>
-                    typeof(DoesImplementDerivative).ShouldImplement<DoesImplement>())
+            Expect(
+                    () =>
+                        typeof(DoesImplementDerivative).ShouldImplement<DoesImplement>()
+                )
                 .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
@@ -248,8 +250,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() =>
-                typeof(DoesImplementDerivative).ShouldInheritFrom<Tests.IInterface>());
+            Assert.Throws<AssertionException>(
+                () =>
+                    typeof(DoesImplementDerivative).ShouldInheritFrom<Tests.IInterface>()
+            );
 
             //---------------Test Result -----------------------
         }
@@ -327,8 +331,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() =>
-                typeof(DoesImplement).ShouldNotBeAssignableFrom(typeof(IInterface)));
+            var ex = Assert.Throws<AssertionException>(
+                () =>
+                    typeof(DoesImplement).ShouldNotBeAssignableFrom(typeof(IInterface))
+            );
 
             //---------------Test Result -----------------------
             Assert.AreEqual("DoesImplement should not implement IInterface", ex.Message);
@@ -458,12 +464,16 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() =>
-                t.ShouldThrowWhenConstructorParameterIsNull("arg", typeof(int)));
+            var ex = Assert.Throws<AssertionException>(
+                () =>
+                    t.ShouldThrowWhenConstructorParameterIsNull("arg", typeof(int))
+            );
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("Parameter arg is expected to have type: 'Int32' but actually has type: 'String'",
-                ex.Message);
+            Assert.AreEqual(
+                "Parameter arg is expected to have type: 'Int32' but actually has type: 'String'",
+                ex.Message
+            );
         }
 
         public abstract class AbstractThing
@@ -774,7 +784,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
         public void Collection_ShouldBeEnumerable()
         {
             //--------------- Arrange -------------------
-            var src = new Collection<string>(new[] {"a", "z"});
+            var src = new Collection<string>(new[] { "a", "z" });
 
             //--------------- Assume ----------------
 
@@ -883,6 +893,226 @@ namespace PeanutButter.TestUtils.Generic.Tests
             Expect(() => sut.ShouldHaveEnumValue("Bar", 36)).Not.To.Throw();
 
             //--------------- Assert -----------------------
+        }
+
+        [TestFixture]
+        public class HasMethod
+        {
+            [Test]
+            public void ShouldReturnTrueWhenExists()
+            {
+                // Arrange
+                var t = typeof(Dog);
+                // Act
+                var result = t.HasMethod("Woof");
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnFalseWhenMissing()
+            {
+                // Arrange
+                var t = typeof(Dog);
+                // Act
+                var result = t.HasMethod("Meow");
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [TestFixture]
+            public class GivenReturnType
+            {
+                [Test]
+                public void ShouldReturnTrueWhenMatchingWithNoParameters()
+                {
+                    // Arrange
+                    var t = typeof(Dog);
+                    // Act
+                    var result = t.HasMethod(
+                        "CountLegs",
+                        typeof(int)
+                    );
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnFalseWhenNoMatchBecauseOfParameters()
+                {
+                    // Arrange
+                    var t = typeof(Dog);
+                    // Act
+                    var result = t.HasMethod(
+                        "CountLegs",
+                        typeof(int),
+                        typeof(string)
+                    );
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+
+                [Test]
+                public void ShouldReturnTrueWHenMatchingParametersAndReturn()
+                {
+                    // Arrange
+                    var t = typeof(Dog);
+                    // Act
+                    var result = t.HasMethod(
+                        "Add",
+                        typeof(int),
+                        typeof(int),
+                        typeof(int)
+                    );
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnFalseWHenMismatchingParametersAndMatchingReturn()
+                {
+                    // Arrange
+                    var t = typeof(Dog);
+                    // Act
+                    var result = t.HasMethod(
+                        "Add",
+                        typeof(int),
+                        typeof(int),
+                        typeof(string)
+                    );
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            public class Dog
+            {
+                public void Woof()
+                {
+                }
+
+                public int CountLegs()
+                {
+                    return 4;
+                }
+
+                public int Add(int a, int b)
+                {
+                    return a + b;
+                }
+            }
+        }
+
+        [TestFixture]
+        public class IsEnumerable
+        {
+            [Test]
+            public void ShouldReturnTrueForArray()
+            {
+                // Arrange
+                var a = new[] { 1, 2, 3 };
+                foreach (var item in a)
+                {
+                    // do nothing - just prove that
+                    // this compiles as enumerable
+                }
+
+                // Act
+                var result = a.GetType().IsEnumerable();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnTrueForIEnumerable()
+            {
+                // Arrange
+                var a = new[] { 1, 2, 3 }.AsEnumerable<int>();
+                var type = a.GetType();
+                foreach (var item in a)
+                {
+                    // do nothing - just prove that
+                    // this compiles as enumerable
+                }
+                // Act
+                var result = a.GetType().IsEnumerable();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnTrueForHomeGrownEnumerable()
+            {
+                // Arrange
+                var bag = new Bag<int>();
+                bag.Add(1);
+                bag.Add(2);
+                bag.Add(3);
+                var expected = new List<int>();
+                foreach (var item in bag)
+                {
+                    expected.Add(item);
+                }
+
+                Expect(expected)
+                    .To.Equal(new[] { 1, 2, 3 });
+                // Act
+                var result = bag.GetType().IsEnumerable();
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            public class Bag<T>
+            {
+                private List<T> _store = new();
+
+                public void Add(T value)
+                {
+                    _store.Add(value);
+                }
+
+                public BagEnumerator<T> GetEnumerator()
+                {
+                    return new BagEnumerator<T>(_store);
+                }
+            }
+
+            public class BagEnumerator<T>
+            {
+                private IEnumerator<T> _enumerator;
+
+                public BagEnumerator(IEnumerable<T> data)
+                {
+                    _enumerator = data.GetEnumerator();
+                }
+
+                public void Dispose()
+                {
+                    _enumerator?.Dispose();
+                    _enumerator = null;
+                }
+
+                public bool MoveNext()
+                {
+                    return _enumerator.MoveNext();
+                }
+
+                public void Reset()
+                {
+                    _enumerator.Reset();
+                }
+
+                public T Current => _enumerator.Current;
+            }
         }
     }
 }
