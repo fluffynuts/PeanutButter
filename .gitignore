@@ -144,3 +144,4 @@ tools
 build-tools
 .idea
 docfx_project
+.release-packages
