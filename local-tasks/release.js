@@ -125,6 +125,10 @@ function pushNugetPackagesWithDotNet(skipDuplicates) {
     if (skipDuplicates) {
       result.push("--skip-duplicates");
     }
+    if (process.env.NUGET_API_KEY) {
+      result.push("--api-key");
+      result.push(process.env.NUGET_API_KEY);
+    }
     return result;
   });
 }
