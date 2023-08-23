@@ -8,7 +8,7 @@
 #   marked the setting in here as forced with !
 TEMPDB_PORT_HINT=
 TEST_EXCLUDE=PeanutButter.RandomGenerators.Core.Tests.Domain,NugetPackageVersionIncrementer.Tests,**/_deprecated_/**
-DOTNET_CORE=1
+DOTNET_CORE=0
 DOTNET_TEST_PARALLEL=1
 COVERAGE_INCLUDE=*,PeanutButter.*
 COVERAGE_EXCLUDE_ASSEMBLIES=PeanutButter.RandomGenerators.Core.Tests.Domain
