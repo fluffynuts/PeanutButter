@@ -83,14 +83,6 @@ namespace PeanutButter.SimpleTcpServer.Tests
             {
                 throw new NotImplementedException();
             }
-
-            public override void Dispose()
-            {
-                Disposed = true;
-                base.Dispose();
-            }
-
-            public bool Disposed { get; private set; }
         }
 
         [Test]

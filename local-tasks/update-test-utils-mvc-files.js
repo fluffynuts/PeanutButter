@@ -1,6 +1,6 @@
 const path = require("path"),
   gulp = requireModule("gulp-with-help"),
-  lsR = requireModule("ls-r"),
+  { lsSync, FsEntities } = require("yafs"),
   throwIfNoFiles = requireModule("throw-if-no-files"),
   opts = {
     parserOptions: {},
@@ -18,23 +18,23 @@ gulp.task(
   "Updates the files section of PeanutButter.TestUtils.MVC/Package.nuspec to include all source .cs files",
   () => {
     const project = "source/TestUtils/PeanutButter.TestUtils.MVC",
-      nuspec = `${project}/Package.nuspec`;
+      nuspec = `${ project }/Package.nuspec`;
     return gulp
       .src(nuspec)
-      .pipe(throwIfNoFiles(`Nuspec not found at: ${nuspec}`))
+      .pipe(throwIfNoFiles(`Nuspec not found at: ${ nuspec }`))
       .pipe(
         editXml(xml => {
-          const sourceFolder = `${project}`,
+          const sourceFolder = `${ project }`,
             projectFullPath = path.resolve(project),
-            files = lsR(sourceFolder)
+            files = lsSync(sourceFolder, { recurse: true, entities: FsEntities.files })
               .filter(p => {
                 return p.match(/\.cs$/);
               })
               .map(p => p.replace(projectFullPath, ""))
               .map(p => p.replace(/^\\/, ""));
 
-          xml.package.files = [{ file: [] }];
-          const fileNode = xml.package.files[0].file;
+          xml.package.files = [ { file: [] } ];
+          const fileNode = xml.package.files[ 0 ].file;
           fileNode.push({
             $: {
               src: "icon.png",
@@ -50,7 +50,7 @@ gulp.task(
               fileNode.push({
                 $: {
                   src: relPath,
-                  target: `${targetBase}\\${relPath}`
+                  target: `${ targetBase }\\${ relPath }`
                 }
               });
             });

@@ -1156,18 +1156,29 @@ stderr: {stderr}"
             string logFile
         )
         {
-            using var f = new FileStream(logFile, FileMode.OpenOrCreate);
-            f.SetLength(0);
-            using var writer = new StreamWriter(f);
-            writer.WriteLine("MySql started with the following startup info:");
-            writer.WriteLine($"CLI: \"{startInfo.FileName}\" {startInfo.Arguments}");
-            writer.WriteLine($"Working directory: {Directory.GetCurrentDirectory()}");
-            writer.WriteLine($"Current user: {Environment.UserName}");
-            writer.WriteLine("Environment:");
-            var envVars = Environment.GetEnvironmentVariables();
-            foreach (var key in envVars.Keys)
+            for (var i = 0; i < 10; i++)
             {
-                writer.WriteLine($"  {key} = {envVars[key]}");
+                try
+                {
+                    using var f = new FileStream(logFile, FileMode.OpenOrCreate);
+                    f.SetLength(0);
+                    using var writer = new StreamWriter(f);
+                    writer.WriteLine("MySql started with the following startup info:");
+                    writer.WriteLine($"CLI: \"{startInfo.FileName}\" {startInfo.Arguments}");
+                    writer.WriteLine($"Working directory: {Directory.GetCurrentDirectory()}");
+                    writer.WriteLine($"Current user: {Environment.UserName}");
+                    writer.WriteLine("Environment:");
+                    var envVars = Environment.GetEnvironmentVariables();
+                    foreach (var key in envVars.Keys)
+                    {
+                        writer.WriteLine($"  {key} = {envVars[key]}");
+                    }
+                    return;
+                }
+                catch
+                {
+                    Thread.Sleep(500);
+                }
             }
         }
 

@@ -60,6 +60,56 @@ namespace PeanutButter.Utils.Tests
             Expect(written)
                 .To.Equal(expected);
         }
+        
+        [Test]
+        public void ShouldBeAbleToWaitForExitWhenLotsOfOutput()
+        {
+            // Arrange
+            if (!ExeIsAvailable("cmd"))
+            {
+                Assert.Ignore(REQUIRES_CMD);
+                return;
+            }
+
+            if (!ExeIsAvailable("cat"))
+            {
+                Assert.Ignore(REQUIRES_CAT);
+                return;
+            }
+            using var folder = new AutoTempFolder();
+            var expected = PyLike.Range(0, 100).Select(_ =>  GetRandomWords(300))
+                .ToArray()
+                .JoinWith("\n");
+            using var sourceFile = new AutoTempFile(
+                folder.Path,
+                Encoding.UTF8.GetBytes(
+                    expected
+                )
+            );
+            using var targetFile = new AutoTempFile(
+                folder.Path, new byte[0]
+            );
+            var sourceFileName = Path.GetFileName(sourceFile.Path);
+            var targetFileName = Path.GetFileName(targetFile.Path);
+            using var batFile = new AutoTempFile(
+                folder.Path,
+                "test.bat",
+                Encoding.UTF8.GetBytes(
+                    $"cat {sourceFileName} > {targetFileName}"
+                )
+            );
+
+            // Act
+            using (var io = ProcessIO.In(folder.Path)
+                .Start(batFile.Path))
+            {
+                io.WaitForExit();
+            }
+            // Assert
+            var written = File.ReadAllText(targetFile.Path);
+            Expect(written)
+                .To.Equal(expected);
+        }
 
         [Test]
         public void ShouldBeAbleToReadFromStdOut()

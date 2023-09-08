@@ -145,3 +145,4 @@ build-tools
 .idea
 docfx_project
 .release-packages
+SonarQube.Analysis.xml
