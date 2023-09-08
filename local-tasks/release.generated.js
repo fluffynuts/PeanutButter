@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 (function () {
     var _this = this;
-    var gulp = requireModule("gulp"), lsSync = require("yafs").lsSync, runSequence = requireModule("run-sequence"), msbuild = requireModule("gulp-msbuild"), sleep = requireModule("sleep"), del = require("del"), exec = requireModule("exec"), spawn = requireModule("System"), path = require("path"), findTool = requireModule("testutil-finder").findTool, PQueue = require("p-queue").default, env = requireModule("env"), gutil = requireModule("gulp-util"), envFlag = requireModule("env-helpers").envFlag, usingDotnetCore = env.resolveFlag("DOTNET_CORE"), commonConfig = {
+    var gulp = requireModule("gulp"), lsSync = require("yafs").lsSync, runSequence = requireModule("run-sequence"), msbuild = requireModule("gulp-msbuild"), sleep = requireModule("sleep"), del = require("del"), exec = requireModule("exec"), system = requireModule("System"), path = require("path"), findTool = requireModule("testutil-finder").findTool, PQueue = require("p-queue").default, env = requireModule("env"), gutil = requireModule("gulp-util"), envFlag = requireModule("env-helpers").envFlag, usingDotnetCore = env.resolveFlag("DOTNET_CORE"), commonConfig = {
         toolsVersion: "auto",
         stdout: true,
         verbosity: "minimal",
@@ -71,7 +71,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
         stream.emit("error", new Error(msg));
     }
     function processPathsWith(getNugetArgsFor) {
-        var es = require("event-stream"); // fixme: type es.through
+        var ExecStepContext = require("exec-step").ExecStepContext, ctx = new ExecStepContext(), es = require("event-stream"); // fixme: type es.through
         var files = [];
         var stream = es.through(function (file) {
             if (!file) {
@@ -89,7 +89,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
                     var args = getNugetArgsFor(pkgPath);
                     if (args) {
                         return function () {
-                            return retry(function () { return exec(nuget, args); }, 10, function (e) {
+                            return retry(function () { return ctx.exec("upload package: ".concat(path.basename(pkgPath)), function () { return exec(nuget, args); }); }, 10, function (e) {
                                 if (e && e.info) {
                                     var errors = e.info.stderr.join("\n").trim();
                                     if (errors.match(/: 409 \(/)) {
@@ -242,7 +242,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
         }
         var incrementer = "NugetPackageVersionIncrementer";
         var util = findTool("".concat(incrementer, ".exe"), "source/".concat(incrementer));
-        return spawn(util, ["source"]);
+        return system(util, ["source"]);
     });
     gulp.task("release", ["build-nuget-packages"], function (done) {
         runSequence("push-packages", "commit-release", "tag-and-push", done);

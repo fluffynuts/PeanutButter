@@ -10,7 +10,7 @@ import { Stream } from "stream";
         sleep = requireModule<Sleep>("sleep"),
         del = require("del"),
         exec = requireModule<Exec>("exec"),
-        spawn = requireModule<System>("System"),
+        system = requireModule<System>("System"),
         path = require("path"),
         findTool = requireModule<TestUtilFinder>("testutil-finder").findTool,
         PQueue = require("p-queue").default,
@@ -49,6 +49,8 @@ import { Stream } from "stream";
 
     function processPathsWith(getNugetArgsFor: (s: string) => string[]) {
         const
+            { ExecStepContext } = require("exec-step"),
+            ctx = new ExecStepContext(),
             es = require("event-stream") as any; // fixme: type es.through
         const files = [];
         const stream = es.through(function (this: Stream, file: any) {
@@ -67,16 +69,23 @@ import { Stream } from "stream";
                             const args = getNugetArgsFor(pkgPath);
                             if (args) {
                                 return () => {
-                                    return retry(() => exec(nuget, args), 10, (e: any) => {
-                                        if (e && e.info) {
-                                            const errors = e.info.stderr.join("\n").trim();
-                                            if (errors.match(/: 409 \(/)) {
-                                                console.warn(errors);
-                                                return true;
+                                    return retry(
+                                        () => ctx.exec(
+                                            `upload package: ${path.basename(pkgPath)}`,
+                                            () => exec(nuget, args)
+                                        ),
+                                        10,
+                                        (e: any) => {
+                                            if (e && e.info) {
+                                                const errors = e.info.stderr.join("\n").trim();
+                                                if (errors.match(/: 409 \(/)) {
+                                                    console.warn(errors);
+                                                    return true;
+                                                }
                                             }
+                                            return false;
                                         }
-                                        return false;
-                                    });
+                                    );
                                 };
                             } else {
                                 return () => Promise.reject(`Can't determine nuget args for ${ pkgPath }`);
@@ -237,8 +246,8 @@ import { Stream } from "stream";
             return Promise.resolve();
         }
         const incrementer = "NugetPackageVersionIncrementer";
-        const util = findTool(`${incrementer}.exe`, `source/${incrementer}`);
-        return spawn(util, [ "source" ]);
+        const util = findTool(`${ incrementer }.exe`, `source/${ incrementer }`);
+        return system(util, [ "source" ]);
     });
 
     gulp.task("release", [ "build-nuget-packages" ], function (done) {
