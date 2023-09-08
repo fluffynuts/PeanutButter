@@ -1,6 +1,5 @@
 /// <reference path="../node_modules/zarro/types.d.ts" />
 import { Stream } from "stream";
-import path from "path";
 
 (function () {
     const

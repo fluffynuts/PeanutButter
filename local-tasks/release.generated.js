@@ -187,8 +187,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
         : pushNugetPackagesWithNugetExe;
     var nugetReleaseDir = ".release-packages";
     function buildNugetPackagesWithNugetExe(includeSymbols) {
-        return processPathsWith("packing", function (filePath) {
-            var args = ["packing with dotnet.exe", filePath, "-NonInteractive", "-Verbosity", "Detailed", "-OutputDirectory", nugetReleaseDir];
+        return processPathsWith("packing with nuget.exe", function (filePath) {
+            var args = ["pack", filePath, "-NonInteractive", "-Verbosity", "Detailed", "-OutputDirectory", nugetReleaseDir];
             if (includeSymbols) {
                 args.push("-Symbols");
             }
