@@ -355,8 +355,7 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
                         EndPoints =
                         {
                             {
-                                "127.0.0.1",
-                                Port
+                                "127.0.0.1", Port
                             }
                         },
                         ConnectTimeout = 50,
@@ -383,6 +382,10 @@ stderr:
 {stderr}
 "
                 );
+            }
+            catch (ObjectDisposedException)
+            {
+                // suppress - perhaps a bug in StackExchange.Redis?
             }
         }
 
