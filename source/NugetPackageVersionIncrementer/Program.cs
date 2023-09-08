@@ -1,7 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Reflection;
+using PeanutButter.Utils;
 
 namespace NugetPackageVersionIncrementer
 {
@@ -27,9 +26,13 @@ namespace NugetPackageVersionIncrementer
                 Console.WriteLine(ex.Message);
                 Console.WriteLine("Stack trace follows:");
                 Console.WriteLine(ex.StackTrace);
+                Console.WriteLine($"Commandline: {MyExe} {args.Select(a => a.Contains(" ") ? $"\"{a}\"" : a).JoinWith(" ")}");
                 return -1;
             }
         }
+        
+        private static string MyExe =>
+            new Uri(typeof(Program).Assembly.Location).LocalPath;
 
         private static INuspecVersionCoordinator ResolveNuspecCoordinator()
         {

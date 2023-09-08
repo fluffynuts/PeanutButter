@@ -7,7 +7,7 @@
         public void IncrementVersionOn(string path)
         {
             var readerWriter = new NuspecReaderWriter(path);
-            var incrementer = new NuspecVersionIncrementer(readerWriter.NuspecXml);
+            var incrementer = new NuspecVersionIncrementer(readerWriter.NuspecXml, path);
             BeforeVersion = incrementer.Version;
             incrementer.IncrementMinorVersion();
             AfterVersion = incrementer.Version;

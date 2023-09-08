@@ -28,7 +28,7 @@ import { Stream } from "stream";
 
 
     gulp.task("clean-old-packages", async () => {
-        const paths = await del("**/*.npkg.bak") as string[];
+        const paths = await del("**/*.nupkg.bak") as string[];
         paths.forEach(p => {
             console.log(`removed: ${ p }`);
         });
@@ -236,7 +236,8 @@ import { Stream } from "stream";
             gutil.log(gutil.colors.red(`Skipping package version increment: env var ${ name } is set to ${ process.env[name] }`));
             return Promise.resolve();
         }
-        const util = findTool("NugetPackageVersionIncrementer.exe", "source");
+        const incrementer = "NugetPackageVersionIncrementer";
+        const util = findTool(`${incrementer}.exe`, `source/${incrementer}`);
         return spawn(util, [ "source" ]);
     });
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
+
 // ReSharper disable ObjectCreationAsStatement
 
 namespace NugetPackageVersionIncrementer.Tests
@@ -18,7 +19,7 @@ namespace NugetPackageVersionIncrementer.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<ArgumentException>(() => new NuspecVersionIncrementer(xml));
+            var ex = Assert.Throws<ArgumentException>(() => new NuspecVersionIncrementer(xml, ""));
 
             //---------------Test Result -----------------------
             StringAssert.Contains("not valid xml", ex.Message.ToLower());
@@ -61,9 +62,11 @@ namespace NugetPackageVersionIncrementer.Tests
             Assert.AreEqual(expected, sut.Version);
         }
 
-        private NuspecVersionIncrementer Create(string input)
+        private NuspecVersionIncrementer Create(
+            string input
+        )
         {
-            return new NuspecVersionIncrementer(input);
+            return new NuspecVersionIncrementer(input, null);
         }
     }
 }

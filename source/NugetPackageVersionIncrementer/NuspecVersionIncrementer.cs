@@ -11,21 +11,29 @@ namespace NugetPackageVersionIncrementer
 {
     public class NuspecVersionIncrementer
     {
+        private readonly string _nuspecXml;
+        private readonly string _nuspecPath;
         public string Version { get; set; }
         public string PackageId { get; private set; }
         private XDocument _doc;
 
-        public NuspecVersionIncrementer(string nuspec)
+        public NuspecVersionIncrementer(
+            string nuspecXml,
+            string nuspecPath
+        )
         {
-            if (string.IsNullOrWhiteSpace(nuspec))
+            if (string.IsNullOrWhiteSpace(nuspecXml))
             {
                 throw new ArgumentException(
                     "Nuspec is not valid XML",
-                    nameof(nuspec)
+                    nameof(nuspecXml)
                 );
             }
 
-            Parse(nuspec.Trim());
+            _nuspecXml = nuspecXml;
+            _nuspecPath = nuspecPath;
+
+            Parse(nuspecXml.Trim());
         }
 
         private void Parse(string nuspec)
@@ -37,7 +45,7 @@ namespace NugetPackageVersionIncrementer
             catch (Exception ex)
             {
                 throw new ArgumentException(
-                    $"Nuspec is not valid XML: {ex.Message}",
+                    $"{_nuspecPath ?? _nuspecXml} has invalid XML: {ex.Message}",
                     nameof(nuspec)
                 );
             }
@@ -51,7 +59,7 @@ namespace NugetPackageVersionIncrementer
             var idNode = _doc.XPathSelectElements("/package/metadata/id").FirstOrDefault();
             if (idNode == null)
             {
-                throw new Exception("No package id node found");
+                throw new Exception($"No package id node found in {_nuspecPath ?? _nuspecXml}");
             }
 
             PackageId = idNode.Text();
@@ -84,7 +92,10 @@ namespace NugetPackageVersionIncrementer
             var versionNumbers = GetVersionAsNumbers().ToArray();
             var minor = versionNumbers.Last();
             var preMinor = versionNumbers.Reverse().Skip(1).Reverse();
-            var incremented = new List<int>(preMinor) { minor + 1 };
+            var incremented = new List<int>(preMinor)
+            {
+                minor + 1
+            };
             Version = string.Join(".", incremented);
         }
 
@@ -109,7 +120,7 @@ namespace NugetPackageVersionIncrementer
             var versionNode = FindVersionNode();
             if (versionNode == null)
             {
-                throw new Exception("Unable to find version node in nuspec");
+                throw new Exception($"Unable to find version node in {_nuspecPath ?? _nuspecXml}");
             }
 
             versionNode.Value = Version;
