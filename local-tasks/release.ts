@@ -1,5 +1,6 @@
 /// <reference path="../node_modules/zarro/types.d.ts" />
 import { Stream } from "stream";
+import path from "path";
 
 (function () {
     const
@@ -10,7 +11,7 @@ import { Stream } from "stream";
         sleep = requireModule<Sleep>("sleep"),
         del = require("del"),
         exec = requireModule<Exec>("exec"),
-        spawn = requireModule<System>("System"),
+        system = requireModule<System>("System"),
         path = require("path"),
         findTool = requireModule<TestUtilFinder>("testutil-finder").findTool,
         PQueue = require("p-queue").default,
@@ -47,8 +48,13 @@ import { Stream } from "stream";
         stream.emit("error", new Error(msg));
     }
 
-    function processPathsWith(getNugetArgsFor: (s: string) => string[]) {
+    function processPathsWith(
+        labelPrefix: string,
+        getNugetArgsFor: (s: string) => string[]
+    ) {
         const
+            { ExecStepContext } = require("exec-step"),
+            ctx = new ExecStepContext(),
             es = require("event-stream") as any; // fixme: type es.through
         const files = [];
         const stream = es.through(function (this: Stream, file: any) {
@@ -65,18 +71,28 @@ import { Stream } from "stream";
                     const queue = new PQueue({ concurrency: 3 });
                     queue.addAll(files.map(pkgPath => {
                             const args = getNugetArgsFor(pkgPath);
+                            const packageName = path.basename(pkgPath).toLowerCase() === "package.nuspec"
+                                ? path.basename(path.dirname(pkgPath))
+                                : path.basename(pkgPath);
                             if (args) {
                                 return () => {
-                                    return retry(() => exec(nuget, args), 10, (e: any) => {
-                                        if (e && e.info) {
-                                            const errors = e.info.stderr.join("\n").trim();
-                                            if (errors.match(/: 409 \(/)) {
-                                                console.warn(errors);
-                                                return true;
+                                    return retry(
+                                        () => ctx.exec(
+                                            `${ labelPrefix }: ${ packageName }`,
+                                            () => exec(nuget, args)
+                                        ),
+                                        10,
+                                        (e: any) => {
+                                            if (e && e.info) {
+                                                const errors = e.info.stderr.join("\n").trim();
+                                                if (errors.match(/: 409 \(/)) {
+                                                    console.warn(errors);
+                                                    return true;
+                                                }
                                             }
+                                            return false;
                                         }
-                                        return false;
-                                    });
+                                    );
                                 };
                             } else {
                                 return () => Promise.reject(`Can't determine nuget args for ${ pkgPath }`);
@@ -119,7 +135,7 @@ import { Stream } from "stream";
     }
 
     function pushNugetPackagesWithNugetExe(skipDuplicates: boolean) {
-        return processPathsWith((filePath: string): string[] => {
+        return processPathsWith("pushing", (filePath: string): string[] => {
             const result = [ "push", filePath, "-NonInteractive", "-Source", "nuget.org", "-Timeout", "900", "-SkipDuplicate" ];
             if (skipDuplicates) {
                 result.push("-SkipDuplicate");
@@ -135,7 +151,7 @@ import { Stream } from "stream";
     function pushNugetPackagesWithDotNet(
         skipDuplicates: boolean
     ) {
-        return processPathsWith(filePath => {
+        return processPathsWith("pushing", filePath => {
             const result = [ "nuget", "push", filePath, "--source", "nuget.org", "--timeout", "300", "--skip-duplicate" ];
             if (skipDuplicates) {
                 result.push("--skip-duplicates");
@@ -155,7 +171,7 @@ import { Stream } from "stream";
     const nugetReleaseDir = ".release-packages";
 
     function buildNugetPackagesWithNugetExe(includeSymbols: boolean) {
-        return processPathsWith(function (filePath) {
+        return processPathsWith("packing with dotnet.exe", filePath => {
             const args = [ "pack", filePath, "-NonInteractive", "-Verbosity", "Detailed", "-OutputDirectory", nugetReleaseDir ];
             if (includeSymbols) {
                 args.push("-Symbols");
@@ -176,14 +192,17 @@ import { Stream } from "stream";
     }
 
     function buildNugetPackagesWithDotNet(includeSymbols: boolean) {
-        return processPathsWith(filePath => {
-            const projectPath = findProjectNextTo(filePath);
-            const args = [ "pack", projectPath, `-p:NuspecFile=${ filePath }`, "--verbosity", "minimal", "--output", nugetReleaseDir ];
-            if (includeSymbols) {
-                args.push("--include-symbols");
+        return processPathsWith(
+            "packing with nuget.exe",
+            filePath => {
+                const projectPath = findProjectNextTo(filePath);
+                const args = [ "pack", projectPath, `-p:NuspecFile=${ filePath }`, "--verbosity", "minimal", "--output", nugetReleaseDir ];
+                if (includeSymbols) {
+                    args.push("--include-symbols");
+                }
+                return args;
             }
-            return args;
-        });
+        );
     }
 
     const buildNugetPackages = usingDotnetCore ? buildNugetPackagesWithDotNet : buildNugetPackagesWithNugetExe;
@@ -237,8 +256,8 @@ import { Stream } from "stream";
             return Promise.resolve();
         }
         const incrementer = "NugetPackageVersionIncrementer";
-        const util = findTool(`${incrementer}.exe`, `source/${incrementer}`);
-        return spawn(util, [ "source" ]);
+        const util = findTool(`${ incrementer }.exe`, `source/${ incrementer }`);
+        return system(util, [ "source" ]);
     });
 
     gulp.task("release", [ "build-nuget-packages" ], function (done) {

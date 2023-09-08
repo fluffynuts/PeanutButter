@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 (function () {
     var _this = this;
-    var gulp = requireModule("gulp"), lsSync = require("yafs").lsSync, runSequence = requireModule("run-sequence"), msbuild = requireModule("gulp-msbuild"), sleep = requireModule("sleep"), del = require("del"), exec = requireModule("exec"), spawn = requireModule("System"), path = require("path"), findTool = requireModule("testutil-finder").findTool, PQueue = require("p-queue").default, env = requireModule("env"), gutil = requireModule("gulp-util"), envFlag = requireModule("env-helpers").envFlag, usingDotnetCore = env.resolveFlag("DOTNET_CORE"), commonConfig = {
+    var gulp = requireModule("gulp"), lsSync = require("yafs").lsSync, runSequence = requireModule("run-sequence"), msbuild = requireModule("gulp-msbuild"), sleep = requireModule("sleep"), del = require("del"), exec = requireModule("exec"), system = requireModule("System"), path = require("path"), findTool = requireModule("testutil-finder").findTool, PQueue = require("p-queue").default, env = requireModule("env"), gutil = requireModule("gulp-util"), envFlag = requireModule("env-helpers").envFlag, usingDotnetCore = env.resolveFlag("DOTNET_CORE"), commonConfig = {
         toolsVersion: "auto",
         stdout: true,
         verbosity: "minimal",
@@ -70,8 +70,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
     function fail(stream, msg) {
         stream.emit("error", new Error(msg));
     }
-    function processPathsWith(getNugetArgsFor) {
-        var es = require("event-stream"); // fixme: type es.through
+    function processPathsWith(labelPrefix, getNugetArgsFor) {
+        var ExecStepContext = require("exec-step").ExecStepContext, ctx = new ExecStepContext(), es = require("event-stream"); // fixme: type es.through
         var files = [];
         var stream = es.through(function (file) {
             if (!file) {
@@ -87,9 +87,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
                 var queue = new PQueue({ concurrency: 3 });
                 queue.addAll(files.map(function (pkgPath) {
                     var args = getNugetArgsFor(pkgPath);
+                    var packageName = path.basename(pkgPath).toLowerCase() === "package.nuspec"
+                        ? path.basename(path.dirname(pkgPath))
+                        : path.basename(pkgPath);
                     if (args) {
                         return function () {
-                            return retry(function () { return exec(nuget, args); }, 10, function (e) {
+                            return retry(function () { return ctx.exec("".concat(labelPrefix, ": ").concat(packageName), function () { return exec(nuget, args); }); }, 10, function (e) {
                                 if (e && e.info) {
                                     var errors = e.info.stderr.join("\n").trim();
                                     if (errors.match(/: 409 \(/)) {
@@ -154,7 +157,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
         });
     }
     function pushNugetPackagesWithNugetExe(skipDuplicates) {
-        return processPathsWith(function (filePath) {
+        return processPathsWith("pushing", function (filePath) {
             var result = ["push", filePath, "-NonInteractive", "-Source", "nuget.org", "-Timeout", "900", "-SkipDuplicate"];
             if (skipDuplicates) {
                 result.push("-SkipDuplicate");
@@ -167,7 +170,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
         });
     }
     function pushNugetPackagesWithDotNet(skipDuplicates) {
-        return processPathsWith(function (filePath) {
+        return processPathsWith("pushing", function (filePath) {
             var result = ["nuget", "push", filePath, "--source", "nuget.org", "--timeout", "300", "--skip-duplicate"];
             if (skipDuplicates) {
                 result.push("--skip-duplicates");
@@ -184,8 +187,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
         : pushNugetPackagesWithNugetExe;
     var nugetReleaseDir = ".release-packages";
     function buildNugetPackagesWithNugetExe(includeSymbols) {
-        return processPathsWith(function (filePath) {
-            var args = ["pack", filePath, "-NonInteractive", "-Verbosity", "Detailed", "-OutputDirectory", nugetReleaseDir];
+        return processPathsWith("packing", function (filePath) {
+            var args = ["packing with dotnet.exe", filePath, "-NonInteractive", "-Verbosity", "Detailed", "-OutputDirectory", nugetReleaseDir];
             if (includeSymbols) {
                 args.push("-Symbols");
             }
@@ -200,7 +203,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
         return path.join(dir, project);
     }
     function buildNugetPackagesWithDotNet(includeSymbols) {
-        return processPathsWith(function (filePath) {
+        return processPathsWith("packing with nuget.exe", function (filePath) {
             var projectPath = findProjectNextTo(filePath);
             var args = ["pack", projectPath, "-p:NuspecFile=".concat(filePath), "--verbosity", "minimal", "--output", nugetReleaseDir];
             if (includeSymbols) {
@@ -242,7 +245,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
         }
         var incrementer = "NugetPackageVersionIncrementer";
         var util = findTool("".concat(incrementer, ".exe"), "source/".concat(incrementer));
-        return spawn(util, ["source"]);
+        return system(util, ["source"]);
     });
     gulp.task("release", ["build-nuget-packages"], function (done) {
         runSequence("push-packages", "commit-release", "tag-and-push", done);

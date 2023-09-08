@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.SimpleHTTPServer.Testability</id>
-    <version>3.0.172</version>
+    <version>3.0.174</version>
     <title>PeanutButter.SimpleHTTPServer.Testability</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
@@ -25,16 +25,16 @@
     <dependencies>
       <group targetFramework="net462">
         <dependency id="NUnit" version="3.5.0" />
-        <dependency id="PeanutButter.SimpleTcpServer" version="3.0.172" />
-        <dependency id="PeanutButter.SimpleHTTPServer" version="3.0.172" />
-        <dependency id="PeanutButter.Utils" version="3.0.172" />
+        <dependency id="PeanutButter.SimpleTcpServer" version="3.0.174" />
+        <dependency id="PeanutButter.SimpleHTTPServer" version="3.0.174" />
+        <dependency id="PeanutButter.Utils" version="3.0.174" />
         <dependency id="Newtonsoft.Json" version="13.0.1" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="NUnit" version="3.5.0" />
-        <dependency id="PeanutButter.SimpleTcpServer" version="3.0.172" />
-        <dependency id="PeanutButter.SimpleHTTPServer" version="3.0.172" />
-        <dependency id="PeanutButter.Utils" version="3.0.172" />
+        <dependency id="PeanutButter.SimpleTcpServer" version="3.0.174" />
+        <dependency id="PeanutButter.SimpleHTTPServer" version="3.0.174" />
+        <dependency id="PeanutButter.Utils" version="3.0.174" />
         <dependency id="Newtonsoft.Json" version="13.0.1" />
       </group>
     </dependencies>
