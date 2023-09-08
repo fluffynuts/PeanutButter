@@ -64,6 +64,13 @@ namespace PeanutButter.TempRedis
         /// </summary>
         /// <returns></returns>
         ConnectionMultiplexer Connect();
+        
+        /// <summary>
+        /// Connect to the redis instance with your own options
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        ConnectionMultiplexer Connect(ConfigurationOptions config);
 
         /// <summary>
         /// Starts up the server, if not auto-started at construction time
@@ -206,17 +213,11 @@ namespace PeanutButter.TempRedis
         public RedisLocatorStrategies LocatorStrategies { get; set; }
 
         /// <inheritdoc />
-        public ConnectionMultiplexer Connect() =>
-            ConnectionMultiplexer.Connect(
+        public ConnectionMultiplexer Connect()
+        {
+            return Connect(
                 new ConfigurationOptions()
                 {
-                    EndPoints =
-                    {
-                        {
-                            "127.0.0.1",
-                            Port
-                        },
-                    },
                     AbortOnConnectFail = false,
                     // don't want infinite - rather fail a test than stall
                     ConnectRetry = 10,
@@ -225,7 +226,17 @@ namespace PeanutButter.TempRedis
                     SyncTimeout = 1000,
                 }
             );
+        }
 
+        /// <inheritdoc />
+        public ConnectionMultiplexer Connect(
+            ConfigurationOptions options
+        )
+        {
+            options.EndPoints.Clear();
+            options.EndPoints.Add("127.0.0.1", Port);
+            return ConnectionMultiplexer.Connect(options);
+        }
 
         /// <summary>
         /// Constructs an instance of the temporary server,

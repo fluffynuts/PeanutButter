@@ -79,6 +79,39 @@ public class TestTempRedis
     }
 
     [Test]
+    public void ShouldProvideConvenienceConnectMethodWithOptions()
+    {
+        // Arrange
+        using var sut = Create();
+
+        // Act
+        var connection = sut.Connect(
+            new ConfigurationOptions()
+            {
+                EndPoints =
+                {
+                    {
+                        "3.3.3.3", 1234 // these should be ignored
+                    }
+                },
+                ConnectTimeout = 5000,
+                SyncTimeout = 5000,
+                AsyncTimeout = 5000
+            }
+        );
+        // Assert
+        Expect(connection.TimeoutMilliseconds)
+            .To.Equal(5000);
+        connection.GetDatabase();
+        var server = connection.GetEndPoints()
+            .Select(e => connection.GetServer(e))
+            .FirstOrDefault();
+
+        Expect(server)
+            .Not.To.Be.Null(() => "Can't determine the redis server");
+    }
+
+    [Test]
     [Timeout(10000)]
     public void ShouldRestartOnAccidentalDeath()
     {
@@ -113,7 +146,7 @@ public class TestTempRedis
         {
             try
             {
-                result = (string) db.StringGet(key);
+                result = (string)db.StringGet(key);
             }
             catch
             {
