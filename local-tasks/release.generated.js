@@ -158,16 +158,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
     }
     function pushNugetPackagesWithNugetExe(skipDuplicates) {
         return processPathsWith("pushing", function (filePath) {
-            var result = ["push", filePath, "-NonInteractive", "-Source", "nuget.org", "-Timeout", "900", "-SkipDuplicate"];
+            var result = ["push", filePath, "-NonInteractive", "-Source", "nuget.org", "-Timeout", "900"];
             if (skipDuplicates) {
                 result.push("-SkipDuplicate");
             }
-            if (process.env.NUGET_API_KEY) {
+            if (process.env.NUGET_API_KEY || process.env.NUGET_API_KEYS) {
                 result.push("-ApiKey");
-                result.push(process.env.NUGET_API_KEY);
+                result.push(findNugetApiKey());
             }
+            console.log(result);
             return result;
         });
+    }
+    var apiKey = "";
+    function findNugetApiKey() {
+        var result = findNugetApiKeyForHost("nuget.org") || findGlobalNugetApiKey();
+        if (!result) {
+            throw new Error("Unable to determine the nuget api key to use for upload");
+        }
+        return result;
+    }
+    function findGlobalNugetApiKey() {
+        return process.env["NUGET_API_KEY"];
+    }
+    function findNugetApiKeyForHost(host) {
+        try {
+            var json = process.env["NUGET_API_KEYS"];
+            if (!json) {
+                return undefined;
+            }
+            var map = JSON.parse(json);
+            return map[host];
+        }
+        catch (e) {
+            return undefined;
+        }
     }
     function pushNugetPackagesWithDotNet(skipDuplicates) {
         return processPathsWith("pushing", function (filePath) {
@@ -177,7 +202,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
             }
             if (process.env.NUGET_API_KEY) {
                 result.push("--api-key");
-                result.push(process.env.NUGET_API_KEY);
+                result.push(findNugetApiKey());
             }
             return result;
         });
@@ -187,7 +212,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
         : pushNugetPackagesWithNugetExe;
     var nugetReleaseDir = ".release-packages";
     function buildNugetPackagesWithNugetExe(includeSymbols) {
-        return processPathsWith("packing with nuget.exe", function (filePath) {
+        return processPathsWith("packing with dotnet.exe", function (filePath) {
             var args = ["pack", filePath, "-NonInteractive", "-Verbosity", "Detailed", "-OutputDirectory", nugetReleaseDir];
             if (includeSymbols) {
                 args.push("-Symbols");

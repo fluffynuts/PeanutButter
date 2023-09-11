@@ -11,8 +11,4 @@
         });
     });
 
-    gulp.task("experiment", async() => {
-        const system = requireModule<System>("system");
-        await system("npm", [ "run", "echo" ]);
-    });
 })();
