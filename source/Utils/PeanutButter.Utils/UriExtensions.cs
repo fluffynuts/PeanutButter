@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils;

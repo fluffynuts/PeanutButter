@@ -1,125 +1,155 @@
 using System;
 
-namespace PeanutButter.Utils
-{
-    /// <summary>
-    /// The delegate type for disposable wrapper event handling
-    /// </summary>
-    public delegate void DisposableWrapperEventHandler(
+namespace
+#if BUILD_PEANUTBUTTER_INTERNAL
+    Imported.PeanutButter.Utils;
+#else
+    PeanutButter.Utils;
+#endif
+/// <summary>
+/// The delegate type for disposable wrapper event handling
+/// </summary>
+#if BUILD_PEANUTBUTTER_INTERNALE
+internal
+#else
+public
+#endif
+    delegate void DisposableWrapperEventHandler(
         object sender,
         DisposableWrapperEventArgs args
     );
 
-    /// <summary>
-    /// The delegate type for disposable wrapper event handling
-    /// </summary>
-    public delegate void DisposableWrapperErrorEventHandler(
+/// <summary>
+/// The delegate type for disposable wrapper event handling
+/// </summary>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    delegate void DisposableWrapperErrorEventHandler(
         object sender,
         DisposableWrapperErrorEventArgs args
     );
 
+/// <summary>
+/// The event arguments raised with every DisposableWrapper event
+/// </summary>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class DisposableWrapperEventArgs
+{
     /// <summary>
-    /// The event arguments raised with every DisposableWrapper event
+    /// The name of the event being raised
     /// </summary>
-    public class DisposableWrapperEventArgs
+    public string EventName { get; }
+
+    /// <summary>
+    /// The disposable in play
+    /// </summary>
+    public IDisposable Disposable { get; }
+
+    internal DisposableWrapperEventArgs(
+        string eventName,
+        IDisposable disposable
+    )
     {
-        /// <summary>
-        /// The name of the event being raised
-        /// </summary>
-        public string EventName { get; }
+        EventName = eventName;
+        Disposable = disposable;
+    }
+}
 
-        /// <summary>
-        /// The disposable in play
-        /// </summary>
-        public IDisposable Disposable { get; }
+/// <summary>
+/// The event args raised when the disposable .Dispose chucks an error
+/// </summary>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class DisposableWrapperErrorEventArgs : DisposableWrapperEventArgs
+{
+    /// <summary>
+    /// The exception thrown during disposal
+    /// </summary>
+    public Exception Exception { get; }
 
-        internal DisposableWrapperEventArgs(
-            string eventName,
-            IDisposable disposable
-        )
-        {
-            EventName = eventName;
-            Disposable = disposable;
-        }
+    internal DisposableWrapperErrorEventArgs(
+        string eventName,
+        IDisposable disposable,
+        Exception exception
+    ) : base(eventName, disposable)
+    {
+        Exception = exception;
+    }
+}
+
+/// <summary>
+/// Provides an eventing wrapper around another disposable item,
+/// raising events before and after disposal and on disposal error
+/// </summary>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class DisposableWrapper : IDisposable
+{
+    private IDisposable _disposable;
+
+    /// <summary>
+    /// Wrap the provided disposable item
+    /// </summary>
+    /// <param name="disposable"></param>
+    public DisposableWrapper(IDisposable disposable)
+    {
+        _disposable = disposable;
     }
 
     /// <summary>
-    /// The event args raised when the disposable .Dispose chucks an error
+    /// Raised before the disposable is disposed
     /// </summary>
-    public class DisposableWrapperErrorEventArgs : DisposableWrapperEventArgs
-    {
-        /// <summary>
-        /// The exception thrown during disposal
-        /// </summary>
-        public Exception Exception { get; }
+    public DisposableWrapperEventHandler BeforeDisposing { get; set; }
 
-        internal DisposableWrapperErrorEventArgs(
-            string eventName,
-            IDisposable disposable,
-            Exception exception
-        ) : base(eventName, disposable)
+    /// <summary>
+    /// Raised after the disposable is disposed
+    /// </summary>
+    public DisposableWrapperEventHandler AfterDisposing { get; set; }
+
+    /// <summary>
+    /// Raised when an exception is thrown during disposal
+    /// </summary>
+    public DisposableWrapperErrorEventHandler OnDisposingError { get; set; }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        TryRaise(BeforeDisposing, nameof(BeforeDisposing));
+        try
         {
-            Exception = exception;
+            _disposable?.Dispose();
+            TryRaise(AfterDisposing, nameof(AfterDisposing));
+        }
+        catch (Exception ex)
+        {
+            TryRaiseExceptionHandlersFor(ex);
+            throw;
+        }
+        finally
+        {
+            _disposable = null;
         }
     }
 
-    /// <summary>
-    /// Provides an eventing wrapper around another disposable item,
-    /// raising events before and after disposal and on disposal error
-    /// </summary>
-    public class DisposableWrapper : IDisposable
+    private void TryRaiseExceptionHandlersFor(
+        Exception exception
+    )
     {
-        private IDisposable _disposable;
-
-        /// <summary>
-        /// Wrap the provided disposable item
-        /// </summary>
-        /// <param name="disposable"></param>
-        public DisposableWrapper(IDisposable disposable)
-        {
-            _disposable = disposable;
-        }
-
-        /// <summary>
-        /// Raised before the disposable is disposed
-        /// </summary>
-        public DisposableWrapperEventHandler BeforeDisposing { get; set; }
-
-        /// <summary>
-        /// Raised after the disposable is disposed
-        /// </summary>
-        public DisposableWrapperEventHandler AfterDisposing { get; set; }
-
-        /// <summary>
-        /// Raised when an exception is thrown during disposal
-        /// </summary>
-        public DisposableWrapperErrorEventHandler OnDisposingError { get; set; }
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            TryRaise(BeforeDisposing, nameof(BeforeDisposing));
-            try
-            {
-                _disposable?.Dispose();
-                TryRaise(AfterDisposing, nameof(AfterDisposing));
-            }
-            catch (Exception ex)
-            {
-                TryRaiseExceptionHandlersFor(ex);
-                throw;
-            }
-            finally
-            {
-                _disposable = null;
-            }
-        }
-
-        private void TryRaiseExceptionHandlersFor(
-            Exception exception
-        )
-        {
-            TryRun(() =>
+        TryRun(
+            () =>
             {
                 var handler = OnDisposingError;
                 handler?.Invoke(
@@ -130,15 +160,17 @@ namespace PeanutButter.Utils
                         exception
                     )
                 );
-            });
-        }
+            }
+        );
+    }
 
-        private void TryRaise(
-            DisposableWrapperEventHandler handler,
-            string eventName
-        )
-        {
-            TryRun(() =>
+    private void TryRaise(
+        DisposableWrapperEventHandler handler,
+        string eventName
+    )
+    {
+        TryRun(
+            () =>
             {
                 handler?.Invoke(
                     this,
@@ -147,19 +179,19 @@ namespace PeanutButter.Utils
                         _disposable
                     )
                 );
-            });
-        }
+            }
+        );
+    }
 
-        private void TryRun(Action action)
+    private void TryRun(Action action)
+    {
+        try
         {
-            try
-            {
-                action();
-            }
-            catch
-            {
-                // suppress
-            }
+            action();
+        }
+        catch
+        {
+            // suppress
         }
     }
 }
