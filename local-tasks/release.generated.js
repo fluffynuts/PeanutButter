@@ -162,11 +162,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
             if (skipDuplicates) {
                 result.push("-SkipDuplicate");
             }
-            if (process.env.NUGET_API_KEY || process.env.NUGET_API_KEYS) {
-                result.push("-ApiKey");
-                result.push(findNugetApiKey());
-            }
-            console.log(result);
+            result.push("-ApiKey");
+            result.push(findNugetApiKey());
             return result;
         });
     }
@@ -200,10 +197,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
             if (skipDuplicates) {
                 result.push("--skip-duplicates");
             }
-            if (process.env.NUGET_API_KEY) {
-                result.push("--api-key");
-                result.push(findNugetApiKey());
-            }
+            result.push("--api-key");
+            result.push(findNugetApiKey());
             return result;
         });
     }
