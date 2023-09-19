@@ -52,7 +52,8 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
         {
             [TestCaseSource(nameof(MySqlPathFinders))]
             public void Construction_ShouldCreateSchemaAndSwitchToIt(
-                string mysqld)
+                string mysqld
+            )
             {
                 // Arrange
                 var expectedId = GetRandomInt();
@@ -92,7 +93,8 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
             [Test]
             [TestCaseSource(nameof(MySqlPathFinders))]
             public void ShouldBeAbleToSwitch(
-                string mysqld)
+                string mysqld
+            )
             {
                 using var sut = Create(mysqld);
                 // Arrange
@@ -110,7 +112,8 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
             [Test]
             [TestCaseSource(nameof(MySqlPathFinders))]
             public void ShouldBeAbleToSwitchBackAndForthWithoutLoss(
-                string mysqld)
+                string mysqld
+            )
             {
                 using var sut = Create(mysqld);
                 // Arrange
@@ -149,7 +152,8 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
 
             [TestCaseSource(nameof(MySqlPathFinders))]
             public void ShouldBeAbleToCreateATable_InsertData_QueryData(
-                string mysqld)
+                string mysqld
+            )
             {
                 using var sut = Create(mysqld);
                 // Arrange
@@ -172,9 +176,15 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                     // Assert
                     var users = connection.Query<User>(
                         "use moocakes; select * from users where id > @id; ",
-                        new { id = 0 });
-                    Expect(users).To.Contain.Only(1).Matched.By(u =>
-                        u.Id == 1 && u.Name == "Daisy the cow");
+                        new
+                        {
+                            id = 0
+                        }
+                    );
+                    Expect(users).To.Contain.Only(1).Matched.By(
+                        u =>
+                            u.Id == 1 && u.Name == "Daisy the cow"
+                    );
                 }
             }
 
@@ -189,23 +199,25 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                         "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
                         "C:\\apps\\MySQL Server 5.7\\bin\\mysqld.exe",
                         "C:\\apps\\mysql-8.0.26-winx64\\bin\\mysqld.exe",
-                    }.Where(p =>
-                    {
-                        if (p == null)
+                    }.Where(
+                        p =>
                         {
-                            return true;
-                        }
+                            if (p == null)
+                            {
+                                return true;
+                            }
 
-                        var exists = Directory.Exists(p) || File.Exists(p);
-                        if (!exists)
-                        {
-                            Console.WriteLine(
-                                $"WARN: specific test path for mysql not found: {p}"
-                            );
-                        }
+                            var exists = Directory.Exists(p) || File.Exists(p);
+                            if (!exists)
+                            {
+                                Console.WriteLine(
+                                    $"WARN: specific test path for mysql not found: {p}"
+                                );
+                            }
 
-                        return exists;
-                    })
+                            return exists;
+                        }
+                    )
                     .ToArray();
             }
         }
@@ -217,28 +229,24 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
             public void ShouldBeAbleToStartNewInstance()
             {
                 // Arrange
-                Expect(() =>
-                {
-                    using var db = Create();
-                    using (db.OpenConnection())
+                Expect(
+                    () =>
                     {
-                        // Act
-                        // Assert
+                        using var db = Create();
+                        using (db.OpenConnection())
+                        {
+                            // Act
+                            // Assert
+                        }
                     }
-                }).Not.To.Throw();
+                ).Not.To.Throw();
             }
 
             [SetUp]
             public void Setup()
             {
-                var mysqlServices =
-                    ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
-                if (!mysqlServices.Any())
-                {
-                    Assert.Ignore(
-                        "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
-                    );
-                }
+                SkipIfNotOnWindows();
+                SkipIfOnWindowsButNoMySqlInstalled();
             }
         }
 
@@ -250,15 +258,17 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
             public void ShouldBeAbleToFindInPath_WhenIsInPath()
             {
                 // Arrange
-                Expect(() =>
-                {
-                    using var db = Create(forcePathSearch: true);
-                    using (db.OpenConnection())
+                Expect(
+                    () =>
                     {
-                        // Act
-                        // Assert
+                        using var db = Create(forcePathSearch: true);
+                        using (db.OpenConnection())
+                        {
+                            // Act
+                            // Assert
+                        }
                     }
-                }).Not.To.Throw();
+                ).Not.To.Throw();
             }
 
             private string _envPath;
@@ -304,10 +314,12 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                 var disposed = false;
                 db.Disposed += (o, e) => disposed = true;
                 // Act
-                Expect(() =>
-                {
-                    using var conn = db.OpenConnection();
-                }).Not.To.Throw();
+                Expect(
+                    () =>
+                    {
+                        using var conn = db.OpenConnection();
+                    }
+                ).Not.To.Throw();
                 if (Debugger.IsAttached)
                 {
                     Thread.Sleep(300000);
@@ -317,20 +329,25 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                     Thread.Sleep(3000);
                 }
 
-                Expect(() =>
-                    {
-                        using var conn = db.OpenConnection();
-                    }).To.Throw()
-                    .With.Property(e => new
-                    {
-                        Type = e.GetType().Name,
-                        IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
-                    }).Deep.Equal.To(
+                Expect(
+                        () =>
+                        {
+                            using var conn = db.OpenConnection();
+                        }
+                    ).To.Throw()
+                    .With.Property(
+                        e => new
+                        {
+                            Type = e.GetType().Name,
+                            IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
+                        }
+                    ).Deep.Equal.To(
                         new
                         {
                             Type = "MySqlException",
                             IsConnectionError = true
-                        });
+                        }
+                    );
                 // Assert
                 Expect(disposed)
                     .To.Be.True();
@@ -346,29 +363,36 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                 // Act
                 for (var i = 0; i < 5; i++)
                 {
-                    Expect(() =>
-                    {
-                        using var conn = db.OpenConnection();
-                        Thread.Sleep(500);
-                    }).Not.To.Throw();
+                    Expect(
+                        () =>
+                        {
+                            using var conn = db.OpenConnection();
+                            Thread.Sleep(500);
+                        }
+                    ).Not.To.Throw();
                 }
 
                 Thread.Sleep(2000);
 
-                Expect(() =>
-                    {
-                        using var conn = db.OpenConnection();
-                    }).To.Throw()
-                    .With.Property(e => new
-                    {
-                        Type = e.GetType().Name,
-                        IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
-                    }).Deep.Equal.To(
+                Expect(
+                        () =>
+                        {
+                            using var conn = db.OpenConnection();
+                        }
+                    ).To.Throw()
+                    .With.Property(
+                        e => new
+                        {
+                            Type = e.GetType().Name,
+                            IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
+                        }
+                    ).Deep.Equal.To(
                         new
                         {
                             Type = "MySqlException",
                             IsConnectionError = true
-                        });
+                        }
+                    );
                 // Assert
                 Expect(disposed)
                     .To.Be.True();
@@ -385,27 +409,32 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                 );
                 var connections = 0;
                 // Act
-                Expect(() =>
-                    {
-                        while (true)
+                Expect(
+                        () =>
                         {
-                            using var conn = db.OpenConnection();
-                            connections++;
-                            Thread.Sleep(300);
-                        }
+                            while (true)
+                            {
+                                using var conn = db.OpenConnection();
+                                connections++;
+                                Thread.Sleep(300);
+                            }
 
-                        // ReSharper disable once FunctionNeverReturns
-                    }).To.Throw()
-                    .With.Property(e => new
-                    {
-                        Type = e.GetType().Name,
-                        IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
-                    }).Deep.Equal.To(
+                            // ReSharper disable once FunctionNeverReturns
+                        }
+                    ).To.Throw()
+                    .With.Property(
+                        e => new
+                        {
+                            Type = e.GetType().Name,
+                            IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
+                        }
+                    ).Deep.Equal.To(
                         new
                         {
                             Type = "MySqlException",
                             IsConnectionError = true
-                        });
+                        }
+                    );
                 // Assert
                 Expect(connections)
                     .To.Be.Greater.Than(3);
@@ -440,7 +469,8 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
 
         private static void Execute(
             ITempDB tempDb,
-            string sql)
+            string sql
+        )
         {
             using var conn = tempDb.OpenConnection();
             using var cmd = conn.CreateCommand();
@@ -473,7 +503,8 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
             string pathToMySql = null,
             bool forcePathSearch = false,
             TimeSpan? inactivityTimeout = null,
-            TimeSpan? absoluteLifespan = null)
+            TimeSpan? absoluteLifespan = null
+        )
         {
             return new TempDBMySql(
                 new TempDbMySqlServerSettings()
@@ -485,7 +516,8 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                         InactivityTimeout = inactivityTimeout,
                         AbsoluteLifespan = absoluteLifespan
                     }
-                });
+                }
+            );
         }
 
 
@@ -494,21 +526,42 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
             public int Id { get; set; }
             public string Name { get; set; }
         }
-    }
 
-    public class MySqlConnectionStringUtil
-    {
-        public string Database { get; }
-
-        public MySqlConnectionStringUtil(
-            string connectionString)
+        private static void SkipIfNotOnWindows()
         {
-            Database = connectionString
-                .Split(';')
-                .Select(p => p.Trim())
-                .FirstOrDefault(p => p.StartsWith("DATABASE", StringComparison.OrdinalIgnoreCase))
-                ?.Split('=')
-                ?.Last();
+            if (!Platform.IsWindows)
+            {
+                Assert.Ignore("This test is designed for a windows environment");
+            }
+        }
+
+        private static void SkipIfOnWindowsButNoMySqlInstalled()
+        {
+            var mysqlServices =
+                ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
+            if (!mysqlServices.Any())
+            {
+                Assert.Ignore(
+                    "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
+                );
+            }
+        }
+
+        public class MySqlConnectionStringUtil
+        {
+            public string Database { get; }
+
+            public MySqlConnectionStringUtil(
+                string connectionString
+            )
+            {
+                Database = connectionString
+                    .Split(';')
+                    .Select(p => p.Trim())
+                    .FirstOrDefault(p => p.StartsWith("DATABASE", StringComparison.OrdinalIgnoreCase))
+                    ?.Split('=')
+                    ?.Last();
+            }
         }
     }
 }
