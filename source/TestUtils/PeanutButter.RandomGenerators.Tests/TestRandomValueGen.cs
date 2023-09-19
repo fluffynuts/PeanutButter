@@ -257,7 +257,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     var parts = str.Split('.');
                     if (parts.Length < 2)
                     {
-                        return (int) value == value;
+                        return (int)value == value;
                     }
 
                     return parts[1].Length <= 2;
@@ -340,7 +340,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     var parts = str.Split('.');
                     if (parts.Length < 2)
                     {
-                        return (int) value == value;
+                        return (int)value == value;
                     }
 
                     return parts[1].Length <= 2;
@@ -423,7 +423,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     var parts = str.Split('.');
                     if (parts.Length < 2)
                     {
-                        return (int) value == value;
+                        return (int)value == value;
                     }
 
                     return parts[1].Length <= 2;
@@ -691,7 +691,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
                 //---------------Execute Test ----------------------
 
-                RunCycles(() => results.Add((TestEnum) GetRandomEnum(type)));
+                RunCycles(() => results.Add((TestEnum)GetRandomEnum(type)));
                 //---------------Test Result -----------------------
                 var runs = results.Count;
                 var onePercent = (100 * results.Count(i => i == TestEnum.One)) / runs;
@@ -728,21 +728,28 @@ namespace PeanutButter.RandomGenerators.Tests
                 var o1 = new object();
                 var o2 = new object();
                 var o3 = new object();
-                var items = new List<object> { o1, o2, o3 };
+                var items = new List<object>
+                {
+                    o1,
+                    o2,
+                    o3
+                };
                 var results = new List<object>();
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
                 // warm up
                 var _ = GetRandomFrom(items);
-                var time = Benchmark.Time(() =>
-                {
-                    for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                var time = Benchmark.Time(
+                    () =>
                     {
-                        results.Add(GetRandomFrom(items));
+                        for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                        {
+                            results.Add(GetRandomFrom(items));
+                        }
                     }
-                });
-                
+                );
+
                 Console.Error.WriteLine(time);
 
                 //---------------Test Result -----------------------
@@ -758,21 +765,28 @@ namespace PeanutButter.RandomGenerators.Tests
                 var o1 = new object();
                 var o2 = new object();
                 var o3 = new object();
-                var items = new[] { o1, o2, o3 };
+                var items = new[]
+                {
+                    o1,
+                    o2,
+                    o3
+                };
                 var results = new List<object>();
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
                 // warm up
                 var _ = GetRandomFrom(items);
-                var time = Benchmark.Time(() =>
-                {
-                    for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                var time = Benchmark.Time(
+                    () =>
                     {
-                        results.Add(GetRandomFrom(items));
+                        for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                        {
+                            results.Add(GetRandomFrom(items));
+                        }
                     }
-                });
-                
+                );
+
                 Console.Error.WriteLine(time);
 
                 //---------------Test Result -----------------------
@@ -788,21 +802,30 @@ namespace PeanutButter.RandomGenerators.Tests
                 var o1 = new object();
                 var o2 = new object();
                 var o3 = new object();
-                var items = new ConcurrentBag<object>(new[] { o1, o2, o3 });
+                var items = new ConcurrentBag<object>(
+                    new[]
+                    {
+                        o1,
+                        o2,
+                        o3
+                    }
+                );
                 var results = new List<object>();
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
                 // warm up
                 var _ = GetRandomFrom(items);
-                var time = Benchmark.Time(() =>
-                {
-                    for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                var time = Benchmark.Time(
+                    () =>
                     {
-                        results.Add(GetRandomFrom(items));
+                        for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                        {
+                            results.Add(GetRandomFrom(items));
+                        }
                     }
-                });
-                
+                );
+
                 Console.Error.WriteLine(time);
 
                 //---------------Test Result -----------------------
@@ -818,21 +841,32 @@ namespace PeanutButter.RandomGenerators.Tests
                 var o1 = new object();
                 var o2 = new object();
                 var o3 = new object();
-                var items = new[] { o1 }.Union(new[] { o2, o3 });
+                var items = new[]
+                {
+                    o1
+                }.Union(
+                    new[]
+                    {
+                        o2,
+                        o3
+                    }
+                );
                 var results = new List<object>();
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
                 // warm up
                 var _ = GetRandomFrom(items);
-                var time = Benchmark.Time(() =>
-                {
-                    for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                var time = Benchmark.Time(
+                    () =>
                     {
-                        results.Add(GetRandomFrom(items));
+                        for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                        {
+                            results.Add(GetRandomFrom(items));
+                        }
                     }
-                });
-                
+                );
+
                 Console.Error.WriteLine(time);
 
                 //---------------Test Result -----------------------
@@ -852,7 +886,14 @@ namespace PeanutButter.RandomGenerators.Tests
                     3
                 );
                 // Assert
-                Expect(new[] { 1, 2, 3 })
+                Expect(
+                        new[]
+                        {
+                            1,
+                            2,
+                            3
+                        }
+                    )
                     .To.Contain(result);
             }
         }
@@ -867,7 +908,12 @@ namespace PeanutButter.RandomGenerators.Tests
                 var o1 = new object();
                 var o2 = new object();
                 var o3 = new object();
-                var items = new[] { o1, o2, o3 };
+                var items = new[]
+                {
+                    o1,
+                    o2,
+                    o3
+                };
                 var results = new List<IEnumerable<object>>();
                 const int runs = NORMAL_RANDOM_TEST_CYCLES;
                 //---------------Assert Precondition----------------
@@ -905,7 +951,12 @@ namespace PeanutButter.RandomGenerators.Tests
                 var o1 = new object();
                 var o2 = new object();
                 var o3 = new object();
-                var items = new[] { o1, o2, o3 };
+                var items = new[]
+                {
+                    o1,
+                    o2,
+                    o3
+                };
                 const int runs = NORMAL_RANDOM_TEST_CYCLES;
 
                 //---------------Assert Precondition----------------
@@ -932,7 +983,15 @@ namespace PeanutButter.RandomGenerators.Tests
                 var o4 = new object();
                 var o5 = new object();
                 var o6 = new object();
-                var items = new[] { o1, o2, o3, o4, o5, o6 };
+                var items = new[]
+                {
+                    o1,
+                    o2,
+                    o3,
+                    o4,
+                    o5,
+                    o6
+                };
                 var min = GetRandomInt(
                     1,
                     3
@@ -3159,7 +3218,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // collisions are possible, but should occur < 1%
                 var total = allResults.Count;
                 var unique = allResults.Select(o => o.Item1).Distinct().Count();
-                var delta = (total - unique) / (decimal) total;
+                var delta = (total - unique) / (decimal)total;
                 Assert.That(
                     delta,
                     Is.LessThan(1)
@@ -3230,7 +3289,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // collisions are possible, but should occur < 1%
                 var total = allResults.Count;
                 var unique = allResults.Select(o => o.Item1).Distinct().Count();
-                var delta = (total - unique) / (decimal) total;
+                var delta = (total - unique) / (decimal)total;
                 Assert.That(
                     delta,
                     Is.LessThan(1)
@@ -3318,7 +3377,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 // collisions are possible, but should occur < 1%
                 var total = allResults.Count;
                 var unique = allResults.Select(o => o.Item1).Distinct().Count();
-                var delta = (total - unique) / (decimal) total;
+                var delta = (total - unique) / (decimal)total;
                 Assert.That(
                     delta,
                     Is.LessThan(1)
@@ -3443,7 +3502,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
                     //---------------Execute Test ----------------------
                     var result = GetAnother(
-                        (string) null,
+                        (string)null,
                         () => strings.Pop()
                     );
 
@@ -4061,7 +4120,7 @@ namespace PeanutButter.RandomGenerators.Tests
                             255
                         )
                     )
-                    .Select(i => (byte) i)
+                    .Select(i => (byte)i)
                     .ToArray();
                 //---------------Assert Precondition----------------
 
@@ -4413,10 +4472,10 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [TestFixture]
-        public class GetRandomFolderName
+        public class GeneratingRandomPaths
         {
             [Test]
-            public void ShouldProduceVariantPath()
+            public void ShouldProduceVariantWindowsPath()
             {
                 //---------------Set up test pack-------------------
 
@@ -4429,30 +4488,28 @@ namespace PeanutButter.RandomGenerators.Tests
                     {
                         var thisResult = GetRandomWindowsPath();
                         var parts = thisResult.Split('\\');
-                        Assert.That(
-                            parts.Length,
-                            Is.GreaterThan(1)
-                        );
-                        Assert.That(
-                            parts.Length,
-                            Is.LessThan(6)
-                        );
-                        Assert.That(
-                            thisResult.Length,
-                            Is.LessThan(248)
-                        );
-                        Assert.That(parts[0].Length == 2);
-                        Assert.That(parts[0].EndsWith(":"));
-                        StringAssert.Contains(
-                            parts[0].First().ToString(),
-                            "ABCDEGHIJKLMNOPQRSTUVWXYZ"
-                        );
+                        Expect(parts)
+                            .To.Contain.At.Least(2).Items();
+                        Expect(parts)
+                            .To.Contain.At.Most(5).Items();
+                        Expect(thisResult.Length)
+                            .To.Be.Less.Than(
+                                248,
+                                () => $"path should work on windows, but this is too long:\n{thisResult}"
+                            );
+                        Expect(parts.First())
+                            .To.Match(
+                                new Regex(
+                                    "^[A-Z]{1}:$"
+                                )
+                            );
                         allResults.Add(thisResult);
                     }
                 );
 
                 //---------------Test Result -----------------------
-                VarianceAssert.IsVariant(allResults);
+                Expect(allResults)
+                    .To.Be.Distinct(() => allResults.Stringify());
             }
         }
 
@@ -5168,7 +5225,10 @@ namespace PeanutButter.RandomGenerators.Tests
                 Expect(uri.Query).Not.To.Be.Null.Or.Empty();
                 var parameters = uri.Query.Substring(1)
                     .Split(
-                        new[] { "&" },
+                        new[]
+                        {
+                            "&"
+                        },
                         StringSplitOptions.RemoveEmptyEntries
                     );
                 Expect(parameters).Not.To.Be.Empty();
@@ -5365,7 +5425,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 if (parts.Length == 1)
                 {
                     Expect(propValue)
-                        .To.Equal((int) propValue);
+                        .To.Equal((int)propValue);
                 }
                 else
                 {
@@ -5397,7 +5457,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 if (parts.Length == 1)
                 {
                     Expect(propValue)
-                        .To.Equal((int) propValue);
+                        .To.Equal((int)propValue);
                 }
                 else
                 {
