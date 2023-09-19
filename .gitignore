@@ -146,3 +146,4 @@ build-tools
 docfx_project
 .release-packages
 SonarQube.Analysis.xml
+local-tasks/*.generated.js
