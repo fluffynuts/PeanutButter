@@ -31,8 +31,6 @@ jobs:
         SUPPRESS_DOWNLOAD_PROGRESS: 1
       run: |
         npm ci
-        echo node_modules binaries:
-        ls -l node_modules/.bin
         npm run test-gh
 
     - name: 📃 Upload build report
