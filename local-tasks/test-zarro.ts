@@ -6,7 +6,7 @@
     gulp.task("test-zarro", async () => {
         const testZarro = requireModule<TestZarro>("test-zarro");
         await testZarro({
-            package: "beta",
+            packageVersion: "beta",
             tasks: ["build-nuget-packages"]
         });
     });
