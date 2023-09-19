@@ -538,7 +538,7 @@ Negate any flag argument with --no-{option}
 This program was made with love and biscuits.
 Exit status codes are 0 for happy and non-zero for unhappy.
 Report bugs to <no-one-cares@whatevs.org>
-";
+".Replace("\r", "");
                 var args = new[] { "--help" };
                 int? exitCode = null;
                 var lines = new List<string>();
@@ -552,7 +552,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 // Assert
                 Expect(exitCode)
                     .To.Equal(2);
-                var output = lines.JoinWith("\r\n");
+                var output = lines.JoinWith("\n");
                 Expect(output)
                     .To.Equal(
                         expected,
