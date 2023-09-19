@@ -14,6 +14,12 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
+            if (!Platform.IsWindows)
+            {
+                Assert.Ignore("Windows-specific testing");
+                return;
+            }
+
             var testServiceBase = FindTestServiceDir();
             var config =
 #if DEBUG
