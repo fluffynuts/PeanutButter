@@ -8,22 +8,32 @@ on:
 
 jobs:
   main:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - name: 🥜 Check out project
       uses: actions/checkout@v2
+    - name: ⬆️ Fetch latest software lists
+      run: |
+        sudo apt update -q
+
+    - name: 🟥 Setup Redis
+      run: |
+        sudo apt install redis-server -q
 
     - name: ⚙️ Setup dotnet
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: |
           3.1
           6.x
           7.x
+
     - name: 🟢 Setup NodeJS
-      uses: actions/setup-node@v2-beta
+      uses: actions/setup-node@v3
       with:
         node-version: '18'
+        cache: 'npm'
+
     - name: 🏗️ Build and test 🧪
       env:
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
