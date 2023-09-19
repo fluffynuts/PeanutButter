@@ -23,7 +23,7 @@ jobs:
     - name: 🟢 Setup NodeJS
       uses: actions/setup-node@v2-beta
       with:
-        node-version: '12'
+        node-version: '18'
     - name: 🏗️ Build and test 🧪
       env:
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
