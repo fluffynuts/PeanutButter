@@ -10,7 +10,7 @@ import { Stream } from "stream";
         sleep = requireModule<Sleep>("sleep"),
         del = require("del"),
         exec = requireModule<Exec>("exec"),
-        system = requireModule<System>("System"),
+        system = requireModule<System>("system"),
         path = require("path"),
         findTool = requireModule<TestUtilFinder>("testutil-finder").findTool,
         PQueue = require("p-queue").default,
