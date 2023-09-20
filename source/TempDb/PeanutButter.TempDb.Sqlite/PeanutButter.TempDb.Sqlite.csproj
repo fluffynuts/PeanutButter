@@ -45,7 +45,7 @@
     <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.116" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />

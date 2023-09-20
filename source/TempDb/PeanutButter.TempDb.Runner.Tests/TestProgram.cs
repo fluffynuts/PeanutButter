@@ -30,7 +30,8 @@ namespace PeanutButter.TempDb.Runner.Tests
                 line => line.StartsWith(
                     "connection string",
                     StringComparison.InvariantCultureIgnoreCase
-                ));
+                )
+            );
             Expect(interestingLine)
                 .Not.To.Be.Null(
                     "TempDb runner should emit the connection string on stdout"
@@ -59,7 +60,8 @@ namespace PeanutButter.TempDb.Runner.Tests
                     line => line.StartsWith(
                         "connection string",
                         StringComparison.InvariantCultureIgnoreCase
-                    ));
+                    )
+                );
                 Expect(interestingLine)
                     .Not.To.Be.Null(
                         "TempDb runner should emit the connection string on stdout"
@@ -87,7 +89,8 @@ namespace PeanutButter.TempDb.Runner.Tests
                     line => line.StartsWith(
                         "connection string",
                         StringComparison.InvariantCultureIgnoreCase
-                    ));
+                    )
+                );
                 Expect(interestingLine)
                     .Not.To.Be.Null(
                         "TempDb runner should emit the connection string on stdout"
@@ -117,6 +120,17 @@ namespace PeanutButter.TempDb.Runner.Tests
         [TestFixture]
         public class ExplicitLocalDbEngineTesting
         {
+            [OneTimeSetUp]
+            public void OneTimeSetup()
+            {
+                if (!Platform.IsWindows)
+                {
+                    Assert.Ignore(
+                        "Test requires LocalDb, found on windows"
+                    );
+                }
+            }
+
             [Test]
             public void ShouldBeAbleToExplicitlyStart()
             {
@@ -128,7 +142,8 @@ namespace PeanutButter.TempDb.Runner.Tests
                     line => line.StartsWith(
                         "connection string",
                         StringComparison.InvariantCultureIgnoreCase
-                    ));
+                    )
+                );
                 Expect(interestingLine)
                     .Not.To.Be.Null(
                         "TempDb runner should emit the connection string on stdout"
@@ -156,7 +171,8 @@ namespace PeanutButter.TempDb.Runner.Tests
                     line => line.StartsWith(
                         "connection string",
                         StringComparison.InvariantCultureIgnoreCase
-                    ));
+                    )
+                );
                 Expect(interestingLine)
                     .Not.To.Be.Null(
                         "TempDb runner should emit the connection string on stdout"
@@ -197,7 +213,8 @@ namespace PeanutButter.TempDb.Runner.Tests
                     line => line.StartsWith(
                         "connection string",
                         StringComparison.InvariantCultureIgnoreCase
-                    ));
+                    )
+                );
                 Expect(interestingLine)
                     .Not.To.Be.Null(
                         "TempDb runner should emit the connection string on stdout"
@@ -229,7 +246,8 @@ namespace PeanutButter.TempDb.Runner.Tests
                     line => line.StartsWith(
                         "connection string",
                         StringComparison.InvariantCultureIgnoreCase
-                    ));
+                    )
+                );
                 Expect(interestingLine)
                     .Not.To.Be.Null(
                         "TempDb runner should emit the connection string on stdout"
@@ -248,13 +266,15 @@ namespace PeanutButter.TempDb.Runner.Tests
                 arena.WriteStdIn("stop");
                 arena.WaitForProgramToExit();
 
-                Expect(() =>
-                {
-                    using (var dead = new SqlConnection(connectionString))
+                Expect(
+                    () =>
                     {
-                        dead.Open();
+                        using (var dead = new SqlConnection(connectionString))
+                        {
+                            dead.Open();
+                        }
                     }
-                });
+                );
             }
         }
 
@@ -274,25 +294,27 @@ namespace PeanutButter.TempDb.Runner.Tests
                 InteractiveShell.ReadLine = ReadLine;
                 _readlineBarrier = new Barrier(2);
                 _waitingInput = null;
-                Task.Run(() =>
-                {
-                    try
+                Task.Run(
+                    () =>
                     {
-                        Program.Main(args);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine($"Unable to start runner program:\n{ex.Message}");
-                        
-                    }
+                        try
+                        {
+                            Program.Main(args);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.Error.WriteLine($"Unable to start runner program:\n{ex.Message}");
+                        }
 
-                    if (!_haveStartedListening)
-                    {
-                        // let the test fail properly
-                        WaitFor(_waitForListeningBarrier, "program to be listening");
+                        if (!_haveStartedListening)
+                        {
+                            // let the test fail properly
+                            WaitFor(_waitForListeningBarrier, "program to be listening");
+                        }
+
+                        WaitFor(_waitForExitBarrier, "process to exit");
                     }
-                    WaitFor(_waitForExitBarrier, "process to exit");
-                });
+                );
             }
 
             private void WaitFor(Barrier barrier, string context)

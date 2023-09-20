@@ -237,10 +237,11 @@ namespace PeanutButter.DuckTyping.Extensions
                 return result;
             }
 
-            var dictionaryTypes = src.GetType()
+            var dictionaryTypes = src
+                .GetType()
                 .GetInterfaces()
                 .Select(GetDictionaryTypes)
-                .FirstOrDefault();
+                .FirstOrDefault(o => o != null);
 
             if (dictionaryTypes == null || dictionaryTypes.KeyType != typeof(string))
             {
