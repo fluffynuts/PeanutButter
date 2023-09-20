@@ -1,11 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using NExpect;
 using PeanutButter.EasyArgs.Attributes;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace PeanutButter.EasyArgs.Tests
 {
@@ -17,7 +23,11 @@ namespace PeanutButter.EasyArgs.Tests
         {
             // Arrange
             var expected = GetRandomInt(1, 32768);
-            var args = new[] { "-p", expected.ToString() };
+            var args = new[]
+            {
+                "-p",
+                expected.ToString()
+            };
             // Act
             var result = args.ParseTo<IArgs>();
             // Assert
@@ -30,7 +40,11 @@ namespace PeanutButter.EasyArgs.Tests
         {
             // Arrange
             var expected = GetRandomInt(1, 32768);
-            var args = new[] { "--listen-port", expected.ToString() };
+            var args = new[]
+            {
+                "--listen-port",
+                expected.ToString()
+            };
 
             // Act
             var result = args.ParseTo<IArgs>();
@@ -47,7 +61,11 @@ namespace PeanutButter.EasyArgs.Tests
         {
             // Arrange
             var expected = GetRandomInt(1, 32768);
-            var args = new[] { arg, expected.ToString() };
+            var args = new[]
+            {
+                arg,
+                expected.ToString()
+            };
             // Act
             var result = args.ParseTo<IArgs>();
             // Assert
@@ -61,7 +79,13 @@ namespace PeanutButter.EasyArgs.Tests
             // Arrange
             var e1 = GetRandomInt(1, 32768);
             var e2 = GetAnother(e1);
-            var args = new[] { "-p", e1.ToString(), "-P", e2.ToString() };
+            var args = new[]
+            {
+                "-p",
+                e1.ToString(),
+                "-P",
+                e2.ToString()
+            };
 
             // Act
             var result = args.ParseTo<IArgs>();
@@ -78,27 +102,49 @@ namespace PeanutButter.EasyArgs.Tests
             // Arrange
             var expected = GetRandomInt(1, 32768);
             var unexpected = GetAnother(expected);
-            var args = new[] { "-p", expected.ToString(), unexpected.ToString() };
+            var args = new[]
+            {
+                "-p",
+                expected.ToString(),
+                unexpected.ToString()
+            };
             // Act
             var result = args.ParseTo<IArgs>(out var uncollected);
             // Assert
             Expect(result.Port)
                 .To.Equal(expected);
             Expect(uncollected)
-                .To.Equal(new[] { unexpected.ToString() });
+                .To.Equal(
+                    new[]
+                    {
+                        unexpected.ToString()
+                    }
+                );
         }
 
         [Test]
         public void ShouldCollectMultipleValuesForEnumerableProperty()
         {
             // Arrange
-            var args = new[] { "-v", "1", "2", "3" };
+            var args = new[]
+            {
+                "-v",
+                "1",
+                "2",
+                "3"
+            };
             // Act
             var result = args.ParseTo<ISum>();
             // Assert
-            var foo = result.Values;
             Expect(result.Values)
-                .To.Equal(new[] { 1, 2, 3 });
+                .To.Equal(
+                    new[]
+                    {
+                        1,
+                        2,
+                        3
+                    }
+                );
         }
 
         [Test]
@@ -117,7 +163,10 @@ namespace PeanutButter.EasyArgs.Tests
         public void ShouldSetFlagToTrueWhenProvided()
         {
             // Arrange
-            var args = new[] { "--frob" };
+            var args = new[]
+            {
+                "--frob"
+            };
             // Act
             var result = args.ParseTo<IHasFlags>();
             // Assert
@@ -141,7 +190,10 @@ namespace PeanutButter.EasyArgs.Tests
         public void ShouldUnderstandImplicitFlagNegations()
         {
             // Arrange
-            var args = new[] { "--no-frob" };
+            var args = new[]
+            {
+                "--no-frob"
+            };
             // Act
             var result = args.ParseTo<IHasDefaultTrueFrob>();
             // Assert
@@ -153,26 +205,24 @@ namespace PeanutButter.EasyArgs.Tests
         public void ShouldErrorAndExitWhenConflictingArgumentsGiven()
         {
             // Arrange
-            var args = new[] { "--flag1", "--flag2" };
-            int? exitCode = null;
-            var lines = new List<string>();
-            var opts = new ParserOptions()
+            var args = new[]
             {
-                ExitAction = c => exitCode = c,
-                LineWriter = str => lines.Add(str)
+                "--flag-1",
+                "--flag-2"
             };
-
+            var opts = CreateRecordingParserOptions(out var parserResult);
             // Act
             args.ParseTo<IHasConflictingFlags>(
-                out var uncollected,
+                out _,
                 opts
             );
             // Assert
+            var (exitCode, lines) = parserResult;
             Expect(exitCode)
                 .To.Equal(1);
             Expect(lines)
                 .To.Contain.Only(1)
-                .Matched.By(line => line.Contains("--flag1 conflicts with --flag2"));
+                .Matched.By(line => line.Contains("--flag-1 conflicts with --flag-2"));
             Expect(lines)
                 .To.Contain.Only(1).Item(() => lines.JoinWith("\n"));
         }
@@ -181,22 +231,21 @@ namespace PeanutButter.EasyArgs.Tests
         public void ShouldErrorAndExitIfFlagAndNoFlagSpecified()
         {
             // Arrange
-            var args = new[] { "--flag1", "--no-flag1" };
-            int? exitCode = null;
-            var lines = new List<string>();
-            var opts = new ParserOptions()
+            var args = new[]
             {
-                ExitAction = c => exitCode = c,
-                LineWriter = str => lines.Add(str)
+                "--flag-1",
+                "--no-flag-1"
             };
+            var opts = CreateRecordingParserOptions(out var parserResult);
             var expected = $"{args[1]} conflicts with {args[0]}";
 
             // Act
             args.ParseTo<IHasConflictingFlags>(
-                out var uncollected,
+                out _,
                 opts
             );
             // Assert
+            var (exitCode, lines) = parserResult;
             Expect(exitCode)
                 .To.Equal(1);
             Expect(lines)
@@ -213,22 +262,21 @@ namespace PeanutButter.EasyArgs.Tests
         public void ShouldErrorAndExitIfFlagAndNoFlagSpecifiedReversed()
         {
             // Arrange
-            var args = new[] { "--no-flag1", "--flag1" };
-            int? exitCode = null;
-            var lines = new List<string>();
-            var opts = new ParserOptions()
+            var args = new[]
             {
-                ExitAction = c => exitCode = c,
-                LineWriter = str => lines.Add(str)
+                "--no-flag-1",
+                "--flag-1"
             };
+            var opts = CreateRecordingParserOptions(out var parserResult);
             var expected = $"{args[1]} conflicts with {args[0]}";
 
             // Act
             args.ParseTo<IHasConflictingFlags>(
-                out var uncollected,
+                out _,
                 opts
             );
             // Assert
+            var (exitCode, lines) = parserResult;
             Expect(exitCode)
                 .To.Equal(1);
             Expect(lines)
@@ -245,18 +293,19 @@ namespace PeanutButter.EasyArgs.Tests
         public void ShouldErrorAndExitIfSingleValueArgAlreadySpecified()
         {
             // Arrange
-            var args = new[] { "--listen-port", 1.ToString(), "-p", 2.ToString() };
-            int? exitCode = null;
-            var lines = new List<string>();
-            var opts = new ParserOptions()
+            var args = new[]
             {
-                ExitAction = c => exitCode = c,
-                LineWriter = str => lines.Add(str)
+                "--listen-port",
+                1.ToString(),
+                "-p",
+                2.ToString()
             };
+            var opts = CreateRecordingParserOptions(out var parserResult);
             // Act
-            args.ParseTo<IArgs>(out var uncollected, opts);
+            args.ParseTo<IArgs>(out _, opts);
 
             // Assert
+            var (exitCode, lines) = parserResult;
             Expect(exitCode)
                 .To.Equal(1);
             Expect(lines)
@@ -272,18 +321,17 @@ namespace PeanutButter.EasyArgs.Tests
         public void ShouldErrorAndExitByDefaultWhenEncounteringUnknownSwitch()
         {
             // Arrange
-            var args = new[] { "--flag1", "--port" };
-            int? exitCode = null;
-            var lines = new List<string>();
-            var opts = new ParserOptions()
+            var args = new[]
             {
-                ExitAction = c => exitCode = c,
-                LineWriter = str => lines.Add(str)
+                "--flag1",
+                "--port"
             };
+            var opts = CreateRecordingParserOptions(out var parserResult);
 
             // Act
-            args.ParseTo<IHasConflictingFlags>(out var collected, opts);
+            args.ParseTo<IHasConflictingFlags>(out _, opts);
             // Assert
+            var (exitCode, lines) = parserResult;
             Expect(exitCode)
                 .To.Equal(1);
             Expect(lines)
@@ -300,16 +348,11 @@ namespace PeanutButter.EasyArgs.Tests
         {
             // Arrange
             var args = new string[0];
-            int? exitCode = null;
-            var lines = new List<string>();
-            var opts = new ParserOptions()
-            {
-                ExitAction = c => exitCode = c,
-                LineWriter = str => lines.Add(str)
-            };
+            var opts = CreateRecordingParserOptions(out var parserResult);
             // Act
-            args.ParseTo<IHasRequiredArg>(out var uncollected, opts);
+            args.ParseTo<IHasRequiredArg>(out _, opts);
             // Assert
+            var (exitCode, lines) = parserResult;
             Expect(exitCode)
                 .To.Equal(1);
             Expect(lines)
@@ -334,23 +377,20 @@ namespace PeanutButter.EasyArgs.Tests
                 "--existing-file",
                 $"{tmpFile.Path}.missing"
             };
-            var exitCode = null as int?;
-            var lines = new List<string>();
-            var opts = new ParserOptions()
-            {
-                ExitAction = c => exitCode = c,
-                LineWriter = str => lines.Add(str)
-            };
+            var opts = CreateRecordingParserOptions(out var parserResult);
             // Act
             var validParsed = validArgs.ParseTo<IHasFileAttributes>(opts);
+            var (exitCode, lines) = parserResult;
             Expect(exitCode)
-                .To.Be.Null();
+                .To.Be.Null(() => "file exists, exit code should not be set");
             Expect(validParsed.ExistingFile)
                 .To.Equal(tmpFile.Path);
             Expect(lines)
                 .To.Be.Empty();
-            
-            var invalidParsed = invalidArgs.ParseTo<IHasFileAttributes>(opts);
+
+            var opts2 = CreateRecordingParserOptions(out var parserResult2);
+            invalidArgs.ParseTo<IHasFileAttributes>(opts2);
+            (exitCode, lines) = parserResult2;
             Expect(exitCode)
                 .Not.To.Be.Null()
                 .And
@@ -376,23 +416,20 @@ namespace PeanutButter.EasyArgs.Tests
                 "--existing-folder",
                 $"{tmpFile.Path}.missing"
             };
-            var exitCode = null as int?;
-            var lines = new List<string>();
-            var opts = new ParserOptions()
-            {
-                ExitAction = c => exitCode = c,
-                LineWriter = str => lines.Add(str)
-            };
+            var opts1 = CreateRecordingParserOptions(out var parserResult1);
+            var opts2 = CreateRecordingParserOptions(out var parserResult2);
             // Act
-            var validParsed = validArgs.ParseTo<IHasFileAttributes>(opts);
+            var validParsed = validArgs.ParseTo<IHasFileAttributes>(opts1);
+            var (exitCode, lines) = parserResult1;
             Expect(exitCode)
                 .To.Be.Null();
             Expect(validParsed.ExistingFolder)
                 .To.Equal(tmpFile.Path);
             Expect(lines)
                 .To.Be.Empty();
-            
-            var invalidParsed = invalidArgs.ParseTo<IHasFileAttributes>(opts);
+
+            invalidArgs.ParseTo<IHasFileAttributes>(opts2);
+            (exitCode, lines) = parserResult2;
             Expect(exitCode)
                 .Not.To.Be.Null()
                 .And
@@ -407,16 +444,11 @@ namespace PeanutButter.EasyArgs.Tests
         public void ShouldErrorOnRequiredExistingFileNotSet()
         {
             // Arrange
-            var lines = new List<string>();
-            var exitCode = null as int?;
-            var opts = new ParserOptions()
-            {
-                ExitAction = c => exitCode = c,
-                LineWriter = str => lines.Add(str)
-            };
+            var opts = CreateRecordingParserOptions(out var parserResult);
             // Act
             new string[0].ParseTo<IHasRequiredFileAttributes>(opts);
             // Assert
+            var (exitCode, lines) = parserResult;
             Expect(exitCode)
                 .Not.To.Be.Null()
                 .And
@@ -437,7 +469,6 @@ namespace PeanutButter.EasyArgs.Tests
 
         public interface IHasRequiredFileAttributes
         {
-
             [Required]
             [ExistingFile]
             string AnotherFile { get; set; }
@@ -477,7 +508,11 @@ namespace PeanutButter.EasyArgs.Tests
         public void ParsingToPOCO()
         {
             // Arrange
-            var args = new[] { "--port", "123" };
+            var args = new[]
+            {
+                "--port",
+                "123"
+            };
             // Act
             var result = args.ParseTo<PocoArgs>();
             // Assert
@@ -491,7 +526,10 @@ namespace PeanutButter.EasyArgs.Tests
         public void ShouldBeAbleToConsumeWithNoSwitchesAndOnlyOutArgs()
         {
             // Arrange
-            var args = new[] { "something-something" };
+            var args = new[]
+            {
+                "something-something"
+            };
             // Act
             var result = args.ParseTo<IFoo>(out var remaining);
             // Assert
@@ -510,6 +548,47 @@ namespace PeanutButter.EasyArgs.Tests
         {
             public int Port { get; set; }
         }
+
+        private class ParserResult
+        {
+            public int? ExitCode { get; set; }
+            public string[] Lines => _lines.ToArray();
+            private readonly List<string> _lines = new();
+
+            public void AddText(string str)
+            {
+                _lines.AddRange(
+                    str.Split(
+                        new[]
+                        {
+                            '\r',
+                            '\n'
+                        },
+                        StringSplitOptions.RemoveEmptyEntries
+                    )
+                );
+            }
+
+            public void Deconstruct(out int? exitCode, out string[] lines)
+            {
+                exitCode = ExitCode;
+                lines = Lines;
+            }
+        }
+
+        private static ParserOptions CreateRecordingParserOptions(
+            out ParserResult parserResult
+        )
+        {
+            var myRef = parserResult = new ParserResult();
+
+            return new ParserOptions()
+            {
+                ExitAction = c => myRef.ExitCode = c,
+                LineWriter = str => myRef.AddText(str)
+            };
+        }
+
 
         [TestFixture]
         public class GenerateHelpText
@@ -538,50 +617,32 @@ Negate any flag argument with --no-{option}
 This program was made with love and biscuits.
 Exit status codes are 0 for happy and non-zero for unhappy.
 Report bugs to <no-one-cares@whatevs.org>
-".Replace("\r", "");
-                var args = new[] { "--help" };
-                int? exitCode = null;
-                var lines = new List<string>();
-                var opts = new ParserOptions()
+".Trim()
+                    .Split(
+                        new[]
+                        {
+                            '\r',
+                            '\n'
+                        },
+                        StringSplitOptions.RemoveEmptyEntries
+                    );
+                var args = new[]
                 {
-                    ExitAction = c => exitCode = c,
-                    LineWriter = str => lines.Add(str)
+                    "--help"
                 };
+                var opts = CreateRecordingParserOptions(out var parserResult);
                 // Act
-                args.ParseTo<IHelpArgs>(out var uncollected, opts);
+                args.ParseTo<IHelpArgs>(out _, opts);
                 // Assert
+                var (exitCode, lines) = parserResult;
                 Expect(exitCode)
                     .To.Equal(2);
-                var output = lines.JoinWith("\n");
-                Expect(output)
+                Expect(lines)
                     .To.Equal(
-                        expected,
-                        () =>
-                        {
-                            var i = 0;
-                            foreach (var c in output)
-                            {
-                                if (i > expected.Length)
-                                {
-                                    return $"mismatch starts at {output.Substring(i)}";
-                                }
-
-                                if (c != expected[i])
-                                {
-                                    return $@"difference at {i}: expected
-'{expected.Substring(i)}'
-received:
-'{output.Substring(i)}'";
-                                }
-
-                                i++;
-                            }
-
-                            ;
-                            return "dunno";
-                        }
+                        expected
                     );
             }
+
 
             [Attributes.Description(
                 @"
@@ -628,16 +689,25 @@ Report bugs to <no-one-cares@whatevs.org>
             public void ShouldIncludeHelpHeaderAndCopyrightFromParserOptions()
             {
                 // Arrange
-                var args = new[] { "--help" };
+                var args = new[]
+                {
+                    "--help"
+                };
                 var collected = new List<string>();
                 var opts = new ParserOptions()
                 {
                     LineWriter = collected.Add,
-                    Description = new[] { GetRandomWords() },
+                    Description = new[]
+                    {
+                        GetRandomWords()
+                    },
                     IncludeDefaultDescription = true,
-                    MoreInfo = new[] { GetRandomWords() },
+                    MoreInfo = new[]
+                    {
+                        GetRandomWords()
+                    },
                     ExitOnError = false,
-                    ExitAction = i =>
+                    ExitAction = _ =>
                     {
                     }
                 };
@@ -662,11 +732,15 @@ Report bugs to <no-one-cares@whatevs.org>
                 // Arrange
                 var args = new[]
                 {
-                    "--name", "bob",
-                    "--address", "here",
-                    "--color", "red",
+                    "--name",
+                    "bob",
+                    "--address",
+                    "here",
+                    "--color",
+                    "red",
                     "--flag",
-                    "--value", "123"
+                    "--value",
+                    "123"
                 };
                 var collected = new List<string>();
                 // Act
@@ -727,7 +801,10 @@ Report bugs to <no-one-cares@whatevs.org>
                     LineWriter = captured.Add,
                     ExitWhenShowingHelp = false
                 };
-                var args = new[] { "--help" };
+                var args = new[]
+                {
+                    "--help"
+                };
                 // Act
                 args.ParseTo<INoShortName>(opts);
                 // Assert
@@ -746,7 +823,11 @@ Report bugs to <no-one-cares@whatevs.org>
         public void ShouldOutputUnknownArgsWhenNotExitingOnError()
         {
             // Arrange
-            var args = new[] { "--flag", "some command" };
+            var args = new[]
+            {
+                "--flag",
+                "some command"
+            };
             var opts = new ParserOptions()
             {
                 ExitOnError = false
@@ -760,7 +841,12 @@ Report bugs to <no-one-cares@whatevs.org>
             Expect(result.Flag)
                 .To.Be.True();
             Expect(uncollected)
-                .To.Equal(new[] { "some command" });
+                .To.Equal(
+                    new[]
+                    {
+                        "some command"
+                    }
+                );
         }
 
         public interface INoShortName
@@ -818,7 +904,14 @@ Report bugs to <no-one-cares@whatevs.org>
                         // Arrange
                         using var _ = new AutoTempEnvironmentVariable(
                             varName,
-                            GetRandomFrom(new[] { "1", "true", "yes" })
+                            GetRandomFrom(
+                                new[]
+                                {
+                                    "1",
+                                    "true",
+                                    "yes"
+                                }
+                            )
                         );
                         var args = new string[0];
                         // Act
@@ -872,7 +965,7 @@ Report bugs to <no-one-cares@whatevs.org>
                         {
                             FallbackOnEnvironmentVariables = true,
                             LineWriter = s => lines.Add(s),
-                            ExitAction = c =>
+                            ExitAction = _ =>
                             {
                             }
                         }
@@ -899,7 +992,7 @@ Report bugs to <no-one-cares@whatevs.org>
                         {
                             FallbackOnEnvironmentVariables = true,
                             LineWriter = s => lines.Add(s),
-                            ExitAction = c =>
+                            ExitAction = _ =>
                             {
                             }
                         }
@@ -945,7 +1038,11 @@ Report bugs to <no-one-cares@whatevs.org>
                 {
                     TheOption = 12
                 };
-                var expected = new[] { "--the-option", "12" };
+                var expected = new[]
+                {
+                    "--the-option",
+                    "12"
+                };
                 // Act
                 var result = opts.GenerateArgs();
                 // Assert
@@ -961,7 +1058,10 @@ Report bugs to <no-one-cares@whatevs.org>
                 {
                     TheFlag = true
                 };
-                var expected = new[] { "--the-flag" };
+                var expected = new[]
+                {
+                    "--the-flag"
+                };
                 // Act
                 var result = positive.GenerateArgs();
                 // Assert
@@ -977,7 +1077,10 @@ Report bugs to <no-one-cares@whatevs.org>
                 {
                     TheFlag = false
                 };
-                var expected = new[] { "--no-the-flag" };
+                var expected = new[]
+                {
+                    "--no-the-flag"
+                };
                 // Act
                 var result = positive.GenerateArgs();
                 // Assert
@@ -991,9 +1094,18 @@ Report bugs to <no-one-cares@whatevs.org>
                 // Arrange
                 var opts = new MultiStringOption()
                 {
-                    TheOption = new[] { "one", "two" }
+                    TheOption = new[]
+                    {
+                        "one",
+                        "two"
+                    }
                 };
-                var expected = new[] { "--the-option", "one", "two" };
+                var expected = new[]
+                {
+                    "--the-option",
+                    "one",
+                    "two"
+                };
                 // Act
                 var result = opts.GenerateArgs();
                 // Assert
@@ -1027,7 +1139,11 @@ Report bugs to <no-one-cares@whatevs.org>
                 public void ShouldFailWhenMinValueNotMet()
                 {
                     // Arrange
-                    var args = new[] { "--some-number", "4" };
+                    var args = new[]
+                    {
+                        "--some-number",
+                        "4"
+                    };
                     var output = new List<string>();
                     var exitCode = 0;
                     var opts = new ParserOptions()
@@ -1037,7 +1153,7 @@ Report bugs to <no-one-cares@whatevs.org>
                     };
                     // Act
                     args.ParseTo<INumericOptions>(
-                        out var uncollected,
+                        out _,
                         opts
                     );
                     // Assert
@@ -1056,7 +1172,11 @@ Report bugs to <no-one-cares@whatevs.org>
                 public void ShouldFailWhenMaxValueExceeded()
                 {
                     // Arrange
-                    var args = new[] { "--some-number", "14" };
+                    var args = new[]
+                    {
+                        "--some-number",
+                        "14"
+                    };
                     var output = new List<string>();
                     var exitCode = 0;
                     var opts = new ParserOptions()
@@ -1066,7 +1186,7 @@ Report bugs to <no-one-cares@whatevs.org>
                     };
                     // Act
                     args.ParseTo<INumericOptions>(
-                        out var uncollected,
+                        out _,
                         opts
                     );
                     // Assert
@@ -1097,7 +1217,11 @@ Report bugs to <no-one-cares@whatevs.org>
             public void ShouldParseNegativeDecimal()
             {
                 // Arrange
-                var args = new[] { "--value", "-1" };
+                var args = new[]
+                {
+                    "--value",
+                    "-1"
+                };
                 var exitCode = 0;
                 // Act
                 var result = args.ParseTo<HasDecimal>(
@@ -1146,7 +1270,10 @@ Report bugs to <no-one-cares@whatevs.org>
                             public void ShouldBeTrue()
                             {
                                 // Arrange
-                                var args = new[] { "--flag" };
+                                var args = new[]
+                                {
+                                    "--flag"
+                                };
                                 // Act
                                 var result = args.ParseTo<HasDefaultPositiveFlag>();
                                 // Assert
@@ -1162,7 +1289,10 @@ Report bugs to <no-one-cares@whatevs.org>
                             public void ShouldBeFalse()
                             {
                                 // Arrange
-                                var args = new[] { "--no-flag" };
+                                var args = new[]
+                                {
+                                    "--no-flag"
+                                };
                                 // Act
                                 var result = args.ParseTo<HasDefaultPositiveFlag>();
                                 // Assert
@@ -1208,7 +1338,10 @@ Report bugs to <no-one-cares@whatevs.org>
                             public void ShouldBeTrue()
                             {
                                 // Arrange
-                                var args = new[] { "--flag" };
+                                var args = new[]
+                                {
+                                    "--flag"
+                                };
                                 // Act
                                 var result = args.ParseTo<HasDefaultNegativeFlag>();
                                 // Assert
@@ -1224,7 +1357,10 @@ Report bugs to <no-one-cares@whatevs.org>
                             public void ShouldBeFalse()
                             {
                                 // Arrange
-                                var args = new[] { "--no-flag" };
+                                var args = new[]
+                                {
+                                    "--no-flag"
+                                };
                                 // Act
                                 var result = args.ParseTo<HasDefaultNegativeFlag>();
                                 // Assert
