@@ -111,8 +111,19 @@ namespace PeanutButter.RandomGenerators.Tests
             Assert.IsNotNull(someEntityType);
             Assert.IsNotNull(someEntityBuilderType);
             var otherBuilder = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .ToArray();
+                .SelectMany(
+                    a =>
+                    {
+                        try
+                        {
+                            return a.GetTypes();
+                        }
+                        catch
+                        {
+                            return new Type[0];
+                        }
+                    }
+                ).ToArray();
             var builders = otherBuilder.Where(t => t.IsBuilderFor(typeof (SomeEntityWithBuilder)));
             CollectionAssert.IsNotEmpty(builders);
         }
@@ -124,10 +135,22 @@ namespace PeanutButter.RandomGenerators.Tests
             var type = typeof(SomeEntityWithoutBuilder);
 
             //---------------Assert Precondition----------------
-            var existingBuilders = AppDomain.CurrentDomain
-                                            .GetAssemblies()
-                                            .SelectMany(a => a.GetTypes())
-                                            .Where(t => t.IsBuilderFor(type));
+            var existingBuilders = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(
+                    a =>
+                    {
+                        try
+                        {
+                            return a.GetTypes();
+                        }
+                        catch
+                        {
+                            return new Type[0];
+                        }
+                    }
+                )
+                .Where(t => t.IsBuilderFor(type))
+                .ToArray();
             Expect(existingBuilders).To.Be.Empty();
             //---------------Execute Test ----------------------
             var builderType = GenericBuilderLocator.TryFindExistingBuilderFor(type);

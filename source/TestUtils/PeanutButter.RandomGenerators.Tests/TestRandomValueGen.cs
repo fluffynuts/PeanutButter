@@ -721,7 +721,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public class GetRandomFrom
         {
             [Test]
-            [Parallelizable]
+            // [Parallelizable]
             public void ShouldReturnARandomItemFromTheListCollection()
             {
                 //---------------Set up test pack-------------------
@@ -3809,7 +3809,12 @@ namespace PeanutButter.RandomGenerators.Tests
             {
                 //--------------- Arrange -------------------
                 var first = GetRandom<IHasAnId>();
-                var expected = GetRandom<IHasAnId>(o => o.Id != first.Id);
+                var expected = GetRandom<IHasAnId>(
+                    o =>
+                    {
+                        return o.Id != first.Id;
+                    }
+                );
 
                 //--------------- Assume ----------------
                 // rather fail early if we're about to enter an infinite loop
@@ -3828,8 +3833,28 @@ namespace PeanutButter.RandomGenerators.Tests
             [Test]
             public void SuccessfullySelectingASub()
             {
+                // This test is forced because subs are a little flaky
+                // on some platforms - reading props may fail with a DynamicProxy2 error
+                // -> which is why I've flipped the default to rather create via a duck
                 // Arrange
                 // Act
+                using var _ = AutoResetter.Create(
+                    () =>
+                    {
+                        var existing = Environment.GetEnvironmentVariable(
+                            GenericBuilderBase.ENV_FORCE_NSUBSTITUTE_FOR_RANDOMVALUEGEN
+                        );
+                        Environment.SetEnvironmentVariable(
+                            GenericBuilderBase.ENV_FORCE_NSUBSTITUTE_FOR_RANDOMVALUEGEN,
+                            "1"
+                        );
+                        return existing;
+                    },
+                    existing => Environment.SetEnvironmentVariable(
+                        GenericBuilderBase.ENV_FORCE_NSUBSTITUTE_FOR_RANDOMVALUEGEN,
+                        existing
+                    )
+                );
                 var result = GetRandom<IPublicFoo>();
                 // Assert
                 Expect(result)
@@ -4925,9 +4950,11 @@ namespace PeanutButter.RandomGenerators.Tests
             int? cycles = null
         )
         {
-            cycles = cycles ?? NORMAL_RANDOM_TEST_CYCLES;
-            for (var i = 0; i < NORMAL_RANDOM_TEST_CYCLES; i++)
+            cycles ??= NORMAL_RANDOM_TEST_CYCLES;
+            for (var i = 0; i < cycles; i++)
+            {
                 toRun();
+            }
         }
 
         private static string GetErrorHelpFor(

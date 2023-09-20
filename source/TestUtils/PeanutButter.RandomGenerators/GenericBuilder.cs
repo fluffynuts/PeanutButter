@@ -382,6 +382,7 @@ namespace PeanutButter.RandomGenerators
 
         private static readonly Func<TEntity>[] FallbackConstructionStrategies =
         {
+            AttemptToCreateForcedFuzzyDuckFor,
             () => TryCreateSubstituteFor<TEntity>(
                 throwOnError: true,
                 callThrough: false,
@@ -390,8 +391,19 @@ namespace PeanutButter.RandomGenerators
             )
                 ? result
                 : default,
-            AttemptToCreateForcedFuzzyDuckFor
+            Chuck<TEntity>
         };
+
+        private static TEntity Chuck<T>()
+        {
+            var type = typeof(T);
+            var moreInfo = type.IsInterface || type.IsAbstract
+                ? $"\nSuggest: rather create a random value from a concrete implementation of {type}"
+                : "";
+            throw new Exception(
+                $"Unable to create random value of type {typeof(T)}{moreInfo}"
+            );
+        }
 
         private const string DUCK_ASM = "PeanutButter.DuckTyping";
         private const string DUCK_TYPE = "DuckTypingDictionaryExtensions";
@@ -400,21 +412,28 @@ namespace PeanutButter.RandomGenerators
 
         private static TEntity AttemptToCreateForcedFuzzyDuckFor()
         {
+            if (Environment.GetEnvironmentVariable(ENV_FORCE_NSUBSTITUTE_FOR_RANDOMVALUEGEN).AsBoolean())
+            {
+                return default;
+            }
+
             var asm = FindOrLoadDuckTyping<TEntity>();
             if (asm == null)
             {
-                throw new Exception(
+                Trace.WriteLine(
                     $"Can't find (or load) {DUCK_ASM}"
                 );
+                return default;
             }
 
             var dictionaryExtensions = asm.GetTypes()
                 .FirstOrDefault(t => t.Name == DUCK_TYPE);
             if (dictionaryExtensions == null)
             {
-                throw new Exception(
+                Trace.WriteLine(
                     $"Found {DUCK_ASM}, but didn't find expected {DUCK_TYPE}"
                 );
+                return default;
             }
 
             var method = dictionaryExtensions.GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -432,13 +451,14 @@ namespace PeanutButter.RandomGenerators
                 );
             if (method is null)
             {
-                throw new Exception(
+                Trace.WriteLine(
                     $"Found {DUCK_ASM}.{DUCK_TYPE}, but unable to find {DUCK_METHOD} with single parameter of type {DuckParameterType}"
                 );
+                return default;
             }
 
             var specificMethod = method.MakeGenericMethod(typeof(TEntity));
-            return (TEntity) specificMethod.Invoke(
+            return (TEntity)specificMethod.Invoke(
                 null,
                 new object[]
                 {
@@ -482,7 +502,12 @@ namespace PeanutButter.RandomGenerators
             TInterface>()
         {
             var assembly = typeof(TInterface).Assembly;
-            var type = FindImplementingTypeFor<TInterface>(new[] { assembly });
+            var type = FindImplementingTypeFor<TInterface>(
+                new[]
+                {
+                    assembly
+                }
+            );
             if (type == null)
             {
                 throw new TypeLoadException();
@@ -512,8 +537,9 @@ namespace PeanutButter.RandomGenerators
         )
         {
 #if NETSTANDARD
-            return (TInterface) Activator.CreateInstance(
-                type, TryToMakeConstructorParametersFor(type)
+            return (TInterface)Activator.CreateInstance(
+                type,
+                TryToMakeConstructorParametersFor(type)
             );
 #else
             var handle = Activator.CreateInstance(
@@ -612,7 +638,7 @@ namespace PeanutButter.RandomGenerators
 
             var builderType = FindOrCreateDynamicBuilderTypeFor(t);
             var builder =
-                (IGenericBuilder) Activator.CreateInstance(builderType);
+                (IGenericBuilder)Activator.CreateInstance(builderType);
             builder.WithBuildLevel(_buildLevel + 1);
             return builder.WithBuildLevel(_buildLevel + 1)
                 .GenericWithRandomProps()
@@ -664,7 +690,9 @@ namespace PeanutButter.RandomGenerators
                         }
                         catch
                         {
-                            return new Type[] { };
+                            return new Type[]
+                            {
+                            };
                         }
                     }
                 )
@@ -729,7 +757,7 @@ namespace PeanutButter.RandomGenerators
                                 return;
                             }
 
-                            var currentValue = (DateTime) (pi.GetValue(entity));
+                            var currentValue = (DateTime)(pi.GetValue(entity));
                             pi.SetValue(
                                 entity,
                                 currentValue.WithKind(_defaultDateTimeKind)
@@ -888,8 +916,7 @@ namespace PeanutButter.RandomGenerators
                         ))
                     },
                     {
-                        typeof(float),
-                        pi => ((
+                        typeof(float), pi => ((
                             ref TEntity e,
                             int _
                         ) => pi.SetValue(
@@ -942,8 +969,12 @@ namespace PeanutButter.RandomGenerators
                             Guid.NewGuid()
                         ))
                     },
-                    { typeof(string), CreateStringPropertyRandomSetterFor },
-                    { typeof(bool), CreateBooleanPropertyRandomSetterFor },
+                    {
+                        typeof(string), CreateStringPropertyRandomSetterFor
+                    },
+                    {
+                        typeof(bool), CreateBooleanPropertyRandomSetterFor
+                    },
                     {
                         typeof(byte[]), pi => ((
                             ref TEntity e,
@@ -1608,7 +1639,9 @@ namespace PeanutButter.RandomGenerators
 
             instance = methodInfo.Invoke(
                 instance,
-                new object[] { }
+                new object[]
+                {
+                }
             );
             return instance;
         }
@@ -1692,7 +1725,10 @@ namespace PeanutButter.RandomGenerators
             data.ForEach(
                 item => method.Invoke(
                     collectionInstance,
-                    new[] { item }
+                    new[]
+                    {
+                        item
+                    }
                 )
             );
         }

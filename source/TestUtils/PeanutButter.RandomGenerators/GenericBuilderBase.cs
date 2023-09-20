@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators
 {
@@ -14,6 +15,12 @@ namespace PeanutButter.RandomGenerators
     /// </summary>
     public abstract class GenericBuilderBase
     {
+        /// <summary>
+        /// The environment variable which is observed to _force_ using NSubstitute
+        /// for random value generation of interface types
+        /// </summary>
+        public const string ENV_FORCE_NSUBSTITUTE_FOR_RANDOMVALUEGEN = "FORCE_NSUBSTITUTE_FOR_RANDOMVALUEGEN";
+
         // ReSharper disable once MemberCanBeProtected.Global
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
         /// <summary>
@@ -99,8 +106,10 @@ namespace PeanutButter.RandomGenerators
 
                 var modBuilder = CreateOrReuseDynamicModule();
                 var typeName = string.Join("_", type.Name, "Builder", Guid.NewGuid().ToString("N"));
-                var typeBuilder = modBuilder.DefineType(typeName,
-                    TypeAttributes.Public | TypeAttributes.Class);
+                var typeBuilder = modBuilder.DefineType(
+                    typeName,
+                    TypeAttributes.Public | TypeAttributes.Class
+                );
                 // TypeBuilder is a sub class of Type
                 typeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
                 typeBuilder.SetParent(t.MakeGenericType(typeBuilder, type));
@@ -183,6 +192,8 @@ namespace PeanutButter.RandomGenerators
                 out result
             );
         }
+        
+        private static object _subLock = new();
 
         /// <summary>
         /// Attempts perform Substitute.For&lt;T&gt;
@@ -197,75 +208,87 @@ namespace PeanutButter.RandomGenerators
             out T result
         )
         {
-            result = default;
-            var loadedNSubstitute = FindOrLoadNSubstitute<T>();
-            if (loadedNSubstitute is null)
+            lock (_subLock)
             {
-                if (throwOnError)
+                // if we don't lock, then, on some platforms at least,
+                // we may have issues when attempting to read properties
+                // from a sub that was constructed during parallel testing,
+                // eg when tests/fixtures are decorated with [Parallelizable]
+                result = default;
+                var loadedNSubstitute = FindOrLoadNSubstitute<T>();
+                if (loadedNSubstitute is null)
                 {
-                    throw new Exception("Can't find (or load) NSubstitute )':");
+                    if (throwOnError)
+                    {
+                        throw new Exception("Can't find (or load) NSubstitute )':");
+                    }
+
+                    return false;
                 }
 
-                return false;
-            }
-
-            // FIXME: calling .Received() on the result doesn't work
-            // unless NSubstitute has been invoked in the calling assembly
-            // eg with a pre-existing Substitute.For or by reading SubstitutionContext.Current
-            var nsubstituteTypes = loadedNSubstitute.GetTypes();
-            var subType = nsubstituteTypes
-                .FirstOrDefault(t => t.Name == "Substitute");
-            if (subType is null)
-            {
-                if (throwOnError)
+                // FIXME: calling .Received() on the result doesn't work
+                // unless NSubstitute has been invoked in the calling assembly
+                // eg with a pre-existing Substitute.For or by reading SubstitutionContext.Current
+                var nsubstituteTypes = loadedNSubstitute.GetTypes();
+                var subType = nsubstituteTypes
+                    .FirstOrDefault(t => t.Name == "Substitute");
+                if (subType is null)
                 {
-                    throw new Exception(
-                        "NSubstitute assembly loaded -- but no Substitute class? )':"
+                    if (throwOnError)
+                    {
+                        throw new Exception(
+                            "NSubstitute assembly loaded -- but no Substitute class? )':"
+                        );
+                    }
+
+                    return false;
+                }
+
+                var seekMethod = callThrough
+                    ? "ForPartsOf"
+                    : "For";
+
+                var genericMethod = subType.GetMethods()
+                    .FirstOrDefault(
+                        m => m.Name == seekMethod &&
+                            IsObjectParams(m.GetParameters())
                     );
+                if (genericMethod is null)
+                {
+                    if (throwOnError)
+                    {
+                        throw new Exception(
+                            $"Can't find NSubstitute.Substitute.{seekMethod} method )':"
+                        );
+                    }
+
+                    return false;
                 }
 
-                return false;
-            }
-
-            var seekMethod = callThrough
-                ? "ForPartsOf"
-                : "For";
-
-            var genericMethod = subType.GetMethods()
-                .FirstOrDefault(m => m.Name == seekMethod &&
-                    IsObjectParams(m.GetParameters())
-                );
-            if (genericMethod is null)
-            {
-                if (throwOnError)
+                var specificMethod = genericMethod.MakeGenericMethod(typeof(T));
+                try
                 {
-                    throw new Exception(
-                        $"Can't find NSubstitute.Substitute.{seekMethod} method )':"
+                    result = (T)specificMethod.Invoke(
+                        null,
+                        // these are parameters to NSubstitute.Substitute.ForPartsOf
+                        // and those become parameters for the constructor
+                        new object[]
+                        {
+                            constructorParameters
+                        }
                     );
+
+                    return true;
                 }
-
-                return false;
-            }
-
-            var specificMethod = genericMethod.MakeGenericMethod(typeof(T));
-            try
-            {
-                result = (T) specificMethod.Invoke(
-                    null,
-                    // these are parameters to NSubstitute.Substitute.ForPartsOf
-                    // and those become parameters for the constructor
-                    new object[] { constructorParameters }
-                );
-                return true;
-            }
-            catch
-            {
-                if (throwOnError)
+                catch
                 {
-                    throw;
-                }
+                    if (throwOnError)
+                    {
+                        throw;
+                    }
 
-                return false;
+                    return false;
+                }
             }
         }
 

@@ -23,9 +23,11 @@
     <dependencies>
       <group targetFramework="net462">
         <dependency id="PeanutButter.Utils" version="3.0.177" />
+        <dependency id="PeanutButter.DuckTyping" version="3.0.177" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="PeanutButter.Utils" version="3.0.177" />
+        <dependency id="PeanutButter.DuckTyping" version="3.0.177" />
       </group>
     </dependencies>
     <references></references>
