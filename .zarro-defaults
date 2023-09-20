@@ -6,7 +6,7 @@
 #   so this means anything you set in your package.json, eg with
 #   cross-env, will override what's in here unless you've specifically
 #   marked the setting in here as forced with !
-TEMPDB_PORT_HINT=
+!TEMPDB_PORT_HINT=
 BUILD_TOOLS_FOLDER=build-tools
 TEST_EXCLUDE=PeanutButter.RandomGenerators.Core.Tests.Domain,NugetPackageVersionIncrementer.Tests,**/_deprecated_/**
 DOTNET_CORE=0

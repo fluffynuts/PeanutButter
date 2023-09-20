@@ -41,7 +41,7 @@ jobs:
         SUPPRESS_DOWNLOAD_PROGRESS: 1
       run: |
         npm ci
-        npm run test-gh
+        npm test
 
     - name: 📃 Upload build report
       uses: actions/upload-artifact@v2

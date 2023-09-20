@@ -190,6 +190,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		..\.github\workflows\run-all-tests.yml = ..\.github\workflows\run-all-tests.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{905D8BA4-13FC-4FE2-8290-9263E0180961}"
+	ProjectSection(SolutionItems) = preProject
+		..\package.json = ..\package.json
+		..\.zarro-defaults = ..\.zarro-defaults
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

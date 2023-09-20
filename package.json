@@ -7,9 +7,9 @@
   "license": "BSD-3-Clause",
   "scripts": {
     "pretest": "run-s build",
-    "test": "zarro test-dotnet",
+    "test-fx": "zarro test-dotnet",
     "build-with-msbuild": "cross-env DOTNET_CORE=0 zarro build",
-    "test-gh": "cross-env TEST_EXCLUDE=PeanutButter.RandomGenerators.Core.Tests.Domain,NugetPackageVersionIncrementer.Tests,EmailSpooler.Win32Service.Entity.Tests,PeanutButter.TempDb.MySql.Connector.Tests,PeanutButter.TempDb.MySql.Data.Tests,**/_deprecated_/** run-s \"zarro-core test-dotnet\"",
+    "test": "cross-env TEST_ADDITIONAL_EXCLUDE=PeanutButter.WindowsServiceManagement.Core.Tests run-s \"zarro-core test-dotnet\"",
     "cover": "zarro cover-dotnet",
     "postcover": "run-s generate-reports",
     "generate-reports": "cross-env COVERAGE_INCLUDE=*,PeanutButter.* COVERAGE_EXCLUDE_ASSEMBLIES=PeanutButter.RandomGenerators.Core.Tests.Domain COVERAGE_ADDITIONAL_EXCLUDE=GenericBuilderTestLoadLoadedAssemblyObject,GenericBuilderTestNotLoadedAssembly zarro generate-reports",
@@ -33,6 +33,6 @@
     "p-queue": "^6.3.0",
     "typescript": "^5.2.2",
     "yafs": "^1.25.0",
-    "zarro": "^1.144.271"
+    "zarro": "^1.144.279"
   }
 }

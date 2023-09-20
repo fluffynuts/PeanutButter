@@ -40,7 +40,7 @@ namespace PeanutButter.Utils
         /// </summary>
         public int Capacity { get; }
 
-        private Dictionary<T, long> _items = new();
+        private readonly Dictionary<T, long> _items = new();
 
         /// <summary>
         /// Holds a list of most-recently-used items, up to

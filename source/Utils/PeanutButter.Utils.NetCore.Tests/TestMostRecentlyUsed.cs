@@ -47,6 +47,8 @@ namespace PeanutButter.Utils.NetCore.Tests
                 sut.Add("abc");
                 sut.Add("abc");
                 // Assert
+                Expect(sut.Items.Keys)
+                    .To.Equal(new[] { "abc" } );
             }
         }
 
@@ -60,8 +62,11 @@ namespace PeanutButter.Utils.NetCore.Tests
                 var sut = Create<string>(5);
                 // Act
                 sut.Add("c");
+                Thread.Sleep(1);
                 sut.Add("a");
+                Thread.Sleep(1);
                 sut.Add("def");
+                Thread.Sleep(1);
                 sut.Add("123");
                 var result = sut.ToArray();
                 // Assert
