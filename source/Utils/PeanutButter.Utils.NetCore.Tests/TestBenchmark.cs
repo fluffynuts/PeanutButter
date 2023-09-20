@@ -1,12 +1,9 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using NExpect;
 using NUnit.Framework;
-using NExpect;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
     public class TestBenchmark

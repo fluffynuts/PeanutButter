@@ -1,12 +1,10 @@
-using System;
+using NExpect;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
-using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
-using NExpect;
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
     public class TestAutoResetter

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NExpect;
+﻿using NExpect;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -10,7 +7,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable PossibleMultipleEnumeration
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
     public class TestAsyncExtensionsForIEnumerables

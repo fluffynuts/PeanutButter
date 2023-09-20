@@ -1,6 +1,4 @@
-using System.Linq;
-
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     public static class DeepEqualityTesterExtensions
     {

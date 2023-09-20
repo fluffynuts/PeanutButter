@@ -1,14 +1,11 @@
-using System;
-using System.IO;
 using System.Reflection;
 using System.Text;
+using NExpect;
 using NUnit.Framework;
-using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
-using NExpect;
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
     public class TestAutoTempFile
@@ -22,7 +19,8 @@ namespace PeanutButter.Utils.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            sut.ShouldImplement<IDisposable>();
+            Expect(sut)
+                .To.Implement<IDisposable>();
 
             //---------------Test Result -----------------------
         }
@@ -281,23 +279,32 @@ namespace PeanutButter.Utils.Tests
         public void Construct_GivenBasePath_ShouldUseThatInsteadOfTempDir()
         {
             //---------------Set up test pack-------------------
-            var baseFolder = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+            var baseFolder = Path.GetDirectoryName(
+                new Uri(Assembly.GetExecutingAssembly().Location).LocalPath
+            );
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            using (var tempFile = new AutoTempFile(baseFolder, new byte[] { }))
-            {
-                //---------------Test Result -----------------------
-                Assert.AreEqual(baseFolder, Path.GetDirectoryName(tempFile.Path));
-            }
+            using var tempFile = new AutoTempFile(
+                baseFolder,
+                new byte[]
+                {
+                }
+            );
+            //---------------Test Result -----------------------
+            Assert.AreEqual(baseFolder, Path.GetDirectoryName(tempFile.Path));
         }
 
         [Test]
         public void Construct_GivenBasePath_ShouldUseThatInsteadOfTempDirAndWriteBytes()
         {
             //---------------Set up test pack-------------------
-            var baseFolder = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+            var baseFolder = Path.GetDirectoryName(
+                new Uri(
+                    Assembly.GetExecutingAssembly().Location
+                ).LocalPath
+            );
             var expected = GetRandomBytes();
 
             //---------------Assert Precondition----------------
@@ -315,7 +322,11 @@ namespace PeanutButter.Utils.Tests
         public void Construct_GivenBasePathAndStringData_ShouldUseThatInsteadOfTempDir()
         {
             //---------------Set up test pack-------------------
-            var baseFolder = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+            var baseFolder = Path.GetDirectoryName(
+                new Uri(
+                    Assembly.GetExecutingAssembly().Location
+                ).LocalPath
+            );
 
             //---------------Assert Precondition----------------
 
@@ -331,12 +342,16 @@ namespace PeanutButter.Utils.Tests
         public void Construct_GivenBasePathAndNullStringData_ShouldUseThatInsteadOfTempDir()
         {
             //---------------Set up test pack-------------------
-            var baseFolder = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+            var baseFolder = Path.GetDirectoryName(
+                new Uri(
+                    Assembly.GetExecutingAssembly().Location
+                ).LocalPath
+            );
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            using (var tempFile = new AutoTempFile(baseFolder, (string) null))
+            using (var tempFile = new AutoTempFile(baseFolder, (string)null))
             {
                 //---------------Test Result -----------------------
                 Assert.AreEqual(baseFolder, Path.GetDirectoryName(tempFile.Path));
@@ -348,7 +363,7 @@ namespace PeanutButter.Utils.Tests
         public void Construct_GivenBasePathAndStringData_ShouldUseThatInsteadOfTempDirAndWriteBytes()
         {
             //---------------Set up test pack-------------------
-            var baseFolder = GetExecutingAssemblyFolder();
+            var baseFolder = DetermineExecutingAssemblyFolder();
             var expected = GetRandomString();
 
             //---------------Assert Precondition----------------
@@ -366,7 +381,7 @@ namespace PeanutButter.Utils.Tests
         public void Construct_GivenTwoStringsAndBinaryData_ShouldUseStringsForFolderAndFileName()
         {
             //---------------Set up test pack-------------------
-            var baseFolder = GetExecutingAssemblyFolder();
+            var baseFolder = DetermineExecutingAssemblyFolder();
             var fileName = GetRandomString(5, 10) + "." + GetRandomString(3, 3);
             var data = GetRandomBytes();
             var expectedPath = Path.Combine(baseFolder, fileName);
@@ -382,9 +397,13 @@ namespace PeanutButter.Utils.Tests
             }
         }
 
-        private static string GetExecutingAssemblyFolder()
+        private static string DetermineExecutingAssemblyFolder()
         {
-            return Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+            return Path.GetDirectoryName(
+                new Uri(
+                    Assembly.GetExecutingAssembly().Location
+                ).LocalPath
+            );
         }
     }
 }

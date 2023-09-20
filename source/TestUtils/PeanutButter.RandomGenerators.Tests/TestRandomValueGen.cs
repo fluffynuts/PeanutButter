@@ -5602,7 +5602,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
     internal static class Matchers
     {
-        internal static IMore<IEnumerable<T>> Vary<T>(
+        internal static ICollectionMore<T> Vary<T>(
             this ICollectionTo<T> continuation
         )
         {

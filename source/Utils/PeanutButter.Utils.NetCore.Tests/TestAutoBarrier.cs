@@ -1,12 +1,8 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
+using NUnit.Framework;
 using static NExpect.Expectations;
 
-namespace PeanutButter.Utils.Tests;
+namespace PeanutButter.Utils.NetCore.Tests;
 
 [TestFixture]
 public class TestAutoBarrier

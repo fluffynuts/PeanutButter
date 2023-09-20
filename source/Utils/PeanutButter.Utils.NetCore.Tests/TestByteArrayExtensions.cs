@@ -1,14 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
+using NExpect;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
 using static NExpect.Expectations;
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable ExpressionIsAlwaysNull
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
     public class TestByteArrayExtensions

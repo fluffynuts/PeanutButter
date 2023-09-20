@@ -1,4 +1,4 @@
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     public class MyEnumerable<T>
     {

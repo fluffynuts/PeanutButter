@@ -28,3 +28,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 [assembly: InternalsVisibleTo("PeanutButter.RandomGenerators")]
 [assembly: InternalsVisibleTo("PeanutButter.Utils.Tests")]
+[assembly: InternalsVisibleTo("PeanutButter.Utils.NetCore.Tests")]
+[assembly: InternalsVisibleTo("PeanutButter.Utils.NetFx.Tests")]

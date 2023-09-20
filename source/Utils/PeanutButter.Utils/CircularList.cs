@@ -75,6 +75,26 @@ namespace PeanutButter.Utils
     }
 
     /// <summary>
+    /// Defines the Circular List, which should behave
+    /// a lot like an IList&lt;T&gt; except that enumerating
+    /// it (when there are any values) will be an infinite
+    /// task, running through all the values over and over
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ICircularList<T>: IList<T>
+    {
+        /// <summary>
+        /// The actual count of items in the internal store
+        /// </summary>
+        int ItemCount { get; }
+        /// <summary>
+        /// Access to just the items in the store, without
+        /// circular logic
+        /// </summary>
+        IEnumerable<T> Items { get; }
+    }
+
+    /// <summary>
     /// Represents a list which circles back on itself such
     /// that enumerating over it produces an unending series.
     /// EG: if it was created with the numbers [ 1, 2, 3 ],
@@ -89,7 +109,7 @@ namespace PeanutButter.Utils
 #else
     public
 #endif
-    class CircularList<T> : IList<T>
+        class CircularList<T> : IList<T>, ICircularList<T>
     {
         private readonly List<T> _store;
 
@@ -154,7 +174,24 @@ namespace PeanutButter.Utils
         }
 
         /// <inheritdoc />
-        public int Count => _store.Count;
+        public int Count => _store.Count == 0
+            ? 0
+            : int.MaxValue;
+
+        /// <inheritdoc />
+        public IEnumerable<T> Items
+        {
+            get
+            {
+                foreach (var item in _store)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public int ItemCount => _store.Count;
 
         /// <inheritdoc />
         public bool IsReadOnly => false;

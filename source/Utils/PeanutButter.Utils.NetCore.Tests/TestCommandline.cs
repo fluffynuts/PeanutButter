@@ -1,9 +1,9 @@
-﻿using NUnit.Framework;
-using NExpect;
+﻿using NExpect;
+using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
     public class TestCommandline

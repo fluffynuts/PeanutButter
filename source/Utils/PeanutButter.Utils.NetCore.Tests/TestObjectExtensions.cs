@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
+using NExpect;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
-using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
 using static NExpect.Expectations;
 
 // ReSharper disable PossibleMultipleEnumeration
@@ -21,7 +17,7 @@ using static NExpect.Expectations;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable UnusedMember.Global
 
-namespace PeanutButter.Utils.Tests;
+namespace PeanutButter.Utils.NetCore.Tests;
 
 [TestFixture]
 public class TestObjectExtensions
@@ -1064,8 +1060,10 @@ public class TestObjectExtensions
             details.CopyPropertiesTo(traveller);
 
             //--------------- Assert -----------------------
-            PropertyAssert.AreIntersectionEqual(actor, traveller);
-            PropertyAssert.AreIntersectionEqual(details, traveller);
+            Expect(actor)
+                .To.Intersection.Equal(traveller);
+            Expect(details)
+                .To.Intersection.Equal(traveller);
         }
 
         [Test]
@@ -1152,7 +1150,8 @@ public class TestObjectExtensions
             // Assert
             Expect(target.DateTimes).Not.To.Be.Null();
             Expect(target.DateTimes).Not.To.Be.Empty();
-            src.DateTimes.ShouldMatchDataIn(target.DateTimes);
+            Expect(target.DateTimes)
+                .To.Equal(src.DateTimes);
         }
 
         [Test]
@@ -1787,7 +1786,8 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            PropertyAssert.AreDeepEqual(src, result);
+            Expect(result)
+                .To.Deep.Equal(src);
         }
 
 
@@ -1853,8 +1853,8 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result.Nodes).Not.To.Be.Empty();
-            result.Nodes.ShouldMatchDataIn(src.Nodes);
+            Expect(result.Nodes)
+                .To.Deep.Equal(src.Nodes);
         }
 
         public class HasAnIEnumerable
@@ -1873,7 +1873,8 @@ public class TestObjectExtensions
             var result = src.DeepClone();
             // Assert
             Expect(result.Nodes).Not.To.Be.Empty();
-            result.Nodes.ShouldMatchDataIn(src.Nodes);
+            Expect(result.Nodes)
+                .To.Deep.Equal(src.Nodes);
         }
 
         public class HasAList
@@ -1891,8 +1892,8 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result.Nodes).Not.To.Be.Empty();
-            result.Nodes.ShouldMatchDataIn(src.Nodes);
+            Expect(result.Nodes)
+                .To.Deep.Equal(src.Nodes);
         }
 
         public class HasAName

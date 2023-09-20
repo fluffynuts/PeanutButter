@@ -1,14 +1,12 @@
-using System;
-using System.IO;
 using System.Reflection;
+using NExpect;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
 using static NExpect.Expectations;
 
 // ReSharper disable AssignNullToNotNullAttribute
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
     public class TestAutoTempFolder
@@ -61,16 +59,21 @@ namespace PeanutButter.Utils.Tests
                 public void ShouldUseProvidedCustomBasePath()
                 {
                     //---------------Set up test pack-------------------
-                    var baseFolder = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+                    var baseFolder = Path.GetDirectoryName(
+                        new Uri(Assembly.GetExecutingAssembly().Location)
+                            .LocalPath
+                    );
 
                     //---------------Assert Precondition----------------
 
                     //---------------Execute Test ----------------------
                     using var folder = new AutoTempFolder(baseFolder);
                     //---------------Test Result -----------------------
-                    Expect(Path.GetDirectoryName(
-                            folder.Path
-                        ))
+                    Expect(
+                            Path.GetDirectoryName(
+                                folder.Path
+                            )
+                        )
                         .To.Equal(
                             baseFolder
                         );
@@ -81,7 +84,7 @@ namespace PeanutButter.Utils.Tests
                 {
                     //---------------Set up test pack-------------------
                     var baseFolder = Path.GetDirectoryName(
-                        new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath
+                        new Uri(Assembly.GetExecutingAssembly().Location).LocalPath
                     );
                     baseFolder = Path.Combine(baseFolder, GetRandomString(10, 15));
 
@@ -349,7 +352,7 @@ namespace PeanutButter.Utils.Tests
                 using var sut = Create();
                 var path = GetRandomString(10);
                 var data = GetRandomBytes(100);
-                var fullPath = sut.WriteFile(path, data); 
+                var fullPath = sut.WriteFile(path, data);
                 Expect(fullPath)
                     .To.Be.A.File();
                 // Act
@@ -401,7 +404,7 @@ namespace PeanutButter.Utils.Tests
                 // Arrange
                 using var sut = Create();
                 var path = GetRandomString(10);
-                var fullPath = sut.CreateFolder(path); 
+                var fullPath = sut.CreateFolder(path);
                 Expect(fullPath)
                     .To.Be.A.Folder();
                 // Act
@@ -480,7 +483,7 @@ namespace PeanutButter.Utils.Tests
                 Expect(result)
                     .To.Be.False();
             }
-            
+
             [Test]
             public void ShouldReturnFalseWhenFolderIsOutsideTempFolder()
             {
@@ -573,10 +576,12 @@ namespace PeanutButter.Utils.Tests
                     //---------------Execute Test ----------------------
                     File.WriteAllBytes(
                         Path.Combine(folderPath, GetRandomString(2, 10)),
-                        GetRandomBytes());
+                        GetRandomBytes()
+                    );
                     File.WriteAllBytes(
                         Path.Combine(folderPath, GetRandomString(11, 20)),
-                        GetRandomBytes());
+                        GetRandomBytes()
+                    );
                     entries = Directory.EnumerateFileSystemEntries(folderPath, "*", SearchOption.AllDirectories);
                     Expect(entries)
                         .Not.To.Be.Empty();

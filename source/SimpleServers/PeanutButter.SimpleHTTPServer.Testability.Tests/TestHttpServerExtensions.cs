@@ -392,7 +392,9 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
 
         private void PerformRequest(string url, string method, Dictionary<string, string> headers )
         {
+#pragma warning disable SYSLIB0014
             var request = WebRequest.CreateHttp(url);
+#pragma warning restore SYSLIB0014
             request.Method = method;
             headers?.ForEach(h => request.Headers[h.Key] = h.Value);
             using (request.GetResponse())

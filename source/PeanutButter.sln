@@ -180,6 +180,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TestUtils.AspN
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleStepsVisualTest", "Utils\ConsoleStepsVisualTest\ConsoleStepsVisualTest.csproj", "{B9EB8086-EC3C-4328-962C-ACE381F93AC2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{24E89997-84BA-4B44-8F07-DBC9830D24C1}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\ISSUE_TEMPLATE.md = ..\.github\ISSUE_TEMPLATE.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{3036AFBD-41FC-401F-9A7B-A5D61E688823}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\run-all-tests.yml = ..\.github\workflows\run-all-tests.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1131,6 +1141,7 @@ Global
 		{1DA05E00-DA82-4A55-AAE8-AEE16A00D899} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
 		{1B88DCD8-06C9-48A8-928C-F03AC3968D98} = {991C5C7C-A1F8-42B1-8CDA-F782B0F62980}
 		{B9EB8086-EC3C-4328-962C-ACE381F93AC2} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{3036AFBD-41FC-401F-9A7B-A5D61E688823} = {24E89997-84BA-4B44-8F07-DBC9830D24C1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3024A467-FC9C-430A-821A-448AF0866E32}

@@ -7,6 +7,7 @@ using System.Security.Principal;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMethodReturnValue.Global
 
+#pragma warning disable CA1416
 namespace PeanutButter.FileSystem.Tests
 {
     // lifted from:
@@ -176,3 +177,4 @@ namespace PeanutButter.FileSystem.Tests
         }
     }
 }
+#pragma warning restore CA1416

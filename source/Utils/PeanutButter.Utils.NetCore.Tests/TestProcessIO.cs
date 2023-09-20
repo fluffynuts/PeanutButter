@@ -12,41 +12,45 @@ namespace PeanutButter.Utils.NetCore.Tests
         [Test]
         public void ShouldBeAbleToReadFromStdOut()
         {
-            if (!Platform.IsWindows)
-            {
-                Assert.Ignore("This test uses a win32 commandline for testing");
-                return;
-            }
-
             // Arrange
             // Act
             using var io = ProcessIO.Start(
-                "cmd",
-                "/c",
-                "echo",
-                "moo"
+                "node",
+                "-e",
+                "console.log('moo');"
             );
             Expect(io.StartException)
                 .To.Be.Null();
             var lines = io.StandardOutput.ToArray().Select(l => l.Trim());
             // Assert
-            Expect(lines).To.Equal(new[] { "moo" });
+            Expect(lines).To.Equal(
+                new[]
+                {
+                    "moo"
+                }
+            );
         }
 
         [Test]
         public void ShouldBeAbleToReadFromStdErr()
         {
             // Arrange
-            using var tempFolder = new AutoTempFolder();
-            var fileName = Path.Combine(tempFolder.Path, "test.bat");
-            File.WriteAllText(fileName, "echo moo 1>&2");
             // Act
-            using var io = ProcessIO.Start(fileName);
+            using var io = ProcessIO.Start(
+                "node",
+                "-e",
+                "console.error('moo');"
+            );
             Expect(io.StartException)
                 .To.Be.Null();
             var lines = io.StandardError.ToArray().Select(l => l.Trim());
             // Assert
-            Expect(lines).To.Equal(new[] { "moo" });
+            Expect(lines).To.Equal(
+                new[]
+                {
+                    "moo"
+                }
+            );
         }
 
         [Test]
@@ -63,7 +67,12 @@ namespace PeanutButter.Utils.NetCore.Tests
             var lines = io.StandardOutput.ToArray().Select(l => l.Trim());
 
             Expect(lines)
-                .To.Equal(new[] { expected });
+                .To.Equal(
+                    new[]
+                    {
+                        expected
+                    }
+                );
         }
 
         [Test]
@@ -75,15 +84,15 @@ namespace PeanutButter.Utils.NetCore.Tests
             // Act
             using var io = ProcessIO
                 .WithEnvironmentVariable(envVar, expected)
-                .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+                .Start("node", "-e", $"console.log(process.env['{envVar}']);");
             // Assert
             var lines = io.StandardOutput.ToArray().Trim();
             Expect(lines.Last() /* sometimes, pwsh has to break this test by outputting an upgrade nag :| */)
-                .To.Equal(expected);
+                .To.Equal(expected, () => lines.Stringify());
         }
 
         [Test]
-        public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder()
+        public void ShouldBeAbleToInjectEnvironmentVariablesByNameAndValueAndCustomWorkingFolder()
         {
             // Arrange
             using var folder = new AutoTempFolder();
@@ -93,33 +102,21 @@ namespace PeanutButter.Utils.NetCore.Tests
             using var io = ProcessIO
                 .In(folder.Path)
                 .WithEnvironmentVariable(envVar, expected)
-                .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+                .Start("node", "-e", $"console.log(process.cwd()); console.log(process.env['{envVar}']);");
             // Assert
             var lines = io.StandardOutput.ToArray().Trim();
             Expect(lines)
-                .To.Equal(new[] { expected });
+                .To.Equal(
+                    new[]
+                    {
+                        folder.Path,
+                        expected
+                    }
+                );
         }
 
         [Test]
-        public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder2()
-        {
-            // Arrange
-            using var folder = new AutoTempFolder();
-            var expected = GetRandomAlphaString(4);
-            var envVar = GetRandomAlphaString(4);
-            // Act
-            using var io = ProcessIO
-                .WithEnvironmentVariable(envVar, expected)
-                .In(folder.Path)
-                .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
-            // Assert
-            var lines = io.StandardOutput.ToArray().Trim();
-            Expect(lines)
-                .To.Equal(new[] { expected });
-        }
-
-        [Test]
-        public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder3()
+        public void ShouldBeAbleToInjectEnvironmentVariablesDictAndCustomWorkingFolder()
         {
             // Arrange
             using var folder = new AutoTempFolder();
@@ -133,33 +130,17 @@ namespace PeanutButter.Utils.NetCore.Tests
             using var io = ProcessIO
                 .WithEnvironment(dict)
                 .In(folder.Path)
-                .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+                .Start("node", "-e", $"console.log(process.cwd()); console.log(process.env['{envVar}']);");
             // Assert
             var lines = io.StandardOutput.ToArray().Trim();
             Expect(lines)
-                .To.Equal(new[] { expected });
-        }
-
-        [Test]
-        public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder4()
-        {
-            // Arrange
-            using var folder = new AutoTempFolder();
-            var expected = GetRandomAlphaString(4);
-            var envVar = GetRandomAlphaString(4);
-            var dict = new Dictionary<string, string>()
-            {
-                [envVar] = expected
-            };
-            // Act
-            using var io = ProcessIO
-                .In(folder.Path)
-                .WithEnvironment(dict)
-                .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
-            // Assert
-            var lines = io.StandardOutput.ToArray().Trim();
-            Expect(lines)
-                .To.Equal(new[] { expected });
+                .To.Equal(
+                    new[]
+                    {
+                        folder.Path,
+                        expected
+                    }
+                );
         }
 
         [Test]
@@ -174,11 +155,17 @@ namespace PeanutButter.Utils.NetCore.Tests
                 .In(folder.Path)
                 .WithEnvironment(null)
                 .WithEnvironmentVariable(envVar, expected)
-                .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+                .Start("node", "-e", $"console.log(process.cwd()); console.log(process.env['{envVar}']);");
             // Assert
             var lines = io.StandardOutput.ToArray().Trim();
             Expect(lines)
-                .To.Equal(new[] { expected });
+                .To.Equal(
+                    new[]
+                    {
+                        folder.Path,
+                        expected
+                    }
+                );
         }
 
         [Test]
@@ -263,6 +250,7 @@ rl.on(""line"", function(line) {
             {
                 io.StandardInput.WriteLine(line);
             }
+
             io.StandardInput.WriteLine("quit");
             var collected = io.StandardOutput.ToArray();
             // Assert

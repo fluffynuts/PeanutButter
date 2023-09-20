@@ -538,6 +538,7 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
         private static void SkipIfOnWindowsButNoMySqlInstalled()
         {
             var mysqlServices =
+#pragma warning disable CA1416
                 ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
             if (!mysqlServices.Any())
             {
@@ -545,6 +546,7 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                     "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
                 );
             }
+#pragma warning restore CA1416
         }
 
         public class MySqlConnectionStringUtil

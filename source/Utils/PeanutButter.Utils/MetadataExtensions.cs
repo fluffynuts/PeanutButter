@@ -1,8 +1,10 @@
 ﻿// ReSharper disable RedundantUsingDirective
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -26,18 +28,57 @@ namespace PeanutButter.Utils
 #endif
         static class MetadataExtensions
     {
-        private static readonly ConditionalWeakTable<object, Dictionary<string, object>> Table =
-            new ConditionalWeakTable<object, Dictionary<string, object>>();
+        private static readonly ConditionalWeakTable<object, Dictionary<string, object>> Table = new();
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 #else // This is only used for testing and is not designed for consumers
         internal static int TrackedObjectCount()
         {
-            var keys = Table.GetPropertyValue("Keys") as IEnumerable<object>;
-            return keys?.Count()
-                ?? throw new InvalidOperationException(
-                    "Reaching into ConditionalWeakTable for the Keys collection has failed");
+            var type = typeof(ConditionalWeakTable<object, Dictionary<string, object>>);
+            var getEnumeratorMethod = type
+                .GetMethods(
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+                )
+                .Where(mi => mi.Name.Contains("GetEnumerator"))
+                .FirstOrDefault(
+                    mi => mi.ReturnType == typeof(IEnumerator<KeyValuePair<object, Dictionary<string, object>>>)
+                );
+            var enumerator = getEnumeratorMethod?.Invoke(Table, NoArgs);
+            if (enumerator is null)
+            {
+                throw new Exception($"Unable to find enumerator for {type}");
+            }
+
+            var enumeratorType = enumerator.GetType();
+            var moveNextMethod = enumeratorType
+                .GetMethod(nameof(IEnumerator.MoveNext));
+            if (moveNextMethod is null)
+            {
+                throw new Exception(
+                    $"Enumerator returned from {type}.GetEnumerator() has no MoveNext()"
+                );
+            }
+
+            var result = 0;
+            while ((bool)moveNextMethod.Invoke(enumerator, NoArgs))
+            {
+                result++;
+            }
+
+            var disposeMethod = enumeratorType.GetMethod("Dispose");
+            if (disposeMethod is null)
+            {
+                throw new Exception(
+                    $"Enumerator type {enumeratorType} is not Disposable (but really should be)!"
+                );
+            }
+
+            disposeMethod.Invoke(enumerator, NoArgs);
+
+            return result;
         }
+
+        private static readonly object[] NoArgs = new object[0];
 #endif
 
         /// <summary>
@@ -61,7 +102,8 @@ namespace PeanutButter.Utils
             }
 
             using var _ = new AutoLocker(MetadataLock);
-            var data = GetMetadataFor(parent) ?? AddMetadataFor(parent);
+            var data = GetMetadataFor(parent)
+                ?? AddMetadataFor(parent);
             data[key] = value;
         }
 
@@ -107,6 +149,7 @@ namespace PeanutButter.Utils
             {
                 return defaultValue;
             }
+
             using var _ = new AutoLocker(MetadataLock);
             var data = GetMetadataFor(parent);
             if (data == null)
@@ -115,7 +158,7 @@ namespace PeanutButter.Utils
             }
 
             return data.TryGetValue(key, out var result)
-                ? (T) result // WILL fail hard if the caller doesn't match the stored type
+                ? (T)result // WILL fail hard if the caller doesn't match the stored type
                 : defaultValue;
         }
 
@@ -148,6 +191,7 @@ namespace PeanutButter.Utils
             {
                 return false;
             }
+
             using var _ = new AutoLocker(MetadataLock);
             return GetMetadataFor(parent) is not null;
         }
@@ -168,9 +212,10 @@ namespace PeanutButter.Utils
             {
                 return false;
             }
+
             using var _ = new AutoLocker(MetadataLock);
             var data = GetMetadataFor(parent);
-            return data is not null && 
+            return data is not null &&
                 data.ContainsKey(key);
         }
 
@@ -249,7 +294,7 @@ namespace PeanutButter.Utils
                 return false;
             }
 
-            result = (T) stored;
+            result = (T)stored;
             return true;
         }
 
@@ -286,7 +331,7 @@ namespace PeanutButter.Utils
             {
                 // ReSharper disable once UnusedVariable
                 var defaultValue = default(T);
-                var cast = (T) stored;
+                var cast = (T)stored;
                 // Just want to run some actual logic to ensure that the
                 //  cast isn't optimised away
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse

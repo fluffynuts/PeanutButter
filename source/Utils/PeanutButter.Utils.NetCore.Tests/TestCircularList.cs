@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using NExpect;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
 using static NExpect.Expectations;
 using static PeanutButter.Utils.PyLike;
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
     public class TestCircularList
@@ -86,7 +83,7 @@ namespace PeanutButter.Utils.Tests
             // Act
             sut.Add(expected);
             // Assert
-            Expect(sut.Count)
+            Expect(sut.ItemCount)
                 .To.Equal(1);
             Expect(sut.Take(3))
                 .To.Contain.All.Equal.To(expected);
@@ -100,7 +97,9 @@ namespace PeanutButter.Utils.Tests
             // Act
             sut.Clear();
             // Assert
-            Expect(sut)
+            Expect(sut.Items)
+                .To.Be.Empty();
+            Expect(sut as IList<int>)
                 .To.Be.Empty();
         }
 
@@ -141,7 +140,7 @@ namespace PeanutButter.Utils.Tests
             // Assert
             Expect(sut.Contains(special))
                 .To.Be.True();
-            Expect(sut.Last())
+            Expect(sut.Items.Last())
                 .To.Equal(special);
         }
 
@@ -178,7 +177,7 @@ namespace PeanutButter.Utils.Tests
             // Act
             sut.Insert(1, 3);
             // Assert
-            Expect(sut.Count)
+            Expect(sut.ItemCount)
                 .To.Equal(3);
             Expect(sut[1])
                 .To.Equal(3);
@@ -204,8 +203,21 @@ namespace PeanutButter.Utils.Tests
             // Act
             sut.RemoveAt(4);
             // Assert
+            var foo = sut.Take(3);
             Expect(sut.Take(3))
                 .To.Equal(new[] { 1, 3, 1 });
+        }
+
+        [Test]
+        public void ListBug()
+        {
+            // Arrange
+            var l = new List<int>() { 1, 2, 3, 4 };
+            // Act
+            var result = l.Take(3).ToArray();
+            // Assert
+            Expect(result)
+                .To.Equal(new[] { 1, 2, 3 });
         }
 
         [Test]
@@ -300,7 +312,7 @@ namespace PeanutButter.Utils.Tests
                 .To.Equal(expected);
         }
 
-        private static IList<T> Create<T>(
+        private static ICircularList<T> Create<T>(
             params T[] items
         )
         {

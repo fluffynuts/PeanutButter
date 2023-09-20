@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using NExpect;
 using NSubstitute;
 using NUnit.Framework;
 using static NExpect.Expectations;
-using NExpect;
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
     public class TestAutoDisposer

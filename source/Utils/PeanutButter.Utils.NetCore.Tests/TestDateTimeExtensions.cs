@@ -1,12 +1,11 @@
-﻿using System;
-using System.Globalization;
-using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+﻿using System.Globalization;
 using NExpect;
+using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
     public class TestDateTimeExtensions

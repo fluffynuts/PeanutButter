@@ -1,13 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using NExpect;
 using NUnit.Framework;
-using NExpect;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static PeanutButter.Utils.PyLike;
 
-namespace PeanutButter.Utils.Tests
+namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
     public class TestMetadataExtensions
@@ -147,13 +144,29 @@ namespace PeanutButter.Utils.Tests
         [Test]
         public void ShouldGcMetaData()
         {
-            ArrangeAndPreAssert();
+            var key = GetRandomString(2);
+            ArrangeAndPreAssertForGcTest(key);
 
             // Act
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
 
             // Assert
             Expect(MetadataExtensions.TrackedObjectCount()).To.Equal(0);
+        }
+
+        private static void ArrangeAndPreAssertForGcTest(string key)
+        {
+            // this code needs to be in a different scope to force
+            //  the loss of reference to target
+            // Arrange
+            GC.Collect();
+            var target = new { foo = "bar" };
+            var value = GetRandomBoolean();
+            target.SetMetadata(key, value);
+
+            // Pre-Assert
+            Expect(target.HasMetadata<bool>(key)).To.Be.True();
+            Expect(MetadataExtensions.TrackedObjectCount()).To.Equal(1);
         }
 
         [Test]
@@ -199,22 +212,6 @@ namespace PeanutButter.Utils.Tests
                 Expect(target.HasMetadata(k))
                     .To.Be.True()
             );
-        }
-
-        private static void ArrangeAndPreAssert()
-        {
-            // this code needs to be in a different scope to force
-            //  the loss of reference to target
-            // Arrange
-            GC.Collect();
-            var target = new { foo = "bar" };
-            var key = GetRandomString(2);
-            var value = GetRandomBoolean();
-            target.SetMetadata(key, value);
-
-            // Pre-Assert
-            Expect(target.HasMetadata<bool>(key)).To.Be.True();
-            Expect(MetadataExtensions.TrackedObjectCount()).To.Equal(1);
         }
     }
 }

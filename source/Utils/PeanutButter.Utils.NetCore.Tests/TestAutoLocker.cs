@@ -1,11 +1,9 @@
-﻿using System;
-using System.Threading;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace PeanutButter.Utils.Tests;
+namespace PeanutButter.Utils.NetCore.Tests;
 
 [TestFixture]
 public class TestAutoLockerFat
