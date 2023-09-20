@@ -2979,7 +2979,22 @@ namespace PeanutButter.Utils.Tests
                     ? string.Join("/", items)
                     : string.Join("\\", items);
                 // Act
-                var result = items.JoinPath(PathType.Windows);
+                var result = items.JoinPath();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldJoinBasedOnEnvironmentOnDemand()
+            {
+                // Arrange
+                var items = GetRandomArray<string>(3);
+                var expected = Platform.IsUnixy
+                    ? string.Join("/", items)
+                    : string.Join("\\", items);
+                // Act
+                var result = items.JoinPath(PathType.Auto);
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
