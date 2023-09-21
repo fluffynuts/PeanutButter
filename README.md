@@ -57,9 +57,9 @@ Inside, you'll find, amongst other things:
     scenarios for property get/set tests with PropertyAssert
     which allows easy comparison of properties by name or, indeed
     relative path from the objects provided
-  - PeanutButter.TestUtils.MVC which provides a JsonResultExtensions
+  - PeanutButter.TestUtils.MVC (sunset) which provides a JsonResultExtensions
     class to simplify testing MVC actions which return JsonResults
-  - PeanutButter.MVC, which provides facades and interfaces to make
+  - PeanutButter.MVC (sunset), which provides facades and interfaces to make
     script and style bundles testable
   - PeanutButter.TestUtils.Entity provides mechanisms for testing
     your EF-based project code against temporary databases

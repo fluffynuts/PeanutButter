@@ -228,23 +228,22 @@ import { Stream } from "stream";
 
     const buildNugetPackages = usingDotnetCore ? buildNugetPackagesWithDotNet : buildNugetPackagesWithNugetExe;
 
-    gulp.task("build-source-nuget-packages", function () {
-        return gulp.src(["**/PeanutButter.TestUtils.MVC/*.nuspec"])
-            .pipe(buildNugetPackages(false));
-    });
-
     gulp.task("build-binary-nuget-packages", function () {
-        return gulp.src(["**/source/**/*.nuspec", "!**/packages/**/*.nuspec", "!**/_deprecated_/**", /* source */
-            "!**/PeanutButter.TestUtils.MVC/**"])
+        return gulp.src(
+          ["**/source/**/*.nuspec",
+            "!**/packages/**/*.nuspec",
+            "!**/_deprecated_/**"
+          ])
             .pipe(buildNugetPackages(true));
     });
+
 
     gulp.task("build-binaries-for-nuget-packages-from-zero", ["purge"], function (done) {
         runSequence("build-binaries-for-nuget-packages", done);
     });
 
     gulp.task("test-package-build", ["build-binaries-for-nuget-packages-from-zero"], function (done) {
-        runSequence("build-binary-nuget-packages", "build-source-nuget-packages", "test-packages-exist", done);
+        runSequence("build-binary-nuget-packages", "test-packages-exist", done);
     });
 
     gulp.task("test-packages-exist", () => {
@@ -261,10 +260,8 @@ import { Stream } from "stream";
         function (done) {
             runSequence(
                 "update-tempdb-runner-files",
-                "update-test-utils-mvc-files",
                 "increment-package-versions",
                 "build-binary-nuget-packages",
-                "build-source-nuget-packages",
                 done
             );
         }
