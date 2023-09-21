@@ -190,16 +190,6 @@ namespace PeanutButter.Utils
         /// <param name="fullPath"></param>
         /// <returns></returns>
         bool Contains(string fullPath);
-
-        /// <summary>
-        /// Returns the absolute path for the relative path
-        /// within the temp folder (NB: does not test the path,
-        /// so you may get back a valid absolute path to a non-existent
-        /// filesystem entity.
-        /// </summary>
-        /// <param name="relativePath"></param>
-        /// <returns></returns>
-        string ResolveAbsolutePathFor(string relativePath);
     }
 
     /// <summary>
@@ -290,16 +280,32 @@ namespace PeanutButter.Utils
             params string[] more
         )
         {
-            var relative = string.Join(
+            var platformMore = more.Map(
+                s => s.AsPlatformPath()
+            );
+            p1 = p1.AsPlatformPath();
+            var joined = string.Join(
                 PathSeparator,
                 new[]
                 {
                     p1
-                }.Concat(more)
+                }.Concat(platformMore)
             );
-            if (Contains(relative))
+            if (joined.IsAbsolutePath())
             {
-                return relative;
+                if (joined.StartsWith(Path))
+                {
+                    return joined;
+                }
+
+                throw new ArgumentException(
+                    $"'{joined}' is absolute and outside of the temp folder at '{Path}'"
+                );
+            }
+
+            if (Contains(joined))
+            {
+                return joined;
             }
 
             return string.Join(
@@ -308,7 +314,7 @@ namespace PeanutButter.Utils
                 {
                     Path,
                     p1
-                }.Concat(more)
+                }.Concat(platformMore)
             );
         }
 
@@ -325,30 +331,6 @@ namespace PeanutButter.Utils
             }
 
             return target;
-        }
-
-        /// <inheritdoc />
-        public string ResolveAbsolutePathFor(
-            string relativePath
-        )
-        {
-            if (!relativePath.IsAbsolutePath())
-            {
-                return System.IO.Path.Combine(
-                    Path,
-                    relativePath.AsPlatformPath()
-                );
-            }
-
-            if (relativePath.StartsWith(Path))
-            {
-                return relativePath;
-            }
-
-            throw new ArgumentException(
-                $"'{relativePath}' is absolute and outside of the temp folder at '{Path}'"
-            );
-
         }
 
         /// <inheritdoc />

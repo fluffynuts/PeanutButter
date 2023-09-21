@@ -100,7 +100,7 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [TestFixture]
-        public class FilePath
+        public class ResolvePath
         {
             [Test]
             public void ShouldReturnFilePathWithinTempFolder()
@@ -131,20 +131,30 @@ namespace PeanutButter.Utils.NetCore.Tests
                 Expect(result)
                     .To.Equal(expected);
             }
-        }
 
-        [TestFixture]
-        public class AbsolutePath
-        {
             [Test]
-            public void ShouldProvideAbsolutePathForRelativeOne()
+            public void ShouldReturnPlatformSpecificPath()
             {
                 // Arrange
-                using var tempFolder = Create();
-                var relative = GetRandomPath().AsPlatformPath();
-                var expected = Path.Combine(tempFolder.Path, relative);
+                using var sut = Create();
+                var parts = GetRandomArray<string>(2);
+                var expected = Path.Combine(
+                    new[]
+                        {
+                            sut.Path
+                        }
+                        .Concat(
+                            parts
+                        ).ToArray()
+                );
                 // Act
-                var result = tempFolder.ResolveAbsolutePathFor(relative);
+                var result = sut.ResolvePath(
+                    parts.JoinWith(
+                        Platform.IsWindows
+                            ? "/"
+                            : "\\"
+                    )
+                );
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
