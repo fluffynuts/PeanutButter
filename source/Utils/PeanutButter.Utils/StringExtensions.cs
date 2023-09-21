@@ -1969,5 +1969,23 @@ namespace PeanutButter.Utils
             return result.JoinPath(pathType);
         }
 #endif
+
+        /// <summary>
+        /// Given a path in any format (unix or dos),
+        /// returns the path normalised for the current OS
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string AsPlatformPath(
+            this string path
+        )
+        {
+            return path
+                .Replace("\\", DirectorySeparator)
+                .Replace("/", DirectorySeparator);
+        }
+        
+        private static readonly string DirectorySeparator
+            = Path.DirectorySeparatorChar.ToString();
     }
 }

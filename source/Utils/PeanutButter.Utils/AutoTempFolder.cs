@@ -190,6 +190,16 @@ namespace PeanutButter.Utils
         /// <param name="fullPath"></param>
         /// <returns></returns>
         bool Contains(string fullPath);
+
+        /// <summary>
+        /// Returns the absolute path for the relative path
+        /// within the temp folder (NB: does not test the path,
+        /// so you may get back a valid absolute path to a non-existent
+        /// filesystem entity.
+        /// </summary>
+        /// <param name="relativePath"></param>
+        /// <returns></returns>
+        string ResolveAbsolutePathFor(string relativePath);
     }
 
     /// <summary>
@@ -282,7 +292,10 @@ namespace PeanutButter.Utils
         {
             var relative = string.Join(
                 PathSeparator,
-                new[] { p1 }.Concat(more)
+                new[]
+                {
+                    p1
+                }.Concat(more)
             );
             if (Contains(relative))
             {
@@ -291,7 +304,11 @@ namespace PeanutButter.Utils
 
             return string.Join(
                 PathSeparator,
-                new[] { Path, p1 }.Concat(more)
+                new[]
+                {
+                    Path,
+                    p1
+                }.Concat(more)
             );
         }
 
@@ -308,6 +325,30 @@ namespace PeanutButter.Utils
             }
 
             return target;
+        }
+
+        /// <inheritdoc />
+        public string ResolveAbsolutePathFor(
+            string relativePath
+        )
+        {
+            if (!relativePath.IsAbsolutePath())
+            {
+                return System.IO.Path.Combine(
+                    Path,
+                    relativePath.AsPlatformPath()
+                );
+            }
+
+            if (relativePath.StartsWith(Path))
+            {
+                return relativePath;
+            }
+
+            throw new ArgumentException(
+                $"'{relativePath}' is absolute and outside of the temp folder at '{Path}'"
+            );
+
         }
 
         /// <inheritdoc />

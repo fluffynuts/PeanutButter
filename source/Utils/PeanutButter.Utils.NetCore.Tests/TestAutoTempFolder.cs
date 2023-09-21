@@ -134,7 +134,25 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [TestFixture]
-        public class CreateDirectory
+        public class AbsolutePath
+        {
+            [Test]
+            public void ShouldProvideAbsolutePathForRelativeOne()
+            {
+                // Arrange
+                using var tempFolder = Create();
+                var relative = GetRandomPath().AsPlatformPath();
+                var expected = Path.Combine(tempFolder.Path, relative);
+                // Act
+                var result = tempFolder.ResolveAbsolutePathFor(relative);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class CreateFolder
         {
             [Test]
             public void ShouldCreateTheRelativeDirectory()
@@ -162,6 +180,23 @@ namespace PeanutButter.Utils.NetCore.Tests
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
+            }
+
+            [TestCase("foo/bar/quux")]
+            [TestCase("foo\\bar\\quux")]
+            public void ShouldCreateAllMembersOfTheDirectoryStructure_(
+                string tree
+            )
+            {
+                // Arrange
+                using var tempFolder = new AutoTempFolder();
+                // Act
+                tempFolder.CreateFolder(tree);
+                // Assert
+                var seek = tree.AsPlatformPath();
+                var fullPath = Path.Combine(tempFolder.Path, seek);
+                Expect(fullPath)
+                    .To.Be.A.Folder();
             }
         }
 
