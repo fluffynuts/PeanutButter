@@ -144,7 +144,14 @@ namespace PeanutButter.TempDb.MySql.Base
             /// When shutting down the mysql server, attempt to do so gracefully
             /// with the SHUTDOWN command, before terminating the process
             /// </summary>
-            public bool AttemptGracefulShutdown { get; set; }
+            public bool? AttemptGracefulShutdown { get; set; }
+
+            /// <summary>
+            /// When set, instead of winding up a mysql instance from scratch,
+            /// copy the contents of this folder to the working dir and start
+            /// with that
+            /// </summary>
+            public string TemplateDatabasePath { get; set; }
         }
 
         /// <summary>

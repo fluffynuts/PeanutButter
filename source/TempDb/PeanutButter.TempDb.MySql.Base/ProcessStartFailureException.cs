@@ -1,17 +1,21 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Linq;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TempDb.MySql.Base
 {
     public class ProcessStartFailureException : Exception
     {
-        public ProcessStartInfo StartInfo { get; }
+        public string Executable { get; }
+        public string[] Arguments { get; }
 
         public ProcessStartFailureException(
-            ProcessStartInfo startInfo
-        ) : base($"Unable to start process: ${startInfo.FileName} ${startInfo.Arguments}")
+            string executable,
+            string[] args
+        ) : base($"Unable to start process: ${executable} ${args.Select(ProcessIO.QuoteIfNecessary).JoinWith(" ")}")
         {
-            StartInfo = startInfo;
+            Executable = executable;
+            Arguments = args;
         }
     }
 }

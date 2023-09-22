@@ -147,6 +147,22 @@ public class TestStringExtensions
                     .To.Equal(expected);
             }
         }
+
+        [TestFixture]
+        public class WhenCenteredOnIsLastChar
+        {
+            [Test]
+            public void ShouldWindowBackFromTheEnd()
+            {
+                // Arrange
+                var str = "aaa";
+                // Act
+                var result = str.Window(2, 100);
+                // Assert
+                Expect(result)
+                    .To.Equal(str);
+            }
+        }
     }
 
     [TestFixture]

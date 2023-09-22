@@ -18,7 +18,11 @@ namespace PeanutButter.TempDb.MySql.Base
         /// <exception cref="ArgumentNullException"></exception>
         public string GenerateFor(TempDbMySqlServerSettings tempDbMySqlSettings)
         {
-            if (tempDbMySqlSettings == null) throw new ArgumentNullException(nameof(tempDbMySqlSettings));
+            if (tempDbMySqlSettings == null)
+            {
+                throw new ArgumentNullException(nameof(tempDbMySqlSettings));
+            }
+
             var iniFile = new INI.INIFile();
             iniFile.AddSection(SettingAttribute.DEFAULT_SECTION);
             tempDbMySqlSettings.GetType()
@@ -39,13 +43,14 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private void WriteSetting(
             INI.INIFile iniFile,
-            IniSetting setting)
+            IniSetting setting
+        )
         {
             if (setting.Value is null && setting.IgnoreIfNull)
             {
                 return;
             }
-            
+
             iniFile[setting.Section][setting.Name] = setting.Value;
         }
 
@@ -77,7 +82,8 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private IniSetting GetSetting(
             PropertyInfo prop,
-            TempDbMySqlServerSettings tempDbMySqlSettings)
+            TempDbMySqlServerSettings tempDbMySqlSettings
+        )
         {
             var settingAttrib = prop.GetCustomAttributes()
                 .OfType<SettingAttribute>()
@@ -100,7 +106,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 );
             }
 
-            var propValue = (bool) rawPropValue;
+            var propValue = (bool)rawPropValue;
             if (settingAttrib.IsBare && !propValue)
             {
                 return emptySetting();
@@ -112,7 +118,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 settingAttrib.Name,
                 settingAttrib.IsBare
                     ? null
-                    : OnOffFor((bool) prop.GetValue(tempDbMySqlSettings)),
+                    : OnOffFor((bool)prop.GetValue(tempDbMySqlSettings)),
                 settingAttrib.IgnoreIfNull
             );
 

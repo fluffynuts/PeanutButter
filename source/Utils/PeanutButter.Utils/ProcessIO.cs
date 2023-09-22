@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 // ReSharper disable InconsistentNaming
@@ -24,6 +25,11 @@ namespace PeanutButter.Utils
 #endif
         interface IProcessIO : IDisposable
     {
+        /// <summary>
+        /// The process id
+        /// </summary>
+        int ProcessId { get; }
+
         /// <summary>
         /// True if the process started properly
         /// </summary>
@@ -61,10 +67,29 @@ namespace PeanutButter.Utils
         int ExitCode { get; }
 
         /// <summary>
+        /// Flag: true when the process has exited (or
+        /// couldn't start up)
+        /// </summary>
+        bool HasExited { get; }
+
+        /// <summary>
         /// Wait for the process to exit and return the exit code
         /// </summary>
         /// <returns></returns>
         int WaitForExit();
+
+        /// <summary>
+        /// Wait up to the timeout for the process to exit
+        /// and return the exit code, if available
+        /// </summary>
+        /// <param name="timeoutMilliseconds"></param>
+        /// <returns></returns>
+        int? WaitForExit(int timeoutMilliseconds);
+
+        /// <summary>
+        /// Kill the underlying process
+        /// </summary>
+        void Kill();
     }
 
     /// <summary>
@@ -118,6 +143,22 @@ namespace PeanutButter.Utils
 #endif
         class ProcessIO : IProcessIO
     {
+        /// <inheritdoc />
+        public int ProcessId
+        {
+            get
+            {
+                try
+                {
+                    return _process?.Id ?? 0;
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+        }
+
         /// <inheritdoc />
         public bool Started { get; private set; }
 
@@ -396,17 +437,19 @@ namespace PeanutButter.Utils
         {
             get
             {
-                if (Process is null)
+                if (_process is null)
                 {
-                    throw new InvalidOperationException($"Process has not started yet");
+                    throw new InvalidOperationException(
+                        "Process has not started yet"
+                    );
                 }
 
-                if (!Process.HasExited)
+                if (!_process.HasExited)
                 {
-                    Process.WaitForExit();
+                    _process.WaitForExit();
                 }
 
-                return Process.ExitCode;
+                return _process.ExitCode;
             }
         }
 
@@ -417,8 +460,39 @@ namespace PeanutButter.Utils
         }
 
         /// <inheritdoc />
+        public int? WaitForExit(int timeoutMs)
+        {
+            if (_process is null)
+            {
+                throw new InvalidOperationException(
+                    "Process has not started yet"
+                );
+            }
+
+            if (_process.HasExited)
+            {
+                return _process.ExitCode;
+            }
+
+            return _process.WaitForExit(timeoutMs)
+                ? _process.ExitCode
+                : null;
+        }
+
+        /// <inheritdoc />
+        public void Kill()
+        {
+            if (HasExited)
+            {
+                return;
+            }
+
+            _process?.Kill();
+        }
+
+        /// <inheritdoc />
         public IEnumerable<string> StandardOutput => Enumerate(_stdOutBuffer, _stdOutDataAvailable);
-        
+
         /// <inheritdoc />
         public IEnumerable<string> StandardError => Enumerate(_stdErrBuffer, _stdErrDataAvailable);
 
@@ -428,41 +502,40 @@ namespace PeanutButter.Utils
             ManualResetEventSlim available
         )
         {
-                var lineCount = 0;
-                foreach (var line in ReadFromOffset(data, 0))
+            var lineCount = 0;
+            foreach (var line in ReadFromOffset(data, 0))
+            {
+                lineCount++;
+                yield return line;
+            }
+
+            while (true)
+            {
+                if (available is null)
+                {
+                    yield break;
+                }
+
+                available.Wait();
+                available.Reset();
+
+                foreach (var line in ReadFromOffset(data, lineCount))
                 {
                     lineCount++;
                     yield return line;
                 }
 
-                while (true)
+                if (HasExited)
                 {
-                    if (available is null)
-                    {
-                        yield break;
-                    }
-
-                    available.Wait();
-                    available.Reset();
-
                     foreach (var line in ReadFromOffset(data, lineCount))
                     {
                         lineCount++;
                         yield return line;
                     }
 
-                    if (HasExited)
-                    {
-                        foreach (var line in ReadFromOffset(data, lineCount))
-                        {
-                            lineCount++;
-                            yield return line;
-                        }
-
-                        yield break;
-                    }
-
+                    yield break;
                 }
+            }
         }
 
         private IEnumerable<string> ReadFromOffset(
@@ -502,9 +575,7 @@ namespace PeanutButter.Utils
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <inheritdoc />
         public bool HasExited
         {
             get
@@ -532,7 +603,13 @@ namespace PeanutButter.Utils
             );
         }
 
-        private static string QuoteIfNecessary(string str)
+        /// <summary>
+        /// Quotes a string if it's necessary:
+        /// - contains whitespace
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string QuoteIfNecessary(string str)
         {
             if (string.IsNullOrEmpty(str))
             {
@@ -544,10 +621,15 @@ namespace PeanutButter.Utils
                 return str;
             }
 
-            return str.Contains(" ")
+            return AnyWhitespace.Match(str).Success
                 ? $"\"{str}\""
                 : str;
         }
+
+        private static readonly Regex AnyWhitespace = new Regex(
+            "\\s+",
+            RegexOptions.Compiled
+        );
 
         /// <summary>
         /// Kills the process if it hasn't finished yet

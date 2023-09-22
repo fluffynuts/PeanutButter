@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
@@ -73,6 +74,12 @@ namespace PeanutButter.TempDb
             TimeSpan? absoluteTimeout,
             TimeSpan? inactivityTimeout
         );
+
+        /// <summary>
+        /// Close and dispose of any connections which were created by
+        /// OpenConnection()
+        /// </summary>
+        void DisposeManagedConnections();
     }
 
     public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection : DbConnection
@@ -85,7 +92,21 @@ namespace PeanutButter.TempDb
         /// Path to where the temporary database resides. May be a file
         /// for single-file databases or a folder.
         /// </summary>
-        public string DatabasePath { get; private set; }
+        public string DatabasePath
+        {
+            get => _databasePath;
+            set
+            {
+                if (value is not null)
+                {
+                    IfOnWindows.RegisterToAutoDeleteAtNextStart(value);
+                }
+
+                _databasePath = value;
+            }
+        }
+
+        private string _databasePath;
 
         public string ConnectionString => GenerateConnectionString();
 
@@ -331,7 +352,7 @@ namespace PeanutButter.TempDb
             return OpenConnection();
         }
 
-        public DbConnection OpenConnection()
+        public virtual DbConnection OpenConnection()
         {
             var connection = CreateOpenDatabaseConnection();
             _managedConnections.Add(connection);
@@ -409,7 +430,7 @@ namespace PeanutButter.TempDb
                 _inactivityWatcherThread = null;
             }
 
-            DisposeOfManagedConnections();
+            DisposeManagedConnections();
             DeleteTemporaryDataArtifacts();
             var handlers = Disposed;
             try
@@ -442,33 +463,49 @@ namespace PeanutButter.TempDb
             }
 
             Log("Deleting temporary database artifacts");
-            try
+            // try to delete artifacts for up to 5 seconds
+            for (var i = 0; i < 50; i++)
             {
-                if (Directory.Exists(DatabasePath))
+                try
                 {
-                    Directory.Delete(DatabasePath, true);
-                }
-                else if (File.Exists(DatabasePath))
-                {
-                    File.Delete(DatabasePath);
-                }
+                    if (Directory.Exists(DatabasePath))
+                    {
+                        Directory.Delete(DatabasePath, true);
+                    }
+                    else if (File.Exists(DatabasePath))
+                    {
+                        File.Delete(DatabasePath);
+                    }
 
-                DatabasePath = null;
+                    DatabasePath = null;
+                    return;
+                }
+                catch
+                {
+                    // perhaps someone else wants to take care of this or inspect it
+                    Thread.Sleep(100);
+                }
             }
-            catch
-            {
-                Trace(
-                    $"WARNING: Unable to delete temporary database at: {DatabasePath}; probably still locked. Artifact will remain on disk."
-                );
-            }
+
+            var moreInfo = Platform.IsWindows
+                ? " until the next reboot"
+                : "";
+            _undeletedArtifacts.Add(DatabasePath);
+            Trace(
+                $"WARNING: Unable to delete temporary database at: {DatabasePath}; probably still locked. Artifact will remain on disk{moreInfo}."
+            );
         }
+
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly ConcurrentBag<string> _undeletedArtifacts = new();
+        public static string[] UndeletedArtifacts => _undeletedArtifacts.ToArray();
 
         private static void Trace(string message)
         {
             System.Diagnostics.Trace.WriteLine(message);
         }
 
-        private void DisposeOfManagedConnections()
+        public void DisposeManagedConnections()
         {
             Log("Disposing of managed connections");
             foreach (var conn in _managedConnections)

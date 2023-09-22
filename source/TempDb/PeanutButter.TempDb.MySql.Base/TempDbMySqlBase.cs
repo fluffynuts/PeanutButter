@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using PeanutButter.FileSystem;
 using PeanutButter.Utils;
 
 // ReSharper disable IdentifierTypo
@@ -71,7 +72,10 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private string[] VerboseLoggingCommandLineArgs =>
             VerboseLoggingEnabled
-                ? new[] { "--log-error-verbosity=3" }
+                ? new[]
+                {
+                    "--log-error-verbosity=3"
+                }
                 : new string[0];
 
         private bool DetermineIfVerboseLoggingShouldBeEnabled()
@@ -112,7 +116,10 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 File.AppendAllLines(
                     _debugLogFile,
-                    new[] { toLog }
+                    new[]
+                    {
+                        toLog
+                    }
                 );
             }
         }
@@ -123,9 +130,9 @@ namespace PeanutButter.TempDb.MySql.Base
         /// </summary>
         public TempDbMySqlServerSettings Settings { get; private set; }
 
-        public int? ServerProcessId => _serverProcess?.Id;
+        public int? ServerProcessId => _serverProcess?.ProcessId;
 
-        private Process _serverProcess;
+        private IProcessIO _serverProcess;
         public int Port { get; protected set; }
         public bool RootPasswordSet { get; private set; }
 
@@ -210,7 +217,24 @@ namespace PeanutButter.TempDb.MySql.Base
             self.LogAction = WrapWithDebugLogger(self, settings?.Options?.LogAction);
             self._autoDeleter = new AutoDeleter();
             self.Settings = settings;
+
             beforeInit?.Invoke(self);
+        }
+
+        private static bool FolderExists(string path)
+        {
+            return path is not null &&
+                Directory.Exists(path);
+        }
+
+        private static void EnsureFolderDoesNotExist(
+            string path
+        )
+        {
+            var container = Path.GetDirectoryName(path);
+            var name = Path.GetFileName(path);
+            var fs = new LocalFileSystem(container);
+            fs.DeleteRecursive(name);
         }
 
         private static Action<string> WrapWithDebugLogger(
@@ -228,6 +252,19 @@ namespace PeanutButter.TempDb.MySql.Base
                 tempDb.DebugLog(logString);
                 optionsLogAction.Invoke(logString);
             };
+        }
+
+        public string Snapshot()
+        {
+            DisposeManagedConnections();
+            Stop();
+            var baseDir = Path.GetDirectoryName(DatabasePath);
+            var target = $"template-{Guid.NewGuid()}";
+            var fs = new LocalFileSystem(baseDir);
+            fs.Copy(DatabasePath, target);
+            var result = Path.Combine(baseDir!, target);
+            StartServer(MySqld);
+            return result;
         }
 
         private string FindInstalledMySqlD()
@@ -274,25 +311,40 @@ namespace PeanutButter.TempDb.MySql.Base
         /// <inheritdoc />
         protected override void CreateDatabase()
         {
-            Log("create initial database");
-            _startAttempts = 0;
             MySqlVersion = QueryVersionOf(MySqld);
             Log($"mysql is version: {MySqlVersion}");
-            EnsureIsRemoved(DatabasePath);
-            if (IsMySql8(MySqlVersion))
+            if (FolderExists(Settings?.Options?.TemplateDatabasePath))
             {
-                RemoveDeprecatedOptions();
-            }
+                var container = Path.GetDirectoryName(Settings!.Options!.TemplateDatabasePath);
+                EnsureFolderDoesNotExist(DatabasePath);
+                var fs = new LocalFileSystem(
+                    container
+                );
+                var src = Path.GetFileName(Settings!.Options!.TemplateDatabasePath);
+                fs.Copy(src, DatabasePath);
 
-            // mysql 5.7 wants an empty data base dir, so we have to use
-            // a temp defaults file for init only, which 8 seems to be ok with
-            using var tempFolder = new AutoTempFolder(
-                Environment.GetEnvironmentVariable("TEMPDB_BASE_PATH")
-            );
-            Log($"temp folder created at {tempFolder}");
-            Log($"dumping defaults in temp folder {tempFolder.Path} for initialization");
-            DumpDefaultsFileAt(tempFolder.Path);
-            InitializeWith(MySqld, Path.Combine(tempFolder.Path, "my.cnf"));
+                Log($"Re-using data at {DatabasePath}");
+            }
+            else
+            {
+                Log("create initial database");
+                _startAttempts = 0;
+                EnsureIsRemoved(DatabasePath);
+                if (IsMySql8())
+                {
+                    RemoveDeprecatedOptions();
+                }
+
+                // mysql 5.7 wants an empty data base dir, so we have to use
+                // a temp defaults file for init only, which 8 seems to be ok with
+                using var tempFolder = new AutoTempFolder(
+                    Environment.GetEnvironmentVariable("TEMPDB_BASE_PATH")
+                );
+                Log($"temp folder created at {tempFolder}");
+                Log($"dumping defaults in temp folder {tempFolder.Path} for initialization");
+                DumpDefaultsFileAt(tempFolder.Path);
+                InitializeWith(MySqld, Path.Combine(tempFolder.Path, "my.cnf"));
+            }
 
             RedirectDebugLogging();
 
@@ -314,6 +366,14 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 var existingFile = _debugLogFile;
                 _debugLogFile = DataFilePath("tempdb-debug.log");
+                if (File.Exists(_debugLogFile))
+                {
+                    // if we're working from a template,
+                    // the file will already exist; if
+                    // not, it doesn't matter
+                    File.Delete(_debugLogFile);
+                }
+
                 File.Move(existingFile, _debugLogFile);
             }
         }
@@ -337,7 +397,7 @@ namespace PeanutButter.TempDb.MySql.Base
         private void SetRootPassword()
         {
             Log("setting root password (default is 'root', actual password not output in case it's sensitive)");
-            using var conn = OpenConnection();
+            using var conn = base.OpenConnection();
             using var cmd = conn.CreateCommand();
             cmd.CommandText =
                 $@"alter user 'root'@'localhost' identified with mysql_native_password by '{
@@ -349,7 +409,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         public void CloseAllConnections()
         {
-            using var conn = OpenConnection();
+            using var conn = base.OpenConnection();
             using var cmd = conn.CreateCommand();
             cmd.CommandText = "show processlist";
             using var reader = cmd.ExecuteReader();
@@ -496,7 +556,7 @@ namespace PeanutButter.TempDb.MySql.Base
         public void Execute(string sql)
         {
             Log($"executing: {sql}");
-            using var connection = OpenConnection();
+            using var connection = base.OpenConnection();
             using var command = connection.CreateCommand();
             command.CommandText = sql;
             command.ExecuteNonQuery();
@@ -565,7 +625,7 @@ namespace PeanutButter.TempDb.MySql.Base
             }
             catch (Exception ex)
             {
-                Log($"Unable to kill MySql instance {_serverProcess?.Id}: {ex.Message}");
+                Log($"Unable to kill MySql instance {_serverProcess?.ProcessId}: {ex.Message}");
             }
         }
 
@@ -573,7 +633,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             StopWatcher();
             AttemptGracefulShutdown();
-            EndServerProcess();
+            ForceEndServerProcess();
         }
 
         private void StopWatcher()
@@ -587,28 +647,30 @@ namespace PeanutButter.TempDb.MySql.Base
             _processWatcherThread = null;
         }
 
-        private void EndServerProcess()
+        private void ForceEndServerProcess()
         {
             using (new AutoLocker(MysqldLock))
             {
-                if (_serverProcess is null)
+                var proc = _serverProcess;
+                _serverProcess = null;
+                if (proc is null)
                 {
                     return;
                 }
 
-                Trace.WriteLine($"Stopping mysqld with process id {_serverProcess.Id}");
-                if (!_serverProcess.HasExited)
+                Console.Error.WriteLine(
+                    $"WARNING: killing mysqld with process id {proc.ProcessId} - this may leave temporary files on your filesystem"
+                );
+                if (!proc.HasExited)
                 {
-                    _serverProcess.Kill();
-                    _serverProcess.WaitForExit(3000);
+                    proc.Kill();
+                    proc.WaitForExit(3000);
 
-                    if (!_serverProcess.HasExited)
+                    if (!proc.HasExited)
                     {
-                        throw new Exception($"MySql process {_serverProcess.Id} has not shut down!");
+                        throw new Exception($"MySql process {proc.ProcessId} has not shut down!");
                     }
                 }
-
-                _serverProcess = null;
             }
         }
 
@@ -623,28 +685,74 @@ namespace PeanutButter.TempDb.MySql.Base
             }
 
             Log("Attempting graceful shutdown of mysql server");
-            var task = Task.Run(
-                () =>
+            try
+            {
+                SwitchToSchema("mysql");
+                KillAllActiveConnections();
+                Execute("SHUTDOWN");
+                var timeout = DateTime.Now.AddSeconds(5);
+                while (DateTime.Now > timeout)
                 {
-                    try
+                    if (_serverProcess?.HasExited ?? true)
                     {
-                        SwitchToSchema("mysql");
-                        Execute("SHUTDOWN");
+                        return;
                     }
-                    catch (Exception ex)
+
+                    Thread.Sleep(100);
+                }
+                Log($"Unable to perform graceful shutdown: mysqld remains alive after issuing SHUTDOWN and waiting");
+            }
+            catch (Exception ex)
+            {
+                Log($"Unable to perform graceful shutdown: {ex.Message}");
+            }
+        }
+
+        private void KillAllActiveConnections()
+        {
+            using var conn = base.OpenConnection();
+            using var cmd = conn.CreateCommand();
+            var toKill = new List<ulong>();
+            cmd.CommandText = "select connection_id();";
+            ulong myId;
+            using (var reader = cmd.ExecuteReader())
+            {
+                reader.Read();
+                myId = ulong.Parse($"{reader[0]}");
+            }
+
+            cmd.CommandText = "show processlist";
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var id = ulong.Parse($"{reader["Id"]}");
+                    if (id != myId)
                     {
-                        Log($"Unable to perform graceful shutdown: {ex.Message}");
+                        toKill.Add(id);
                     }
                 }
-            );
-            task.ConfigureAwait(false);
-            task.Wait(TimeSpan.FromSeconds(2));
+            }
+
+            foreach (var id in toKill)
+            {
+                cmd.CommandText = $"kill {id}";
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                catch
+                {
+                    // suppress
+                }
+            }
         }
 
         private int _startAttempts;
 
         private void StartServer(string mysqld)
         {
+            StopWatcher();
             var args = new[]
             {
                 $"\"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}\"",
@@ -652,9 +760,18 @@ namespace PeanutButter.TempDb.MySql.Base
                 $"\"--datadir={DataDir}\"",
                 $"--port={Port}"
             };
+
             if (VerboseLoggingEnabled)
             {
                 args = args.And(VerboseLoggingCommandLineArgs);
+            }
+
+            if (IsMySql8())
+            {
+                // shut down as fast as possible
+                args = args.And("--innodb-fast-shutdown=2");
+                // stay connected on the console
+                args = args.And("--console");
             }
 
             _serverProcess = RunCommand(
@@ -721,9 +838,13 @@ namespace PeanutButter.TempDb.MySql.Base
         }
 
         public string DataDir =>
-            MySqlVersion.Version.Major >= 8
-                ? Path.Combine(DatabasePath, "data") // mysql 8 wants a clean dir to init in
-                : DatabasePath;
+            _dataDir ??= (
+                MySqlVersion.Version.Major >= 8
+                    ? Path.Combine(DatabasePath, "data") // mysql 8 wants a clean dir to init in
+                    : DatabasePath
+            );
+
+        private string _dataDir;
 
         private Thread _processWatcherThread;
         private readonly SemaphoreSlim _disposalLock = new(1, 1);
@@ -771,7 +892,7 @@ namespace PeanutButter.TempDb.MySql.Base
                     shouldResurrect = true;
                 }
 
-                if (shouldResurrect)
+                if (shouldResurrect && _running)
                 {
                     Log($"{MySqld} seems to have gone away; restarting on port {Port}");
                     StartServer(MySqld);
@@ -786,9 +907,22 @@ namespace PeanutButter.TempDb.MySql.Base
             return Path.GetDirectoryName(Path.GetDirectoryName(mysqld));
         }
 
+        public override DbConnection OpenConnection()
+        {
+            if (!_running)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot open connection to the db: not running right now!"
+                );
+            }
+
+            return base.OpenConnection();
+        }
+
         protected virtual bool IsMyInstance()
         {
-            using var conn = OpenConnection();
+            // FIXME: should test if there are other instances here
+            using var conn = base.OpenConnection();
             using var cmd = conn.CreateCommand();
             // first, check if the id is in there already (restart)
             cmd.CommandText =
@@ -826,7 +960,7 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
                     break;
                 }
 
-                Log($"Server process is running as {_serverProcess.Id}");
+                Log($"Server process is running as {_serverProcess.ProcessId}");
 
                 if (CanConnect())
                 {
@@ -843,17 +977,20 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
 
             KeepTemporaryDatabaseArtifactsForDiagnostics = true;
 
-            var stderr = _serverProcess?.StandardError.ReadToEnd() ?? "(no stderr)";
-            var stdout = _serverProcess?.StandardOutput.ReadToEnd() ?? "(no stdout)";
+            var stderr = "(unknown)";
+            var stdout = "(unknown)";
 
             try
             {
                 if (_serverProcess is not null)
                 {
-                    Log($"killing server process {_serverProcess?.Id} - seems to be unresponsive to connect?");
+                    Log($"killing server process {_serverProcess?.ProcessId} - seems to be unresponsive to connect?");
                 }
 
+                AttemptGracefulShutdown();
                 _serverProcess?.Kill();
+                stderr = _serverProcess?.StandardError?.JoinWith("\n") ?? "(none)";
+                stdout = _serverProcess?.StandardOutput?.JoinWith("\n") ?? "(none)";
                 _serverProcess?.Dispose();
                 _serverProcess = null;
             }
@@ -912,7 +1049,7 @@ stderr: {stderr}"
                 try
                 {
                     Log($"Attempt to connect on {Port}...");
-                    OpenConnection()?.Dispose();
+                    base.OpenConnection()?.Dispose();
                     Log("Connection established!");
                     return true;
                 }
@@ -961,7 +1098,7 @@ stderr: {stderr}"
                 return;
             }
 
-            var stderr = process.StandardError.ReadToEnd();
+            var stderr = process.StandardError.JoinWith("\n");
             var errors = new List<string>();
             if (!string.IsNullOrWhiteSpace(stderr))
             {
@@ -987,9 +1124,9 @@ stderr: {stderr}"
             );
         }
 
-        private bool IsMySql8(MySqlVersionInfo mySqlVersion)
+        private bool IsMySql8()
         {
-            return mySqlVersion.Version.Major >= 8;
+            return MySqlVersion?.Version?.Major >= 8;
         }
 
         public MySqlVersionInfo MySqlVersion { get; private set; }
@@ -1088,7 +1225,7 @@ stderr: {stderr}"
             using var process = RunCommand(false, mysqld, "--version");
             process.WaitForExit();
 
-            var result = process.StandardOutput.ReadToEnd();
+            var result = process.StandardOutput.JoinWith("\n");
             var parts = result.ToLower().Split(' ');
             var versionInfo = new MySqlVersionInfo();
             var last = "";
@@ -1115,40 +1252,70 @@ stderr: {stderr}"
             return Path.Combine(DatabasePath, relativePath);
         }
 
-        private Process RunCommand(
+        private IProcessIO RunCommand(
             bool logStartupInfo,
             string filename,
             params string[] args
         )
         {
-            var startInfo = new ProcessStartInfo()
-            {
-                FileName = filename,
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                Arguments = args.JoinWith(" ")
-            };
             if (logStartupInfo)
             {
                 LogProcessStartInfo(
-                    startInfo,
-                    DataFilePath("startup-info.log")
+                    DataFilePath("startup-info.log"),
+                    filename,
+                    args
                 );
             }
 
-            var process = new Process()
-            {
-                StartInfo = startInfo
-            };
             Log($"Running command:\n\"{filename}\" {args.JoinWith(" ")}");
-            if (!process.Start())
+
+            var result = ProcessIO.Start(
+                filename,
+                args
+            );
+
+            if (!result.Started)
             {
-                throw new ProcessStartFailureException(startInfo);
+                throw new ProcessStartFailureException(
+                    filename,
+                    args
+                );
             }
 
-            return process;
+            return result;
+        }
+
+        private void LogProcessStartInfo(
+            string logFile,
+            string executable,
+            string[] args
+        )
+        {
+            for (var i = 0; i < 10; i++)
+            {
+                try
+                {
+                    using var f = new FileStream(logFile, FileMode.OpenOrCreate);
+                    f.SetLength(0);
+                    using var writer = new StreamWriter(f);
+                    writer.WriteLine("MySql started with the following startup info:");
+                    writer.WriteLine($"CLI: \"{executable}\" {args.Select(ProcessIO.QuoteIfNecessary).JoinWith(" ")}");
+                    writer.WriteLine($"Working directory: {Directory.GetCurrentDirectory()}");
+                    writer.WriteLine($"Current user: {Environment.UserName}");
+                    writer.WriteLine("Environment:");
+                    var envVars = Environment.GetEnvironmentVariables();
+                    foreach (var key in envVars.Keys)
+                    {
+                        writer.WriteLine($"  {key} = {envVars[key]}");
+                    }
+
+                    return;
+                }
+                catch
+                {
+                    Thread.Sleep(500);
+                }
+            }
         }
 
         private void LogProcessStartInfo(
@@ -1173,6 +1340,7 @@ stderr: {stderr}"
                     {
                         writer.WriteLine($"  {key} = {envVars[key]}");
                     }
+
                     return;
                 }
                 catch
@@ -1225,6 +1393,23 @@ stderr: {stderr}"
             if (Settings?.Options?.LogRandomPortDiscovery ?? false)
             {
                 Log(message);
+            }
+        }
+    }
+
+    internal static class ProcessExtensions
+    {
+        public static bool HasStarted(
+            this Process process
+        )
+        {
+            try
+            {
+                return process.Id > 0;
+            }
+            catch
+            {
+                return false;
             }
         }
     }

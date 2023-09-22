@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -25,7 +26,6 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.TempDb.MySql.Data.Tests
 {
     [TestFixture]
-    [Parallelizable(ParallelScope.None)]
     public class TestTempDbMySqlData
     {
         [Test]
@@ -50,6 +50,43 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             // Act
             Expect(sut).To.Implement<IDisposable>();
             // Assert
+        }
+
+        [TestFixture]
+        public class SnapshottingAndReusing
+        {
+            [Test]
+            [Timeout(20000)]
+            public void ShouldBeAbleToSubClassToSnapshotAndReuseDatabase()
+            {
+                // Arrange
+                string snapshotPath;
+                using (var db1 = Create())
+                {
+                    using var conn1 = db1.OpenConnection();
+                    conn1.Execute("create table people (id int primary key not null auto_increment, name text);");
+                    conn1.Execute("insert into people(name) values('bob');");
+                    snapshotPath = db1.Snapshot();
+                }
+
+                Expect(snapshotPath)
+                    .To.Be.A.Folder();
+
+                // Act
+                using var sut = Create(templatePath: snapshotPath);
+                using var conn2 = sut.OpenConnection();
+                var result = conn2.Query<Person>("select * from people");
+                // Assert
+                Expect(result)
+                    .To.Contain.Only(1)
+                    .Matched.By(o => o.Id > 0 && o.Name == "bob");
+            }
+
+            public class Person
+            {
+                public int Id { get; set; }
+                public string Name { get; set; }
+            }
         }
 
 
@@ -182,7 +219,10 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     // Assert
                     var users = connection.Query<User>(
                         "use moocakes; select * from users where id > @id; ",
-                        new { id = 0 }
+                        new
+                        {
+                            id = 0
+                        }
                     );
                     Expect(users).To.Contain.Only(1).Matched.By(
                         u =>
@@ -346,12 +386,22 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                        ))
                 {
                     // Act
-                    using (new TempDBMySql())
+                    DbConnection conn;
+                    using (var db = new TempDBMySql())
                     {
+                        conn = db.OpenConnection();
+                        var cmd = conn.CreateCommand();
+                        cmd.CommandText = "select * from information_schema.tables limit 1";
+                        using var reader = cmd.ExecuteReader();
                     }
+                    
+                    Expect(() => conn.ExecuteReader("select * from information_schema.tables limit 1;"))
+                        .To.Throw();
 
                     // Assert
-                    var entries = Directory.EnumerateDirectories(tempFolder.Path);
+                    var entries = Directory.EnumerateDirectories(
+                        tempFolder.Path
+                    );
                     Expect(entries).To.Be.Empty();
                 }
             }
@@ -514,7 +564,10 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 using var db = new TempDBMySql(
                     new TempDbMySqlServerSettings()
                     {
-                        Options = { MaxTimeToConnectAtStartInSeconds = 0 }
+                        Options =
+                        {
+                            MaxTimeToConnectAtStartInSeconds = 0
+                        }
                     }
                 );
                 // Act
@@ -661,7 +714,10 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     {
                         var settings = new TempDbMySqlServerSettings()
                         {
-                            Options = { EnableVerboseLogging = true }
+                            Options =
+                            {
+                                EnableVerboseLogging = true
+                            }
                         };
                         using (var db = new TempDBMySql(settings))
                         {
@@ -713,7 +769,13 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 // can't use MySqlConnectionStringBuilder because
                 //  of a conflict between Connector and .Data
                 return connectionString
-                    .Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(
+                        new[]
+                        {
+                            ";"
+                        },
+                        StringSplitOptions.RemoveEmptyEntries
+                    )
                     .First(part => part.StartsWith("port", StringComparison.OrdinalIgnoreCase))
                     .Split('=')
                     .Skip(1)
@@ -967,20 +1029,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
                             // ReSharper disable once FunctionNeverReturns
                         }
-                    ).To.Throw()
-                    .With.Property(
-                        e => new
-                        {
-                            Type = e.GetType().Name,
-                            IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
-                        }
-                    ).Deep.Equal.To(
-                        new
-                        {
-                            Type = "MySqlException",
-                            IsConnectionError = true
-                        }
-                    );
+                    ).To.Throw<InvalidOperationException>()
+                    .With.Message.Containing("not running");
                 // Assert
                 Expect(connections)
                     .To.Be.Greater.Than(3);
@@ -1051,7 +1101,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         private static TempDBMySql Create(
             string pathToMySql = null,
             TimeSpan? inactivityTimeout = null,
-            TimeSpan? absoluteLifespan = null
+            TimeSpan? absoluteLifespan = null,
+            string templatePath = null
         )
         {
             return new TempDBMySql(
@@ -1064,7 +1115,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         LogAction = Console.WriteLine,
                         InactivityTimeout = inactivityTimeout,
                         AbsoluteLifespan = absoluteLifespan,
-                        EnableVerboseLogging = true
+                        EnableVerboseLogging = true,
+                        TemplateDatabasePath = templatePath
                     }
                 }
             );

@@ -7,8 +7,9 @@ using PeanutButter.TempDb.MySql.Data;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
 
-namespace PeanutButter.TempDb.Tests.Core
+namespace PeanutButter.TempDb.Tests
 {
+    [TestFixture]
     public class TestTempDbMySql
     {
         [Test]
@@ -41,22 +42,6 @@ namespace PeanutButter.TempDb.Tests.Core
                         }
                     })
                     .Not.To.Throw();
-            }
-        }
-
-        private static void SkipIfNotOnWindowsAndMySqlNotInPath()
-        {
-            if (Platform.IsWindows)
-            {
-                return;
-            }
-
-            var mysqld = Find.InPath("mysqld");
-            if (mysqld is null)
-            {
-                Assert.Ignore(
-                    "Test only works when mysqld is in your PATH"
-                );
             }
         }
 

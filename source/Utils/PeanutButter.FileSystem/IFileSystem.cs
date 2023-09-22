@@ -16,10 +16,12 @@ namespace PeanutButter.FileSystem
         void Delete(string path);
         void DeleteRecursive(string path);
         void Copy(string sourcePath);
-        void Copy(string sourcePath, string targetRelativePath);
+        void Copy(string sourcePath, string targetPath);
         Stream OpenReader(string path);
         Stream OpenWriter(string path);
         Stream Open(string targetPath);
         void Move(string source, string target, bool overwrite = false);
+        bool FileExists(string path);
+        bool DirectoryExists(string path);
     }
 }

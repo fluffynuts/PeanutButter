@@ -441,48 +441,78 @@ console.log(process.env[`{envVar}`]);
     private const string REQUIRES_CAT =
         "This test uses the output from `cat`, which is not available on this system";
 
-    [Test]
-    [Ignore("Discovery")]
-    public void DoesReceivingIoEventsDrainTheAssociatedReader()
+    [TestFixture]
+    [Explicit("Discovery")]
+    public class DiscoveryTests
     {
-        // Arrange
-        var proc = new Process()
+        [Test]
+        public void WhatHappensIfYouKillTwice()
         {
-            StartInfo =
+            // answer: Win32Exception with "Access is denied"
+            // Arrange
+            var proc = new Process()
             {
-                FileName = "node",
-                Arguments = "-e \"console.log('foo'); console.log('bar');\"",
-                UseShellExecute = false,
-                RedirectStandardError = true,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true
-            }
-        };
-        var captured = new List<string>();
-        proc.OutputDataReceived += (s, e) =>
-        {
-            if (string.IsNullOrEmpty(e.Data))
-            {
-                return;
-            }
-
-            captured.Add(e.Data);
-        };
-
-        // Act
-        proc.Start();
-        proc.BeginErrorReadLine();
-        proc.BeginOutputReadLine();
-        proc.WaitForExit();
-        // Assert
-        Expect(captured)
-            .To.Equal(
-                new[]
+                StartInfo =
                 {
-                    "foo",
-                    "bar"
+                    FileName = "node",
+                    Arguments =
+                        "-e \"(async function() { while (true) { await new Promise(resolve => setTimeout(resolve, 500)); } })();\"",
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true
                 }
-            );
+            };
+            proc.Start();
+            // Act
+            proc.Kill();
+            proc.Kill();
+            // Assert
+        }
+
+        [Test]
+        public void DoesReceivingIoEventsDrainTheAssociatedReader()
+        {
+            // Answer: Yes!
+            // Arrange
+            var proc = new Process()
+            {
+                StartInfo =
+                {
+                    FileName = "node",
+                    Arguments = "-e \"console.log('foo'); console.log('bar');\"",
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true
+                }
+            };
+            var captured = new List<string>();
+            proc.OutputDataReceived += (s, e) =>
+            {
+                if (string.IsNullOrEmpty(e.Data))
+                {
+                    return;
+                }
+
+                captured.Add(e.Data);
+            };
+
+            // Act
+            proc.Start();
+            proc.BeginErrorReadLine();
+            proc.BeginOutputReadLine();
+            proc.WaitForExit();
+            // Assert
+            Expect(captured)
+                .To.Equal(
+                    new[]
+                    {
+                        "foo",
+                        "bar"
+                    }
+                );
+        }
     }
 }
 
