@@ -1,8 +1,11 @@
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 // ReSharper disable InconsistentNaming
 
@@ -126,6 +129,10 @@ namespace PeanutButter.Utils
         public Process Process => _process;
 
         private Process _process;
+        private bool _disposed;
+        private ManualResetEventSlim _stdOutDataAvailable;
+        private ManualResetEventSlim _stdErrDataAvailable;
+
 
         /// <summary>
         /// Run the provided command, pipe output as it streams
@@ -198,7 +205,12 @@ namespace PeanutButter.Utils
             // ReSharper disable once MemberHidesStaticFromOuterClass
             public new IProcessIO Start(string filename, params string[] arguments)
             {
-                return StartInFolder(WorkingDirectory, filename, arguments, _environment);
+                return StartInFolder(
+                    WorkingDirectory,
+                    filename,
+                    arguments,
+                    _environment
+                );
             }
 
             /// <inheritdoc />
@@ -289,7 +301,6 @@ namespace PeanutButter.Utils
                         CreateNoWindow = true,
                         UseShellExecute = false,
                         WorkingDirectory = workingDirectory,
-                        Environment = { }
                     }
                 };
                 processEnvironment.ForEach(
@@ -298,7 +309,15 @@ namespace PeanutButter.Utils
                         _process.StartInfo.Environment[kvp.Key] = kvp.Value;
                     }
                 );
+                _stdOutDataAvailable = new ManualResetEventSlim();
+                _stdErrDataAvailable = new ManualResetEventSlim();
+
+                _process.Exited += OnProcessExit;
+                _process.OutputDataReceived += OnOutputReceived;
+                _process.ErrorDataReceived += OnErrReceived;
                 _process.Start();
+                _process.BeginErrorReadLine();
+                _process.BeginOutputReadLine();
                 Started = true;
             }
             catch (Exception ex)
@@ -308,6 +327,53 @@ namespace PeanutButter.Utils
             }
 
             return this;
+        }
+
+        private void OnErrReceived(object sender, DataReceivedEventArgs e)
+        {
+            var data = e.Data;
+            if (data is null)
+            {
+                Debug("stderr: data is null");
+                _stdErrDataAvailable.Set();
+                return;
+            }
+
+            _stdErrBuffer.Enqueue(data);
+            Debug($"stderr: new data available ({e.Data})");
+            _stdErrDataAvailable.Set();
+        }
+
+        private readonly ConcurrentQueue<string> _stdOutBuffer = new();
+        private readonly ConcurrentQueue<string> _stdErrBuffer = new();
+
+        private void OnOutputReceived(
+            object sender,
+            DataReceivedEventArgs e
+        )
+        {
+            var data = e.Data;
+            if (data is null)
+            {
+                Debug("stdout: data is null");
+                _stdOutDataAvailable.Set();
+                return;
+            }
+
+            _stdOutBuffer.Enqueue(data);
+            Debug($"stdout: new data available ({e.Data})");
+            _stdOutDataAvailable.Set();
+        }
+
+        void Debug(string str)
+        {
+            // Console.Error.WriteLine(str);
+        }
+
+        private void OnProcessExit(object sender, EventArgs e)
+        {
+            _stdErrDataAvailable.Set();
+            _stdOutDataAvailable.Set();
         }
 
         private static IDictionary<string, string> GenerateProcessEnvironmentFor(
@@ -361,22 +427,72 @@ namespace PeanutButter.Utils
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> StandardOutput
+        public IEnumerable<string> StandardOutput => Enumerate(_stdOutBuffer, _stdOutDataAvailable);
+        
+        /// <inheritdoc />
+        public IEnumerable<string> StandardError => Enumerate(_stdErrBuffer, _stdErrDataAvailable);
+
+
+        private IEnumerable<string> Enumerate(
+            ConcurrentQueue<string> data,
+            ManualResetEventSlim available
+        )
         {
-            get
-            {
-                if (!Started)
+                var lineCount = 0;
+                foreach (var line in ReadFromOffset(data, 0))
                 {
-                    yield break;
+                    lineCount++;
+                    Debug($"[1]: {line}");
+                    yield return line;
                 }
 
-                while (!_process.StandardOutput.EndOfStream)
+                while (true)
                 {
-                    yield return _process.StandardOutput.ReadLine();
+                    if (available is null)
+                    {
+                        Debug("reset event is null");
+                        yield break;
+                    }
+
+                    Debug("Wait for data...");
+                    available.Wait();
+                    available.Reset();
+
+                    Debug($"Read from {lineCount}");
+                    foreach (var line in ReadFromOffset(data, lineCount))
+                    {
+                        lineCount++;
+                        yield return line;
+                    }
+
+                    if (HasExited)
+                    {
+                        Debug($"Draining remainder from {lineCount}");
+                        foreach (var line in ReadFromOffset(data, lineCount))
+                        {
+                            lineCount++;
+                            yield return line;
+                        }
+
+                        yield break;
+                    }
+
+                    Debug("reset signal");
                 }
+        }
+
+        private IEnumerable<string> ReadFromOffset(
+            IEnumerable<string> source,
+            int offset
+        )
+        {
+            var snapshot = source.Skip(offset).ToArray();
+            foreach (var line in snapshot)
+            {
+                yield return line;
             }
         }
-        
+
         /// <summary>
         /// Direct access to the StandardInput on the process
         /// </summary>
@@ -397,23 +513,28 @@ namespace PeanutButter.Utils
                 {
                     throw new Exception("Process has already exited");
                 }
+
                 return p;
             }
         }
 
-        /// <inheritdoc />
-        public IEnumerable<string> StandardError
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool HasExited
         {
             get
             {
-                if (!Started)
+                try
                 {
-                    yield break;
+                    return _disposed ||
+                        (_process?.HasExited ?? StartException is not null);
                 }
-
-                while (!_process.StandardError.EndOfStream)
+                catch
                 {
-                    yield return _process.StandardError.ReadLine();
+                    // access into _process failed: process
+                    // is probably starting up
+                    return false;
                 }
             }
         }
@@ -423,12 +544,25 @@ namespace PeanutButter.Utils
             return string.Join(
                 " ",
                 parameters
-                    .Select(
-                        p => p.Contains(" ")
-                            ? $"\"{p}\""
-                            : p
-                    )
+                    .Select(QuoteIfNecessary)
             );
+        }
+
+        private static string QuoteIfNecessary(string str)
+        {
+            if (string.IsNullOrEmpty(str))
+            {
+                return "\"\"";
+            }
+
+            if (str.StartsWith("\"") && str.EndsWith("\""))
+            {
+                return str;
+            }
+
+            return str.Contains(" ")
+                ? $"\"{str}\""
+                : str;
         }
 
         /// <summary>
@@ -437,6 +571,7 @@ namespace PeanutButter.Utils
         /// </summary>
         public void Dispose()
         {
+            _disposed = true;
             if (!_process?.HasExited ?? false)
             {
                 try
