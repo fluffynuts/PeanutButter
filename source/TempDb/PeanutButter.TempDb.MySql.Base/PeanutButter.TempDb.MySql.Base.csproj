@@ -15,6 +15,7 @@
     <PackageReference Include="newtonsoft.json" Version="13.0.2" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Utils\PeanutButter.FileSystem\PeanutButter.FileSystem.csproj" />
     <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
     <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
     <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj" />
