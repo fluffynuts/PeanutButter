@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -334,13 +333,11 @@ namespace PeanutButter.Utils
             var data = e.Data;
             if (data is null)
             {
-                Debug("stderr: data is null");
                 _stdErrDataAvailable.Set();
                 return;
             }
 
             _stdErrBuffer.Enqueue(data);
-            Debug($"stderr: new data available ({e.Data})");
             _stdErrDataAvailable.Set();
         }
 
@@ -355,19 +352,12 @@ namespace PeanutButter.Utils
             var data = e.Data;
             if (data is null)
             {
-                Debug("stdout: data is null");
                 _stdOutDataAvailable.Set();
                 return;
             }
 
             _stdOutBuffer.Enqueue(data);
-            Debug($"stdout: new data available ({e.Data})");
             _stdOutDataAvailable.Set();
-        }
-
-        void Debug(string str)
-        {
-            // Console.Error.WriteLine(str);
         }
 
         private void OnProcessExit(object sender, EventArgs e)
@@ -442,7 +432,6 @@ namespace PeanutButter.Utils
                 foreach (var line in ReadFromOffset(data, 0))
                 {
                     lineCount++;
-                    Debug($"[1]: {line}");
                     yield return line;
                 }
 
@@ -450,15 +439,12 @@ namespace PeanutButter.Utils
                 {
                     if (available is null)
                     {
-                        Debug("reset event is null");
                         yield break;
                     }
 
-                    Debug("Wait for data...");
                     available.Wait();
                     available.Reset();
 
-                    Debug($"Read from {lineCount}");
                     foreach (var line in ReadFromOffset(data, lineCount))
                     {
                         lineCount++;
@@ -467,7 +453,6 @@ namespace PeanutButter.Utils
 
                     if (HasExited)
                     {
-                        Debug($"Draining remainder from {lineCount}");
                         foreach (var line in ReadFromOffset(data, lineCount))
                         {
                             lineCount++;
@@ -477,7 +462,6 @@ namespace PeanutButter.Utils
                         yield break;
                     }
 
-                    Debug("reset signal");
                 }
         }
 

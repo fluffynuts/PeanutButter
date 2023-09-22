@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -14,22 +15,22 @@ namespace PeanutButter.Utils.Tests;
 // ReSharper disable once InconsistentNaming
 public class TestProcessIO
 {
+    [OneTimeSetUp]
+    public void OneTimeSetup()
+    {
+        var node = Find.InPath("node");
+        if (node is null)
+        {
+            Assert.Ignore(
+                "These tess require node to be in your path (required to build & test from the CLI too)"
+            );
+        }
+    }
+
     [Test]
     public void ShouldBeAbleToWaitForExit()
     {
         // Arrange
-        if (!ExeIsAvailable("cmd"))
-        {
-            Assert.Ignore(REQUIRES_CMD);
-            return;
-        }
-
-        if (!ExeIsAvailable("cat"))
-        {
-            Assert.Ignore(REQUIRES_CAT);
-            return;
-        }
-
         using var folder = new AutoTempFolder();
         var expected = GetRandomWords(300);
         using var sourceFile = new AutoTempFile(
@@ -44,29 +45,45 @@ public class TestProcessIO
         );
         var sourceFileName = Path.GetFileName(sourceFile.Path);
         var targetFileName = Path.GetFileName(targetFile.Path);
-        using var batFile = new AutoTempFile(
-            folder.Path,
-            "test.bat",
-            Encoding.UTF8.GetBytes(
-                $"cat {sourceFileName} > {targetFileName}"
-            )
+        var script = GenerateCopyFileInlineJsFor(
+            sourceFileName,
+            targetFileName
         );
 
         // Act
+        int exitCode;
+        string[] stderr;
+        string[] stdout;
         using (var io = ProcessIO.In(folder.Path)
-                   .Start(batFile.Path))
+                   .StartNode(
+                       script
+                   ))
         {
             io.WaitForExit();
+            stderr = io.StandardError.ToArray();
+            stdout = io.StandardOutput.ToArray();
+            exitCode = io.ExitCode;
         }
 
         // Assert
+        Expect(exitCode)
+            .To.Equal(0, stderr.JoinWith("\n"));
         var written = File.ReadAllText(targetFile.Path);
         Expect(written)
             .To.Equal(expected);
     }
 
+    string GenerateCopyFileInlineJsFor(
+        string sourceFileName,
+        string targetFileName
+    )
+    {
+        return
+            $"\"const fs = require(`fs`);const data = fs.readFileSync(`{sourceFileName}`);fs.writeFileSync(`{targetFileName}`, data);\"";
+    }
+
     [Test]
-    public void ShouldBeAbleToWaitForExitX()
+    public void ShouldBeAbleToWaitForExitLongerRunning()
     {
         // Arrange
         using var targetFile = new AutoTempFile();
@@ -75,8 +92,6 @@ public class TestProcessIO
         int exitCode;
         string[] stderr;
         string[] stdout;
-
-        // Act
         var script = @$"
 (async function() {{
     const fs = require(`fs`);
@@ -87,10 +102,9 @@ public class TestProcessIO
     const data = Buffer.from(`{expected}`);
     fs.writeFileSync(`{targetFile.Path.Replace("\\", "/")}`, data);
 }})()";
+        // Act
         using (var io = ProcessIO.In(container)
-                   .Start(
-                       "node",
-                       "-e",
+                   .StartNode(
                        script
                    ))
         {
@@ -111,18 +125,6 @@ public class TestProcessIO
     public void ShouldBeAbleToWaitForExitWhenLotsOfOutput()
     {
         // Arrange
-        if (!ExeIsAvailable("cmd"))
-        {
-            Assert.Ignore(REQUIRES_CMD);
-            return;
-        }
-
-        if (!ExeIsAvailable("cat"))
-        {
-            Assert.Ignore(REQUIRES_CAT);
-            return;
-        }
-
         using var folder = new AutoTempFolder();
         var expected = PyLike.Range(0, 100).Select(_ => GetRandomWords(300))
             .ToArray()
@@ -139,17 +141,14 @@ public class TestProcessIO
         );
         var sourceFileName = Path.GetFileName(sourceFile.Path);
         var targetFileName = Path.GetFileName(targetFile.Path);
-        using var batFile = new AutoTempFile(
-            folder.Path,
-            "test.bat",
-            Encoding.UTF8.GetBytes(
-                $"cat {sourceFileName} > {targetFileName}"
-            )
-        );
+        var script = GenerateCopyFileInlineJsFor(sourceFileName, targetFileName);
 
         // Act
         using (var io = ProcessIO.In(folder.Path)
-                   .Start(batFile.Path))
+                   .StartNode(
+                       script
+                   )
+              )
         {
             io.WaitForExit();
         }
@@ -163,19 +162,12 @@ public class TestProcessIO
     [Test]
     public void ShouldBeAbleToReadFromStdOut()
     {
-        if (!CmdIsAvailable())
-        {
-            Assert.Ignore("This test uses a win32 cmd.exe");
-            return;
-        }
-
         // Arrange
         // Act
         using var io = ProcessIO.Start(
-            "cmd",
-            "/c",
-            "echo",
-            "moo"
+            "node",
+            "-e",
+            "\"console.log('moo');\""
         );
         Expect(io.StartException)
             .To.Be.Null();
@@ -192,18 +184,10 @@ public class TestProcessIO
     [Test]
     public void ShouldBeAbleToReadFromStdErr()
     {
-        if (!CmdIsAvailable())
-        {
-            Assert.Ignore(REQUIRES_CMD);
-            return;
-        }
-
         // Arrange
-        using var tempFolder = new AutoTempFolder();
-        var fileName = Path.Combine(tempFolder.Path, "test.bat");
-        File.WriteAllText(fileName, "echo moo 1>&2");
         // Act
-        using var io = ProcessIO.Start(fileName);
+        using var io = ProcessIO.In(Environment.CurrentDirectory)
+            .StartNode("\"console.error('moo');\"");
         Expect(io.StartException)
             .To.Be.Null();
         var lines = io.StandardError.ToArray().Select(l => l.Trim());
@@ -231,7 +215,13 @@ public class TestProcessIO
         var expected = GetRandomString(32);
         File.WriteAllText(tempFilePath, expected);
         // Act
-        using var io = ProcessIO.In(tempFolder.Path).Start("cat", "data.txt");
+        var script = $@"
+const fs = require(`fs`);
+const data = fs.readFileSync(`data.txt`);
+console.log(data.toString());
+";
+        using var io = ProcessIO.In(tempFolder.Path)
+            .StartNode(script);
         // Assert
         var lines = io.StandardOutput.ToArray().Select(l => l.Trim());
 
@@ -248,18 +238,15 @@ public class TestProcessIO
     public void ShouldBeAbleToInjectEnvironmentVariables()
     {
         // Arrange
-        if (!PwshIsAvailable())
-        {
-            Assert.Ignore(REQUIRES_PWSH);
-            return;
-        }
-
         var expected = GetRandomAlphaString(4);
         var envVar = GetRandomAlphaString(4);
+        var script = $@"
+console.log(process.env[`{envVar}`]);
+";
         // Act
         using var io = ProcessIO
             .WithEnvironmentVariable(envVar, expected)
-            .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+            .StartNode(script);
         // Assert
         var lines = io.StandardOutput
             .Trim()
@@ -274,61 +261,20 @@ public class TestProcessIO
     }
 
     [Test]
-    [Ignore("Discovery")]
-    public void DoesReceivingIoEventsDrainTheAssociatedReader()
-    {
-        // Arrange
-        var proc = new Process()
-        {
-            StartInfo =
-            {
-                FileName = "node",
-                Arguments = "-e \"console.log('foo'); console.log('bar');\"",
-                UseShellExecute = false,
-                RedirectStandardError = true,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true
-            }
-        };
-        var captured = new List<string>();
-        proc.OutputDataReceived += (s, e) =>
-        {
-            if (string.IsNullOrEmpty(e.Data))
-            {
-                return;
-            }
-
-            captured.Add(e.Data);
-        };
-        
-        // Act
-        proc.Start();
-        proc.BeginErrorReadLine();
-        proc.BeginOutputReadLine();
-        proc.WaitForExit();
-        // Assert
-        Expect(captured)
-            .To.Equal(new[] { "foo", "bar" });
-    }
-
-    [Test]
     public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder()
     {
         // Arrange
-        if (!PwshIsAvailable())
-        {
-            Assert.Ignore(REQUIRES_PWSH);
-            return;
-        }
-
         using var folder = new AutoTempFolder();
         var expected = GetRandomAlphaString(4);
         var envVar = GetRandomAlphaString(4);
+        var script = $@"
+console.log(process.env[`{envVar}`]);
+";
         // Act
         using var io = ProcessIO
             .In(folder.Path)
             .WithEnvironmentVariable(envVar, expected)
-            .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+            .StartNode(script);
         // Assert
         var lines = io.StandardOutput.ToArray().Trim();
         Expect(lines)
@@ -344,20 +290,17 @@ public class TestProcessIO
     public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder2()
     {
         // Arrange
-        if (!PwshIsAvailable())
-        {
-            Assert.Ignore(REQUIRES_PWSH);
-            return;
-        }
-
         using var folder = new AutoTempFolder();
         var expected = GetRandomAlphaString(4);
         var envVar = GetRandomAlphaString(4);
+        var script = $@"
+console.log(process.env[`{envVar}`]);
+";
         // Act
         using var io = ProcessIO
             .WithEnvironmentVariable(envVar, expected)
             .In(folder.Path)
-            .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+            .StartNode(script);
         // Assert
         var lines = io.StandardOutput.ToArray().Trim();
         Expect(lines)
@@ -373,12 +316,6 @@ public class TestProcessIO
     public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder3()
     {
         // Arrange
-        if (!PwshIsAvailable())
-        {
-            Assert.Ignore(REQUIRES_PWSH);
-            return;
-        }
-
         using var folder = new AutoTempFolder();
         var expected = GetRandomAlphaString(4);
         var envVar = GetRandomAlphaString(4);
@@ -386,11 +323,14 @@ public class TestProcessIO
         {
             [envVar] = expected
         };
+        var script = $@"
+console.log(process.env[`{envVar}`]);
+";
         // Act
         using var io = ProcessIO
             .WithEnvironment(dict)
             .In(folder.Path)
-            .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+            .StartNode(script);
         // Assert
         var lines = io.StandardOutput.ToArray().Trim();
         Expect(lines)
@@ -406,12 +346,6 @@ public class TestProcessIO
     public void ShouldBeAbleToInjectEnvironmentVariablesAndCustomWorkingFolder4()
     {
         // Arrange
-        if (!PwshIsAvailable())
-        {
-            Assert.Ignore(REQUIRES_PWSH);
-            return;
-        }
-
         using var folder = new AutoTempFolder();
         var expected = GetRandomAlphaString(4);
         var envVar = GetRandomAlphaString(4);
@@ -419,11 +353,14 @@ public class TestProcessIO
         {
             [envVar] = expected
         };
+        var script = $@"
+console.log(process.env[`{envVar}`]);
+";
         // Act
         using var io = ProcessIO
             .In(folder.Path)
             .WithEnvironment(dict)
-            .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+            .StartNode(script);
         // Assert
         var lines = io.StandardOutput.ToArray().Trim();
         Expect(lines)
@@ -439,21 +376,18 @@ public class TestProcessIO
     public void ShouldNotBreakGivenNullEnvironment()
     {
         // Arrange
-        if (!PwshIsAvailable())
-        {
-            Assert.Ignore(REQUIRES_PWSH);
-            return;
-        }
-
         using var folder = new AutoTempFolder();
         var expected = GetRandomAlphaString(4);
         var envVar = GetRandomAlphaString(4);
+        var script = $@"
+console.log(process.env[`{envVar}`]);
+";
         // Act
         using var io = ProcessIO
             .In(folder.Path)
             .WithEnvironment(null)
             .WithEnvironmentVariable(envVar, expected)
-            .Start("pwsh", "-Command", $"Write-Host $env:{envVar}");
+            .StartNode(script);
         // Assert
         var lines = io.StandardOutput.ToArray().Trim();
         Expect(lines)
@@ -500,20 +434,65 @@ public class TestProcessIO
         return Find.InPath(name) is not null;
     }
 
-    private static bool CmdIsAvailable()
-    {
-        return Platform.IsWindows && ExeIsAvailable("cmd");
-    }
-
-    private static bool PwshIsAvailable()
-    {
-        return ExeIsAvailable("pwsh");
-    }
-
     private const string REQUIRES_CMD = "This test uses a win32 cmd.exe";
 
     private const string REQUIRES_PWSH = "This test uses pwsh which is not found in your path";
 
     private const string REQUIRES_CAT =
         "This test uses the output from `cat`, which is not available on this system";
+
+    [Test]
+    [Ignore("Discovery")]
+    public void DoesReceivingIoEventsDrainTheAssociatedReader()
+    {
+        // Arrange
+        var proc = new Process()
+        {
+            StartInfo =
+            {
+                FileName = "node",
+                Arguments = "-e \"console.log('foo'); console.log('bar');\"",
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true
+            }
+        };
+        var captured = new List<string>();
+        proc.OutputDataReceived += (s, e) =>
+        {
+            if (string.IsNullOrEmpty(e.Data))
+            {
+                return;
+            }
+
+            captured.Add(e.Data);
+        };
+
+        // Act
+        proc.Start();
+        proc.BeginErrorReadLine();
+        proc.BeginOutputReadLine();
+        proc.WaitForExit();
+        // Assert
+        Expect(captured)
+            .To.Equal(
+                new[]
+                {
+                    "foo",
+                    "bar"
+                }
+            );
+    }
+}
+
+public static class ProcessIOExtensions
+{
+    public static IProcessIO StartNode(
+        this IUnstartedProcessIO unstarted,
+        string script
+    )
+    {
+        return unstarted.Start("node", "-e", script);
+    }
 }
