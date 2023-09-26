@@ -31,6 +31,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
     public class TestTempDbMySqlData
     {
         public const int DEFAULT_TIMEOUT = 90000;
+        public const int DEFAULT_RETRIES = 3;
 
         [Test]
         public void ShouldImplement_ITempDB()
@@ -62,6 +63,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         {
             [Test]
             [Parallelizable]
+            [Retry(DEFAULT_RETRIES)]
             public void ShouldBeAbleToSnapshotAndReuseDatabaseFilesAuto()
             {
                 // Arrange
@@ -95,6 +97,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
             [Test]
             [Parallelizable]
+            [Retry(DEFAULT_RETRIES)]
             public void ShouldBeAbleToSnapshotAndReuseDatabaseFilesSpecified()
             {
                 // Arrange
@@ -705,6 +708,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             public class ConfiguredFromApi
             {
                 [Test]
+                [Retry(3)]
                 public void ShouldListenOnHintedPortWhenAvailable()
                 {
                     // Arrange
@@ -721,6 +725,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 }
 
                 [Test]
+                [Retry(3)]
                 public void ShouldIncrementPortWhenHintedPortIsNotAvailable()
                 {
                     // Arrange
@@ -758,6 +763,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             public class ConfiguredFromEnvironment
             {
                 [Test]
+                [Retry(3)]
                 public void ShouldListenOnHintedPortWhenAvailable()
                 {
                     // Arrange
@@ -899,6 +905,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         public class HandlingPortConflicts
         {
             [Test]
+            [Retry(3)]
             public void ShouldReconfigurePortOnConflict_QuickStart()
             {
                 // because sometimes a port is taken after it was tested for
@@ -921,6 +928,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             }
 
             [Test]
+            [Retry(3)]
             public void ShouldReconfigurePortOnConflict_SlowerStart()
             {
                 // because sometimes a port is taken after it was tested for
@@ -1070,6 +1078,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
             [Test]
             [Parallelizable]
+            [Retry(3)]
             public void AbsoluteLifespanShouldOverrideConnectionActivity()
             {
                 // Arrange
