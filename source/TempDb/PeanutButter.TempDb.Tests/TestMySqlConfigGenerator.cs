@@ -191,6 +191,7 @@ max_connections=150
 table_open_cache=2000
 thread_cache_size=10
 myisam_max_sort_file_size=100G
+innodb_use_native_aio=0
 innodb_flush_log_at_trx_commit=1
 innodb_buffer_pool_size=384M
 innodb_log_file_size=48M

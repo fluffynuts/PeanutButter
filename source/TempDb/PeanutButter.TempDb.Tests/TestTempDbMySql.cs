@@ -5,6 +5,7 @@ using NUnit.Framework;
 using PeanutButter.TempDb.MySql.Base;
 using PeanutButter.TempDb.MySql.Data;
 using PeanutButter.Utils;
+using PeanutButter.WindowsServiceManagement;
 using static NExpect.Expectations;
 
 namespace PeanutButter.TempDb.Tests
@@ -49,12 +50,14 @@ namespace PeanutButter.TempDb.Tests
         {
             if (!Platform.IsWindows)
             {
+                Assert.Ignore("Tests require windows service infrastructure");
                 return;
             }
 
             var mysqlServices =
 #pragma warning disable CA1416
-                ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
+                new ServiceControlInterface().ListAllServices()
+                .Where(s => s.ToLower().Contains("mysql"));
             if (!mysqlServices.Any())
             {
                 Assert.Ignore(

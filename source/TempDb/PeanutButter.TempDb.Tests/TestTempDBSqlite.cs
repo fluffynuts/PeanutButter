@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using PeanutButter.TempDb.MySql.Data;
 using PeanutButter.TempDb.Sqlite;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;

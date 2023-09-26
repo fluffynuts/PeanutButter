@@ -1249,7 +1249,7 @@ stderr: {stderr}"
 
         private string DataFilePath(string relativePath)
         {
-            return Path.Combine(DatabasePath, relativePath);
+            return Path.Combine(DataDir, relativePath);
         }
 
         private IProcessIO RunCommand(

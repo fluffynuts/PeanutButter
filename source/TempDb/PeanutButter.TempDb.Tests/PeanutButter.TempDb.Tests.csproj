@@ -1,111 +1,104 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net462</TargetFramework>
-    <RuntimeIdentifiers>win-x86;win;osx;linux</RuntimeIdentifiers>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Configurations>Debug;Release;Debug-X</Configurations>
-    <Platforms>AnyCPU</Platforms>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PeanutButter.TempDb.Tests</RootNamespace>
-    <AssemblyName>PeanutButter.TempDb.Tests</AssemblyName>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <Optimize>true</Optimize>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
-    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.ServiceProcess" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj" />
-    <ProjectReference Include="..\..\SimpleServers\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj" />
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
-    <ProjectReference Include="..\..\Win32Service\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj" />
-    <ProjectReference Include="..\PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj" />
-    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Base\PeanutButter.TempDb.MySql.Base.csproj" />
-    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Connector\PeanutButter.TempDb.MySql.Connector.csproj" />
-    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Data\PeanutButter.TempDb.MySql.Data.csproj" />
-    <ProjectReference Include="..\PeanutButter.TempDb.SqlCe\PeanutButter.TempDb.SqlCe.csproj" />
-    <ProjectReference Include="..\PeanutButter.TempDb.Sqlite\PeanutButter.TempDb.Sqlite.csproj" />
-    <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj" />
-    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="TestResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TestResources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\SQLite.Interop.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.123" />
-    <PackageReference Include="EntityFramework" Version="6.4.4" />
-    <PackageReference Include="Microsoft.SqlServer.Compact" Version="4.0.8876.1" />
-    <PackageReference Include="MySql.Data" Version="8.0.31" Aliases="mysql_data" />
-    <PackageReference Include="NExpect" Version="2.0.48" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="Quackers.TestLogger" Version="1.0.16" />
-    <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
-    <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.118" />
-    <PackageReference Include="System.Data.SQLite.Linq" Version="1.0.118" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-  </ItemGroup>
-  <Import Project="$(SolutionDir)\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('$(SolutionDir)\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets')" />
-  <PropertyGroup>
-      <!--
-    <PostBuildEvent>if not exist "$(TargetDir)x86" md "$(TargetDir)x86"
-@rem xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\x86\*.*" "$(TargetDir)x86"
-if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
-@rem xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"</PostBuildEvent>
-      -->
-  </PropertyGroup>
-  <Import Project="..\..\MonoForFramework.targets" />
-<!--  <Target Name="ChangeAliasesOfStrongNameAssemblies"-->
-<!--          BeforeTargets="FindReferenceAssembliesForReferences;ResolveReference">-->
-<!--    <ItemGroup>-->
-<!--      <ReferencePath Condition="'%(FileName)' == 'MySql.Data'">-->
-<!--        <Aliases>mysql_data</Aliases>-->
-<!--      </ReferencePath>-->
-<!--    </ItemGroup>-->
-<!--  </Target>-->
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <RuntimeIdentifiers>win-x86;win;osx;linux</RuntimeIdentifiers>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <Configurations>Debug;Release;Debug-X</Configurations>
+        <Platforms>AnyCPU</Platforms>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>PeanutButter.TempDb.Tests</RootNamespace>
+        <AssemblyName>PeanutButter.TempDb.Tests</AssemblyName>
+        <FileAlignment>512</FileAlignment>
+        <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+        <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DebugSymbols>true</DebugSymbols>
+        <Optimize>false</Optimize>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <PlatformTarget>x86</PlatformTarget>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <Optimize>true</Optimize>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <PlatformTarget>x86</PlatformTarget>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+        <DebugSymbols>true</DebugSymbols>
+        <Optimize>false</Optimize>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <PlatformTarget>x86</PlatformTarget>
+        <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+        <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\INI\PeanutButter.INI\PeanutButter.INI.csproj"/>
+        <ProjectReference Include="..\..\SimpleServers\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj"/>
+        <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj"/>
+        <ProjectReference Include="..\..\Win32Service\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj"/>
+        <ProjectReference Include="..\PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj"/>
+        <ProjectReference Include="..\PeanutButter.TempDb.MySql.Base\PeanutButter.TempDb.MySql.Base.csproj"/>
+        <ProjectReference Include="..\PeanutButter.TempDb.MySql.Connector\PeanutButter.TempDb.MySql.Connector.csproj"/>
+        <ProjectReference Include="..\PeanutButter.TempDb.MySql.Data\PeanutButter.TempDb.MySql.Data.csproj"/>
+        <ProjectReference Include="..\PeanutButter.TempDb.SqlCe\PeanutButter.TempDb.SqlCe.csproj"/>
+        <ProjectReference Include="..\PeanutButter.TempDb.Sqlite\PeanutButter.TempDb.Sqlite.csproj"/>
+        <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj"/>
+        <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj"/>
+        <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Update="TestResources.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>TestResources.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+    <ItemGroup>
+        <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="Resources\SQLite.Interop.dll"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Dapper" Version="2.0.123"/>
+        <PackageReference Include="EntityFramework" Version="6.4.4"/>
+        <PackageReference Include="Microsoft.SqlServer.Compact" Version="4.0.8876.1"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0"/>
+        <PackageReference Include="MySql.Data" Version="8.0.31" Aliases="mysql_data"/>
+        <PackageReference Include="NExpect" Version="2.0.48"/>
+        <PackageReference Include="NUnit" Version="3.13.3"/>
+        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0"/>
+        <PackageReference Include="Quackers.TestLogger" Version="1.0.16"/>
+        <PackageReference Include="System.Data.SQLite" Version="1.0.118"/>
+        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118"/>
+        <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.118"/>
+        <PackageReference Include="System.Data.SQLite.Linq" Version="1.0.118"/>
+        <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
+    </ItemGroup>
+    <Import Project="$(SolutionDir)\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('$(SolutionDir)\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets')"/>
+    <PropertyGroup>
+        <!--
+      <PostBuildEvent>if not exist "$(TargetDir)x86" md "$(TargetDir)x86"
+  @rem xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\x86\*.*" "$(TargetDir)x86"
+  if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
+  @rem xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"</PostBuildEvent>
+        -->
+    </PropertyGroup>
+    <Import Project="..\..\MonoForFramework.targets"/>
+    <!--  <Target Name="ChangeAliasesOfStrongNameAssemblies"-->
+    <!--          BeforeTargets="FindReferenceAssembliesForReferences;ResolveReference">-->
+    <!--    <ItemGroup>-->
+    <!--      <ReferencePath Condition="'%(FileName)' == 'MySql.Data'">-->
+    <!--        <Aliases>mysql_data</Aliases>-->
+    <!--      </ReferencePath>-->
+    <!--    </ItemGroup>-->
+    <!--  </Target>-->
 </Project>

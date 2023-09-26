@@ -71,6 +71,12 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
                 Expect(snapshotPath)
                     .To.Be.A.Folder();
+                Console.Error.WriteLine(
+                    new
+                    {
+                        snapshotPath
+                    }.Stringify()
+                );
 
                 // Act
                 using var sut = Create(templatePath: snapshotPath);
@@ -394,7 +400,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         cmd.CommandText = "select * from information_schema.tables limit 1";
                         using var reader = cmd.ExecuteReader();
                     }
-                    
+
                     Expect(() => conn.ExecuteReader("select * from information_schema.tables limit 1;"))
                         .To.Throw();
 
@@ -922,20 +928,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         {
                             using var conn = db.OpenConnection();
                         }
-                    ).To.Throw()
-                    .With.Property(
-                        e => new
-                        {
-                            Type = e.GetType().Name,
-                            IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
-                        }
-                    ).Deep.Equal.To(
-                        new
-                        {
-                            Type = "MySqlException",
-                            IsConnectionError = true
-                        }
-                    );
+                    ).To.Throw<InvalidOperationException>()
+                    .With.Message.Containing("not running");
                 // Assert
             }
 
@@ -990,20 +984,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         {
                             using var conn = db.OpenConnection();
                         }
-                    ).To.Throw()
-                    .With.Property(
-                        e => new
-                        {
-                            Type = e.GetType().Name,
-                            IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
-                        }
-                    ).Deep.Equal.To(
-                        new
-                        {
-                            Type = "MySqlException",
-                            IsConnectionError = true
-                        }
-                    );
+                    ).To.Throw<InvalidOperationException>()
+                    .With.Message.Containing("not running");
             }
 
             [Test]
