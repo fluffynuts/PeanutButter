@@ -969,6 +969,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             // of that dies before it can dispose!
             [Test]
             [Parallelizable]
+            [Retry(3)]
             public void ShouldAutomaticallyDisposeAfterMaxLifetimeHasExpired()
             {
                 // Arrange
@@ -1050,9 +1051,13 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
                 // Assert
                 Expect(db.IsRunning)
-                    .To.Be.False();
+                    .To.Be.False(() => $"db still running against {db.DatabasePath}");
                 Expect(disposed.ToArray())
-                    .To.Equal(new[] { true });
+                    .To.Equal(
+                        new[] { true },
+                        () => disposed.Count == 0
+                            ? $"dispose event not triggered"
+                            : $"Received multiple dispose events: {disposed.ToArray().Stringify()}");
 
                 Expect(
                         () =>

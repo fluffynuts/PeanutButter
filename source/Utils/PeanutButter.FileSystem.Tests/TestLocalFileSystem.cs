@@ -778,9 +778,13 @@ namespace PeanutButter.FileSystem.Tests
                     //---------------Assert Precondition----------------
                     var fullSourcePath = Path.Combine(folder.Path, srcFile);
                     Assert.IsFalse(File.Exists(fullSourcePath));
+                    Expect(fullSourcePath)
+                        .Not.To.Exist();
 
                     //---------------Execute Test ----------------------
-                    Assert.Throws<FileNotFoundException>(() => sut.Copy(fullSourcePath));
+                    Expect(() => sut.Copy(fullSourcePath))
+                        .To.Throw<PathNotFoundException>()
+                        .With.Message.Containing(fullSourcePath);
 
                     //---------------Test Result -----------------------
                 }

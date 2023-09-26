@@ -14,25 +14,6 @@ namespace PeanutButter.TempDb.Tests;
 [TestFixture]
 public class TestTempDBSqlite
 {
-    [OneTimeSetUp]
-    public void TestFixtureSetUp()
-    {
-        File.WriteAllBytes("SQLite.Interop.dll", TestResources.SQLite_Interop_x86);
-    }
-
-    [OneTimeTearDown]
-    public void TestFixtureTearDown()
-    {
-        try
-        {
-            File.Delete("SQLite.Interop.dll");
-        }
-        catch
-        {
-            // ignored
-        }
-    }
-
     [Test]
     public void ShouldImplementIDisposable()
     {

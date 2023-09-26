@@ -13,7 +13,7 @@
     "cover": "zarro cover-dotnet",
     "postcover": "run-s generate-reports",
     "generate-reports": "cross-env COVERAGE_INCLUDE=*,PeanutButter.* COVERAGE_EXCLUDE_ASSEMBLIES=PeanutButter.RandomGenerators.Core.Tests.Domain COVERAGE_ADDITIONAL_EXCLUDE=GenericBuilderTestLoadLoadedAssemblyObject,GenericBuilderTestNotLoadedAssembly zarro generate-reports",
-    "build": "DOTNET_CORE=1 zarro @",
+    "build": "cross-env DOTNET_CORE=1 zarro @",
     "build-release": "cross-env BUILD_CONFIGURATION=Release zarro build",
     "zarro": "zarro",
     "release": "run-s test \"zarro release\"",

@@ -22,20 +22,17 @@
         <Optimize>false</Optimize>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
-        <PlatformTarget>x86</PlatformTarget>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
         <Optimize>true</Optimize>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
-        <PlatformTarget>x86</PlatformTarget>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
         <DebugSymbols>true</DebugSymbols>
         <Optimize>false</Optimize>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
-        <PlatformTarget>x86</PlatformTarget>
         <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
         <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
     </PropertyGroup>
@@ -55,16 +52,7 @@
         <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj"/>
     </ItemGroup>
     <ItemGroup>
-        <EmbeddedResource Update="TestResources.resx">
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>TestResources.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
-    </ItemGroup>
-    <ItemGroup>
         <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}"/>
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="Resources\SQLite.Interop.dll"/>
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.0.123"/>
