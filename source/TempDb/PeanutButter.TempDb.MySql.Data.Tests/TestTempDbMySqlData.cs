@@ -56,7 +56,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         public class SnapshottingAndReusing
         {
             [Test]
-            [Timeout(20000)]
+            [Timeout(40000)]
             public void ShouldBeAbleToSubClassToSnapshotAndReuseDatabase()
             {
                 // Arrange

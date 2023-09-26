@@ -285,7 +285,7 @@ namespace PeanutButter.TempDb
 
             try
             {
-                logAction(string.Format(message, parameters));
+                logAction($"[{DateTime.Now}] {string.Format(message, parameters)}");
             }
             catch
             {

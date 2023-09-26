@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
@@ -259,13 +260,30 @@ namespace PeanutButter.TempDb.MySql.Base
             DisposeManagedConnections();
             Stop();
             var baseDir = Path.GetDirectoryName(DatabasePath);
-            var target = $"template-{Guid.NewGuid()}";
+            var target = $"template-{Guid.NewGuid()}.db";
             var fs = new LocalFileSystem(baseDir);
             fs.Copy(DatabasePath, target);
             var result = Path.Combine(baseDir!, target);
+            foreach (var f in DeleteDataFilesOnSnapshot)
+            {
+                var toDelete = Path.Combine(result, "data", f);
+                if (File.Exists(toDelete))
+                {
+                    File.Delete(toDelete);
+                }
+            }
+
             StartServer(MySqld);
             return result;
         }
+
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly string[] DeleteDataFilesOnSnapshot =
+        {
+            "mysql-err.log",
+            "start-upinfo.log",
+            "tempdb-debug.log"
+        };
 
         private string FindInstalledMySqlD()
         {
@@ -313,8 +331,14 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             MySqlVersion = QueryVersionOf(MySqld);
             Log($"mysql is version: {MySqlVersion}");
+            if (IsMySql8())
+            {
+                RemoveDeprecatedOptions();
+            }
+
             if (FolderExists(Settings?.Options?.TemplateDatabasePath))
             {
+                RootPasswordSet = true; // prior snapshot should have set the root password
                 var container = Path.GetDirectoryName(Settings!.Options!.TemplateDatabasePath);
                 EnsureFolderDoesNotExist(DatabasePath);
                 var fs = new LocalFileSystem(
@@ -330,10 +354,6 @@ namespace PeanutButter.TempDb.MySql.Base
                 Log("create initial database");
                 _startAttempts = 0;
                 EnsureIsRemoved(DatabasePath);
-                if (IsMySql8())
-                {
-                    RemoveDeprecatedOptions();
-                }
 
                 // mysql 5.7 wants an empty data base dir, so we have to use
                 // a temp defaults file for init only, which 8 seems to be ok with
@@ -353,7 +373,7 @@ namespace PeanutButter.TempDb.MySql.Base
             DumpDefaultsFileAt(DatabasePath);
             ConfigFilePath = Path.Combine(DatabasePath, MYSQL_CONFIG_FILE);
             Port = DeterminePortToUse();
-            StartServer(MySqld);
+            StartServer(MySqld, assimilate: true);
             SetRootPassword();
             CreateInitialSchema();
             SetUpAutoDisposeIfRequired();
@@ -653,23 +673,28 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 var proc = _serverProcess;
                 _serverProcess = null;
-                if (proc is null)
+                if (proc is null || proc.HasExited)
                 {
                     return;
                 }
 
-                Console.Error.WriteLine(
-                    $"WARNING: killing mysqld with process id {proc.ProcessId} - this may leave temporary files on your filesystem"
-                );
+                if (Platform.IsWindows)
+                {
+                    Console.Error.WriteLine(
+                        $"WARNING: killing mysqld with process id {proc.ProcessId} - this may leave temporary files on your filesystem"
+                    );
+                }
+                else
+                {
+                    Log($"Killing mysqld process {proc.ProcessId}");
+                }
+
+                proc.Kill();
+                proc.WaitForExit(3000);
+
                 if (!proc.HasExited)
                 {
-                    proc.Kill();
-                    proc.WaitForExit(3000);
-
-                    if (!proc.HasExited)
-                    {
-                        throw new Exception($"MySql process {proc.ProcessId} has not shut down!");
-                    }
+                    throw new Exception($"MySql process {proc.ProcessId} has not shut down!");
                 }
             }
         }
@@ -700,6 +725,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
                     Thread.Sleep(100);
                 }
+
                 Log($"Unable to perform graceful shutdown: mysqld remains alive after issuing SHUTDOWN and waiting");
             }
             catch (Exception ex)
@@ -750,7 +776,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private int _startAttempts;
 
-        private void StartServer(string mysqld)
+        private void StartServer(string mysqld, bool assimilate = false)
         {
             StopWatcher();
             var args = new[]
@@ -783,7 +809,7 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 try
                 {
-                    TestIsRunning();
+                    TestIsRunning(assimilate);
                 }
                 catch (FatalTempDbInitializationException ex)
                 {
@@ -948,7 +974,7 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
             }
         }
 
-        private void TestIsRunning()
+        private void TestIsRunning(bool assimilate)
         {
             Log("testing to see if mysqld is running");
             var maxTime = DateTime.Now.AddSeconds(MaxSecondsToWaitForMySqlToStart);
@@ -964,6 +990,19 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
 
                 if (CanConnect())
                 {
+                    var assimilated = assimilate;
+                    if (assimilate)
+                    {
+                        using var conn = base.OpenConnection();
+                        using var cmd = conn.CreateCommand();
+                        cmd.CommandText = @$"update sys.sys_config set value = '{InstanceId}' where variable = '__tempdb_id__'";
+                        assimilated = cmd.ExecuteNonQuery() > 0;
+                        if (assimilated)
+                        {
+                            return;
+                        }
+                    }
+                    
                     if (!IsMyInstance())
                     {
                         throw new TryAnotherPortException($"Encountered existing instance on port {Port}");
@@ -1053,9 +1092,9 @@ stderr: {stderr}"
                     Log("Connection established!");
                     return true;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Log($"Unable to connect. Will continue to try until {cutoff}");
+                    Log($"Unable to connect ({ex.Message}). Will continue to try until {cutoff}");
                     Thread.Sleep(500);
                 }
             }
