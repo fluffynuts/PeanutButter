@@ -57,7 +57,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         {
             [Test]
             [Timeout(40000)]
-            public void ShouldBeAbleToSubClassToSnapshotAndReuseDatabase()
+            public void ShouldBeAbleToSnapshotAndReuseDatabaseFiles()
             {
                 // Arrange
                 string snapshotPath;
@@ -853,17 +853,19 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 // viability :/
                 // Arrange
                 // Act
-                using var db1 = new TempDbMySqlWithDeterministicPort();
-                using var db2 = new TempDbMySqlWithDeterministicPort();
-                using var conn1 = db1.OpenConnection();
-                using var conn2 = db2.OpenConnection();
-                // Assert
-                Expect(conn1.State)
-                    .To.Equal(ConnectionState.Open);
-                Expect(conn2.State)
-                    .To.Equal(ConnectionState.Open);
-                Expect(db1.Port)
-                    .Not.To.Equal(db2.Port);
+                using (var db1 = new TempDbMySqlWithDeterministicPort())
+                {
+                    using var db2 = new TempDbMySqlWithDeterministicPort();
+                    using var conn1 = db1.OpenConnection();
+                    using var conn2 = db2.OpenConnection();
+                    // Assert
+                    Expect(conn1.State)
+                        .To.Equal(ConnectionState.Open);
+                    Expect(conn2.State)
+                        .To.Equal(ConnectionState.Open);
+                    Expect(db1.Port)
+                        .Not.To.Equal(db2.Port);
+                }
             }
 
             [Test]

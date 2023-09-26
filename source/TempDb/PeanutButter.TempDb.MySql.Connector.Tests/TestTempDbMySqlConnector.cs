@@ -126,9 +126,12 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
 
                 // Pre-assert
                 var inSchema1 = Query(sut, "select * from cows;");
-                Expect(inSchema1).To.Contain.Exactly(1).Item();
-                Expect(inSchema1[0]["id"]).To.Equal(1);
-                Expect(inSchema1[0]["name"]).To.Equal("Daisy");
+                Expect(inSchema1)
+                    .To.Contain.Exactly(1).Item();
+                Expect(inSchema1[0]["id"])
+                    .To.Equal(1);
+                Expect(inSchema1[0]["name"])
+                    .To.Equal("Daisy");
 
                 // Act
                 sut.SwitchToSchema(schema2Name);
@@ -334,20 +337,8 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                         {
                             using var conn = db.OpenConnection();
                         }
-                    ).To.Throw()
-                    .With.Property(
-                        e => new
-                        {
-                            Type = e.GetType().Name,
-                            IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
-                        }
-                    ).Deep.Equal.To(
-                        new
-                        {
-                            Type = "MySqlException",
-                            IsConnectionError = true
-                        }
-                    );
+                    ).To.Throw<InvalidOperationException>()
+                    .With.Message.Containing("not running");
                 // Assert
                 Expect(disposed)
                     .To.Be.True();
@@ -357,42 +348,33 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
             public void ConnectionUseShouldExtendLifetime()
             {
                 // Arrange
-                using var db = Create(inactivityTimeout: TimeSpan.FromSeconds(1));
                 var disposed = false;
-                db.Disposed += (o, e) => disposed = true;
-                // Act
-                for (var i = 0; i < 5; i++)
+                using (var db = Create(inactivityTimeout: TimeSpan.FromSeconds(1)))
                 {
+                    db.Disposed += (o, e) => disposed = true;
+                    // Act
+                    for (var i = 0; i < 5; i++)
+                    {
+                        Expect(
+                            () =>
+                            {
+                                using var conn = db.OpenConnection();
+                                Thread.Sleep(500);
+                            }
+                        ).Not.To.Throw();
+                    }
+
+                    Thread.Sleep(5000);
+
                     Expect(
-                        () =>
-                        {
-                            using var conn = db.OpenConnection();
-                            Thread.Sleep(500);
-                        }
-                    ).Not.To.Throw();
+                            () =>
+                            {
+                                using var conn = db.OpenConnection();
+                            }
+                        ).To.Throw<InvalidOperationException>()
+                        .With.Message.Containing("not running");
                 }
 
-                Thread.Sleep(2000);
-
-                Expect(
-                        () =>
-                        {
-                            using var conn = db.OpenConnection();
-                        }
-                    ).To.Throw()
-                    .With.Property(
-                        e => new
-                        {
-                            Type = e.GetType().Name,
-                            IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
-                        }
-                    ).Deep.Equal.To(
-                        new
-                        {
-                            Type = "MySqlException",
-                            IsConnectionError = true
-                        }
-                    );
                 // Assert
                 Expect(disposed)
                     .To.Be.True();
@@ -421,20 +403,8 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
 
                             // ReSharper disable once FunctionNeverReturns
                         }
-                    ).To.Throw()
-                    .With.Property(
-                        e => new
-                        {
-                            Type = e.GetType().Name,
-                            IsConnectionError = e.Message.ToLowerInvariant().Contains("unable to connect")
-                        }
-                    ).Deep.Equal.To(
-                        new
-                        {
-                            Type = "MySqlException",
-                            IsConnectionError = true
-                        }
-                    );
+                    ).To.Throw<InvalidOperationException>()
+                    .With.Message.Containing("not running");
                 // Assert
                 Expect(connections)
                     .To.Be.Greater.Than(3);
