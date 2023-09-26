@@ -302,7 +302,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                             var exists = Directory.Exists(p) || File.Exists(p);
                             if (!exists)
                             {
-                                Console.WriteLine(
+                                Console.Error.WriteLine(
                                     $"WARN: specific test path for mysql not found: {p}"
                                 );
                             }
@@ -387,7 +387,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                                 {
                                     Options =
                                     {
-                                        LogAction = Console.WriteLine,
+                                        LogAction = Console.Error.WriteLine,
                                         EnableVerboseLogging = true,
                                     },
                                     CustomConfiguration =
@@ -562,7 +562,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 {
                     Options =
                     {
-                        LogAction = s => Console.WriteLine($"debug: {s}"),
+                        LogAction = s => Console.Error.WriteLine($"debug: {s}"),
                     }
                 }
             );
@@ -1170,7 +1170,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     {
                         PathToMySqlD = pathToMySql,
                         ForceFindMySqlInPath = true,
-                        LogAction = Console.WriteLine,
+                        LogAction = Console.Error.WriteLine,
                         InactivityTimeout = inactivityTimeout,
                         AbsoluteLifespan = absoluteLifespan,
                         EnableVerboseLogging = true,
