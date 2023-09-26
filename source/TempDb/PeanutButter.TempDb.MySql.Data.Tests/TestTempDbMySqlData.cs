@@ -56,8 +56,9 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         public class SnapshottingAndReusing
         {
             [Test]
-            [Timeout(40000)]
-            public void ShouldBeAbleToSnapshotAndReuseDatabaseFiles()
+            [Timeout(60000)]
+            [Parallelizable]
+            public void ShouldBeAbleToSnapshotAndReuseDatabaseFilesAuto()
             {
                 // Arrange
                 string snapshotPath;
@@ -71,6 +72,43 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
                 Expect(snapshotPath)
                     .To.Be.A.Folder();
+                Console.Error.WriteLine(
+                    new
+                    {
+                        snapshotPath
+                    }.Stringify()
+                );
+
+                // Act
+                using var sut = Create(templatePath: snapshotPath);
+                using var conn2 = sut.OpenConnection();
+                var result = conn2.Query<Person>("select * from people");
+                // Assert
+                Expect(result)
+                    .To.Contain.Only(1)
+                    .Matched.By(o => o.Id > 0 && o.Name == "bob");
+            }
+
+            [Test]
+            [Timeout(60000)]
+            [Parallelizable]
+            public void ShouldBeAbleToSnapshotAndReuseDatabaseFilesSpecified()
+            {
+                // Arrange
+                using var tempFolder = new AutoTempFolder();
+                string snapshotPath;
+                using (var db1 = Create())
+                {
+                    using var conn1 = db1.OpenConnection();
+                    conn1.Execute("create table people (id int primary key not null auto_increment, name text);");
+                    conn1.Execute("insert into people(name) values('bob');");
+                    snapshotPath = db1.Snapshot(tempFolder.Path);
+                }
+
+                Expect(snapshotPath)
+                    .To.Be.A.Folder();
+                Expect(snapshotPath)
+                    .To.Equal(tempFolder.Path);
                 Console.Error.WriteLine(
                     new
                     {

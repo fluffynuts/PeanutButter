@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
@@ -9,7 +8,6 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using PeanutButter.FileSystem;
 using PeanutButter.Utils;
 
@@ -257,10 +255,15 @@ namespace PeanutButter.TempDb.MySql.Base
 
         public string Snapshot()
         {
+            return Snapshot(null);
+        }
+
+        public string Snapshot(string toNewFolder)
+        {
             DisposeManagedConnections();
             Stop();
             var baseDir = Path.GetDirectoryName(DatabasePath);
-            var target = $"template-{Guid.NewGuid()}.db";
+            var target = toNewFolder ?? GenerateTemplatePath();
             var fs = new LocalFileSystem(baseDir);
             fs.Copy(DatabasePath, target);
             var result = Path.Combine(baseDir!, target);
@@ -275,6 +278,14 @@ namespace PeanutButter.TempDb.MySql.Base
 
             StartServer(MySqld);
             return result;
+        }
+
+        private string GenerateTemplatePath()
+        {
+            return Path.Combine(
+                Path.GetDirectoryName(DatabasePath)!,
+                $"template-{Guid.NewGuid()}.db"
+            );
         }
 
         // ReSharper disable once StaticMemberInGenericType
@@ -385,6 +396,11 @@ namespace PeanutButter.TempDb.MySql.Base
             lock (_debugLogLock)
             {
                 var existingFile = _debugLogFile;
+                if (!File.Exists(existingFile))
+                {
+                    return;
+                }
+
                 _debugLogFile = DataFilePath("tempdb-debug.log");
                 if (File.Exists(_debugLogFile))
                 {
@@ -392,6 +408,11 @@ namespace PeanutButter.TempDb.MySql.Base
                     // the file will already exist; if
                     // not, it doesn't matter
                     File.Delete(_debugLogFile);
+                }
+                var targetFolder = Path.GetDirectoryName(_debugLogFile);
+                if (!Directory.Exists(targetFolder))
+                {
+                    Directory.CreateDirectory(targetFolder);
                 }
 
                 File.Move(existingFile, _debugLogFile);
@@ -995,14 +1016,15 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
                     {
                         using var conn = base.OpenConnection();
                         using var cmd = conn.CreateCommand();
-                        cmd.CommandText = @$"update sys.sys_config set value = '{InstanceId}' where variable = '__tempdb_id__'";
+                        cmd.CommandText =
+                            @$"update sys.sys_config set value = '{InstanceId}' where variable = '__tempdb_id__'";
                         assimilated = cmd.ExecuteNonQuery() > 0;
                         if (assimilated)
                         {
                             return;
                         }
                     }
-                    
+
                     if (!IsMyInstance())
                     {
                         throw new TryAnotherPortException($"Encountered existing instance on port {Port}");
@@ -1094,6 +1116,12 @@ stderr: {stderr}"
                 }
                 catch (Exception ex)
                 {
+                    if (_serverProcess.HasExited)
+                    {
+                        Log($"Unable to connect: server process has exited");
+                        return false;
+                    }
+
                     Log($"Unable to connect ({ex.Message}). Will continue to try until {cutoff}");
                     Thread.Sleep(500);
                 }
