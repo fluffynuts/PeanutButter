@@ -4,6 +4,7 @@ using System.IO;
 using NUnit.Framework;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TestUtils.Generic;
+using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable ObjectCreationAsStatement
@@ -14,6 +15,18 @@ namespace PeanutButter.TempDb.Tests
     [TestFixture]
     public class TestLocalDbFactory
     {
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            // localdb should only be available on windows
+            if (!Platform.IsWindows)
+            {
+                Assert.Ignore(
+                    "Tests require LocalDb, installable on windows only (afaik)"
+                );
+            }
+        }
+
         [Test]
         public void Construct_GivenNoParameters_ShouldNotThrow()
         {
@@ -60,7 +73,6 @@ namespace PeanutButter.TempDb.Tests
         }
 
 
-
         [Test]
         public void CreateDatabase_GivenFileNameAndDatabaseName_ShouldCreateDatabase()
         {
@@ -97,12 +109,14 @@ namespace PeanutButter.TempDb.Tests
         }
 
 
-        public class LocalDbDestroyer: IDisposable
+        public class LocalDbDestroyer : IDisposable
         {
             public string DatabaseFile { get; set; }
             public string DatabaseName { get; set; }
             public string InstanceName { get; set; } = new LocalDbInstanceEnumerator().FindFirstAvailableInstance();
-            private const string MASTER_CONNECTION_STRING = @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";
+
+            private const string MASTER_CONNECTION_STRING =
+                @"Data Source=(localdb)\{0};Initial Catalog=master;Integrated Security=True";
 
             public string GetMasterConnectionString()
             {
@@ -119,12 +133,16 @@ namespace PeanutButter.TempDb.Tests
                     connection.Open();
                     using (var cmd = connection.CreateCommand())
                     {
-                        cmd.CommandText = string.Format("alter database [{0}] set SINGLE_USER WITH ROLLBACK IMMEDIATE;", DatabaseName);
+                        cmd.CommandText = string.Format(
+                            "alter database [{0}] set SINGLE_USER WITH ROLLBACK IMMEDIATE;",
+                            DatabaseName
+                        );
                         cmd.ExecuteNonQuery();
                         cmd.CommandText = string.Format("drop database [{0}]", DatabaseName);
                         cmd.ExecuteNonQuery();
                     }
                 }
+
                 File.Delete(DatabaseFile);
             }
 
@@ -140,6 +158,5 @@ namespace PeanutButter.TempDb.Tests
                 }
             }
         }
-
     }
 }

@@ -73,6 +73,21 @@ namespace PeanutButter.Utils
         bool HasExited { get; }
 
         /// <summary>
+        /// The program started by this ProcessIO
+        /// </summary>
+        string Filename { get; }
+
+        /// <summary>
+        /// A copy of the commandline arguments to that program
+        /// </summary>
+        string[] Arguments { get; }
+
+        /// <summary>
+        /// The working directory in which the process was launched
+        /// </summary>
+        string WorkingDirectory { get; }
+
+        /// <summary>
         /// Wait for the process to exit and return the exit code
         /// </summary>
         /// <returns></returns>
@@ -144,6 +159,15 @@ namespace PeanutButter.Utils
         class ProcessIO : IProcessIO
     {
         /// <inheritdoc />
+        public string Filename { get; private set; }
+
+        /// <inheritdoc />
+        public string[] Arguments { get; private set; }
+
+        /// <inheritdoc />
+        public string WorkingDirectory { get; private set; }
+
+        /// <inheritdoc />
         public int ProcessId
         {
             get
@@ -199,11 +223,6 @@ namespace PeanutButter.Utils
         /// </summary>
         public class UnstartedProcessIO : ProcessIO, IUnstartedProcessIO
         {
-            /// <summary>
-            /// Working directory for the process, once started
-            /// </summary>
-            public string WorkingDirectory { get; private set; }
-
             private readonly Dictionary<string, string> _environment = new Dictionary<string, string>();
 
             /// <inheritdoc />
@@ -358,6 +377,9 @@ namespace PeanutButter.Utils
                 _process.Start();
                 _process.BeginErrorReadLine();
                 _process.BeginOutputReadLine();
+                WorkingDirectory = workingDirectory ?? Environment.CurrentDirectory;
+                Arguments = arguments;
+                Filename = filename;
                 Started = true;
             }
             catch (Exception ex)

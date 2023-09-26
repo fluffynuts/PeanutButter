@@ -50,6 +50,7 @@ namespace PeanutButter.TempDb.Runner.Tests
         public class ExplicitMySqlEngineTesting
         {
             [Test]
+            [Timeout(30000)]
             public void ShouldBeAbleToExplicitlyStart()
             {
                 // Arrange
@@ -79,6 +80,7 @@ namespace PeanutButter.TempDb.Runner.Tests
             }
 
             [Test]
+            [Timeout(30000)]
             public void ShouldBeAbleToStopViaStdIn()
             {
                 // Arrange
@@ -132,6 +134,7 @@ namespace PeanutButter.TempDb.Runner.Tests
             }
 
             [Test]
+            [Timeout(30000)]
             public void ShouldBeAbleToExplicitlyStart()
             {
                 // Arrange
@@ -161,6 +164,7 @@ namespace PeanutButter.TempDb.Runner.Tests
             }
 
             [Test]
+            [Timeout(30000)]
             public void ShouldBeAbleToStopViaStdIn()
             {
                 // Arrange
@@ -203,6 +207,7 @@ namespace PeanutButter.TempDb.Runner.Tests
         public class ExplicitSqliteEngineTesting
         {
             [Test]
+            [Timeout(30000)]
             public void ShouldBeAbleToExplicitlyStart()
             {
                 // Arrange
@@ -236,6 +241,7 @@ namespace PeanutButter.TempDb.Runner.Tests
             }
 
             [Test]
+            [Timeout(30000)]
             public void ShouldBeAbleToStopViaStdIn()
             {
                 // Arrange

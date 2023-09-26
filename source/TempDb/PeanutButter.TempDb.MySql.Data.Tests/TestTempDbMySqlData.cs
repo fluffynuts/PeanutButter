@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -26,8 +27,11 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.TempDb.MySql.Data.Tests
 {
     [TestFixture]
+    [Timeout(DEFAULT_TIMEOUT)]
     public class TestTempDbMySqlData
     {
+        public const int DEFAULT_TIMEOUT = 60000;
+
         [Test]
         public void ShouldImplement_ITempDB()
         {
@@ -53,10 +57,10 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
+        [Timeout(DEFAULT_TIMEOUT)]
         public class SnapshottingAndReusing
         {
             [Test]
-            [Timeout(60000)]
             [Parallelizable]
             public void ShouldBeAbleToSnapshotAndReuseDatabaseFilesAuto()
             {
@@ -90,7 +94,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             }
 
             [Test]
-            [Timeout(60000)]
             [Parallelizable]
             public void ShouldBeAbleToSnapshotAndReuseDatabaseFilesSpecified()
             {
@@ -135,6 +138,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
 
         [TestFixture]
+        [Timeout(DEFAULT_TIMEOUT)]
         public class WhenProvidedPathToMySqlD
         {
             [TestCaseSource(nameof(MySqlPathFinders))]
@@ -311,6 +315,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
+        [Timeout(DEFAULT_TIMEOUT)]
         public class WhenInstalledAsWindowsService
         {
             [Test]
@@ -409,6 +414,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
+        [Timeout(DEFAULT_TIMEOUT)]
         public class Cleanup
         {
             [Test]
@@ -502,6 +508,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
+        [Timeout(DEFAULT_TIMEOUT)]
         public class LoggingProcessStartup
         {
             [Test]
@@ -570,6 +577,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
+        [Timeout(DEFAULT_TIMEOUT)]
         public class Reset
         {
             [Test]
@@ -598,6 +606,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
+        [Timeout(DEFAULT_TIMEOUT)]
         public class StayingAlive
         {
             [Test]
@@ -688,9 +697,11 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
+        [Timeout(DEFAULT_TIMEOUT)]
         public class PortHint
         {
             [TestFixture]
+            [Timeout(DEFAULT_TIMEOUT)]
             public class ConfiguredFromApi
             {
                 [Test]
@@ -743,6 +754,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             }
 
             [TestFixture]
+            [Timeout(DEFAULT_TIMEOUT)]
             public class ConfiguredFromEnvironment
             {
                 [Test]
@@ -829,6 +841,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
+        [Timeout(DEFAULT_TIMEOUT)]
         public class SharingSchemaBetweenNamedInstances
         {
             [Test]
@@ -882,6 +895,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
+        [Timeout(DEFAULT_TIMEOUT)]
         public class HandlingPortConflicts
         {
             [Test]
@@ -913,21 +927,23 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 // viability :/
                 // Arrange
                 // Act
-                using var db1 = new TempDbMySqlWithDeterministicPort();
-                // with a slower start, the conflict may be with an existing
-                // tempdb (or other) mysql instance, so the connect test
-                // will appear to work -- hence the `IsMyInstance` check too
-                // -> so we ensure that we can connect to the first instance
-                using var conn1 = db1.OpenConnection();
-                using var db2 = new TempDbMySqlWithDeterministicPort();
-                using var conn2 = db2.OpenConnection();
-                // Assert
-                Expect(conn1.State)
-                    .To.Equal(ConnectionState.Open);
-                Expect(conn2.State)
-                    .To.Equal(ConnectionState.Open);
-                Expect(db1.Port)
-                    .Not.To.Equal(db2.Port);
+                using (var db1 = new TempDbMySqlWithDeterministicPort())
+                {
+                    // with a slower start, the conflict may be with an existing
+                    // tempdb (or other) mysql instance, so the connect test
+                    // will appear to work -- hence the `IsMyInstance` check too
+                    // -> so we ensure that we can connect to the first instance
+                    using var conn1 = db1.OpenConnection();
+                    using var db2 = new TempDbMySqlWithDeterministicPort();
+                    using var conn2 = db2.OpenConnection();
+                    // Assert
+                    Expect(conn1.State)
+                        .To.Equal(ConnectionState.Open);
+                    Expect(conn2.State)
+                        .To.Equal(ConnectionState.Open);
+                    Expect(db1.Port)
+                        .Not.To.Equal(db2.Port);
+                }
             }
 
             public class TempDbMySqlWithDeterministicPort : TempDBMySql
@@ -945,24 +961,33 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
+        [Timeout(DEFAULT_TIMEOUT)]
         public class AutomaticDisposal
         {
             // perhaps the creator forgets to dispose
             // -> perhaps the creator is TempDb.Runner and the caller
             // of that dies before it can dispose!
             [Test]
+            [Parallelizable]
             public void ShouldAutomaticallyDisposeAfterMaxLifetimeHasExpired()
             {
                 // Arrange
-                using var db = Create(inactivityTimeout: TimeSpan.FromSeconds(2));
-                // Act
-                Expect(
-                    () =>
+                TempDBMySql db;
+                using (db = Create(inactivityTimeout: TimeSpan.FromSeconds(2)))
+                {
+                    // Act
+                    Expect(
+                        () =>
+                        {
+                            using var conn = db.OpenConnection();
+                        }
+                    ).Not.To.Throw();
+                    while (db.IsRunning)
                     {
-                        using var conn = db.OpenConnection();
+                        Thread.Sleep(100);
                     }
-                ).Not.To.Throw();
-                Thread.Sleep(3000);
+                }
+
                 Expect(
                         () =>
                         {
@@ -975,49 +1000,59 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
             [Test]
             [Retry(3)]
+            [Parallelizable]
             public void ConnectionUseShouldExtendLifetime()
             {
                 // Arrange
                 var inactivitySeconds = 1;
-                using var db = Create(inactivityTimeout: TimeSpan.FromSeconds(inactivitySeconds));
-                var disposed = false;
-                db.Disposed += (o, e) => disposed = true;
-                // Act
-                for (var i = 0; i < 5; i++)
+                var disposed = new ConcurrentQueue<bool>();
+                TempDBMySql db;
+                using (db = Create(inactivityTimeout: TimeSpan.FromSeconds(inactivitySeconds)))
                 {
-                    Expect(
-                        () =>
-                        {
-                            using var conn = db.OpenConnection();
-                            Thread.Sleep(500);
-                        }
-                    ).Not.To.Throw();
-                }
+                    db.Disposed += (o, e) =>
+                    {
+                        Console.Error.WriteLine(">>> dispose event handled <<<");
+                        disposed.Enqueue(true);
+                    };
+                    // Act
+                    for (var i = 0; i < 5; i++)
+                    {
+                        Expect(
+                            () =>
+                            {
+                                using var conn = db.OpenConnection();
+                                Thread.Sleep(500);
+                            }
+                        ).Not.To.Throw();
+                    }
 
-                var timeout = DateTime.Now.AddSeconds(10);
-                var stillConnected = true;
-                while (DateTime.Now < timeout && stillConnected)
-                {
-                    stillConnected = db.TryFetchCurrentConnectionCount() > 0;
+                    var timeout = DateTime.Now.AddSeconds(10);
+                    var stillConnected = true;
+                    while (DateTime.Now < timeout && stillConnected)
+                    {
+                        stillConnected = db.TryFetchCurrentConnectionCount() > 0;
+                        if (stillConnected)
+                        {
+                            Thread.Sleep(100);
+                        }
+                    }
+
                     if (stillConnected)
+                    {
+                        Assert.Fail("Still appear to have connections?!");
+                    }
+
+                    while (DateTime.Now < timeout && disposed.Count == 0)
                     {
                         Thread.Sleep(100);
                     }
                 }
 
-                if (stillConnected)
-                {
-                    Assert.Fail("Still appear to have connections?!");
-                }
-
-                while (DateTime.Now < timeout && !disposed)
-                {
-                    Thread.Sleep(100);
-                }
-
                 // Assert
-                Expect(disposed)
-                    .To.Be.True();
+                Expect(db.IsRunning)
+                    .To.Be.False();
+                Expect(disposed.ToArray())
+                    .To.Equal(new[] { true });
 
                 Expect(
                         () =>
@@ -1029,7 +1064,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             }
 
             [Test]
-            [Timeout(45000)]
+            [Parallelizable]
             public void AbsoluteLifespanShouldOverrideConnectionActivity()
             {
                 // Arrange
@@ -1060,6 +1095,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
+        [Timeout(DEFAULT_TIMEOUT)]
         public class CreatingUsers
         {
             [Test]

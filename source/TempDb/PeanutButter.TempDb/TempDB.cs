@@ -111,7 +111,7 @@ namespace PeanutButter.TempDb
         public string ConnectionString => GenerateConnectionString();
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly Semaphore _lock = new Semaphore(1, 1);
+        private static readonly Semaphore SharedInitLock = new(1, 1);
         private readonly List<DbConnection> _managedConnections = new List<DbConnection>();
 
         public Action<string> LogAction { get; set; }
@@ -328,15 +328,15 @@ namespace PeanutButter.TempDb
 
         private void AttemptToCreateDatabaseWith(string basePath)
         {
-            using (new AutoLocker(_lock))
+            using (new AutoLocker(SharedInitLock))
             {
                 do
                 {
                     DatabasePath = Path.Combine(basePath, $"{Guid.NewGuid()}.db");
                 } while (File.Exists(DatabasePath) || Directory.Exists(DatabasePath));
-
-                CreateDatabase();
             }
+
+            CreateDatabase();
         }
 
         protected virtual string GenerateConnectionString()
@@ -419,15 +419,15 @@ namespace PeanutButter.TempDb
                 _disposed = true;
             }
 
-            if (_inactivityWatcherThread is not null)
+            var watcherThread = _inactivityWatcherThread;
+            _inactivityWatcherThread = null;
+            if (watcherThread is not null)
             {
                 Log("Waiting on inactivity watcher thread to complete");
-                if (!(_inactivityWatcherThread?.Join(10000) ?? true))
+                if (!(watcherThread?.Join(10000) ?? true))
                 {
-                    _inactivityWatcherThread.Abort();
+                    watcherThread.Abort();
                 }
-
-                _inactivityWatcherThread = null;
             }
 
             DisposeManagedConnections();
@@ -446,9 +446,11 @@ namespace PeanutButter.TempDb
                     )
                 );
             }
-            catch
+            catch (Exception ex)
             {
-                // suppress
+                Console.Error.WriteLine(
+                    $"Error during TempDB disposal: {ex.Message}"
+                );
             }
         }
 

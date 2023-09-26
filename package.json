@@ -7,15 +7,14 @@
   "license": "BSD-3-Clause",
   "scripts": {
     "pretest": "run-s build",
-    "test-fx": "zarro test-dotnet",
+    "test-fx": "zarro DOTNET_CORE=0 test-dotnet",
     "build-with-msbuild": "cross-env DOTNET_CORE=0 zarro build",
-    "test": "cross-env TEST_ADDITIONAL_EXCLUDE=PeanutButter.WindowsServiceManagement.Core.Tests run-s \"zarro-core test-dotnet\"",
+    "test": "cross-env DOTNET_CORE=1 TEST_ADDITIONAL_EXCLUDE=PeanutButter.WindowsServiceManagement.Core.Tests zarro test-dotnet",
     "cover": "zarro cover-dotnet",
     "postcover": "run-s generate-reports",
     "generate-reports": "cross-env COVERAGE_INCLUDE=*,PeanutButter.* COVERAGE_EXCLUDE_ASSEMBLIES=PeanutButter.RandomGenerators.Core.Tests.Domain COVERAGE_ADDITIONAL_EXCLUDE=GenericBuilderTestLoadLoadedAssemblyObject,GenericBuilderTestNotLoadedAssembly zarro generate-reports",
-    "build": "zarro @",
+    "build": "DOTNET_CORE=1 zarro @",
     "build-release": "cross-env BUILD_CONFIGURATION=Release zarro build",
-    "zarro-core": "cross-env DOTNET_CORE=1 zarro",
     "zarro": "zarro",
     "release": "run-s test \"zarro release\"",
     "quick-release": "zarro release",
@@ -23,7 +22,6 @@
     "list-project-assemblies": "zarro @",
     "build-nuget-packages": "zarro @",
     "test-zarro": "zarro test-zarro",
-    "echo": "echo this is an npm script",
     "experiment": "zarro @"
   },
   "devDependencies": {

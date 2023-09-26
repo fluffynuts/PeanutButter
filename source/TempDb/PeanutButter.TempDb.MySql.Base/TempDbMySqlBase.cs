@@ -136,7 +136,8 @@ namespace PeanutButter.TempDb.MySql.Base
         public bool RootPasswordSet { get; private set; }
 
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly SemaphoreSlim MysqldLock = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim MysqldLock = new(1, 1);
+        private static readonly SemaphoreSlim InstanceLock = new(1, 1);
 
         // ReSharper disable once StaticMemberInGenericType
         private static string _mysqld;
@@ -263,10 +264,10 @@ namespace PeanutButter.TempDb.MySql.Base
             DisposeManagedConnections();
             Stop();
             var baseDir = Path.GetDirectoryName(DatabasePath);
-            var target = toNewFolder ?? GenerateTemplatePath();
+            var result = toNewFolder ?? GenerateTemplatePath();
             var fs = new LocalFileSystem(baseDir);
-            fs.Copy(DatabasePath, target);
-            var result = Path.Combine(baseDir!, target);
+            EnsureFolderDoesNotExist(result);
+            fs.Copy(DatabasePath, result);
             foreach (var f in DeleteDataFilesOnSnapshot)
             {
                 var toDelete = Path.Combine(result, "data", f);
@@ -342,52 +343,55 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             MySqlVersion = QueryVersionOf(MySqld);
             Log($"mysql is version: {MySqlVersion}");
-            if (IsMySql8())
+            using (var _ = new AutoLocker(InstanceLock))
             {
-                RemoveDeprecatedOptions();
+                if (IsMySql8())
+                {
+                    RemoveDeprecatedOptions();
+                }
+
+                if (FolderExists(Settings?.Options?.TemplateDatabasePath))
+                {
+                    RootPasswordSet = true; // prior snapshot should have set the root password
+                    var container = Path.GetDirectoryName(Settings!.Options!.TemplateDatabasePath);
+                    EnsureFolderDoesNotExist(DatabasePath);
+                    var fs = new LocalFileSystem(
+                        container
+                    );
+                    var src = Path.GetFileName(Settings!.Options!.TemplateDatabasePath);
+                    fs.Copy(src, DatabasePath);
+
+                    Log($"Re-using data at {DatabasePath}");
+                }
+                else
+                {
+                    Log("create initial database");
+                    _startAttempts = 0;
+                    EnsureIsRemoved(DatabasePath);
+
+                    // mysql 5.7 wants an empty data base dir, so we have to use
+                    // a temp defaults file for init only, which 8 seems to be ok with
+                    using var tempFolder = new AutoTempFolder(
+                        Environment.GetEnvironmentVariable("TEMPDB_BASE_PATH")
+                    );
+                    Log($"temp folder created at {tempFolder}");
+                    Log($"dumping defaults in temp folder {tempFolder.Path} for initialization");
+                    DumpDefaultsFileAt(tempFolder.Path);
+                    InitializeWith(MySqld, Path.Combine(tempFolder.Path, "my.cnf"));
+                }
+
+                RedirectDebugLogging();
+
+                // now we need the real config file, sitting in the db dir
+                Log($"dumping run-time defaults file into {DatabasePath}");
+                DumpDefaultsFileAt(DatabasePath);
+                ConfigFilePath = Path.Combine(DatabasePath, MYSQL_CONFIG_FILE);
+                Port = DeterminePortToUse();
+                StartServer(MySqld, assimilate: true);
+                SetRootPassword();
+                CreateInitialSchema();
+                SetUpAutoDisposeIfRequired();
             }
-
-            if (FolderExists(Settings?.Options?.TemplateDatabasePath))
-            {
-                RootPasswordSet = true; // prior snapshot should have set the root password
-                var container = Path.GetDirectoryName(Settings!.Options!.TemplateDatabasePath);
-                EnsureFolderDoesNotExist(DatabasePath);
-                var fs = new LocalFileSystem(
-                    container
-                );
-                var src = Path.GetFileName(Settings!.Options!.TemplateDatabasePath);
-                fs.Copy(src, DatabasePath);
-
-                Log($"Re-using data at {DatabasePath}");
-            }
-            else
-            {
-                Log("create initial database");
-                _startAttempts = 0;
-                EnsureIsRemoved(DatabasePath);
-
-                // mysql 5.7 wants an empty data base dir, so we have to use
-                // a temp defaults file for init only, which 8 seems to be ok with
-                using var tempFolder = new AutoTempFolder(
-                    Environment.GetEnvironmentVariable("TEMPDB_BASE_PATH")
-                );
-                Log($"temp folder created at {tempFolder}");
-                Log($"dumping defaults in temp folder {tempFolder.Path} for initialization");
-                DumpDefaultsFileAt(tempFolder.Path);
-                InitializeWith(MySqld, Path.Combine(tempFolder.Path, "my.cnf"));
-            }
-
-            RedirectDebugLogging();
-
-            // now we need the real config file, sitting in the db dir
-            Log($"dumping run-time defaults file into {DatabasePath}");
-            DumpDefaultsFileAt(DatabasePath);
-            ConfigFilePath = Path.Combine(DatabasePath, MYSQL_CONFIG_FILE);
-            Port = DeterminePortToUse();
-            StartServer(MySqld, assimilate: true);
-            SetRootPassword();
-            CreateInitialSchema();
-            SetUpAutoDisposeIfRequired();
         }
 
 
@@ -409,6 +413,7 @@ namespace PeanutButter.TempDb.MySql.Base
                     // not, it doesn't matter
                     File.Delete(_debugLogFile);
                 }
+
                 var targetFolder = Path.GetDirectoryName(_debugLogFile);
                 if (!Directory.Exists(targetFolder))
                 {
@@ -648,7 +653,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             try
             {
-                using (new AutoLocker(_disposalLock))
+                using (new AutoLocker(InstanceLock))
                 {
                     if (_disposed)
                     {
@@ -658,7 +663,16 @@ namespace PeanutButter.TempDb.MySql.Base
                     _disposed = true;
                 }
 
-                Stop();
+                try
+                {
+                    Stop();
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(
+                        $"Unable to properly stop mysqld: {ex.Message}"
+                    );
+                }
 
                 base.Dispose();
                 _autoDeleter?.Dispose();
@@ -672,25 +686,24 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private void Stop()
         {
-            StopWatcher();
-            AttemptGracefulShutdown();
-            ForceEndServerProcess();
+            using (new AutoLocker(InstanceLock))
+            {
+                StopWatcher();
+                AttemptGracefulShutdown();
+                ForceEndServerProcess();
+            }
         }
 
         private void StopWatcher()
         {
-            using (new AutoLocker(_disposalLock))
-            {
-                _running = false;
-            }
-
+            _running = false;
             _processWatcherThread?.Join();
             _processWatcherThread = null;
         }
 
         private void ForceEndServerProcess()
         {
-            using (new AutoLocker(MysqldLock))
+            try
             {
                 var proc = _serverProcess;
                 _serverProcess = null;
@@ -718,6 +731,11 @@ namespace PeanutButter.TempDb.MySql.Base
                     throw new Exception($"MySql process {proc.ProcessId} has not shut down!");
                 }
             }
+            catch (Exception ex)
+            {
+                var foo = ex;
+                throw;
+            }
         }
 
         private void AttemptGracefulShutdown()
@@ -737,9 +755,9 @@ namespace PeanutButter.TempDb.MySql.Base
                 KillAllActiveConnections();
                 Execute("SHUTDOWN");
                 var timeout = DateTime.Now.AddSeconds(5);
-                while (DateTime.Now > timeout)
+                while (DateTime.Now < timeout)
                 {
-                    if (_serverProcess?.HasExited ?? true)
+                    if (!IsRunning)
                     {
                         return;
                     }
@@ -873,6 +891,27 @@ namespace PeanutButter.TempDb.MySql.Base
             }
         }
 
+        public bool IsRunning
+        {
+            get
+            {
+                var proc = _serverProcess;
+                if (proc is null)
+                {
+                    return false;
+                }
+
+                try
+                {
+                    return !proc.HasExited;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
         public void Restart()
         {
             if (_disposed)
@@ -881,7 +920,11 @@ namespace PeanutButter.TempDb.MySql.Base
             }
 
             Stop();
-            StartServer(MySqld);
+            // ReSharper disable once ConvertToUsingDeclaration
+            using (var _ = new AutoLocker(InstanceLock))
+            {
+                StartServer(MySqld);
+            }
         }
 
         public string DataDir =>
@@ -894,7 +937,6 @@ namespace PeanutButter.TempDb.MySql.Base
         private string _dataDir;
 
         private Thread _processWatcherThread;
-        private readonly SemaphoreSlim _disposalLock = new(1, 1);
 
         private void StartProcessWatcher()
         {
@@ -910,16 +952,8 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             while (_running)
             {
-                using (new AutoLocker(_disposalLock))
-                {
-                    if (!_running)
-                    {
-                        // we're outta here
-                        break;
-                    }
-                }
-
-                if (ServerProcessId == null)
+                var serverProcessId = ServerProcessId;
+                if (serverProcessId is null)
                 {
                     // undefined state -- possibly never was started
                     break;
@@ -929,7 +963,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 try
                 {
                     var process = Process.GetProcessById(
-                        ServerProcessId.Value
+                        serverProcessId.Value
                     );
                     shouldResurrect = process.HasExited;
                 }
@@ -939,7 +973,8 @@ namespace PeanutButter.TempDb.MySql.Base
                     shouldResurrect = true;
                 }
 
-                if (shouldResurrect && _running)
+                var stillRunning = _running;
+                if (shouldResurrect && stillRunning)
                 {
                     Log($"{MySqld} seems to have gone away; restarting on port {Port}");
                     StartServer(MySqld);
@@ -1123,7 +1158,7 @@ stderr: {stderr}"
                     }
 
                     Log($"Unable to connect ({ex.Message}). Will continue to try until {cutoff}");
-                    Thread.Sleep(500);
+                    Thread.Sleep(100);
                 }
             }
 
