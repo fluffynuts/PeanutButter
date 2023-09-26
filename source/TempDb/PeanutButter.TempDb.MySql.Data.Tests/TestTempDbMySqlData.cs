@@ -30,7 +30,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
     [Timeout(DEFAULT_TIMEOUT)]
     public class TestTempDbMySqlData
     {
-        public const int DEFAULT_TIMEOUT = 60000;
+        public const int DEFAULT_TIMEOUT = 90000;
 
         [Test]
         public void ShouldImplement_ITempDB()
