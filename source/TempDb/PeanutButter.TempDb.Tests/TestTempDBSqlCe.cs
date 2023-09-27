@@ -4,8 +4,10 @@ using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.TempDb.SqlCe;
-using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
+using static NExpect.Expectations;
+using NExpect;
+// ReSharper disable AccessToDisposedClosure
 // ReSharper disable InconsistentNaming
 
 namespace PeanutButter.TempDb.Tests
@@ -17,168 +19,193 @@ namespace PeanutButter.TempDb.Tests
         public void ShouldImplementIDisposable()
         {
             //---------------Set up test pack-------------------
-
+            var sut = typeof(TempDBSqlCe);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            typeof(TempDBSqlCe).ShouldImplement<IDisposable>();
+            Expect(sut)
+                .To.Implement<IDisposable>();
 
             //---------------Test Result -----------------------
         }
 
-        [Test]
-        public void Construct_ShouldCreateTemporarySqlCeDatabase()
+        public abstract class BehaviorTests
         {
-            //---------------Set up test pack-------------------
-            using (var db = new TempDBSqlCe())
+            [OneTimeSetUp]
+            public void OneTimeSetup()
             {
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-
-                //---------------Test Result -----------------------
-                Assert.IsTrue(File.Exists(db.DatabasePath));
-                using (var conn = new SqlCeConnection(db.ConnectionString))
+                if (!Platform.IsWindows)
                 {
-                    Assert.DoesNotThrow(conn.Open);
+                    Assert.Ignore(
+                        "SQLCE tests will only work on windows"
+                    );
                 }
             }
         }
 
-        [Test]
-        public void Dispose_ShouldRemoveTheTempDatabase()
+        [TestFixture]
+        public class Construction : BehaviorTests
         {
-            //---------------Set up test pack-------------------
-            string file;
-            using (var db = new TempDBSqlCe())
+            [Test]
+            public void ShouldCreateTemporarySqlCeDatabase()
             {
+                //---------------Set up test pack-------------------
+                using var db = new TempDBSqlCe();
                 //---------------Assert Precondition----------------
-                var conn = db.OpenConnection();
-                var cmd = conn.CreateCommand();
-                cmd.CommandText = "create table [test] ([id] int primary key identity, [name] nvarchar(128));";
-                cmd.ExecuteNonQuery();
-                cmd = conn.CreateCommand();
-                cmd.CommandText = "insert into [test] ([name]) values ('the name');";
-                cmd.ExecuteNonQuery();
-                cmd = conn.CreateCommand();
-                cmd.CommandText = "select * from [test];";
-                cmd.ExecuteReader();
-                file = db.DatabasePath;
-                Assert.IsTrue(File.Exists(file));
 
                 //---------------Execute Test ----------------------
 
                 //---------------Test Result -----------------------
+                Expect(db.DatabasePath)
+                    .To.Exist();
+                
+                using var conn = new SqlCeConnection(db.ConnectionString);
+                Expect(() => conn.Open())
+                    .Not.To.Throw();
             }
-            Assert.IsFalse(File.Exists(file));
-        }
 
-        [Test]
-        public void Construct_ShouldRunGivenScriptsOnDatabase()
-        {
-            var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
-            var insertData = "insert into TheTable(id, name) values (1, 'one');";
-            var selectData = "select name from TheTable where id = 1;";
-            using (var db = new TempDBSqlCe(createTable, insertData))
+            [Test]
+            public void ShouldRunGivenScriptsOnDatabase()
             {
                 //---------------Set up test pack-------------------
+                var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
+                var insertData = "insert into TheTable(id, name) values (1, 'one');";
+                var selectData = "select name from TheTable where id = 1;";
+                using var db = new TempDBSqlCe(createTable, insertData);
 
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                using (var conn = new SqlCeConnection(db.ConnectionString))
+                using var conn = new SqlCeConnection(db.ConnectionString);
+                conn.Open();
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = selectData;
+                using var rdr = cmd.ExecuteReader();
+
+                //---------------Test Result -----------------------
+                Expect(rdr.Read())
+                    .To.Be.True();
+                Expect(rdr["name"].ToString())
+                    .To.Equal("one");
+            }
+        }
+
+        [TestFixture]
+        public class Disposal : BehaviorTests
+        {
+            [Test]
+            public void ShouldRemoveTheTempDatabase()
+            {
+                //---------------Set up test pack-------------------
+                string file;
+                using (var db = new TempDBSqlCe())
                 {
-                    conn.Open();
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        cmd.CommandText = selectData;
-                        using (var rdr = cmd.ExecuteReader())
-                        {
-                            Assert.IsTrue(rdr.Read());
-                            Assert.AreEqual("one", rdr["name"].ToString());
-                        }
-                    }
+                    //---------------Assert Precondition----------------
+                    var conn = db.OpenConnection();
+                    var cmd = conn.CreateCommand();
+                    cmd.CommandText = "create table [test] ([id] int primary key identity, [name] nvarchar(128));";
+                    cmd.ExecuteNonQuery();
+                    cmd = conn.CreateCommand();
+                    cmd.CommandText = "insert into [test] ([name]) values ('the name');";
+                    cmd.ExecuteNonQuery();
+                    cmd = conn.CreateCommand();
+                    cmd.CommandText = "select * from [test];";
+                    cmd.ExecuteReader();
+                    file = db.DatabasePath;
+                    Assert.IsTrue(File.Exists(file));
+
+                    //---------------Execute Test ----------------------
+
+                    //---------------Test Result -----------------------
                 }
 
-                //---------------Test Result -----------------------
+                Expect(file)
+                    .Not.To.Exist();
             }
-        }
 
-        [Test]
-        public void GetConnection_ShouldReturnValidConnection()
-        {
-            var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
-            var insertData = "insert into TheTable(id, name) values (1, 'one');";
-            var selectData = "select name from TheTable where id = 1;";
-            using (var db = new TempDBSqlCe(createTable, insertData))
+            [Test]
+            public void ShouldCloseManagedConnectionsBeforeAttemptingToDeleteTheFile()
             {
-                //---------------Set up test pack-------------------
-
-                //---------------Assert Precondition----------------
-
-                //---------------Execute Test ----------------------
-                using (var conn = db.OpenConnection())
+                var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
+                var insertData = "insert into TheTable(id, name) values (1, 'one');";
+                var selectData = "select name from TheTable where id = 1;";
+                string theFile;
+                using (var db = new TempDBSqlCe(createTable, insertData))
                 {
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        cmd.CommandText = selectData;
-                        using (var rdr = cmd.ExecuteReader())
-                        {
-                            Assert.IsTrue(rdr.Read());
-                            Assert.AreEqual("one", rdr["name"].ToString());
-                        }
-                    }
-                }
+                    theFile = db.DatabasePath;
+                    Assert.IsTrue(File.Exists(theFile));
+                    //---------------Set up test pack-------------------
 
-                //---------------Test Result -----------------------
-            }
-        }
+                    //---------------Assert Precondition----------------
 
-        [Test]
-        public void Dispose_ShouldCloseManagedConnectionsBeforeAttemptingToDeleteTheFile()
-        {
-            var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
-            var insertData = "insert into TheTable(id, name) values (1, 'one');";
-            var selectData = "select name from TheTable where id = 1;";
-            string theFile;
-            using (var db = new TempDBSqlCe(createTable, insertData))
-            {
-                theFile = db.DatabasePath;
-                Assert.IsTrue(File.Exists(theFile));
-                //---------------Set up test pack-------------------
-
-                //---------------Assert Precondition----------------
-
-                var conn = db.OpenConnection();
-                using (var cmd = conn.CreateCommand())
-                {
+                    var conn = db.OpenConnection();
+                    using var cmd = conn.CreateCommand();
                     cmd.CommandText = selectData;
-                    using (var rdr = cmd.ExecuteReader())
-                    {
-                        Assert.IsTrue(rdr.Read());
-                        Assert.AreEqual("one", rdr["name"].ToString());
-                    }
+                    using var rdr = cmd.ExecuteReader();
+
+                    //---------------Execute Test ----------------------
+                    Expect(rdr.Read())
+                        .To.Be.True();
+                    Expect(rdr["name"].ToString())
+                        .To.Equal("one");
                 }
-                //---------------Execute Test ----------------------
+
+                //---------------Test Result -----------------------
+                Expect(theFile)
+                    .Not.To.Exist();
             }
-            //---------------Test Result -----------------------
-            Assert.IsFalse(File.Exists(theFile));
         }
 
-        [Test]
-        public void ShouldPlayNicelyInParallel()
+        [TestFixture]
+        public class GetConnection : BehaviorTests
         {
-            //---------------Set up test pack-------------------
-            using (var disposer = new AutoDisposer())
+            [Test]
+            public void ShouldReturnValidConnection()
             {
+                var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
+                var insertData = "insert into TheTable(id, name) values (1, 'one');";
+                var selectData = "select name from TheTable where id = 1;";
+                using var db = new TempDBSqlCe(createTable, insertData);
+                //---------------Set up test pack-------------------
+
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                Parallel.For(0, 100, i =>
+                using var conn = db.OpenConnection();
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = selectData;
+                using var rdr = cmd.ExecuteReader();
+
+
+                //---------------Test Result -----------------------
+                
+                Expect(rdr.Read())
+                    .To.Be.True();
+                Expect(rdr["name"].ToString())
+                    .To.Equal("one");
+            }
+        }
+
+        [TestFixture]
+        public class General : BehaviorTests
+        {
+            [Test]
+            public void ShouldPlayNicelyInParallel()
+            {
+                //---------------Set up test pack-------------------
+                using var disposer = new AutoDisposer();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                Parallel.For(
+                    0,
+                    100,
+                    i =>
                     {
                         // ReSharper disable once AccessToDisposedClosure
                         disposer.Add(new TempDBSqlCe());
-                    });
+                    }
+                );
 
                 //---------------Test Result -----------------------
             }

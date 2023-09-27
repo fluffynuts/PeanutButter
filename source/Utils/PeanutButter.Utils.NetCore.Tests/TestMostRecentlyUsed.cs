@@ -87,9 +87,13 @@ namespace PeanutButter.Utils.NetCore.Tests
                 var sut = Create<string>(5);
                 // Act
                 sut.Add("c");
+                Thread.Sleep(1);
                 sut.Add("a");
+                Thread.Sleep(1);
                 sut.Add("def");
+                Thread.Sleep(1);
                 sut.Add("123");
+                Thread.Sleep(1);
                 sut.Add("c");
                 var result = sut.ToArray();
                 // Assert
@@ -110,9 +114,13 @@ namespace PeanutButter.Utils.NetCore.Tests
                 var sut = Create<string>(3);
                 // Act
                 sut.Add("c");
+                Thread.Sleep(1);
                 sut.Add("a");
+                Thread.Sleep(1);
                 sut.Add("def");
+                Thread.Sleep(1);
                 sut.Add("123");
+                Thread.Sleep(1);
                 sut.Add("c");
                 var result = sut.ToArray();
                 // Assert

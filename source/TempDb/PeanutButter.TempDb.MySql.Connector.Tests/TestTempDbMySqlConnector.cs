@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -313,23 +314,18 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
             public void ShouldAutomaticallyDisposeAfterInactivityTimeoutHasExpired()
             {
                 // Arrange
-                using var db = Create(inactivityTimeout: TimeSpan.FromSeconds(2));
-                var disposed = false;
-                db.Disposed += (o, e) => disposed = true;
-                // Act
-                Expect(
-                    () =>
-                    {
-                        using var conn = db.OpenConnection();
-                    }
-                ).Not.To.Throw();
-                if (Debugger.IsAttached)
+                ITempDB db;
+                var disposed = new ConcurrentQueue<bool>();
+                using (db = Create(inactivityTimeout: TimeSpan.FromSeconds(2)))
                 {
-                    Thread.Sleep(300000);
-                }
-                else
-                {
-                    Thread.Sleep(3000);
+                    db.Disposed += (o, e) => disposed.Enqueue(true);
+                    // Act
+                    Expect(
+                        () =>
+                        {
+                            using var conn = db.OpenConnection();
+                        }
+                    ).Not.To.Throw();
                 }
 
                 Expect(
@@ -340,18 +336,51 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                     ).To.Throw<InvalidOperationException>()
                     .With.Message.Containing("not running");
                 // Assert
-                Expect(disposed)
-                    .To.Be.True();
+                Expect(disposed.ToArray())
+                    .To.Equal(
+                        new[]
+                        {
+                            true
+                        }
+                    );
+            }
+
+            private void WaitFor(
+                Func<bool> condition,
+                int maxWaitMs
+            )
+            {
+                WaitFor(
+                    condition,
+                    TimeSpan.FromMilliseconds(maxWaitMs)
+                );
+            }
+
+            private void WaitFor(
+                Func<bool> condition,
+                TimeSpan maxWait
+            )
+            {
+                var timeout = DateTime.Now + maxWait;
+                while (DateTime.Now < timeout)
+                {
+                    if (condition())
+                    {
+                        break;
+                    }
+
+                    Thread.Sleep(100);
+                }
             }
 
             [Test]
             public void ConnectionUseShouldExtendLifetime()
             {
                 // Arrange
-                var disposed = false;
+                var disposed = new ConcurrentQueue<bool>();
                 using (var db = Create(inactivityTimeout: TimeSpan.FromSeconds(1)))
                 {
-                    db.Disposed += (o, e) => disposed = true;
+                    db.Disposed += (o, e) => disposed.Enqueue(true);
                     // Act
                     for (var i = 0; i < 5; i++)
                     {
@@ -364,7 +393,8 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                         ).Not.To.Throw();
                     }
 
-                    Thread.Sleep(5000);
+                    WaitFor(() => disposed.Any(), 10000);
+
 
                     Expect(
                             () =>
@@ -376,8 +406,8 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                 }
 
                 // Assert
-                Expect(disposed)
-                    .To.Be.True();
+                Expect(disposed.ToArray())
+                    .To.Equal(new[] { true });
             }
 
             [Test]

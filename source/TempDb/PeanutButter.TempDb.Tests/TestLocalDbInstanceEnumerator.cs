@@ -2,6 +2,7 @@ using System;
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.TempDb.LocalDb;
+using PeanutButter.Utils;
 using static NExpect.Expectations;
 
 namespace PeanutButter.TempDb.Tests
@@ -9,6 +10,17 @@ namespace PeanutButter.TempDb.Tests
     [TestFixture]
     public class TestLocalDbInstanceEnumerator
     {
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            if (!Platform.IsWindows)
+            {
+                Assert.Ignore(
+                    $"{nameof(LocalDbInstanceEnumerator)} is only available on win32"
+                );
+            }
+        }
+
         [Test]
         public void InstanceFinder()
         {
@@ -23,7 +35,9 @@ namespace PeanutButter.TempDb.Tests
             //---------------Test Result -----------------------
             Console.WriteLine($"LocalDbInstanceFinder finds:\n{string.Join("\n", result)}");
             Expect(result)
-                .Not.To.Be.Empty(() =>"If this utility can't find a v-instance of localdb, other tests are going to cry");
+                .Not.To.Be.Empty(
+                    () => "If this utility can't find a v-instance of localdb, other tests are going to cry"
+                );
         }
 
         [Test]
@@ -41,7 +55,5 @@ namespace PeanutButter.TempDb.Tests
             //---------------Test Result -----------------------
             Expect(result).Not.To.Contain("MSSQLLocalDB");
         }
-
-
     }
 }

@@ -88,6 +88,11 @@ namespace PeanutButter.Utils
         string WorkingDirectory { get; }
 
         /// <summary>
+        /// Renders the commandline used to start this process
+        /// </summary>
+        string Commandline { get; }
+
+        /// <summary>
         /// Wait for the process to exit and return the exit code
         /// </summary>
         /// <returns></returns>
@@ -168,6 +173,11 @@ namespace PeanutButter.Utils
         public string WorkingDirectory { get; private set; }
 
         /// <inheritdoc />
+        public string Commandline => 
+            _commandline ??= RenderCommandline();
+        private string _commandline;
+
+        /// <inheritdoc />
         public int ProcessId
         {
             get
@@ -216,6 +226,11 @@ namespace PeanutButter.Utils
 
         private ProcessIO()
         {
+        }
+
+        private string RenderCommandline()
+        {
+            return $"{QuoteIfNecessary(Filename)} {Arguments.Select(QuoteIfNecessary).JoinWith(" ")}";
         }
 
         /// <summary>
@@ -538,7 +553,14 @@ namespace PeanutButter.Utils
                     yield break;
                 }
 
-                available.Wait();
+                while (!HasExited)
+                {
+                    if (available.Wait(1000))
+                    {
+                        break;
+                    }
+                }
+
                 available.Reset();
 
                 foreach (var line in ReadFromOffset(data, lineCount))
@@ -549,6 +571,7 @@ namespace PeanutButter.Utils
 
                 if (HasExited)
                 {
+                    // drain anything left and break out
                     foreach (var line in ReadFromOffset(data, lineCount))
                     {
                         lineCount++;

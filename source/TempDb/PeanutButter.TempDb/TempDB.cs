@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using PeanutButter.Utils;
 
 // ReSharper disable PossibleMultipleEnumeration
@@ -82,6 +83,51 @@ namespace PeanutButter.TempDb
         void DisposeManagedConnections();
     }
 
+    public static class TempDbTracker
+    {
+        private static readonly List<ITempDB> _tracked = new();
+
+        internal static void Track(ITempDB db)
+        {
+            lock (_tracked)
+            {
+                _tracked.Add(db);
+            }
+        }
+
+        public static void Forget(ITempDB db)
+        {
+            lock (_tracked)
+            {
+                _tracked.Remove(db);
+            }
+        }
+
+        public static void DestroyAll()
+        {
+            ITempDB[] toDestroy;
+            lock (_tracked)
+            {
+                toDestroy = _tracked.ToArray();
+            }
+
+            foreach (var db in toDestroy)
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        db.Dispose();
+                    }
+                    catch
+                    {
+                        // suppress
+                    }
+                });
+            }
+        }
+    }
+
     public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConnection : DbConnection
     {
         public uint DefaultTimeout { get; set; } = 30;
@@ -116,14 +162,14 @@ namespace PeanutButter.TempDb
 
         public Action<string> LogAction { get; set; }
 
-        public TempDB(params string[] creationScripts)
+        public TempDB(params string[] creationScripts): this(null, creationScripts)
         {
-            Init(creationScripts);
         }
 
         public TempDB(Action<object> beforeInit, params string[] creationScripts)
         {
-            beforeInit(this);
+            TempDbTracker.Track(this);
+            beforeInit?.Invoke(this);
             Init(creationScripts);
         }
 
@@ -405,7 +451,7 @@ namespace PeanutButter.TempDb
             }
         }
 
-        private readonly object _disposeLock = new object();
+        private readonly object _disposeLock = new();
 
         public virtual void Dispose()
         {
@@ -415,6 +461,7 @@ namespace PeanutButter.TempDb
                 {
                     return;
                 }
+                TempDbTracker.Forget(this);
 
                 _disposed = true;
             }

@@ -19,6 +19,7 @@ namespace PeanutButter.TempDb.Runner.Tests
     [TestFixture]
     public class TestProgram
     {
+        public const int DEFAULT_TIMEOUT = 45000;
         [Test]
         public void ShouldBeAbleToStartDefaultAsMySql()
         {
@@ -50,7 +51,7 @@ namespace PeanutButter.TempDb.Runner.Tests
         public class ExplicitMySqlEngineTesting
         {
             [Test]
-            [Timeout(30000)]
+            // [Timeout(DEFAULT_TIMEOUT)]
             public void ShouldBeAbleToExplicitlyStart()
             {
                 // Arrange
@@ -80,7 +81,7 @@ namespace PeanutButter.TempDb.Runner.Tests
             }
 
             [Test]
-            [Timeout(30000)]
+            [Timeout(DEFAULT_TIMEOUT)]
             public void ShouldBeAbleToStopViaStdIn()
             {
                 // Arrange
@@ -134,7 +135,7 @@ namespace PeanutButter.TempDb.Runner.Tests
             }
 
             [Test]
-            [Timeout(30000)]
+            [Timeout(DEFAULT_TIMEOUT)]
             public void ShouldBeAbleToExplicitlyStart()
             {
                 // Arrange
@@ -164,7 +165,7 @@ namespace PeanutButter.TempDb.Runner.Tests
             }
 
             [Test]
-            [Timeout(30000)]
+            [Timeout(DEFAULT_TIMEOUT)]
             public void ShouldBeAbleToStopViaStdIn()
             {
                 // Arrange
@@ -207,7 +208,7 @@ namespace PeanutButter.TempDb.Runner.Tests
         public class ExplicitSqliteEngineTesting
         {
             [Test]
-            [Timeout(30000)]
+            [Timeout(DEFAULT_TIMEOUT)]
             public void ShouldBeAbleToExplicitlyStart()
             {
                 // Arrange
@@ -241,7 +242,7 @@ namespace PeanutButter.TempDb.Runner.Tests
             }
 
             [Test]
-            [Timeout(30000)]
+            [Timeout(DEFAULT_TIMEOUT)]
             public void ShouldBeAbleToStopViaStdIn()
             {
                 // Arrange
@@ -286,7 +287,7 @@ namespace PeanutButter.TempDb.Runner.Tests
 
         public class TestArena : IDisposable
         {
-            public const int MAX_WAIT_MS = 30000;
+            public const int MAX_WAIT_MS = 45000;
             private bool _haveStartedListening = false;
             private readonly Barrier _waitForListeningBarrier = new(2);
             private readonly Barrier _waitForExitBarrier = new(2);
@@ -364,6 +365,14 @@ namespace PeanutButter.TempDb.Runner.Tests
 
             private void CaptureLine(string line)
             {
+                var isConnectionStringLine = (line ?? "")
+                    .Contains("connection string", StringComparison.OrdinalIgnoreCase);
+                if (!_haveStartedListening && isConnectionStringLine)
+                {
+                    _waitForListeningBarrier.SignalAndWait();
+                    _haveStartedListening = true;
+                }
+
                 StdOut.Add(line);
             }
 

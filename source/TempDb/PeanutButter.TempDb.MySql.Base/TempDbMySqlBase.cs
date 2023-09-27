@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
@@ -26,6 +27,9 @@ namespace PeanutButter.TempDb.MySql.Base
     /// </summary>
     public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     {
+        public string ServerCommandline =>
+            _serverProcess?.Commandline;
+
         // ReSharper disable once StaticMemberInGenericType
         /// <summary>
         /// The maximum amount of time to wait for a mysqld process to be
@@ -66,8 +70,19 @@ namespace PeanutButter.TempDb.MySql.Base
 
         public const int PROCESS_POLL_INTERVAL = 100;
 
-        public bool VerboseLoggingEnabled =>
-            DetermineIfVerboseLoggingShouldBeEnabled();
+        public bool VerboseLoggingEnabled
+        {
+            get
+            {
+                return _verboseLoggingEnabled ??= DetermineIfVerboseLoggingShouldBeEnabled();
+            }
+            set
+            {
+                _verboseLoggingEnabled = value;
+            }
+        }
+
+        private bool? _verboseLoggingEnabled;
 
         private string[] VerboseLoggingCommandLineArgs =>
             VerboseLoggingEnabled
@@ -142,7 +157,55 @@ namespace PeanutButter.TempDb.MySql.Base
         // ReSharper disable once StaticMemberInGenericType
         private static string _mysqld;
 
-        public Guid InstanceId { get; } = Guid.NewGuid();
+        public Guid InstanceId =>
+            TryDetermineInstanceId();
+
+        private Guid TryDetermineInstanceId()
+        {
+            return ParseFirstGuidFromPath(DatabasePath);
+        }
+
+        private Guid ParseFirstGuidFromPath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return Guid.Empty;
+            }
+
+            return InstanceIdCache.FindOrAdd(
+                path,
+                () =>
+                {
+                    var parts = path.Split(
+                        new[]
+                        {
+                            "\\",
+                            "/"
+                        },
+                        StringSplitOptions.RemoveEmptyEntries
+                    );
+                    foreach (var part in parts)
+                    {
+                        var match = GuidMatcher.Match(part);
+                        if (match.Success)
+                        {
+                            return Guid.Parse(match.Groups["guid"].Value);
+                        }
+                    }
+
+                    throw new Exception(
+                        $"Expected DatabasePath '{DatabasePath}' to contain a guid, somewhere."
+                    );
+                }
+            );
+        }
+
+        private static ConcurrentDictionary<string, Guid> InstanceIdCache = new();
+
+        private static readonly Regex GuidMatcher = new(
+            "(?<guid>[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})"
+        );
+
         private int _conflictingPortRetries = 0;
 
 #if NETSTANDARD
@@ -261,6 +324,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         public string Snapshot(string toNewFolder)
         {
+            SetDbInstanceId("");
             DisposeManagedConnections();
             Stop();
             var baseDir = Path.GetDirectoryName(DatabasePath);
@@ -277,7 +341,9 @@ namespace PeanutButter.TempDb.MySql.Base
                 }
             }
 
-            StartServer(MySqld);
+            // restarting the server after having wiped the instance
+            // id should cause the instance id to be automagically rewritten
+            StartServer(MySqld, null);
             return result;
         }
 
@@ -285,7 +351,14 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             return Path.Combine(
                 Path.GetDirectoryName(DatabasePath)!,
-                $"template-{Guid.NewGuid()}.db"
+                $"template-{InstanceId}-{CurrentTimestamp()}.db"
+            );
+        }
+
+        private string CurrentTimestamp()
+        {
+            return DateTime.Now.ToString(
+                "yyyyMMddHHmmssfff"
             );
         }
 
@@ -350,6 +423,7 @@ namespace PeanutButter.TempDb.MySql.Base
                     RemoveDeprecatedOptions();
                 }
 
+                Guid? assimilatedInstanceId = null;
                 if (FolderExists(Settings?.Options?.TemplateDatabasePath))
                 {
                     RootPasswordSet = true; // prior snapshot should have set the root password
@@ -387,7 +461,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 DumpDefaultsFileAt(DatabasePath);
                 ConfigFilePath = Path.Combine(DatabasePath, MYSQL_CONFIG_FILE);
                 Port = DeterminePortToUse();
-                StartServer(MySqld, assimilate: true);
+                StartServer(MySqld, assimilatedInstanceId);
                 SetRootPassword();
                 CreateInitialSchema();
                 SetUpAutoDisposeIfRequired();
@@ -688,10 +762,15 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             using (new AutoLocker(InstanceLock))
             {
-                StopWatcher();
-                AttemptGracefulShutdown();
-                ForceEndServerProcess();
+                StopUnlocked();
             }
+        }
+
+        private void StopUnlocked()
+        {
+            StopWatcher();
+            AttemptGracefulShutdown();
+            ForceEndServerProcess();
         }
 
         private void StopWatcher()
@@ -815,9 +894,21 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private int _startAttempts;
 
-        private void StartServer(string mysqld, bool assimilate = false)
+        private void PauseWatcher()
         {
-            StopWatcher();
+            _watcherPaused = true;
+        }
+
+        private void ResumeWatcher()
+        {
+            _watcherPaused = false;
+        }
+
+        private bool _watcherPaused = false;
+
+        private void StartServer(string mysqld, Guid? assimilatedInstanceId)
+        {
+            PauseWatcher();
             var args = new[]
             {
                 $"\"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}\"",
@@ -846,37 +937,38 @@ namespace PeanutButter.TempDb.MySql.Base
             );
             try
             {
-                try
+                TestIsRunning(assimilatedInstanceId);
+                Log("MySql appears to be up an running! Setting up an auto-restarter in case it falls over.");
+                if (_running)
                 {
-                    TestIsRunning(assimilate);
+                    ResumeWatcher();
                 }
-                catch (FatalTempDbInitializationException ex)
+                else
                 {
-                    Log($"Fatal TempDb init exception: {ex.Message}");
-                    // I've seen the mysqld process simply exit early
-                    // (5.7, win32) without anything interesting in the
-                    // error log; so let's just give this a few attempts
-                    // before giving up completely
-                    if (++_startAttempts >= MaxStartupAttempts)
-                    {
-                        Log($"Giving up: have tried {_startAttempts} and limit is {MaxStartupAttempts}");
-                        throw;
-                    }
-
-                    Log("MySql appears to not start up properly; retrying...");
-                    Retry();
-                    return;
+                    StartProcessWatcher();
                 }
             }
             catch (TryAnotherPortException)
             {
                 Log($"Looks like a port conflict at {Port}. Will try another port.");
                 Retry();
-                return;
             }
+            catch (FatalTempDbInitializationException ex)
+            {
+                Log($"Fatal TempDb init exception: {ex.Message}");
+                // I've seen the mysqld process simply exit early
+                // (5.7, win32) without anything interesting in the
+                // error log; so let's just give this a few attempts
+                // before giving up completely
+                if (++_startAttempts >= MaxStartupAttempts)
+                {
+                    Log($"Giving up: have tried {_startAttempts} and limit is {MaxStartupAttempts}");
+                    throw;
+                }
 
-            Log("MySql appears to be up an running! Setting up an auto-restarter in case it falls over.");
-            StartProcessWatcher();
+                Log("MySql appears to not start up properly; retrying...");
+                Retry();
+            }
 
             void Retry()
             {
@@ -887,7 +979,8 @@ namespace PeanutButter.TempDb.MySql.Base
                 }
 
                 Port = DeterminePortToUse();
-                StartServer(mysqld);
+                ForceEndServerProcess();
+                StartServer(mysqld, assimilatedInstanceId);
             }
         }
 
@@ -923,7 +1016,7 @@ namespace PeanutButter.TempDb.MySql.Base
             // ReSharper disable once ConvertToUsingDeclaration
             using (var _ = new AutoLocker(InstanceLock))
             {
-                StartServer(MySqld);
+                StartServer(MySqld, null);
             }
         }
 
@@ -940,7 +1033,10 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private void StartProcessWatcher()
         {
+            _watcherPaused = false;
             _running = true;
+            _processWatcherThread?.Abort();
+            _processWatcherThread?.Join();
             _processWatcherThread = new Thread(ObserveMySqlProcess);
             _processWatcherThread.Start();
         }
@@ -952,10 +1048,21 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             while (_running)
             {
+                Thread.Sleep(PROCESS_POLL_INTERVAL);
+                if (_watcherPaused)
+                {
+                    continue;
+                }
+
                 var serverProcessId = ServerProcessId;
                 if (serverProcessId is null)
                 {
                     // undefined state -- possibly never was started
+                    if (_watcherPaused)
+                    {
+                        continue; // coming back later perhaps?
+                    }
+
                     break;
                 }
 
@@ -973,15 +1080,15 @@ namespace PeanutButter.TempDb.MySql.Base
                     shouldResurrect = true;
                 }
 
-                var stillRunning = _running;
-                if (shouldResurrect && stillRunning)
+                var shouldBeRunning = _running && !_watcherPaused;
+                if (shouldResurrect && shouldBeRunning)
                 {
                     Log($"{MySqld} seems to have gone away; restarting on port {Port}");
-                    StartServer(MySqld);
+                    StartServer(MySqld, null);
                 }
-
-                Thread.Sleep(PROCESS_POLL_INTERVAL);
             }
+
+            Log("Watcher thread exiting");
         }
 
         private string BaseDirOf(string mysqld)
@@ -1001,68 +1108,158 @@ namespace PeanutButter.TempDb.MySql.Base
             return base.OpenConnection();
         }
 
-        protected virtual bool IsMyInstance()
+        protected virtual bool IsMyInstance(Guid? assimilatedInstanceId)
         {
-            // FIXME: should test if there are other instances here
-            using var conn = base.OpenConnection();
-            using var cmd = conn.CreateCommand();
-            // first, check if the id is in there already (restart)
-            cmd.CommandText =
-                $"select count(*) from sys.sys_config where `variable` = '__tempdb_id__' and `value` = '{InstanceId}';";
-            using (var reader = cmd.ExecuteReader())
+            var existingId = FetchDbInstanceId();
+            if (string.IsNullOrWhiteSpace(existingId))
             {
-                if (reader.Read() && int.TryParse(reader[0]?.ToString(), out var rows) && rows == 1)
+                TrySetDbInstanceId(InstanceId, assimilatedInstanceId);
+                return true;
+            }
+
+            if (Guid.TryParse(existingId, out var guid))
+            {
+                return guid == InstanceId;
+            }
+
+            throw new InvalidOperationException(
+                "Value stored in instance-id.txt file is not a guid"
+            );
+        }
+
+        private void TrySetDbInstanceId(Guid newId, Guid? assimilatedInstanceId)
+        {
+            TrySetDbInstanceId(
+                $"{newId}",
+                assimilatedInstanceId.HasValue
+                    ? $"{assimilatedInstanceId}"
+                    : null
+            );
+        }
+
+        private void TrySetDbInstanceId(string newId, string assimilatedId)
+        {
+            if (newId is null)
+            {
+                throw new ArgumentException(
+                    "Database instance id cannot be null"
+                );
+            }
+
+            var existingId = FetchDbInstanceId();
+            if (!string.IsNullOrWhiteSpace(existingId))
+            {
+                if (existingId == newId)
                 {
-                    return true;
+                    // already stored the correct id
+                    return;
+                }
+
+
+                // if we're assimilating, we can simply overwrite the id
+                if (existingId != assimilatedId)
+                {
+                    throw new InvalidOperationException(
+                        $"Database is already assigned instance id: {existingId}"
+                    );
                 }
             }
 
-            cmd.CommandText = @$"insert into sys.sys_config (variable, value, set_by) 
-values ('__tempdb_id__', '{InstanceId}', 'root');";
-            try
+            SetDbInstanceId(newId);
+        }
+
+        private void SetDbInstanceId(string newId)
+        {
+            newId = newId.Replace("'", "''");
+
+            using var conn = base.OpenConnection();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = $@"
+use sys;
+insert into sys.sys_config (`variable`, `value`, `set_by`)
+values ('__tempdb_id__', '{newId}', 'root')
+on duplicate key update `value` = '{newId}';
+    ";
+            cmd.ExecuteNonQuery();
+            using var cmd2 = conn.CreateCommand();
+            cmd2.CommandText = "FLUSH TABLES;";
+            cmd2.ExecuteNonQuery();
+            var timeout = DateTime.Now.AddSeconds(5);
+            while (FetchDbInstanceId() != newId && DateTime.Now < timeout)
             {
                 cmd.ExecuteNonQuery();
-                return true;
+                Thread.Sleep(250);
             }
-            catch (Exception)
+
+            var currentId = FetchDbInstanceId();
+            if (currentId != newId)
             {
-                return false;
+                throw new InvalidOperationException(
+                    $"Unable to set new instance id '{newId}' - id '{currentId}' is retained."
+                );
             }
         }
 
-        private void TestIsRunning(bool assimilate)
+        private string FetchDbInstanceId()
+        {
+            using var conn = base.OpenConnection();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @$"
+use sys;
+select `value` 
+from sys.sys_config 
+where `variable` = '__tempdb_id__';";
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read())
+            {
+                return null;
+            }
+
+            return $"{reader["value"]}";
+        }
+
+        private void TestIsRunning(Guid? assimilatedInstanceId)
         {
             Log("testing to see if mysqld is running");
             var maxTime = DateTime.Now.AddSeconds(MaxSecondsToWaitForMySqlToStart);
             do
             {
-                if (_serverProcess.HasExited)
+                if (_serverProcess is null || _serverProcess.HasExited)
                 {
-                    Log("Server process has exited");
-                    break;
+                    throw new TryAnotherPortException(
+                        "Server process not running - perhaps shut down of own accord? Will try a different port."
+                    );
                 }
 
                 Log($"Server process is running as {_serverProcess.ProcessId}");
 
                 if (CanConnect())
                 {
-                    var assimilated = assimilate;
-                    if (assimilate)
+                    var isAssimilated = assimilatedInstanceId is not null;
+                    if (isAssimilated)
                     {
-                        using var conn = base.OpenConnection();
-                        using var cmd = conn.CreateCommand();
-                        cmd.CommandText =
-                            @$"update sys.sys_config set value = '{InstanceId}' where variable = '__tempdb_id__'";
-                        assimilated = cmd.ExecuteNonQuery() > 0;
-                        if (assimilated)
+                        var currentId = FetchDbInstanceId();
+                        if (currentId == $"{InstanceId}")
                         {
                             return;
                         }
+
+                        if (!string.IsNullOrWhiteSpace(currentId))
+                        {
+                            throw new TryAnotherPortException(
+                                $"mysqld listening on {Port} is a different instance ({currentId})"
+                            );
+                        }
+
+                        TrySetDbInstanceId(InstanceId, assimilatedInstanceId);
+                        return;
                     }
 
-                    if (!IsMyInstance())
+                    if (!IsMyInstance(InstanceId))
                     {
-                        throw new TryAnotherPortException($"Encountered existing instance on port {Port}");
+                        throw new TryAnotherPortException(
+                            $"Encountered existing instance on port {Port}"
+                        );
                     }
 
                     return;
@@ -1073,6 +1270,14 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
 
             KeepTemporaryDatabaseArtifactsForDiagnostics = true;
 
+            Log(
+                $"Unable to establish a connection to database '{InstanceId}' within {MaxSecondsToWaitForMySqlToStart} seconds"
+            );
+            CleanupAndThrowFatalInitError();
+        }
+
+        private void CleanupAndThrowFatalInitError()
+        {
             var stderr = "(unknown)";
             var stdout = "(unknown)";
 
@@ -1080,15 +1285,15 @@ values ('__tempdb_id__', '{InstanceId}', 'root');";
             {
                 if (_serverProcess is not null)
                 {
+                    PauseWatcher();
                     Log($"killing server process {_serverProcess?.ProcessId} - seems to be unresponsive to connect?");
+                    AttemptGracefulShutdown();
+                    _serverProcess?.Kill();
+                    stderr = _serverProcess?.StandardError?.JoinWith("\n") ?? "(none)";
+                    stdout = _serverProcess?.StandardOutput?.JoinWith("\n") ?? "(none)";
+                    _serverProcess?.Dispose();
+                    _serverProcess = null;
                 }
-
-                AttemptGracefulShutdown();
-                _serverProcess?.Kill();
-                stderr = _serverProcess?.StandardError?.JoinWith("\n") ?? "(none)";
-                stdout = _serverProcess?.StandardOutput?.JoinWith("\n") ?? "(none)";
-                _serverProcess?.Dispose();
-                _serverProcess = null;
             }
             catch
             {
@@ -1113,24 +1318,74 @@ stderr: {stderr}"
 
         private bool LooksLikePortConflict()
         {
-            var logFile = Path.Combine(DatabasePath, "mysql-err.log");
-            if (!File.Exists(logFile))
+            var filename = "mysql-err.log";
+            var logFile = FindFirstExistingFile(
+                // mysql 5
+                Path.Combine(DatabasePath, filename),
+                // mysql 8
+                Path.Combine(DataDir, filename)
+            );
+            if (logFile is null)
             {
-                Log($"no logfile found at {logFile}");
+                Log($"no {filename} found under {DatabasePath}");
                 return false;
             }
 
             try
             {
                 var lines = File.ReadLines(logFile);
-                var re = new Regex("bind on tcp/ip port: no such file or directory", RegexOptions.IgnoreCase);
-                return lines.Any(l => re.IsMatch(l));
+                foreach (var line in lines)
+                {
+                    foreach (var re in PortConflictMatches)
+                    {
+                        if (re.IsMatch(line))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
             }
             catch
             {
                 Log($"Can't read from {logFile}");
                 return false; // can't read the file, so can't say it might just be a port conflict
             }
+        }
+
+        private static Regex[] PortConflictMatches =
+        {
+            // mysql 5
+            new("bind on tcp/ip port: no such file or directory", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+            // mysql 8
+            new(
+                "do you already have another mysqld server running on port",
+                RegexOptions.Compiled | RegexOptions.IgnoreCase
+            )
+        };
+
+        private string FindFirstExistingFile(
+            params string[] paths
+        )
+        {
+            if (paths.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    "At least one path should be specified"
+                );
+            }
+
+            foreach (var f in paths)
+            {
+                if (File.Exists(f))
+                {
+                    return f;
+                }
+            }
+
+            Log($"Can't find any of:\n{paths.JoinWith("\n")}");
+            return null;
         }
 
         protected bool CanConnect()
@@ -1142,6 +1397,11 @@ stderr: {stderr}"
             var testAttempts = 0;
             while (DateTime.Now < cutoff || testAttempts++ < 1)
             {
+                if (_serverProcess is null || _serverProcess.HasExited)
+                {
+                    return false;
+                }
+
                 try
                 {
                     Log($"Attempt to connect on {Port}...");
@@ -1151,14 +1411,14 @@ stderr: {stderr}"
                 }
                 catch (Exception ex)
                 {
-                    if (_serverProcess.HasExited)
+                    if (_serverProcess is null || _serverProcess.HasExited)
                     {
                         Log($"Unable to connect: server process has exited");
                         return false;
                     }
 
                     Log($"Unable to connect ({ex.Message}). Will continue to try until {cutoff}");
-                    Thread.Sleep(100);
+                    Thread.Sleep(250);
                 }
             }
 
@@ -1194,8 +1454,14 @@ stderr: {stderr}"
                 mysqld,
                 args
             );
-            process.WaitForExit();
-            if (process.ExitCode == 0)
+            var waitSeconds = 60;
+            var exitCode = process.WaitForExit(waitSeconds * 1000);
+            if (exitCode is null)
+            {
+                throw new Exception($"Initialize command for mysqld does not complete within {waitSeconds} seconds");
+            }
+
+            if (exitCode == 0)
             {
                 return;
             }
