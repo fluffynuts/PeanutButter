@@ -34,14 +34,23 @@ jobs:
         node-version: '18'
         cache: 'npm'
 
-    - name: 🏗️ Build and test 🧪
+    - name: 🏗️ Build and test everything EXCEPT TempDb 🧪
       env:
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         DOTNET_CLI_TELEMETRY_OPTOUT: 1
         SUPPRESS_DOWNLOAD_PROGRESS: 1
       run: |
         npm ci
-        npm test
+        npm test-not-tempdb
+
+    - name: 🏗️ Build and test TempDb 🧪
+      env:
+        DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+        DOTNET_CLI_TELEMETRY_OPTOUT: 1
+        SUPPRESS_DOWNLOAD_PROGRESS: 1
+      run: |
+        npm ci
+        npm test-tempdb
 
     - name: 📃 Upload build report
       uses: actions/upload-artifact@v2
