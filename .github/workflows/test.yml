@@ -41,7 +41,7 @@ jobs:
         SUPPRESS_DOWNLOAD_PROGRESS: 1
       run: |
         npm ci
-        npm test-not-tempdb
+        npm run test-not-tempdb
 
     - name: 🏗️ Build and test TempDb 🧪
       env:
@@ -50,7 +50,7 @@ jobs:
         SUPPRESS_DOWNLOAD_PROGRESS: 1
       run: |
         npm ci
-        npm test-tempdb
+        npm run test-tempdb
 
     - name: 📃 Upload build report
       uses: actions/upload-artifact@v2
