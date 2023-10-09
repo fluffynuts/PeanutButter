@@ -361,7 +361,7 @@ namespace PeanutButter.FileSystem.Tests
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListDirectories();
+                var result = sut.ListFolders();
 
                 //---------------Test Result -----------------------
                 Expect(result)
@@ -405,7 +405,7 @@ namespace PeanutButter.FileSystem.Tests
                     }
 
                     //---------------Execute Test ----------------------
-                    var result = sut.ListDirectories("*." + ext);
+                    var result = sut.ListFolders("*." + ext);
 
                     //---------------Test Result -----------------------
 
@@ -523,7 +523,7 @@ namespace PeanutButter.FileSystem.Tests
                 Assert.IsTrue(expected.All(f => Directory.Exists(Path.Combine(folder.Path, f))));
 
                 //---------------Execute Test ----------------------
-                var result = sut.ListDirectoriesRecursive();
+                var result = sut.ListFoldersRecursive();
 
                 //---------------Test Result -----------------------
                 CollectionAssert.AreEquivalent(expected, result);
@@ -955,7 +955,7 @@ namespace PeanutButter.FileSystem.Tests
                         tempFolder.WriteFile("src/README.md", "# READ ME");
                         tempFolder.WriteFile("src/foo/index.js", "console.log('index');");
                         var srcFs = Create(tempFolder.ResolvePath("src"));
-                        var expectedDirs = srcFs.ListDirectoriesRecursive();
+                        var expectedDirs = srcFs.ListFoldersRecursive();
                         var expectedFiles = srcFs.ListFilesRecursive();
                         var sut = Create(tempFolder.Path);
                         
@@ -965,7 +965,7 @@ namespace PeanutButter.FileSystem.Tests
                         sut.Copy("src", tempFolder.ResolvePath("target"));
                         // Assert
                         var targetFs = Create(tempFolder.ResolvePath("target"));
-                        var targetDirs = targetFs.ListDirectoriesRecursive();
+                        var targetDirs = targetFs.ListFoldersRecursive();
                         var targetFiles = targetFs.ListFilesRecursive();
 
                         Expect(targetDirs)
@@ -989,7 +989,7 @@ namespace PeanutButter.FileSystem.Tests
                         tempFolder.WriteFile("src/foo/index.js", "console.log('index');");
                         tempFolder.CreateFolder("target");
                         var srcFs = Create(tempFolder.ResolvePath("src"));
-                        var expectedDirs = srcFs.ListDirectoriesRecursive()
+                        var expectedDirs = srcFs.ListFoldersRecursive()
                             .Map(p => Path.Combine("src", p))
                             .And("src"); // the base src folder will appear as we're listing 1-up
                         var expectedFiles = srcFs.ListFilesRecursive()
@@ -1001,7 +1001,7 @@ namespace PeanutButter.FileSystem.Tests
                         sut.Copy("src", tempFolder.ResolvePath("target"));
                         // Assert
                         var targetFs = Create(tempFolder.ResolvePath("target"));
-                        var targetDirs = targetFs.ListDirectoriesRecursive();
+                        var targetDirs = targetFs.ListFoldersRecursive();
                         var targetFiles = targetFs.ListFilesRecursive();
 
                         Expect(targetDirs)

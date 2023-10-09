@@ -1,23 +1,33 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace PeanutButter.FileSystem;
 
+/// <inheritdoc />
 public class LocalFileSystem : IFileSystem
 {
     private string _currentDirectory;
 
+    /// <summary>
+    /// Starts a local filesystem in the current working folder
+    /// </summary>
     public LocalFileSystem()
     {
         SetCurrentDirectory(Directory.GetCurrentDirectory());
     }
 
+    /// <summary>
+    /// Starts a local filesystem in the provided starting folder
+    /// </summary>
+    /// <param name="start"></param>
     public LocalFileSystem(string start)
     {
         SetCurrentDirectory(start);
     }
 
+    /// <inheritdoc />
     public IEnumerable<string> List(
         string searchPattern = "*"
     )
@@ -28,6 +38,7 @@ public class LocalFileSystem : IFileSystem
             .Select(p => p.Substring(startIndex));
     }
 
+    /// <inheritdoc />
     public IEnumerable<string> ListFiles(
         string searchPattern = "*"
     )
@@ -39,7 +50,8 @@ public class LocalFileSystem : IFileSystem
         );
     }
 
-    public IEnumerable<string> ListDirectories(
+    /// <inheritdoc />
+    public IEnumerable<string> ListFolders(
         string searchPattern = "*"
     )
     {
@@ -50,6 +62,7 @@ public class LocalFileSystem : IFileSystem
         );
     }
 
+    /// <inheritdoc />
     public IEnumerable<string> ListRecursive(
         string searchPattern = "*"
     )
@@ -64,6 +77,7 @@ public class LocalFileSystem : IFileSystem
             .Select(p => p.Substring(startIndex));
     }
 
+    /// <inheritdoc />
     public IEnumerable<string> ListFilesRecursive(
         string searchPattern = "*"
     )
@@ -75,7 +89,8 @@ public class LocalFileSystem : IFileSystem
         );
     }
 
-    public IEnumerable<string> ListDirectoriesRecursive(
+    /// <inheritdoc />
+    public IEnumerable<string> ListFoldersRecursive(
         string searchPattern = "*"
     )
     {
@@ -86,11 +101,13 @@ public class LocalFileSystem : IFileSystem
         );
     }
 
+    /// <inheritdoc />
     public string GetCurrentDirectory()
     {
         return _currentDirectory;
     }
 
+    /// <inheritdoc />
     public void SetCurrentDirectory(
         string path
     )
@@ -98,6 +115,7 @@ public class LocalFileSystem : IFileSystem
         _currentDirectory = path;
     }
 
+    /// <inheritdoc />
     public void Delete(
         string path
     )
@@ -105,6 +123,7 @@ public class LocalFileSystem : IFileSystem
         DeleteInternal(path, false);
     }
 
+    /// <inheritdoc />
     public void DeleteRecursive(
         string path
     )
@@ -115,11 +134,11 @@ public class LocalFileSystem : IFileSystem
         );
     }
 
+    /// <inheritdoc />
     public void Copy(
         string sourcePath
     )
     {
-        var fullPath = GetFullPathFor(sourcePath);
         Copy(
             GetFullPathFor(
                 sourcePath
@@ -128,6 +147,7 @@ public class LocalFileSystem : IFileSystem
         );
     }
 
+    /// <inheritdoc />
     public void Copy(
         string sourcePath,
         string targetPath
@@ -135,7 +155,7 @@ public class LocalFileSystem : IFileSystem
     {
         var absoluteSource = ResolveAbsolutePath(sourcePath);
         var absoluteTarget = ResolveAbsolutePath(targetPath);
-        if (DirectoryExists(absoluteSource))
+        if (FolderExists(absoluteSource))
         {
             CopyTree(absoluteSource, absoluteTarget);
         }
@@ -225,6 +245,7 @@ public class LocalFileSystem : IFileSystem
         );
     }
 
+    /// <inheritdoc />
     public Stream OpenReader(
         string path
     )
@@ -235,6 +256,7 @@ public class LocalFileSystem : IFileSystem
             : null;
     }
 
+    /// <inheritdoc />
     public Stream OpenWriter(
         string path
     )
@@ -243,6 +265,7 @@ public class LocalFileSystem : IFileSystem
         return File.OpenWrite(fullPath);
     }
 
+    /// <inheritdoc />
     public Stream Open(
         string targetPath
     )
@@ -256,6 +279,7 @@ public class LocalFileSystem : IFileSystem
         );
     }
 
+    /// <inheritdoc />
     public void Move(
         string source,
         string target,
@@ -263,6 +287,13 @@ public class LocalFileSystem : IFileSystem
     )
     {
         var absoluteSource = GetFullPathFor(source);
+        if (!File.Exists(absoluteSource))
+        {
+            throw new InvalidOperationException(
+                $"Source not found at {absoluteSource}"
+            );
+        }
+
         var absoluteTarget = GetFullPathFor(target);
         var targetFolder = Path.GetDirectoryName(absoluteTarget);
         EnsureFolderExists(targetFolder);
@@ -274,6 +305,7 @@ public class LocalFileSystem : IFileSystem
         File.Move(absoluteSource, absoluteTarget);
     }
 
+    /// <inheritdoc />
     public string GetFullPathFor(
         string relativePath
     )
@@ -322,7 +354,7 @@ public class LocalFileSystem : IFileSystem
         var startIndex = path.Length + 1;
         return Directory.EnumerateDirectories(path, searchPattern, searchOption)
             .Select(p => p.Substring(startIndex))
-            .ToArray();;
+            .ToArray();
     }
 
     private static IEnumerable<string> ListFilesInternal(
@@ -349,7 +381,8 @@ public class LocalFileSystem : IFileSystem
         );
     }
 
-    public bool DirectoryExists(
+    /// <inheritdoc />
+    public bool FolderExists(
         string path
     )
     {
