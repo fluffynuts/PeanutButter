@@ -4,7 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <Platform>windows</Platform>
+<!--    <Platform>windows</Platform>-->
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -18,7 +18,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Quackers.TestLogger" Version="1.0.19" />
+    <PackageReference Include="Quackers.TestLogger" Version="1.0.21" />
   </ItemGroup>
 
   <ItemGroup>
