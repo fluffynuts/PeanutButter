@@ -543,14 +543,7 @@ namespace PeanutButter.TempDb.MySql.Base
             foreach (var pid in pids)
             {
                 cmd.CommandText = $"kill {pid}";
-                try
-                {
-                    cmd.ExecuteNonQuery();
-                }
-                catch
-                {
-                    // suppress
-                }
+                TryDo(() => cmd.ExecuteNonQuery());
             }
         }
 
@@ -771,6 +764,19 @@ namespace PeanutButter.TempDb.MySql.Base
             StopWatcher();
             AttemptGracefulShutdown();
             ForceEndServerProcess();
+            TryDo(() => File.Delete(Settings.Socket));
+        }
+
+        private void TryDo(Action action)
+        {
+            try
+            {
+                action?.Invoke();
+            }
+            catch
+            {
+                // suppress
+            }
         }
 
         private void StopWatcher()
@@ -881,14 +887,8 @@ namespace PeanutButter.TempDb.MySql.Base
             foreach (var id in toKill)
             {
                 cmd.CommandText = $"kill {id}";
-                try
-                {
-                    cmd.ExecuteNonQuery();
-                }
-                catch
-                {
-                    // suppress
-                }
+                // ReSharper disable once AccessToDisposedClosure
+                TryDo(() => cmd!.ExecuteNonQuery());
             }
         }
 
@@ -1281,7 +1281,7 @@ where `variable` = '__tempdb_id__';";
             var stderr = "(unknown)";
             var stdout = "(unknown)";
 
-            try
+            TryDo(() =>
             {
                 if (_serverProcess is not null)
                 {
@@ -1294,11 +1294,7 @@ where `variable` = '__tempdb_id__';";
                     _serverProcess?.Dispose();
                     _serverProcess = null;
                 }
-            }
-            catch
-            {
-                /* ignore */
-            }
+            });
 
             if (LooksLikePortConflict() &&
                 ++_conflictingPortRetries < 5)
@@ -1668,38 +1664,6 @@ stderr: {stderr}"
                     using var writer = new StreamWriter(f);
                     writer.WriteLine("MySql started with the following startup info:");
                     writer.WriteLine($"CLI: \"{executable}\" {args.Select(ProcessIO.QuoteIfNecessary).JoinWith(" ")}");
-                    writer.WriteLine($"Working directory: {Directory.GetCurrentDirectory()}");
-                    writer.WriteLine($"Current user: {Environment.UserName}");
-                    writer.WriteLine("Environment:");
-                    var envVars = Environment.GetEnvironmentVariables();
-                    foreach (var key in envVars.Keys)
-                    {
-                        writer.WriteLine($"  {key} = {envVars[key]}");
-                    }
-
-                    return;
-                }
-                catch
-                {
-                    Thread.Sleep(500);
-                }
-            }
-        }
-
-        private void LogProcessStartInfo(
-            ProcessStartInfo startInfo,
-            string logFile
-        )
-        {
-            for (var i = 0; i < 10; i++)
-            {
-                try
-                {
-                    using var f = new FileStream(logFile, FileMode.OpenOrCreate);
-                    f.SetLength(0);
-                    using var writer = new StreamWriter(f);
-                    writer.WriteLine("MySql started with the following startup info:");
-                    writer.WriteLine($"CLI: \"{startInfo.FileName}\" {startInfo.Arguments}");
                     writer.WriteLine($"Working directory: {Directory.GetCurrentDirectory()}");
                     writer.WriteLine($"Current user: {Environment.UserName}");
                     writer.WriteLine("Environment:");

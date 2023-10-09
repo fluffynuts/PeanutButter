@@ -10,7 +10,7 @@
     "test-ini": "cross-env DOTNET_CORE=1 TEST_INCLUDE=PeanutButter.INI.Tests zarro test",
     "test-fx": "zarro DOTNET_CORE=0 test-dotnet",
     "test-not-tempdb": "cross-env DOTNET_CORE=1 TEST_ADDITIONAL_EXCLUDE=source/TempDb/**/* zarro test-dotnet",
-    "test-tempdb": "cross-env DOTNET_CORE=1 TEST_INCLUDE=source/TempDb/**/*Tests* zarro test-dotnet",
+    "test-tempdb": "cross-env DOTNET_TEST_PARALLEL=0 DOTNET_CORE=1 TEST_INCLUDE=source/TempDb/**/*Tests* zarro test-dotnet",
     "test-tempdb-mysql-data": "cross-env DOTNET_CORE=1 TEST_INCLUDE=**/PeanutButter.TempDb.MySql.Data.Tests* zarro test-dotnet",
     "build-with-msbuild": "cross-env DOTNET_CORE=0 zarro build",
     "cover": "zarro cover-dotnet",

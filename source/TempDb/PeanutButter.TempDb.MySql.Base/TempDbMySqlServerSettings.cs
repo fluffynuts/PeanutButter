@@ -170,6 +170,9 @@ namespace PeanutButter.TempDb.MySql.Base
         /// </summary>
         public TempDbOptions Options { get; } = new();
 
+        [Setting("innodb_doublewrite")]
+        public int InnoDbDoubleWrite { get; set; } = 0;
+
         [Setting("innodb_use_native_aio")]
         public int InnoDbUseNativeAIO { get; set; } = 0;
 
@@ -291,19 +294,19 @@ namespace PeanutButter.TempDb.MySql.Base
         /// mysql server setting
         /// </summary>
         [Setting("innodb_log_file_size")]
-        public string InnodbLogFileSize { get; set; } = "48M";
+        public string InnodbLogFileSize { get; set; } = "256M";
 
         /// <summary>
         /// mysql server setting
         /// </summary>
         [Setting("innodb_buffer_pool_size")]
-        public string InnodbBufferPoolSize { get; set; } = "384M";
+        public string InnodbBufferPoolSize { get; set; } = "512M";
 
         /// <summary>
         /// mysql server setting
         /// </summary>
         [Setting("innodb_flush_log_at_trx_commit")]
-        public int InnodbFlushLogAtTrxCommit { get; set; } = 1;
+        public int InnodbFlushLogAtTrxCommit { get; set; } = 2;
 
         /// <summary>
         /// mysql server setting

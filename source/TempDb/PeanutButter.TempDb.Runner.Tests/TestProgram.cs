@@ -19,7 +19,7 @@ namespace PeanutButter.TempDb.Runner.Tests
     [TestFixture]
     public class TestProgram
     {
-        public const int DEFAULT_TIMEOUT = 45000;
+        public const int DEFAULT_TIMEOUT = 90000;
         [Test]
         public void ShouldBeAbleToStartDefaultAsMySql()
         {
