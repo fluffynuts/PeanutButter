@@ -27,12 +27,12 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ImpromptuInterface" Version="6.2.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-    <PackageReference Include="newtonsoft.json" Version="13.0.2" />
-    <PackageReference Include="NExpect" Version="2.0.48" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+    <PackageReference Include="newtonsoft.json" Version="13.0.3" />
+    <PackageReference Include="NExpect" Version="2.0.49" />
     <PackageReference Include="nunit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageReference Include="Quackers.TestLogger" Version="1.0.16" />
+    <PackageReference Include="Quackers.TestLogger" Version="1.0.19" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
   </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />

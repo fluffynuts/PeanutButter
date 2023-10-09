@@ -9,14 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="Dapper" Version="2.1.4" />
     <PackageReference Include="MySql.Data" Version="8.0.31" />
     <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="NExpect" Version="2.0.48" />
+    <PackageReference Include="NExpect" Version="2.0.49" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
-    <PackageReference Include="Quackers.TestLogger" Version="1.0.16" />
-    <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+    <PackageReference Include="Quackers.TestLogger" Version="1.0.19" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="7.0.1" />
   </ItemGroup>
 
   <ItemGroup>

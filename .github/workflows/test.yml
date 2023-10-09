@@ -40,7 +40,7 @@ jobs:
         DOTNET_CLI_TELEMETRY_OPTOUT: 1
         SUPPRESS_DOWNLOAD_PROGRESS: 1
       run: |
-        npm ci
+        npm i
         npm run test-not-tempdb
 
     - name: 🏗️ Build and test TempDb 🧪
@@ -49,7 +49,6 @@ jobs:
         DOTNET_CLI_TELEMETRY_OPTOUT: 1
         SUPPRESS_DOWNLOAD_PROGRESS: 1
       run: |
-        npm ci
         npm run test-tempdb
 
     - name: 📃 Upload build report

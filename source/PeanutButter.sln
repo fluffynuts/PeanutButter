@@ -185,7 +185,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{24E8
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{3036AFBD-41FC-401F-9A7B-A5D61E688823}"
 	ProjectSection(SolutionItems) = preProject
-		..\.github\workflows\run-all-tests.yml = ..\.github\workflows\run-all-tests.yml
+		..\.github\workflows\test.yml = ..\.github\workflows\test.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{905D8BA4-13FC-4FE2-8290-9263E0180961}"

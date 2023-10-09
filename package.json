@@ -8,7 +8,7 @@
   "scripts": {
     "test": "cross-env DOTNET_CORE=1 TEST_ADDITIONAL_EXCLUDE=PeanutButter.WindowsServiceManagement.Core.Tests zarro test-dotnet",
     "test-fx": "zarro DOTNET_CORE=0 test-dotnet",
-    "test-not-tempdb":"cross-env DOTNET_CORE=1 TEST_ADDITIONAL_EXCLUDE=source/TempDb/**/* zarro test-dotnet",
+    "test-not-tempdb": "cross-env DOTNET_CORE=1 TEST_ADDITIONAL_EXCLUDE=source/TempDb/**/* zarro test-dotnet",
     "test-tempdb": "cross-env DOTNET_CORE=1 TEST_INCLUDE=source/TempDb/**/*Tests* zarro test-dotnet",
     "test-tempdb-mysql-data": "cross-env DOTNET_CORE=1 TEST_INCLUDE=**/PeanutButter.TempDb.MySql.Data.Tests* zarro test-dotnet",
     "build-with-msbuild": "cross-env DOTNET_CORE=0 zarro build",
@@ -33,6 +33,6 @@
     "p-queue": "^6.3.0",
     "typescript": "^5.2.2",
     "yafs": "^1.25.0",
-    "zarro": "^1.144.281"
+    "zarro": "^1.144.285"
   }
 }
