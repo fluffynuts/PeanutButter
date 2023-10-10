@@ -1,12 +1,12 @@
 <package>
   <metadata>
-    <id>PeanutButter.Utils</id>
+    <id>PeanutButter.FileSystem</id>
     <version>3.0.183</version>
     <title>PeanutButter.Utils</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
     <description>
-      The miscellaneous utilities slice of the PeanutButter mini-suite (sans XML Utils)
+      Filesystem abstraction library
     </description>
     <releaseNotes></releaseNotes>
     <summary></summary>
