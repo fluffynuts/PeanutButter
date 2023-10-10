@@ -27,6 +27,8 @@ namespace PeanutButter.TempDb.MySql.Base
     /// </summary>
     public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     {
+        public string BootstrappedFromTemplateFolder { get; protected set; }
+        
         public string ServerCommandline =>
             _serverProcess?.Commandline;
 
@@ -424,15 +426,16 @@ namespace PeanutButter.TempDb.MySql.Base
                 }
 
                 Guid? assimilatedInstanceId = null;
-                if (FolderExists(Settings?.Options?.TemplateDatabasePath))
+                BootstrappedFromTemplateFolder = Settings?.Options?.TemplateDatabasePath;
+                if (FolderExists(BootstrappedFromTemplateFolder))
                 {
                     RootPasswordSet = true; // prior snapshot should have set the root password
-                    var container = Path.GetDirectoryName(Settings!.Options!.TemplateDatabasePath);
+                    var container = Path.GetDirectoryName(BootstrappedFromTemplateFolder);
                     EnsureFolderDoesNotExist(DatabasePath);
                     var fs = new LocalFileSystem(
                         container
                     );
-                    var src = Path.GetFileName(Settings!.Options!.TemplateDatabasePath);
+                    var src = Path.GetFileName(BootstrappedFromTemplateFolder);
                     fs.Copy(src, DatabasePath);
 
                     Log($"Re-using data at {DatabasePath}");
@@ -467,6 +470,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 SetUpAutoDisposeIfRequired();
             }
         }
+
 
 
         private void RedirectDebugLogging()
@@ -1281,20 +1285,24 @@ where `variable` = '__tempdb_id__';";
             var stderr = "(unknown)";
             var stdout = "(unknown)";
 
-            TryDo(() =>
-            {
-                if (_serverProcess is not null)
+            TryDo(
+                () =>
                 {
-                    PauseWatcher();
-                    Log($"killing server process {_serverProcess?.ProcessId} - seems to be unresponsive to connect?");
-                    AttemptGracefulShutdown();
-                    _serverProcess?.Kill();
-                    stderr = _serverProcess?.StandardError?.JoinWith("\n") ?? "(none)";
-                    stdout = _serverProcess?.StandardOutput?.JoinWith("\n") ?? "(none)";
-                    _serverProcess?.Dispose();
-                    _serverProcess = null;
+                    if (_serverProcess is not null)
+                    {
+                        PauseWatcher();
+                        Log(
+                            $"killing server process {_serverProcess?.ProcessId} - seems to be unresponsive to connect?"
+                        );
+                        AttemptGracefulShutdown();
+                        _serverProcess?.Kill();
+                        stderr = _serverProcess?.StandardError?.JoinWith("\n") ?? "(none)";
+                        stdout = _serverProcess?.StandardOutput?.JoinWith("\n") ?? "(none)";
+                        _serverProcess?.Dispose();
+                        _serverProcess = null;
+                    }
                 }
-            });
+            );
 
             if (LooksLikePortConflict() &&
                 ++_conflictingPortRetries < 5)
