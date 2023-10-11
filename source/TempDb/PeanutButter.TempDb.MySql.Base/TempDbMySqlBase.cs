@@ -507,6 +507,7 @@ namespace PeanutButter.TempDb.MySql.Base
             if (shouldUseSharedTemplate && SharedTemplateFolderExists)
             {
                 Log($"Quicker bootstrap via shared template at {SharedTemplateFolder}");
+                TemplateFolderIsShared = true;
                 BootstrappedFromTemplateFolder = SharedTemplateFolder;
                 BootstrapFromTemplateFolder();
                 return;
@@ -528,6 +529,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
             StoreSharedTemplate();
         }
+
 
         private void StoreSharedTemplate()
         {
@@ -552,8 +554,8 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private string SharedTemplateFolder =>
             _sharedTemplateFolder ??= DetermineSharedTemplateFolder();
-
         private string _sharedTemplateFolder;
+        public bool TemplateFolderIsShared { get; private set; }
 
         private string DetermineSharedTemplateFolder()
         {
