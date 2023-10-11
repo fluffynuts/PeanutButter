@@ -1191,7 +1191,7 @@ SHUTDOWN"
             try
             {
                 TestIsRunning(assimilatedInstanceId);
-                Log("MySql appears to be up an running! Setting up an auto-restarter in case it falls over.");
+                Log("MySql appears to be up and running! Setting up an auto-restarter in case it falls over.");
                 if (_running)
                 {
                     ResumeWatcher();
