@@ -159,6 +159,13 @@ namespace PeanutButter.TempDb.MySql.Base
             /// 2. if there is a template found for the current mysql version, it's used
             /// </summary>
             public bool AutoTemplate { get; set; } = true;
+
+            /// <summary>
+            /// When set (default true), then:
+            /// set the my.cnf option skip-name-resolve to (hopefully) speed things
+            /// up a little
+            /// </summary>
+            public bool DisableHostnameLookups { get; set; } = true;
         }
 
         /// <summary>

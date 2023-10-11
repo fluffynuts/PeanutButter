@@ -176,6 +176,8 @@ namespace PeanutButter.TempDb.Tests
 
         private const string DEFAULTS =
             @"[mysqld]
+innodb_doublewrite=0
+innodb_use_native_aio=0
 character-set-server=utf8
 default-storage-engine=INNODB
 sql-mode=""STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION""
@@ -192,9 +194,9 @@ table_open_cache=2000
 thread_cache_size=10
 myisam_max_sort_file_size=100G
 innodb_use_native_aio=0
-innodb_flush_log_at_trx_commit=1
-innodb_buffer_pool_size=384M
-innodb_log_file_size=48M
+innodb_flush_log_at_trx_commit=2
+innodb_buffer_pool_size=512M
+innodb_log_file_size=256M
 innodb_thread_concurrency=0
 innodb_autoextend_increment=64
 innodb_concurrency_tickets=5000
@@ -216,7 +218,7 @@ binlog_row_event_max_size=8K
 sync_master_info=10000
 sync_relay_log=10000
 sync_relay_log_info=10000
-sync_binlog = 1
+sync_binlog=1
 ";
     }
 }

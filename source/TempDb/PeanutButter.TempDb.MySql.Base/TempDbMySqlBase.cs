@@ -486,15 +486,31 @@ namespace PeanutButter.TempDb.MySql.Base
                 Log($"dumping run-time defaults file into {DatabasePath}");
                 DumpDefaultsFileAt(DatabasePath);
 
-                ConfigFilePath = Path.Combine(DatabasePath, MYSQL_CONFIG_FILE);
+                ConfigFilePath = DefaultMyCnf;
                 Port = DeterminePortToUse();
 
                 SetRootPasswordViaCli();
+                DisableHostNameLookupsIfRequired();
 
                 StartServer(MySqld, assimilatedInstanceId);
                 CreateInitialSchema();
                 SetUpAutoDisposeIfRequired();
             }
+        }
+
+        private void DisableHostNameLookupsIfRequired()
+        {
+            var shouldDisable = Settings.Options.DisableHostnameLookups;
+            var lines = File.ReadAllLines(DefaultMyCnf);
+            foreach (var line in lines)
+            {
+                if (line.Contains("skip-name-resolve"))
+                {
+                    return;
+                }
+            }
+
+            File.AppendAllText(DefaultMyCnf, "\nskip-name-resolve\n");
         }
 
         private void BootstrapFromScratch()
@@ -554,6 +570,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private string SharedTemplateFolder =>
             _sharedTemplateFolder ??= DetermineSharedTemplateFolder();
+
         private string _sharedTemplateFolder;
         public bool TemplateFolderIsShared { get; private set; }
 
@@ -590,19 +607,22 @@ namespace PeanutButter.TempDb.MySql.Base
             lock (_debugLogLock)
             {
                 var existingFile = _debugLogFile;
+                var expectedFile = DataFilePath("tempdb-debug.log");
+                if (existingFile == expectedFile)
+                {
+                    return;
+                }
+
                 if (!File.Exists(existingFile))
                 {
                     return;
                 }
 
-                _debugLogFile = DataFilePath("tempdb-debug.log");
-                if (File.Exists(_debugLogFile))
-                {
-                    // if we're working from a template,
-                    // the file will already exist; if
-                    // not, it doesn't matter
-                    File.Delete(_debugLogFile);
-                }
+                _debugLogFile = expectedFile;
+                // if we're working from a template,
+                // the file will already exist; if
+                // not, it doesn't matter
+                TryDo(() => File.Delete(_debugLogFile));
 
                 var targetFolder = Path.GetDirectoryName(_debugLogFile);
                 if (!Directory.Exists(targetFolder))
@@ -639,16 +659,21 @@ namespace PeanutButter.TempDb.MySql.Base
                 );
             }
 
+            var pass = $"'{Settings.Options.RootUserPassword.Replace("'", "''")}'";
             using var tmpFile = new AutoTempFile(
-                // FIXME: enforce quoting
-                $@"alter user 'root'@'localhost' identified with mysql_native_password by '{
-                    Settings.Options.RootUserPassword.Replace("'", "''")
-                }';
-                SHUTDOWN"
+                // update root password & 
+                $@"
+create user if not exists 'root'@'localhost' identified with mysql_native_password by {pass};
+alter user 'root'@'localhost' identified with mysql_native_password by {pass};
+create user if not exists 'root'@'%' identified with mysql_native_password by {pass};
+alter user 'root'@'%' identified with mysql_native_password by {pass};
+grant all privileges on *.* to 'root'@'%' with grant option;
+grant all privileges on *.* to 'root'@'localhost' with grant option;
+SHUTDOWN"
             );
             using var io = ProcessIO.Start(
                 MySqld,
-                $"\"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}\"",
+                $"\"--defaults-file={DefaultMyCnf}\"",
                 $"\"--basedir={BaseDirOf(MySqld)}\"",
                 $"\"--datadir={DataDir}\"",
                 $"--port={Port}",
@@ -840,6 +865,8 @@ namespace PeanutButter.TempDb.MySql.Base
         public void CreateSchemaIfNotExists(string schema)
         {
             Execute($"create schema if not exists `{Escape(schema)}`");
+            GrantAllPermissionsFor("root", schema, "localhost");
+            GrantAllPermissionsFor("root", schema, "%");
         }
 
         public void CreateUser(
@@ -912,6 +939,7 @@ namespace PeanutButter.TempDb.MySql.Base
         }
 
         private const string MYSQL_CONFIG_FILE = "my.cnf";
+        private string DefaultMyCnf => Path.Combine(DatabasePath, MYSQL_CONFIG_FILE);
 
         private string DumpDefaultsFileAt(
             string databasePath,
@@ -1136,7 +1164,7 @@ namespace PeanutButter.TempDb.MySql.Base
             PauseWatcher();
             var args = new[]
             {
-                $"\"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}\"",
+                $"\"--defaults-file={DefaultMyCnf}\"",
                 $"\"--basedir={BaseDirOf(mysqld)}\"",
                 $"\"--datadir={DataDir}\"",
                 $"--port={Port}"

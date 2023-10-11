@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using PeanutButter.TempDb.LocalDb;
 using PeanutButter.TempDb.MySql.Base;
-using PeanutButter.TempDb.MySql.Connector;
+using PeanutButter.TempDb.MySql.Data;
 using PeanutButter.TempDb.Sqlite;
 
 namespace PeanutButter.TempDb.Runner

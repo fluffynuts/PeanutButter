@@ -427,8 +427,9 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             [SetUp]
             public void Setup()
             {
-                SkipIfNotOnWindows();
+                // SkipIfNotOnWindows();
                 SkipIfOnWindowsButNoMySqlInstalled();
+                SkipIfNotOnWindowsAndNotInPath();
             }
         }
 
@@ -1385,6 +1386,11 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
         private static void SkipIfOnWindowsButNoMySqlInstalled()
         {
+            if (!Platform.IsWindows)
+            {
+                return;
+            }
+
             var mysqlServices =
 #pragma warning disable CA1416
                 ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
@@ -1395,6 +1401,19 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 );
             }
 #pragma warning restore CA1416
+        }
+
+        private static void SkipIfNotOnWindowsAndNotInPath()
+        {
+            if (Platform.IsWindows)
+            {
+                return;
+            }
+
+            if (Find.InPath("mysqld") is null)
+            {
+                Assert.Ignore("Test only works when mysqld is installed & in the path for non-windows");
+            }
         }
     }
 

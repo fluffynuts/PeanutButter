@@ -25,7 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Utils\PeanutButter.EasyArgs\PeanutButter.EasyArgs.csproj" />
     <ProjectReference Include="..\PeanutButter.TempDb.LocalDb\PeanutButter.TempDb.LocalDb.csproj" />
-    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Connector\PeanutButter.TempDb.MySql.Connector.csproj" />
+    <ProjectReference Include="..\PeanutButter.TempDb.MySql.Data\PeanutButter.TempDb.MySql.Data.csproj" />
     <ProjectReference Include="..\PeanutButter.TempDb.Sqlite\PeanutButter.TempDb.Sqlite.csproj" />
     <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
     <ProjectReference Include="..\..\Utils\PeanutButter.EasyArgs\PeanutButter.EasyArgs.csproj" />
