@@ -440,14 +440,53 @@ stderr:
                 return;
             }
 
-            if (!serverProcess.HasExited)
+            try
             {
-                return;
+                if (!serverProcess.HasExited)
+                {
+                    return;
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                // thrown when "no process is associated with this object"
+                // -> process could have not started up yet
+                if (CanConnect())
+                {
+                    return;
+                }
+                _logger($"Error whilst querying process exit state: {ex}");
             }
 
-            _logger("redis-server appears to have exited... restarting...");
-            Interlocked.Exchange(ref _serverProcess, null);
-            StartInternal(startWatcher: false);
+            try
+            {
+                _logger("redis-server appears to have exited... restarting...");
+                Interlocked.Exchange(ref _serverProcess, null);
+                StartInternal(startWatcher: false);
+            }
+            catch (Exception ex)
+            {
+                // don't want to leave an unhandled exception in a background thread!
+                _logger($"an attempt to start redis-server failed: {ex}; next round of server-checks will try again");
+            }
+        }
+
+        private bool CanConnect()
+        {
+            try
+            {
+                Connect(
+                    new ConfigurationOptions()
+                    {
+                        ConnectTimeout = 2000
+                    }
+                );
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <inheritdoc />
