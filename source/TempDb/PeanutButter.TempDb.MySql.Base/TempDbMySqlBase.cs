@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
@@ -119,7 +121,7 @@ namespace PeanutButter.TempDb.MySql.Base
             }
         }
 
-        private readonly object _debugLogLock = new object();
+        private readonly object _debugLogLock = new();
 
         private void DebugLog(string toLog)
         {
@@ -342,22 +344,31 @@ namespace PeanutButter.TempDb.MySql.Base
             return Snapshot(toNewFolder, true);
         }
 
-        /// <summary>
-        /// Snapshots the database to the provided path and
-        ///   returns the path on disk
-        /// - will stop the server to snapshot and then
-        ///   optionally restart it afterwards
-        /// <param name="toNewFolder">Path to snapshot to (will be nuked if it exists)</param>
-        /// <param name="restartServerAfterwards">Flag: restart the server after snapshotting</param>
-        /// <returns></returns>
         public string Snapshot(
             string toNewFolder,
             bool restartServerAfterwards
         )
         {
-            SetDbInstanceId("");
-            DisposeManagedConnections();
-            Stop();
+            return Snapshot(
+                toNewFolder,
+                stop: true,
+                restart: restartServerAfterwards
+            );
+        }
+
+        private string Snapshot(
+            string toNewFolder,
+            bool stop,
+            bool restart
+        )
+        {
+            if (stop)
+            {
+                SetDbInstanceId("");
+                DisposeManagedConnections();
+                Stop();
+            }
+
             var baseDir = Path.GetDirectoryName(DatabasePath);
             var result = toNewFolder ?? GenerateTemplatePath();
             var fs = new LocalFileSystem(baseDir);
@@ -374,7 +385,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
             // restarting the server after having wiped the instance
             // id should cause the instance id to be automagically rewritten
-            if (restartServerAfterwards)
+            if (restart)
             {
                 StartServer(MySqld, null);
             }
@@ -462,32 +473,11 @@ namespace PeanutButter.TempDb.MySql.Base
                 BootstrappedFromTemplateFolder = Settings?.Options?.TemplateDatabasePath;
                 if (FolderExists(BootstrappedFromTemplateFolder))
                 {
-                    RootPasswordSet = true; // prior snapshot should have set the root password
-                    var container = Path.GetDirectoryName(BootstrappedFromTemplateFolder);
-                    EnsureFolderDoesNotExist(DatabasePath);
-                    var fs = new LocalFileSystem(
-                        container
-                    );
-                    var src = Path.GetFileName(BootstrappedFromTemplateFolder);
-                    fs.Copy(src, DatabasePath);
-
-                    Log($"Re-using data at {DatabasePath}");
+                    BootstrapFromTemplateFolder();
                 }
                 else
                 {
-                    Log("create initial database");
-                    _startAttempts = 0;
-                    EnsureIsRemoved(DatabasePath);
-
-                    // mysql 5.7 wants an empty data base dir, so we have to use
-                    // a temp defaults file for init only, which 8 seems to be ok with
-                    using var tempFolder = new AutoTempFolder(
-                        Environment.GetEnvironmentVariable("TEMPDB_BASE_PATH")
-                    );
-                    Log($"temp folder created at {tempFolder}");
-                    Log($"dumping defaults in temp folder {tempFolder.Path} for initialization");
-                    DumpDefaultsFileAt(tempFolder.Path);
-                    InitializeWith(MySqld, Path.Combine(tempFolder.Path, "my.cnf"));
+                    BootstrapFromScratch();
                 }
 
                 RedirectDebugLogging();
@@ -495,13 +485,101 @@ namespace PeanutButter.TempDb.MySql.Base
                 // now we need the real config file, sitting in the db dir
                 Log($"dumping run-time defaults file into {DatabasePath}");
                 DumpDefaultsFileAt(DatabasePath);
+
                 ConfigFilePath = Path.Combine(DatabasePath, MYSQL_CONFIG_FILE);
                 Port = DeterminePortToUse();
+
+                SetRootPasswordViaCli();
+
                 StartServer(MySqld, assimilatedInstanceId);
-                SetRootPassword();
                 CreateInitialSchema();
                 SetUpAutoDisposeIfRequired();
             }
+        }
+
+        private void BootstrapFromScratch()
+        {
+            var shouldUseSharedTemplate = Settings?.Options?.AutoTemplate ??
+                // mysql8 is particularly slow at startup, default
+                // to using a shared template when available
+                IsMySql8();
+
+            if (shouldUseSharedTemplate && SharedTemplateFolderExists)
+            {
+                Log($"Quicker bootstrap via shared template at {SharedTemplateFolder}");
+                BootstrappedFromTemplateFolder = SharedTemplateFolder;
+                BootstrapFromTemplateFolder();
+                return;
+            }
+
+            Log("create initial database");
+            _startAttempts = 0;
+            EnsureIsRemoved(DatabasePath);
+
+            // mysql 5.7 wants an empty data base dir, so we have to use
+            // a temp defaults file for init only, which 8 seems to be ok with
+            using var tempFolder = new AutoTempFolder(
+                Environment.GetEnvironmentVariable("TEMPDB_BASE_PATH")
+            );
+            Log($"temp folder created at {tempFolder}");
+            Log($"dumping defaults in temp folder {tempFolder.Path} for initialization");
+            DumpDefaultsFileAt(tempFolder.Path);
+            InitializeWith(MySqld, Path.Combine(tempFolder.Path, "my.cnf"));
+
+            StoreSharedTemplate();
+        }
+
+        private void StoreSharedTemplate()
+        {
+            try
+            {
+                var cacheDir = SharedTemplateFolder;
+                if (Directory.Exists(cacheDir))
+                {
+                    return;
+                }
+
+                Snapshot(cacheDir, stop: false, restart: false);
+            }
+            catch (Exception ex)
+            {
+                Log($"WARNING: unable to snapshot clean state: {ex}");
+            }
+        }
+
+        private bool SharedTemplateFolderExists =>
+            Directory.Exists(SharedTemplateFolder);
+
+        private string SharedTemplateFolder =>
+            _sharedTemplateFolder ??= DetermineSharedTemplateFolder();
+
+        private string _sharedTemplateFolder;
+
+        private string DetermineSharedTemplateFolder()
+        {
+            var profileDir = Environment.GetFolderPath(
+                Environment.SpecialFolder.UserProfile
+            );
+            return Path.Combine(
+                profileDir,
+                ".cache",
+                "tempdb",
+                $"template-mysql-{MySqlVersion.Version}"
+            );
+        }
+
+        private void BootstrapFromTemplateFolder()
+        {
+            RootPasswordSet = true; // prior snapshot should have set the root password
+            var container = Path.GetDirectoryName(BootstrappedFromTemplateFolder);
+            EnsureFolderDoesNotExist(DatabasePath);
+            var fs = new LocalFileSystem(
+                container
+            );
+            var src = Path.GetFileName(BootstrappedFromTemplateFolder);
+            fs.Copy(src, DatabasePath);
+
+            Log($"Re-using data from {BootstrappedFromTemplateFolder} in {DatabasePath}");
         }
 
 
@@ -550,17 +628,123 @@ namespace PeanutButter.TempDb.MySql.Base
                 .JoinWith(",");
         }
 
-        private void SetRootPassword()
+        private void SetRootPasswordViaCli(int attempt = 0)
         {
-            Log("setting root password (default is 'root', actual password not output in case it's sensitive)");
-            using var conn = base.OpenConnection();
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText =
+            if (attempt > 10)
+            {
+                throw new UnableToInitializeMySqlException(
+                    $"Failed to set root password via cli more than 10 times, error log follows:\n${TryReadErrorLogs().JoinWith("\n")}"
+                );
+            }
+
+            using var tmpFile = new AutoTempFile(
+                // FIXME: enforce quoting
                 $@"alter user 'root'@'localhost' identified with mysql_native_password by '{
                     Settings.Options.RootUserPassword.Replace("'", "''")
-                }';";
-            cmd.ExecuteNonQuery();
-            RootPasswordSet = true;
+                }';
+                SHUTDOWN"
+            );
+            using var io = ProcessIO.Start(
+                MySqld,
+                $"\"--defaults-file={Path.Combine(DatabasePath, "my.cnf")}\"",
+                $"\"--basedir={BaseDirOf(MySqld)}\"",
+                $"\"--datadir={DataDir}\"",
+                $"--port={Port}",
+                $"\"--init-file={tmpFile.Path}\""
+            );
+            var exitCode = io.WaitForExit();
+            if (exitCode == 0)
+            {
+                // TODO: check the error log
+                // -> I've seen this command return 0 when there was an error,
+                //    and no data on stderr/stdout, but data in data/mysql-err.log
+                //    - search for Error in log
+                //    - look for happy exit, eg: "Received SHUTDOWN from user boot. Shutting down mysqld (Version: 8.0.34)."
+                return;
+            }
+
+            if (LooksLikePortConflict())
+            {
+                Port = DeterminePortToUse();
+                SetRootPasswordViaCli(++attempt);
+                return;
+            }
+
+            var stdout = new LogSource("stdout", io.StandardOutput.JoinWith("\n"));
+            var stderr = new LogSource("stderr", io.StandardError.JoinWith("\n"));
+            var errorLog = new LogSource("mysql-err.log", TryReadErrorLogs());
+
+            throw new UnableToInitializeMySqlException(
+                $"Unable to set root password via cli:\n{Collect(stdout, stderr, errorLog)}"
+            );
+        }
+
+        private string Collect(
+            params LogSource[] sources
+        )
+        {
+            var result = new List<string>();
+            foreach (var src in sources)
+            {
+                if (string.IsNullOrWhiteSpace(src.Content))
+                {
+                    continue;
+                }
+
+                result.Add($"{src.Name}:");
+                result.Add($"  {src.Content}");
+            }
+
+            return string.Join("\n", result);
+        }
+
+        private class LogSource
+        {
+            public string Name { get; }
+            public string Content { get; }
+
+            public LogSource(
+                string name,
+                string[] lines
+            ) : this(name, string.Join("\n", lines ?? Array.Empty<string>()))
+            {
+            }
+
+            public LogSource(
+                string name,
+                string content
+            )
+            {
+                Name = name;
+                Content = content;
+            }
+        }
+
+        private string[] TryReadErrorLogs()
+        {
+            var filename = "mysql-err.log";
+            var logFile = FindFirstExistingFile(
+                // mysql 5
+                Path.Combine(DatabasePath, filename),
+                // mysql 8
+                Path.Combine(DataDir, filename)
+            );
+            if (logFile is null)
+            {
+                Log($"no {filename} found under {DatabasePath}");
+                return Array.Empty<string>();
+            }
+
+            try
+            {
+                return File.ReadLines(logFile)
+                    .ToArray();
+            }
+            catch (Exception ex)
+            {
+                Log($"Can't read from {logFile}: {ex}");
+                return Array.Empty<string>();
+            }
         }
 
         public void CloseAllConnections()
@@ -1357,40 +1541,18 @@ stderr: {stderr}"
 
         private bool LooksLikePortConflict()
         {
-            var filename = "mysql-err.log";
-            var logFile = FindFirstExistingFile(
-                // mysql 5
-                Path.Combine(DatabasePath, filename),
-                // mysql 8
-                Path.Combine(DataDir, filename)
-            );
-            if (logFile is null)
+            foreach (var line in TryReadErrorLogs())
             {
-                Log($"no {filename} found under {DatabasePath}");
-                return false;
-            }
-
-            try
-            {
-                var lines = File.ReadLines(logFile);
-                foreach (var line in lines)
+                foreach (var re in PortConflictMatches)
                 {
-                    foreach (var re in PortConflictMatches)
+                    if (re.IsMatch(line))
                     {
-                        if (re.IsMatch(line))
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
+            }
 
-                return false;
-            }
-            catch
-            {
-                Log($"Can't read from {logFile}");
-                return false; // can't read the file, so can't say it might just be a port conflict
-            }
+            return false;
         }
 
         private static Regex[] PortConflictMatches =

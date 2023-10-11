@@ -91,7 +91,9 @@ namespace PeanutButter.TempDb.MySql.Connector
                 Database = SchemaName,
                 ConnectionTimeout = DefaultTimeout,
                 DefaultCommandTimeout = DefaultTimeout,
-                CharacterSet = Settings.CharacterSetServer
+                CharacterSet = Settings.CharacterSetServer,
+                // required for re-use of snapshotted basic databases
+                AllowPublicKeyRetrieval = true
             };
             return builder.ToString();
         }

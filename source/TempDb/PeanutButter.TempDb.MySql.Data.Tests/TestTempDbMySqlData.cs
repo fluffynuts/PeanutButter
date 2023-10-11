@@ -156,7 +156,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             }
         }
 
-
         [TestFixture]
         [Timeout(LONG_TIMEOUT)]
         public class WhenProvidedPathToMySqlD : AutoDestroyTempDbOnTimeout
@@ -596,7 +595,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 Expect(builder.SslMode)
                     .To.Equal(MySqlSslMode.Disabled);
                 Expect(builder.AllowPublicKeyRetrieval)
-                    .To.Be.False();
+                    // required for the case of resurrecting a shared template
+                    .To.Be.True();
             }
         }
 

@@ -152,6 +152,13 @@ namespace PeanutButter.TempDb.MySql.Base
             /// with that
             /// </summary>
             public string TemplateDatabasePath { get; set; }
+
+            /// <summary>
+            /// When set (default true), then:
+            /// 1. if there is no template stored for the current mysql version, one is created
+            /// 2. if there is a template found for the current mysql version, it's used
+            /// </summary>
+            public bool AutoTemplate { get; set; } = true;
         }
 
         /// <summary>
