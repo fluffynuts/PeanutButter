@@ -213,6 +213,7 @@ namespace PeanutButter.TempRedis
         private string _executable;
 
         private bool _stopped = false;
+        private bool _watching = false;
         private Thread _watcherThread;
         private AutoTempFile _configFile;
         private AutoTempFile _saveFile;
@@ -416,19 +417,36 @@ stderr:
             var t = new Thread(
                 () =>
                 {
-                    while (!_stopped)
+                    try
                     {
-                        RestartServerIfRequired();
-                        Thread.Sleep(100);
+                        while (_watching)
+                        {
+                            RestartServerIfRequired();
+                            Thread.Sleep(100);
+                        }
+                    }
+                    catch (ThreadAbortException)
+                    {
+                        // suppress
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger($"{nameof(WatchServerProcess)} died: {ex}");
                     }
                 }
             );
-            t.Start();
+            _watching = false;
             var existingWatcher = Interlocked.Exchange(ref _watcherThread, t);
             if (existingWatcher is not null)
             {
-                existingWatcher.Join();
+                if (!existingWatcher.Join(1000))
+                {
+                    existingWatcher.Abort();
+                }
             }
+
+            _watching = true;
+            t.Start();
         }
 
         private void RestartServerIfRequired()
@@ -485,10 +503,18 @@ stderr:
         {
             try
             {
+                _watching = false;
                 var watcher = Interlocked.Exchange(ref _watcherThread, null);
+                if (watcher is not null)
+                {
+                    if (!watcher.Join(1000))
+                    {
+                        watcher.Abort();
+                    }
+                }
+
                 _stopped = true;
                 _logger("stopping redis-server watcher thread");
-                watcher?.Join();
                 _logger("killing redis-server");
                 var serverProcess = Interlocked.Exchange(ref _serverProcess, null);
                 serverProcess?.Kill();
