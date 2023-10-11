@@ -96,6 +96,10 @@ namespace PeanutButter.TempRedis
     /// </summary>
     public class TempRedisOptions
     {
+        /// <summary>
+        /// name of the environment variable which is observed to disable
+        /// the automatically-enabled feature to store redis data on-disc
+        /// </summary>
         public const string ENV_VAR_DISABLE_DISK = "TEMPREDIS_DISABLE_DISK";
 
         /// <summary>
@@ -440,22 +444,9 @@ stderr:
                 return;
             }
 
-            try
+            if (CanConnect())
             {
-                if (!serverProcess.HasExited)
-                {
-                    return;
-                }
-            }
-            catch (InvalidOperationException ex)
-            {
-                // thrown when "no process is associated with this object"
-                // -> process could have not started up yet
-                if (CanConnect())
-                {
-                    return;
-                }
-                _logger($"Error whilst querying process exit state: {ex}");
+                return;
             }
 
             try

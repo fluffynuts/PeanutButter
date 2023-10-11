@@ -79,7 +79,6 @@ public class TestTempRedis
             .Not.To.Be.Null(() => "Can't determine the redis server");
     }
 
-
     [Test]
     [Timeout(30000)]
     public void ShouldSurviveRedisComingUpLate()
