@@ -64,7 +64,7 @@ namespace PeanutButter.TempRedis
         /// </summary>
         /// <returns></returns>
         ConnectionMultiplexer Connect();
-        
+
         /// <summary>
         /// Connect to the redis instance with your own options
         /// </summary>
@@ -96,6 +96,8 @@ namespace PeanutButter.TempRedis
     /// </summary>
     public class TempRedisOptions
     {
+        public const string ENV_VAR_DISABLE_DISK = "TEMPREDIS_DISABLE_DISK";
+
         /// <summary>
         /// Auto-start the service on construction? (default true)
         /// </summary>
@@ -120,7 +122,12 @@ namespace PeanutButter.TempRedis
         /// Enables save-to-disk, which means redis-server should
         /// (mostly) survive a crash.
         /// </summary>
-        public bool EnableSaveToDisk { get; set; } = true;
+        public bool EnableSaveToDisk { get; set; } =
+            (
+                Environment.GetEnvironmentVariable(ENV_VAR_DISABLE_DISK)
+                ?? "1"
+            )
+            .AsBoolean();
 
         /// <summary>
         /// When enabled (default), only bind to 127.0.0.1
