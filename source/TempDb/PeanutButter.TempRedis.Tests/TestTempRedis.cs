@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using StackExchange.Redis;
 using NUnit.Framework;
 using NExpect;
@@ -77,6 +78,49 @@ public class TestTempRedis
         Expect(server)
             .Not.To.Be.Null(() => "Can't determine the redis server");
     }
+
+
+    [Test]
+    [Timeout(30000)]
+    public void ShouldSurviveRedisComingUpLate()
+    {
+        // Arrange
+        var key = GetRandomString();
+        var value = GetRandomString();
+        using var sut = new TempRedis();
+        sut.Stop();
+        // Act
+        StartTempRedisAfterASecond();
+        var conn = sut.Connect(
+            new ConfigurationOptions()
+            {
+                ConnectTimeout = 5000,
+                ConnectRetry = 3,
+            }
+        );
+        sut.Stop();
+        StartTempRedisAfterASecond();
+        var db = conn.GetDatabase(0);
+        db.StringSet(key, value);
+        // can't stop here: redis is in-memory, so the value would be discarded
+        var result = db.StringGet(key);
+        // Assert
+        Expect(result)
+            .To.Equal(value);
+
+
+        void StartTempRedisAfterASecond()
+        {
+            Task.Run(
+                () =>
+                {
+                    Thread.Sleep(1000);
+                    sut.Start();
+                }
+            );
+        }
+    }
+
 
     [Test]
     public void ShouldProvideConvenienceConnectMethodWithOptions()

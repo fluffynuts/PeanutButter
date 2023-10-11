@@ -439,7 +439,7 @@ stderr:
             }
 
             _logger("redis-server appears to have exited... restarting...");
-            _serverProcess = null;
+            Interlocked.Exchange(ref _serverProcess, null);
             StartInternal(startWatcher: false);
         }
 
@@ -453,9 +453,9 @@ stderr:
                 _logger("stopping redis-server watcher thread");
                 watcher?.Join();
                 _logger("killing redis-server");
-                _serverProcess?.Kill();
-                _serverProcess?.WaitForExit();
-                _serverProcess = null;
+                var serverProcess = Interlocked.Exchange(ref _serverProcess, null);
+                serverProcess?.Kill();
+                serverProcess?.WaitForExit();
             }
             catch (Exception ex)
             {

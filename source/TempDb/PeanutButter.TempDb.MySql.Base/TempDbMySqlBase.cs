@@ -28,7 +28,7 @@ namespace PeanutButter.TempDb.MySql.Base
     public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     {
         public string BootstrappedFromTemplateFolder { get; protected set; }
-        
+
         public string ServerCommandline =>
             _serverProcess?.Commandline;
 
@@ -319,12 +319,41 @@ namespace PeanutButter.TempDb.MySql.Base
             };
         }
 
+        /// <summary>
+        /// Snapshots the database and returns the path on disk
+        /// - will stop the server to snapshot and then restart
+        ///   the server afterwards
+        /// </summary>
+        /// <returns></returns>
         public string Snapshot()
         {
             return Snapshot(null);
         }
 
+        /// <summary>
+        /// Snapshots the database to the provided path and
+        ///   returns the path on disk
+        /// - will stop the server to snapshot and then restart
+        ///   the server afterwards
+        /// </summary>
+        /// <returns></returns>
         public string Snapshot(string toNewFolder)
+        {
+            return Snapshot(toNewFolder, true);
+        }
+
+        /// <summary>
+        /// Snapshots the database to the provided path and
+        ///   returns the path on disk
+        /// - will stop the server to snapshot and then
+        ///   optionally restart it afterwards
+        /// <param name="toNewFolder">Path to snapshot to (will be nuked if it exists)</param>
+        /// <param name="restartServerAfterwards">Flag: restart the server after snapshotting</param>
+        /// <returns></returns>
+        public string Snapshot(
+            string toNewFolder,
+            bool restartServerAfterwards
+        )
         {
             SetDbInstanceId("");
             DisposeManagedConnections();
@@ -345,7 +374,11 @@ namespace PeanutButter.TempDb.MySql.Base
 
             // restarting the server after having wiped the instance
             // id should cause the instance id to be automagically rewritten
-            StartServer(MySqld, null);
+            if (restartServerAfterwards)
+            {
+                StartServer(MySqld, null);
+            }
+
             return result;
         }
 
@@ -470,7 +503,6 @@ namespace PeanutButter.TempDb.MySql.Base
                 SetUpAutoDisposeIfRequired();
             }
         }
-
 
 
         private void RedirectDebugLogging()
@@ -910,7 +942,10 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private bool _watcherPaused = false;
 
-        private void StartServer(string mysqld, Guid? assimilatedInstanceId)
+        private void StartServer(
+            string mysqld,
+            Guid? assimilatedInstanceId
+        )
         {
             PauseWatcher();
             var args = new[]
