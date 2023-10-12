@@ -139,7 +139,8 @@ namespace PeanutButter.TempRedis
             .AsBoolean();
 
         /// <summary>
-        /// When enabled (default), only bind to 127.0.0.1
+        /// When enabled (default), only bind to localhost
+        /// - preferring 127.0.0.1 over ::1
         /// - default redis binding is to all interfaces,
         /// this option is defaulted to true such that the
         /// default TempRedis behavior is to bind to localhost
@@ -318,15 +319,14 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
         private string ListLocalHostAddresses()
         {
             var entry = Dns.GetHostEntry("localhost");
-            return string.Join(
-                " ",
-                entry.AddressList
-                    // during testing, I found that if the ipv6 address was specified
-                    // second, it would not be bound, so we order here to get any
-                    // ipv6 address (if available) first
-                    .OrderBy(a => a.AddressFamily != AddressFamily.InterNetworkV6)
+
+            var addresses = entry.AddressList
+                    // prefer 127.0.0.1 over ::1
+                    .OrderBy(a => a.AddressFamily == AddressFamily.InterNetworkV6)
                     .Select(a => $"{a}")
-            );
+                    .ToArray();
+            _localHostIp = addresses.First();
+            return string.Join(" ", addresses);
         }
 
         /// <inheritdoc />
@@ -425,7 +425,7 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
                         EndPoints =
                         {
                             {
-                                "127.0.0.1", Port
+                                _localHostIp, Port
                             }
                         },
                         ConnectTimeout = 50,
@@ -437,13 +437,14 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
             }
             catch (RedisConnectionException)
             {
-                if (!_serverProcess.HasExited)
+                var serverProcess = _serverProcess;
+                if (!serverProcess.HasExited)
                 {
-                    _serverProcess.Kill();
+                    serverProcess.Kill();
                 }
 
-                var stdout = _serverProcess.StandardOutput.ReadToEnd();
-                var stderr = _serverProcess.StandardOutput.ReadToEnd();
+                var stdout = serverProcess.StandardOutput.ReadToEnd();
+                var stderr = serverProcess.StandardOutput.ReadToEnd();
                 throw new Exception(
                     $@"Unable to start {RedisExecutable} on port {Port}:
 stdout:
@@ -493,33 +494,30 @@ stderr:
 
         private void RestartServerIfRequired()
         {
-            if (!_running)
+            lock (_lock)
             {
-                return;
-            }
+                if (_disposed || !_running)
+                {
+                    return;
+                }
 
-            var serverProcess = _serverProcess;
-            if (serverProcess is null)
-            {
-                return;
-            }
+                if (ServerProcessIsRunning && CanConnect())
+                {
+                    return;
+                }
 
-            if (ServerProcessIsRunning && CanConnect())
-            {
-                return;
-            }
-
-            try
-            {
-                Log("redis-server appears to have exited... restarting...");
-                Interlocked.Exchange(ref _serverProcess, null);
-                _running = false;
-                StartInternal(startWatcher: false);
-            }
-            catch (Exception ex)
-            {
-                // don't want to leave an unhandled exception in a background thread!
-                Log($"an attempt to start redis-server failed: {ex}; next round of server-checks will try again");
+                try
+                {
+                    Log("redis-server appears to have exited... restarting...");
+                    Interlocked.Exchange(ref _serverProcess, null);
+                    _running = false;
+                    StartInternal(startWatcher: false);
+                }
+                catch (Exception ex)
+                {
+                    // don't want to leave an unhandled exception in a background thread!
+                    Log($"an attempt to start redis-server failed: {ex}; next round of server-checks will try again");
+                }
             }
         }
 
@@ -570,7 +568,13 @@ stderr:
 
         private void ValidateNotDisposed()
         {
-            if (_disposed)
+            var disposed = false;
+            lock (_lock)
+            {
+                disposed = _disposed;
+            }
+
+            if (disposed)
             {
                 throw new ObjectDisposedException(
                     nameof(TempRedis),
@@ -591,6 +595,7 @@ stderr:
         }
 
         private readonly object _lock = new();
+        private string _localHostIp;
 
         /// <inheritdoc />
         public void Dispose()
