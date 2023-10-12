@@ -59,6 +59,11 @@ namespace PeanutButter.TempRedis
         RedisLocatorStrategies LocatorStrategies { get; set; }
 
         /// <summary>
+        /// Flag: true when the redis server is running
+        /// </summary>
+        bool IsRunning { get; }
+
+        /// <summary>
         /// Provides a simple mechanism to open a connection to the
         /// redis instance
         /// </summary>
@@ -210,14 +215,16 @@ namespace PeanutButter.TempRedis
         public string RedisExecutable =>
             _executable ??= FindRedisExecutable();
 
+        public bool IsRunning => _running;
+
         private string _executable;
 
-        private bool _stopped = false;
-        private bool _watching = false;
         private Thread _watcherThread;
         private AutoTempFile _configFile;
         private AutoTempFile _saveFile;
         private readonly Action<string> _logger;
+        private bool _running;
+        private bool _disposed;
 
         /// <summary>
         /// Possible strategies for locating a redis server executable
@@ -245,6 +252,7 @@ namespace PeanutButter.TempRedis
             ConfigurationOptions options
         )
         {
+            ValidateNotDisposed();
             options.EndPoints.Clear();
             options.EndPoints.Add("127.0.0.1", Port);
             return ConnectionMultiplexer.Connect(options);
@@ -324,21 +332,60 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
         /// <inheritdoc />
         public void Start()
         {
-            StartInternal(startWatcher: true);
+            lock (_lock)
+            {
+                StartInternal(startWatcher: true);
+            }
+        }
+
+        private void Log(Func<string> messageGenerator)
+        {
+            try
+            {
+                Log(messageGenerator());
+            }
+            catch
+            {
+                // suppress
+            }
+        }
+
+        private void Log(string message)
+        {
+            try
+            {
+                _logger(message);
+            }
+            catch
+            {
+                // suppress
+            }
         }
 
         private void StartInternal(bool startWatcher)
         {
+            ValidateNotDisposed();
+            if (_running)
+            {
+                Log(
+                    () =>
+                        $"{nameof(TempRedis)} already running with pid: {_serverProcess.Id}"
+                );
+                return;
+            }
+
+            _running = true;
+
             var canStart = _serverProcess?.HasExited ?? true;
             if (!canStart)
             {
-                _logger(
+                Log(
                     $"{nameof(TempRedis)} already running with pid: {_serverProcess.Id}"
                 );
                 return;
             }
 
-            _logger($"attempting to start up on port: {Port}");
+            Log($"attempting to start up on port: {Port}");
 
             _serverProcess = new Process()
             {
@@ -358,7 +405,7 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
                 throw new Exception($"Unable to start {RedisExecutable} on port {Port}");
             }
 
-            _logger($"redis-server process started: {_serverProcess.Id}");
+            Log($"redis-server process started: {_serverProcess.Id}");
             TestServerIsUp();
 
             if (startWatcher)
@@ -371,7 +418,7 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
         {
             try
             {
-                _logger("testing connection to server...");
+                Log("testing connection to server...");
                 using var db = ConnectionMultiplexer.Connect(
                     new ConfigurationOptions()
                     {
@@ -386,7 +433,7 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
                         AbortOnConnectFail = false
                     }
                 );
-                _logger("server is up!");
+                Log("server is up!");
             }
             catch (RedisConnectionException)
             {
@@ -414,12 +461,18 @@ stderr:
 
         private void WatchServerProcess()
         {
+            if (_watcherThread is not null)
+            {
+                // already watching
+                return;
+            }
+
             var t = new Thread(
                 () =>
                 {
                     try
                     {
-                        while (_watching)
+                        while (!_disposed)
                         {
                             RestartServerIfRequired();
                             Thread.Sleep(100);
@@ -427,31 +480,20 @@ stderr:
                     }
                     catch (ThreadAbortException)
                     {
-                        // suppress
+                        // suppress, just exit out
                     }
                     catch (Exception ex)
                     {
-                        _logger($"{nameof(WatchServerProcess)} died: {ex}");
+                        Log($"{nameof(WatchServerProcess)} died: {ex}");
                     }
                 }
             );
-            _watching = false;
-            var existingWatcher = Interlocked.Exchange(ref _watcherThread, t);
-            if (existingWatcher is not null)
-            {
-                if (!existingWatcher.Join(1000))
-                {
-                    existingWatcher.Abort();
-                }
-            }
-
-            _watching = true;
             t.Start();
         }
 
         private void RestartServerIfRequired()
         {
-            if (_stopped)
+            if (!_running)
             {
                 return;
             }
@@ -462,21 +504,22 @@ stderr:
                 return;
             }
 
-            if (CanConnect())
+            if (ServerProcessIsRunning && CanConnect())
             {
                 return;
             }
 
             try
             {
-                _logger("redis-server appears to have exited... restarting...");
+                Log("redis-server appears to have exited... restarting...");
                 Interlocked.Exchange(ref _serverProcess, null);
+                _running = false;
                 StartInternal(startWatcher: false);
             }
             catch (Exception ex)
             {
                 // don't want to leave an unhandled exception in a background thread!
-                _logger($"an attempt to start redis-server failed: {ex}; next round of server-checks will try again");
+                Log($"an attempt to start redis-server failed: {ex}; next round of server-checks will try again");
             }
         }
 
@@ -501,21 +544,20 @@ stderr:
         /// <inheritdoc />
         public void Stop()
         {
+            lock (_lock)
+            {
+                StopInternal();
+            }
+        }
+
+        private void StopInternal()
+        {
+            ValidateNotDisposed();
             try
             {
-                _watching = false;
-                var watcher = Interlocked.Exchange(ref _watcherThread, null);
-                if (watcher is not null)
-                {
-                    if (!watcher.Join(1000))
-                    {
-                        watcher.Abort();
-                    }
-                }
-
-                _stopped = true;
-                _logger("stopping redis-server watcher thread");
-                _logger("killing redis-server");
+                _running = false;
+                Log("stopping redis-server watcher thread");
+                Log("killing redis-server");
                 var serverProcess = Interlocked.Exchange(ref _serverProcess, null);
                 serverProcess?.Kill();
                 serverProcess?.WaitForExit();
@@ -526,22 +568,47 @@ stderr:
             }
         }
 
+        private void ValidateNotDisposed()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(
+                    nameof(TempRedis),
+                    "This instance has already been disposed"
+                );
+            }
+        }
+
         /// <inheritdoc />
         public void Restart()
         {
-            _logger("manual restart invoked");
-            Stop();
-            Start();
+            Log("manual restart invoked");
+            lock (_lock)
+            {
+                StopInternal();
+                StartInternal(startWatcher: true);
+            }
         }
+
+        private readonly object _lock = new();
 
         /// <inheritdoc />
         public void Dispose()
         {
-            Stop();
-            _configFile?.Dispose();
-            _configFile = null;
-            _saveFile?.Dispose();
-            _saveFile = null;
+            lock (_lock)
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+
+                StopInternal();
+                _disposed = true;
+                _configFile?.Dispose();
+                _configFile = null;
+                _saveFile?.Dispose();
+                _saveFile = null;
+            }
         }
 
         private string FindRedisExecutable()
