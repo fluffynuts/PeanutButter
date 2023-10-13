@@ -21,6 +21,7 @@ namespace PeanutButter.TempDb.MySql.Base
         public static class EnvironmentVariables
         {
             public const string PORT_HINT = "TEMPDB_PORT_HINT";
+            public const string SQL_MODE = "TEMPDB_MYSQL_SQL_MODE";
         }
 
         /// <summary>
@@ -416,7 +417,9 @@ namespace PeanutButter.TempDb.MySql.Base
         /// mysql server setting
         /// </summary>
         [Setting("sql-mode")]
-        public string SqlMode { get; set; } = "STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";
+        public string SqlMode { get; set; } = 
+            Environment.GetEnvironmentVariable(EnvironmentVariables.SQL_MODE)
+                ?? "STRICT_TRANS_TABLES,STRICT_ALL_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";
 
         /// <summary>
         /// mysql server setting
