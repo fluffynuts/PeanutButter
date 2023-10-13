@@ -15,6 +15,7 @@ namespace PeanutButter.Utils
     /// renders the instance unusable from then on.
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [Obsolete("Rather use ISlidingWindow - it has time and max-item limits")]
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
@@ -38,6 +39,7 @@ namespace PeanutButter.Utils
     }
 
     /// <inheritdoc />
+    [Obsolete("Rather use SlidingWindow - it has time and max-item limits")]
 #if BUILD_PEANUTBUTTER_INTERNAL
     internal
 #else
@@ -49,11 +51,13 @@ namespace PeanutButter.Utils
         public long MaxSize
         {
             get => RunLocked(() => _maxSize);
-            set => RunLocked(() =>
-            {
-                _maxSize = value;
-                TrimUnlocked(_maxSize);
-            });
+            set => RunLocked(
+                () =>
+                {
+                    _maxSize = value;
+                    TrimUnlocked(_maxSize);
+                }
+            );
         }
 
         private long _maxSize;
@@ -79,11 +83,13 @@ namespace PeanutButter.Utils
         /// <inheritdoc />
         public void Add(T item)
         {
-            RunLocked(() =>
-            {
-                Queue.Enqueue(item);
-                TrimUnlocked(_maxSize);
-            });
+            RunLocked(
+                () =>
+                {
+                    Queue.Enqueue(item);
+                    TrimUnlocked(_maxSize);
+                }
+            );
         }
 
         private T[] Snapshot()
@@ -96,11 +102,13 @@ namespace PeanutButter.Utils
         /// <inheritdoc />
         public void Dispose()
         {
-            RunLocked(() =>
-            {
-                TrimUnlocked(0);
-                _queue = null;
-            });
+            RunLocked(
+                () =>
+                {
+                    TrimUnlocked(0);
+                    _queue = null;
+                }
+            );
         }
 
         private TResult RunLocked<TResult>(Func<TResult> toRun)
