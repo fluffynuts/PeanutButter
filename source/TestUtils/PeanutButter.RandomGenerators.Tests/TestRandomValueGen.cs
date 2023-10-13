@@ -33,6 +33,30 @@ namespace PeanutButter.RandomGenerators.Tests
     public class TestRandomValueGen
     {
         [TestFixture]
+        public class GetRandomIntKey
+        {
+            [Test]
+            public void ShouldDefaultToReturnValueBetween_1_and_1000()
+            {
+                // Arrange
+                var ints = new List<int>();
+                // Act
+                RunCycles(
+                    () => ints.Add(
+                        GetRandomIntKey()
+                    )
+                );
+                // Assert
+                Expect(ints)
+                    .To.Contain.All
+                    .Matched.By(
+                        i => i is > 0 and < 1001
+                    );
+                VarianceAssert.IsVariant(ints);
+            }
+        }
+
+        [TestFixture]
         public class GetRandomInt
         {
             [TestCase(

@@ -69,12 +69,12 @@ namespace PeanutButter.RandomGenerators
             var type = typeof(T);
             if (RandomGenerators.TryGetValue(type, out var handler))
             {
-                return (T) handler();
+                return (T)handler();
             }
 
             if (type.IsEnum())
             {
-                return (T) GetRandomEnum(type);
+                return (T)GetRandomEnum(type);
             }
 
             var dictionaryInterfaceType = type
@@ -86,10 +86,10 @@ namespace PeanutButter.RandomGenerators
                 var keyType = genericArgs[0];
                 var valueType = genericArgs[1];
                 var method = GenericGetRandomDictionary.MakeGenericMethod(keyType, valueType);
-                return (T) method.Invoke(null, new object[0]);
+                return (T)method.Invoke(null, new object[0]);
             }
 
-            return (T) GetRandom(type);
+            return (T)GetRandom(type);
         }
 
         private static readonly MethodInfo GenericGetRandomDictionary = typeof(RandomValueGen)
@@ -202,7 +202,7 @@ namespace PeanutButter.RandomGenerators
             Func<T> generator
         )
         {
-            RandomGenerators[typeof(T)] = () => (object) (generator());
+            RandomGenerators[typeof(T)] = () => (object)(generator());
         }
 
         private class RandomValueSpecialCase
@@ -473,7 +473,35 @@ namespace PeanutButter.RandomGenerators
             int maxValue
         )
         {
-            return (int) GetRandomLong(minValue, maxValue);
+            return (int)GetRandomLong(minValue, maxValue);
+        }
+
+        /// <summary>
+        /// Returns a random integer from 1 to 1000, as might
+        /// be seen on an integer id field in a database.
+        /// </summary>
+        /// <returns></returns>
+        public static int GetRandomIntKey()
+        {
+            return GetRandomIntKey(1000);
+        }
+
+        /// <summary>
+        /// Returns a random integer from 1 to {maxValue}, as might
+        /// be seen on an integer id field in a database.
+        /// </summary>
+        /// <param name="maxValue"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">Thrown if maxValue is provided &lt; 2</exception>
+        public static int GetRandomIntKey(int maxValue)
+        {
+            if (maxValue < 2)
+            {
+                throw new ArgumentException(
+                    $"maxValue for {nameof(GetRandomIntKey)} must be at least 2"
+                );
+            }
+            return GetRandomInt(1, maxValue);
         }
 
         /// <summary>
@@ -552,7 +580,7 @@ namespace PeanutButter.RandomGenerators
 
             var dec = RandomGenerator.NextDouble();
             var range = maxValue - minValue + 1;
-            return minValue + (long) (range * dec);
+            return minValue + (long)(range * dec);
         }
 
         /// <summary>
@@ -797,7 +825,7 @@ namespace PeanutButter.RandomGenerators
         private static readonly Dictionary<TimeSpanContexts, Func<double, TimeSpan>>
             TimespanGenerators = new Dictionary<TimeSpanContexts, Func<double, TimeSpan>>()
             {
-                [TimeSpanContexts.Ticks] = i => TimeSpan.FromTicks((long) i),
+                [TimeSpanContexts.Ticks] = i => TimeSpan.FromTicks((long)i),
                 [TimeSpanContexts.Milliseconds] = TimeSpan.FromMilliseconds,
                 [TimeSpanContexts.Seconds] = TimeSpan.FromSeconds,
                 [TimeSpanContexts.Minutes] = TimeSpan.FromMinutes,
@@ -915,7 +943,7 @@ namespace PeanutButter.RandomGenerators
             double max
         )
         {
-            return GetRandomDecimal((decimal) min, (decimal) max);
+            return GetRandomDecimal((decimal)min, (decimal)max);
         }
 
         /// <summary>
@@ -929,7 +957,7 @@ namespace PeanutButter.RandomGenerators
             long max
         )
         {
-            return GetRandomDecimal((decimal) min, (decimal) max);
+            return GetRandomDecimal((decimal)min, (decimal)max);
         }
 
         /// <summary>
@@ -943,7 +971,7 @@ namespace PeanutButter.RandomGenerators
             decimal max
         )
         {
-            return (decimal) GetRandomDouble((double) min, (double) max);
+            return (decimal)GetRandomDouble((double)min, (double)max);
         }
 
         /// <summary>
@@ -985,7 +1013,7 @@ namespace PeanutButter.RandomGenerators
             decimal max
         )
         {
-            return (decimal) GetRandomDouble((double) min, (double) max)
+            return (decimal)GetRandomDouble((double)min, (double)max)
                 .ToFixed(2);
         }
 
@@ -1029,7 +1057,7 @@ namespace PeanutButter.RandomGenerators
             decimal max
         )
         {
-            return (decimal) GetRandomDouble((double) min, (double) max)
+            return (decimal)GetRandomDouble((double)min, (double)max)
                 .ToFixed(2);
         }
 
@@ -1074,7 +1102,7 @@ namespace PeanutButter.RandomGenerators
             decimal max
         )
         {
-            return (decimal) GetRandomDouble((double) min, (double) max)
+            return (decimal)GetRandomDouble((double)min, (double)max)
                 .ToFixed(2);
         }
 
@@ -1167,7 +1195,7 @@ namespace PeanutButter.RandomGenerators
             float max
         )
         {
-            return (float) GetRandomDouble(min, max);
+            return (float)GetRandomDouble(min, max);
         }
 
         /// <summary>
@@ -1221,7 +1249,7 @@ namespace PeanutButter.RandomGenerators
             }
 
             return TimeSpan.FromSeconds(
-                GetRandomInt((int) minSeconds, (int) maxSeconds)
+                GetRandomInt((int)minSeconds, (int)maxSeconds)
             );
         }
 
@@ -1516,8 +1544,20 @@ namespace PeanutButter.RandomGenerators
             );
         }
 
-        private static readonly string[] Joiners = { ".", "-", "_", "" };
-        private static readonly string[] NumberSuffixes = { "a", "b", "c" };
+        private static readonly string[] Joiners =
+        {
+            ".",
+            "-",
+            "_",
+            ""
+        };
+
+        private static readonly string[] NumberSuffixes =
+        {
+            "a",
+            "b",
+            "c"
+        };
 
         /// <summary>
         /// Returns a random first name, sourced from unique top names:
@@ -1609,7 +1649,10 @@ namespace PeanutButter.RandomGenerators
             // ReSharper disable once ImpureMethodCallOnReadonlyValueField
             return string.Join(
                 "\\",
-                new[] { drive }.And(folders.ToArray())
+                new[]
+                {
+                    drive
+                }.And(folders.ToArray())
             );
         }
 
@@ -1895,7 +1938,7 @@ namespace PeanutButter.RandomGenerators
                     _ =>
                         GetRandom(
                             c => c < 'A' || c > 'z',
-                            () => (char) GetRandomInt(32, 255)
+                            () => (char)GetRandomInt(32, 255)
                         )
                 )
                 .JoinWith("");
@@ -2111,7 +2154,9 @@ namespace PeanutButter.RandomGenerators
             var itemArray = items as T[] ?? items.ToArray();
             if (itemArray.Length == 0)
             {
-                return new T[] { };
+                return new T[]
+                {
+                };
             }
 
             if (minValues >= itemArray.Length)
