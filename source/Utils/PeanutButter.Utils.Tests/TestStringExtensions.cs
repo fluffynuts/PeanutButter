@@ -177,7 +177,12 @@ public class TestStringExtensions
             var result = input.SplitIntoLines();
             // Assert
             Expect(result)
-                .To.Equal(new[] { input });
+                .To.Equal(
+                    new[]
+                    {
+                        input
+                    }
+                );
         }
 
         [Test]
@@ -192,7 +197,8 @@ public class TestStringExtensions
                 .To.Equal(
                     new[]
                     {
-                        "foo", "bar"
+                        "foo",
+                        "bar"
                     }
                 );
         }
@@ -209,7 +215,8 @@ public class TestStringExtensions
                 .To.Equal(
                     new[]
                     {
-                        "foo", "bar"
+                        "foo",
+                        "bar"
                     }
                 );
         }
@@ -226,7 +233,8 @@ public class TestStringExtensions
                 .To.Equal(
                     new[]
                     {
-                        "foo", "bar"
+                        "foo",
+                        "bar"
                     }
                 );
         }
@@ -270,7 +278,12 @@ public class TestStringExtensions
 
                 // Act
                 var result = input.ReplaceAll(
-                    new[] { '.', '-', '_' },
+                    new[]
+                    {
+                        '.',
+                        '-',
+                        '_'
+                    },
                     ' '
                 );
                 // Assert
@@ -293,7 +306,12 @@ public class TestStringExtensions
 
                 // Act
                 var result = input.ReplaceAll(
-                    new[] { ".", "-", "_" },
+                    new[]
+                    {
+                        ".",
+                        "-",
+                        "_"
+                    },
                     " "
                 );
                 // Assert
@@ -312,8 +330,18 @@ public class TestStringExtensions
             {
                 // Arrange
                 var input = "foo.bar-quux_wat";
-                var chars = new[] { '.', '-', '_' };
-                var strings = new[] { ".", "-", "_" };
+                var chars = new[]
+                {
+                    '.',
+                    '-',
+                    '_'
+                };
+                var strings = new[]
+                {
+                    ".",
+                    "-",
+                    "_"
+                };
                 var iterations = 10000000;
                 string foo = null;
 
@@ -568,7 +596,7 @@ public class TestStringExtensions
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = ((string) null).AsBytes();
+            var result = ((string)null).AsBytes();
 
             //---------------Test Result -----------------------
             Expect(result as object).To.Be.Null();
@@ -1057,7 +1085,12 @@ public class TestStringExtensions
         {
             //--------------- Arrange -------------------
             var input = "foo";
-            var search = new[] { "bar", "quuz", "wibbles" };
+            var search = new[]
+            {
+                "bar",
+                "quuz",
+                "wibbles"
+            };
 
             //--------------- Assume ----------------
 
@@ -1074,7 +1107,13 @@ public class TestStringExtensions
         {
             //--------------- Arrange -------------------
             var input = "foo";
-            var search = new[] { "bar", "quuz", "oo", "wibbles" }.Randomize().ToArray();
+            var search = new[]
+            {
+                "bar",
+                "quuz",
+                "oo",
+                "wibbles"
+            }.Randomize().ToArray();
 
             //--------------- Assume ----------------
 
@@ -1138,7 +1177,12 @@ public class TestStringExtensions
         {
             //--------------- Arrange -------------------
             var input = "hello, world";
-            var search = new[] { "hello", ", ", "world" }.Randomize().ToArray();
+            var search = new[]
+            {
+                "hello",
+                ", ",
+                "world"
+            }.Randomize().ToArray();
 
             //--------------- Assume ----------------
 
@@ -1155,7 +1199,12 @@ public class TestStringExtensions
         {
             //--------------- Arrange -------------------
             var input = "hello, world";
-            var search = new[] { "hello", ", ", "there" }.Randomize().ToArray();
+            var search = new[]
+            {
+                "hello",
+                ", ",
+                "there"
+            }.Randomize().ToArray();
 
             //--------------- Assume ----------------
 
@@ -1684,7 +1733,14 @@ public class TestStringExtensions
             public void OperatingOn_Whitespace_ShouldReturnFalse()
             {
                 // Arrange
-                var input = GetRandomFrom(new[] { " ", "\t", "\r" });
+                var input = GetRandomFrom(
+                    new[]
+                    {
+                        " ",
+                        "\t",
+                        "\r"
+                    }
+                );
                 // Pre-assert
                 // Act
                 var result = input.IsNumeric();
@@ -1771,7 +1827,14 @@ public class TestStringExtensions
             public void OperatingOn_Whitespace_ShouldReturnFalse()
             {
                 // Arrange
-                var input = GetRandomFrom(new[] { " ", "\r", "\t" });
+                var input = GetRandomFrom(
+                    new[]
+                    {
+                        " ",
+                        "\r",
+                        "\t"
+                    }
+                );
                 // Pre-assert
                 // Act
                 var result = input.IsAlpha();
@@ -1860,7 +1923,14 @@ public class TestStringExtensions
             public void OperatingOn_Whitespace_ShouldReturnFalse()
             {
                 // Arrange
-                var input = GetRandomFrom(new[] { " ", "\r", "\t" });
+                var input = GetRandomFrom(
+                    new[]
+                    {
+                        " ",
+                        "\r",
+                        "\t"
+                    }
+                );
                 // Pre-assert
                 // Act
                 var result = input.IsAlphanumeric();
@@ -1995,7 +2065,12 @@ public class TestStringExtensions
             var result = program.SplitCommandline();
             // Assert
             Expect(result)
-                .To.Equal(new[] { program });
+                .To.Equal(
+                    new[]
+                    {
+                        program
+                    }
+                );
         }
 
         [Test]
@@ -2009,7 +2084,12 @@ public class TestStringExtensions
             var result = cli.SplitCommandline();
             // Assert
             Expect(result)
-                .To.Equal(new[] { program });
+                .To.Equal(
+                    new[]
+                    {
+                        program
+                    }
+                );
         }
 
         [Test]
@@ -2023,7 +2103,12 @@ public class TestStringExtensions
             var result = cli.SplitCommandline();
             // Assert
             Expect(result)
-                .To.Equal(new[] { program });
+                .To.Equal(
+                    new[]
+                    {
+                        program
+                    }
+                );
         }
 
         [Test]
@@ -2037,7 +2122,14 @@ public class TestStringExtensions
             var result = cli.SplitCommandline();
             // Assert
             Expect(result)
-                .To.Equal(new[] { program, "arg1", "arg2" });
+                .To.Equal(
+                    new[]
+                    {
+                        program,
+                        "arg1",
+                        "arg2"
+                    }
+                );
         }
 
         [Test]
@@ -2051,7 +2143,13 @@ public class TestStringExtensions
             var result = cli.SplitCommandline();
             // Assert
             Expect(result)
-                .To.Equal(new[] { program, "arg1 arg2" });
+                .To.Equal(
+                    new[]
+                    {
+                        program,
+                        "arg1 arg2"
+                    }
+                );
         }
     }
 
@@ -2162,8 +2260,18 @@ public class TestStringExtensions
         public void ShouldMatchIdenticalCollections()
         {
             // Arrange
-            var left = new[] { "a", "b", "c" };
-            var right = new[] { "a", "b", "c" };
+            var left = new[]
+            {
+                "a",
+                "b",
+                "c"
+            };
+            var right = new[]
+            {
+                "a",
+                "b",
+                "c"
+            };
             // Act
             var result = left.Matches(right);
             // Assert
@@ -2176,8 +2284,18 @@ public class TestStringExtensions
         public void ShouldUseGivenStringComparison()
         {
             // Arrange
-            var left = new[] { "a", "b", "c" };
-            var right = new[] { "A", "B", "C" };
+            var left = new[]
+            {
+                "a",
+                "b",
+                "c"
+            };
+            var right = new[]
+            {
+                "A",
+                "B",
+                "C"
+            };
             // Act
             var result = left.Matches(right, StringComparison.OrdinalIgnoreCase);
             // Assert
@@ -2617,7 +2735,12 @@ function foo() {
                 var result = str.SplitOnce(";");
                 // Assert
                 Expect(result)
-                    .To.Equal(new[] { "" });
+                    .To.Equal(
+                        new[]
+                        {
+                            ""
+                        }
+                    );
             }
         }
 
@@ -2635,7 +2758,12 @@ function foo() {
                 var result = str.SplitOnce("::");
                 // Assert
                 Expect(result)
-                    .To.Equal(new[] { str });
+                    .To.Equal(
+                        new[]
+                        {
+                            str
+                        }
+                    );
             }
         }
 
@@ -2649,7 +2777,11 @@ function foo() {
             {
                 // Arrange
                 var str = "foo;bar";
-                var expected = new[] { "foo", "bar" };
+                var expected = new[]
+                {
+                    "foo",
+                    "bar"
+                };
                 // Act
                 var result = str.SplitOnce(";");
                 // Assert
@@ -2668,7 +2800,11 @@ function foo() {
             {
                 // Arrange
                 var str = "foo::bar::qux";
-                var expected = new[] { "foo", "bar::qux" };
+                var expected = new[]
+                {
+                    "foo",
+                    "bar::qux"
+                };
                 // Act
                 var result = str.SplitOnce("::");
                 // Assert
@@ -3100,6 +3236,131 @@ function foo() {
                 // Assert
                 Expect(result)
                     .To.Equal("Content\\Scripts\\Moo.js");
+            }
+        }
+    }
+
+    [TestFixture]
+    public class ContainsInOrder
+    {
+        [TestFixture]
+        public class WhenOneNeedle
+        {
+            [TestFixture]
+            public class AndIsContained
+            {
+                [TestFixture]
+                public class AsExactMatch
+                {
+                    [Test]
+                    public void ShouldReturnTrue()
+                    {
+                        // Arrange
+                        var haystack = "foo bar quux";
+                        // Act
+                        var result = haystack.ContainsInOrder("bar");
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+                }
+
+                [TestFixture]
+                public class AsInsensitiveMatch
+                {
+                    [Test]
+                    public void ShouldReturnTrue()
+                    {
+                        // Arrange
+                        var haystack = "foo bar quux";
+                        // Act
+                        var result = haystack.ContainsInOrder(
+                            StringComparison.OrdinalIgnoreCase,
+                            "BAR"
+                        );
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class AndIsNotContainedAtAll
+            {
+                [TestFixture]
+                public class AsExactMismatch
+                {
+                    [Test]
+                    public void ShouldReturnFalse()
+                    {
+                        // Arrange
+                        var haystack = "foo bar quux";
+                        // Act
+                        var result = haystack.ContainsInOrder(
+                            "bob"
+                        );
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+                }
+
+                [TestFixture]
+                public class AsInsensitiveMismatch
+                {
+                    [Test]
+                    public void ShouldReturnFalse()
+                    {
+                        // Arrange
+                        var haystack = "foo bar quux";
+                        // Act
+                        var result = haystack.ContainsInOrder(
+                            StringComparison.OrdinalIgnoreCase,
+                            "bob"
+                        );
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+                }
+            }
+        }
+
+        [TestFixture]
+        public class MoreComplexCases
+        {
+            [Test]
+            public void ShouldFindThreeNeedlesInOrder()
+            {
+                // Arrange
+                var haystack = "Bacon ipsum dolor amet pork loin ribeye tail, chislic pork pig spare ribs jowl";
+                // Act
+                var result = haystack.ContainsInOrder(
+                    "ips",
+                    "eye",
+                    "isli"
+                );
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldFindThreeNeedlesInOrderInsensitive()
+            {
+                // Arrange
+                var haystack = "Bacon ipsum dolor amet pork loin ribeye tail, chislic pork pig spare ribs jowl";
+                // Act
+                var result = haystack.ContainsInOrder(
+                    StringComparison.OrdinalIgnoreCase,
+                    "iPs",
+                    "eYE",
+                    "IsLi"
+                );
+                // Assert
+                Expect(result)
+                    .To.Be.True();
             }
         }
     }

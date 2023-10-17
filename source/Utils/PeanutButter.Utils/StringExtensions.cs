@@ -114,7 +114,13 @@ namespace PeanutButter.Utils
                 Truthy.Any(item => item == input.ToLower());
         }
 
-        private static readonly string[] Truthy = { "yes", "y", "1", "true" };
+        private static readonly string[] Truthy =
+        {
+            "yes",
+            "y",
+            "1",
+            "true"
+        };
 
         /// <summary>
         /// Searches a master string for occurrences of any of the given strings,
@@ -134,7 +140,6 @@ namespace PeanutButter.Utils
                 h => needles.Any(
                     n => h.Contains(
                         n.ToLower(
-
 
 
 #if NETSTANDARD
@@ -795,9 +800,9 @@ namespace PeanutButter.Utils
         )
         {
             return string.Join(
-                    " ",
-                    input.ToWordsArray()
-                ).ToLower();
+                " ",
+                input.ToWordsArray()
+            ).ToLower();
         }
 
         /// <summary>
@@ -816,7 +821,10 @@ namespace PeanutButter.Utils
 
             if (string.IsNullOrWhiteSpace(input))
             {
-                return new[] { input };
+                return new[]
+                {
+                    input
+                };
             }
 
             var result = new List<string>();
@@ -1493,7 +1501,13 @@ namespace PeanutButter.Utils
             var lineDelimiter = str.Contains(Environment.NewLine)
                 ? Environment.NewLine
                 : "\n";
-            var lines = str.Split(new[] { lineDelimiter }, StringSplitOptions.None);
+            var lines = str.Split(
+                new[]
+                {
+                    lineDelimiter
+                },
+                StringSplitOptions.None
+            );
             var outdented = lines.Outdent(depth);
             return outdented.JoinWith(lineDelimiter);
         }
@@ -1525,7 +1539,10 @@ namespace PeanutButter.Utils
             params string[] moreDelimiters
         )
         {
-            var allDelimiters = new[] { delimiter }.Concat(moreDelimiters).ToArray();
+            var allDelimiters = new[]
+            {
+                delimiter
+            }.Concat(moreDelimiters).ToArray();
             return str.Split(allDelimiters, StringSplitOptions.None);
         }
 
@@ -1567,7 +1584,11 @@ namespace PeanutButter.Utils
             return " ";
         }
 
-        private static readonly string[] IndentationSearch = new[] { " ", "\t" };
+        private static readonly string[] IndentationSearch = new[]
+        {
+            " ",
+            "\t"
+        };
 
         /// <summary>
         /// Outdents a block of text at most to the given depth. Will
@@ -1706,12 +1727,19 @@ namespace PeanutButter.Utils
             var idx = str.IndexOf(splitOn, StringComparison.InvariantCulture);
             if (idx < 0)
             {
-                return new[] { str };
+                return new[]
+                {
+                    str
+                };
             }
 
             var first = str.Substring(0, idx);
             var second = str.Substring(idx + splitOn.Length);
-            return new[] { first, second };
+            return new[]
+            {
+                first,
+                second
+            };
         }
 
         /// <summary>
@@ -1804,7 +1832,10 @@ namespace PeanutButter.Utils
                 ? "\\"
                 : "/";
             var all = new List<string>();
-            foreach (var item in new[] { path }.Concat(others).ToList())
+            foreach (var item in new[]
+                     {
+                         path
+                     }.Concat(others).ToList())
             {
                 if (item.IsAbsolutePath())
                 {
@@ -1984,8 +2015,68 @@ namespace PeanutButter.Utils
                 .Replace("\\", DirectorySeparator)
                 .Replace("/", DirectorySeparator);
         }
-        
+
         private static readonly string DirectorySeparator
             = Path.DirectorySeparatorChar.ToString();
+
+        /// <summary>
+        /// Tests that the provided strings (needles) are found
+        /// in order within haystack, eg
+        /// "foo bar quux".ContainsInOrder("foo", "quux"); // returns true
+        /// </summary>
+        /// <param name="haystack">master string to search</param>
+        /// <param name="needles">substrings to search for</param>
+        /// <returns></returns>
+        public static bool ContainsInOrder(
+            this string haystack,
+            params string[] needles
+        )
+        {
+            return haystack.ContainsInOrder(
+                StringComparison.CurrentCulture,
+                needles
+            );
+        }
+
+        /// <summary>
+        /// Tests that the provided strings (needles) are found
+        /// in order within haystack, using the provided comparison, eg
+        /// "foo bar quux".ContainsInOrder(StringComparison.OrdinalIgnoreCase, "Foo", "qUUx"); // returns true
+        /// </summary>
+        /// <param name="haystack">master string to search</param>
+        /// <param name="comparison"></param>
+        /// <param name="needles">substrings to search for</param>
+        /// <returns></returns>
+        public static bool ContainsInOrder(
+            this string haystack,
+            StringComparison comparison,
+            params string[] needles
+        )
+        {
+            if (string.IsNullOrEmpty(haystack))
+            {
+                return false;
+            }
+
+            if (needles.Length == 0)
+            {
+                throw new ArgumentException(
+                    "No needles provided to search for in the haystack",
+                    nameof(needles)
+                );
+            }
+
+            var from = 0;
+            foreach (var needle in needles)
+            {
+                var idx = haystack.IndexOf(needle, from, comparison);
+                if (idx < 0)
+                {
+                    return false;
+                }
+                from = idx;
+            }
+            return true;
+        }
     }
 }
