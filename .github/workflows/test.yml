@@ -7,7 +7,34 @@ on:
     branches: [ master ]
 
 jobs:
-  main:
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core 3
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: |
+            3.1
+            6.x
+            7.x
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+      - name: Build and test
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+          SUPPRESS_DOWNLOAD_PROGRESS: 1
+        run: |
+          npm ci
+          npm run test-gh
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build-reports
+          path: buildreports/
+    
+  test-linux:
     runs-on: ubuntu-latest
     steps:
     - name: 🥜 Check out project
