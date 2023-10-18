@@ -41,14 +41,45 @@ namespace PeanutButter.Utils
         Exception StartException { get; }
 
         /// <summary>
-        /// Read lines from stdout
+        /// Read lines from stdout until the process exits
         /// </summary>
         IEnumerable<string> StandardOutput { get; }
 
         /// <summary>
-        /// Read lines from stderr
+        /// Read lines from stderr until the process exits
         /// </summary>
         IEnumerable<string> StandardError { get; }
+
+        /// <summary>
+        /// Read the lines from stderr and stdout (until the process exits),
+        /// interleaved (mostly in order, though some minor out-of-order
+        /// situations can occur between stderr and stdout if there is
+        /// rapid output on both because of the async io handlers for
+        /// dotnet Process objects
+        /// </summary>
+        IEnumerable<string> StandardOutputAndErrorInterleaved { get; }
+
+        /// <summary>
+        /// Read the lines captured thus far from stdout -
+        /// does not wait for the process to complete
+        /// </summary>
+        IEnumerable<string> StandardOutputSnapshot { get; }
+
+        /// <summary>
+        /// Read the lines captured thus far from stderr -
+        /// does not wait for the process to complete
+        /// </summary>
+        IEnumerable<string> StandardErrorSnapshot { get; }
+
+        /// <summary>
+        /// Read the lines captured thus far from stderr and stdout,
+        /// interleaved (mostly in order, though some minor out-of-order
+        /// situations can occur between stderr and stdout if there is
+        /// rapid output on both because of the async io handlers for
+        /// dotnet Process objects
+        /// - does not wait for the process to complete
+        /// </summary>
+        IEnumerable<string> StandardOutputAndErrorInterleavedSnapshot { get; }
 
         /// <summary>
         /// stdin for the process
@@ -173,8 +204,9 @@ namespace PeanutButter.Utils
         public string WorkingDirectory { get; private set; }
 
         /// <inheritdoc />
-        public string Commandline => 
+        public string Commandline =>
             _commandline ??= RenderCommandline();
+
         private string _commandline;
 
         /// <inheritdoc />
@@ -206,6 +238,7 @@ namespace PeanutButter.Utils
         private bool _disposed;
         private ManualResetEventSlim _stdOutDataAvailable;
         private ManualResetEventSlim _stdErrDataAvailable;
+        private ManualResetEventSlim _interleavedDataAvailable;
 
 
         /// <summary>
@@ -383,8 +416,9 @@ namespace PeanutButter.Utils
                         _process.StartInfo.Environment[kvp.Key] = kvp.Value;
                     }
                 );
-                _stdOutDataAvailable = new ManualResetEventSlim();
-                _stdErrDataAvailable = new ManualResetEventSlim();
+                _stdOutDataAvailable = new();
+                _stdErrDataAvailable = new();
+                _interleavedDataAvailable = new();
 
                 _process.Exited += OnProcessExit;
                 _process.OutputDataReceived += OnOutputReceived;
@@ -408,34 +442,47 @@ namespace PeanutButter.Utils
 
         private void OnErrReceived(object sender, DataReceivedEventArgs e)
         {
-            var data = e.Data;
-            if (data is null)
+            lock (_ioLock)
             {
-                _stdErrDataAvailable.Set();
-                return;
-            }
+                var data = e.Data;
+                if (data is null)
+                {
+                    _stdErrDataAvailable.Set();
+                    return;
+                }
 
-            _stdErrBuffer.Enqueue(data);
-            _stdErrDataAvailable.Set();
+                _stdErrBuffer.Enqueue(data);
+                _stdErrDataAvailable.Set();
+                _interleavedBuffer.Enqueue(data);
+                _interleavedDataAvailable.Set();
+            }
         }
 
+        private readonly ConcurrentQueue<string> _interleavedBuffer = new();
         private readonly ConcurrentQueue<string> _stdOutBuffer = new();
         private readonly ConcurrentQueue<string> _stdErrBuffer = new();
+        
+        private readonly object _ioLock = new();
 
         private void OnOutputReceived(
             object sender,
             DataReceivedEventArgs e
         )
         {
-            var data = e.Data;
-            if (data is null)
+            lock (_ioLock)
             {
-                _stdOutDataAvailable.Set();
-                return;
-            }
+                var data = e.Data;
+                if (data is null)
+                {
+                    _stdOutDataAvailable.Set();
+                    return;
+                }
 
-            _stdOutBuffer.Enqueue(data);
-            _stdOutDataAvailable.Set();
+                _stdOutBuffer.Enqueue(data);
+                _stdOutDataAvailable.Set();
+                _interleavedBuffer.Enqueue(data);
+                _interleavedDataAvailable.Set();
+            }
         }
 
         private void OnProcessExit(object sender, EventArgs e)
@@ -528,10 +575,39 @@ namespace PeanutButter.Utils
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> StandardOutput => Enumerate(_stdOutBuffer, _stdOutDataAvailable);
+        public IEnumerable<string> StandardOutput =>
+            Enumerate(_stdOutBuffer, _stdOutDataAvailable);
 
         /// <inheritdoc />
-        public IEnumerable<string> StandardError => Enumerate(_stdErrBuffer, _stdErrDataAvailable);
+        public IEnumerable<string> StandardOutputSnapshot =>
+            EnumerateSnapshot(_stdOutBuffer);
+
+        /// <inheritdoc />
+        public IEnumerable<string> StandardError =>
+            Enumerate(_stdErrBuffer, _stdErrDataAvailable);
+
+        /// <inheritdoc />
+        public IEnumerable<string> StandardErrorSnapshot =>
+            EnumerateSnapshot(_stdErrBuffer);
+
+
+        /// <inheritdoc />
+        public IEnumerable<string> StandardOutputAndErrorInterleaved
+            => Enumerate(_interleavedBuffer, _interleavedDataAvailable);
+
+        /// <inheritdoc />
+        public IEnumerable<string> StandardOutputAndErrorInterleavedSnapshot
+            => EnumerateSnapshot(_interleavedBuffer);
+
+        private IEnumerable<string> EnumerateSnapshot(
+            ConcurrentQueue<string> data
+        )
+        {
+            foreach (var line in data)
+            {
+                yield return line;
+            }
+        }
 
 
         private IEnumerable<string> Enumerate(

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using NUnit.Framework;
 using NExpect;
 using static NExpect.Expectations;
@@ -204,12 +205,6 @@ public class TestProcessIO
     public void ShouldBeAbleToRunInDifferentDirectory()
     {
         // Arrange
-        if (!ExeIsAvailable("cat"))
-        {
-            Assert.Ignore(REQUIRES_CAT);
-            return;
-        }
-
         using var tempFolder = new AutoTempFolder();
         var tempFilePath = Path.Combine(tempFolder.Path, "data.txt");
         var expected = GetRandomString(32);
@@ -428,18 +423,168 @@ console.log(process.env[`{envVar}`]);
             .To.Equal(expected);
     }
 
-
-    private static bool ExeIsAvailable(string name)
+    [Test]
+    public void ShouldBeAbleToReadInterleavedIo()
     {
-        return Find.InPath(name) is not null;
+        // Arrange
+        // Act
+        using var io = ProcessIO
+            .Start(
+                "node",
+                "-e",
+                "console.log('stdout 1');console.error('stderr 1');console.error('stderr 2');console.log('stdout 2');"
+            );
+        io.WaitForExit();
+        // Assert
+        Expect(io.StandardOutputAndErrorInterleaved)
+            .To.Equal(
+                new[]
+                {
+                    "stdout 1",
+                    "stderr 1",
+                    "stderr 2",
+                    "stdout 2",
+                }
+            );
     }
 
-    private const string REQUIRES_CMD = "This test uses a win32 cmd.exe";
+    [TestFixture]
+    public class Snapshots
+    {
+        [Test]
+        public void ShouldBeAbleToSnapshotStdOutThusFar()
+        {
+            // Arrange
+            using var tmpFile = new AutoTempFile(
+                @"
+(async function() {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    console.log('stdout 1');
+    console.error('stderr 1');
+    console.error('stderr 2');
+    console.log('stdout 2');
+    await sleep(1000);
+    console.log('stdout 3');
+    console.error('stderr 4');
+})();
+".TrimStart()
+            );
+            // Act
+            using var io = ProcessIO
+                .Start(
+                    "node",
+                    tmpFile.Path
+                );
+            Thread.Sleep(500);
+            var snapshot = io.StandardOutputSnapshot.ToArray();
+            // Assert
+            Expect(snapshot)
+                .To.Equal(
+                    new[]
+                    {
+                        "stdout 1",
+                        "stdout 2"
+                    }
+                );
+        }
 
-    private const string REQUIRES_PWSH = "This test uses pwsh which is not found in your path";
+        [Test]
+        public void ShouldBeAbleToSnapshotStdErrThusFar()
+        {
+            // Arrange
+            using var tmpFile = new AutoTempFile(
+                @"
+(async function() {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    console.log('stdout 1');
+    console.error('stderr 1');
+    console.error('stderr 2');
+    console.log('stdout 2');
+    await sleep(1000);
+    console.log('stdout 3');
+    console.error('stderr 4');
+})();
+".TrimStart()
+            );
+            // Act
+            using var io = ProcessIO
+                .Start(
+                    "node",
+                    tmpFile.Path
+                );
+            Thread.Sleep(500);
+            var snapshot = io.StandardErrorSnapshot.ToArray();
+            // Assert
+            Expect(snapshot)
+                .To.Equal(
+                    new[]
+                    {
+                        "stderr 1",
+                        "stderr 2"
+                    }
+                );
+        }
 
-    private const string REQUIRES_CAT =
-        "This test uses the output from `cat`, which is not available on this system";
+        [Test]
+        [Repeat(50)]
+        public void ShouldBeAbleToSnapshotInterleavedIoThusFar()
+        {
+            // Arrange
+            using var tmpFile = new AutoTempFile(
+                @"
+(async function() {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function giveIoAChanceToGetOutThere() {
+        // because the io handlers are async, without a minor
+        // wait, they may end up (slightly) out of order - which
+        // probably doesn't matter for consumers, but consistently
+        // breaks this test; even a sleep(0) works around this
+        await sleep(0);
+    }
+
+    console.log('stdout 1');
+    await giveIoAChanceToGetOutThere()
+    console.error('stderr 1');
+    await giveIoAChanceToGetOutThere()
+
+    console.error('stderr 2');
+    await giveIoAChanceToGetOutThere()
+    console.log('stdout 2');
+
+    await sleep(1000);
+
+    console.log('stdout 3');
+    console.error('stderr 4');
+})();
+".TrimStart()
+            );
+            // Act
+            using var io = ProcessIO
+                .Start(
+                    "node",
+                    tmpFile.Path
+                );
+            Thread.Sleep(500);
+            var snapshot = io.StandardOutputAndErrorInterleavedSnapshot.ToArray();
+            // Assert
+            Expect(snapshot)
+                .To.Equal(
+                    new[]
+                    {
+                        "stdout 1",
+                        "stderr 1",
+                        "stderr 2",
+                        "stdout 2"
+                    }
+                );
+        }
+    }
 
     [TestFixture]
     [Explicit("Discovery")]
@@ -471,7 +616,7 @@ console.log(process.env[`{envVar}`]);
         }
 
         [Test]
-        public void DoesReceivingIoEventsDrainTheAssociatedReader()
+        public void ShouldDrainReaderWhenReceivingIoEvents()
         {
             // Answer: Yes!
             // Arrange
