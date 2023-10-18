@@ -141,6 +141,49 @@ namespace PeanutButter.Utils
         /// Kill the underlying process
         /// </summary>
         void Kill();
+
+        /// <summary>
+        /// Waits for some output to be emitted from the process
+        /// </summary>
+        /// <param name="io"></param>
+        /// <param name="matcher"></param>
+        void WaitForOutput(
+            StandardIo io,
+            Func<string, bool> matcher
+        );
+
+        /// <summary>
+        /// Waits for some output to be emitted from the process
+        /// </summary>
+        /// <param name="io"></param>
+        /// <param name="matcher"></param>
+        /// <param name="timeoutMilliseconds"></param>
+        bool WaitForOutput(
+            StandardIo io,
+            Func<string, bool> matcher,
+            int timeoutMilliseconds
+        );
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum StandardIo
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        StdOut,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        StdErr,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        StdOutOrStdErr
     }
 
     /// <summary>
@@ -461,7 +504,7 @@ namespace PeanutButter.Utils
         private readonly ConcurrentQueue<string> _interleavedBuffer = new();
         private readonly ConcurrentQueue<string> _stdOutBuffer = new();
         private readonly ConcurrentQueue<string> _stdErrBuffer = new();
-        
+
         private readonly object _ioLock = new();
 
         private void OnOutputReceived(
@@ -489,6 +532,7 @@ namespace PeanutButter.Utils
         {
             _stdErrDataAvailable.Set();
             _stdOutDataAvailable.Set();
+            _interleavedDataAvailable.Set();
         }
 
         private static IDictionary<string, string> GenerateProcessEnvironmentFor(
@@ -572,6 +616,108 @@ namespace PeanutButter.Utils
             }
 
             _process?.Kill();
+        }
+
+        /// <inheritdoc />
+        public void WaitForOutput(
+            StandardIo io,
+            Func<string, bool> matcher
+        )
+        {
+            WaitForOutput(
+                io,
+                matcher,
+                int.MaxValue
+            );
+        }
+
+        /// <inheritdoc />
+        public bool WaitForOutput(
+            StandardIo io,
+            Func<string, bool> matcher,
+            int timeoutMilliseconds
+        )
+        {
+            switch (io)
+            {
+                case StandardIo.StdErr:
+                    return WaitForOutput(
+                        StandardErrorSnapshot,
+                        _stdErrDataAvailable,
+                        matcher,
+                        timeoutMilliseconds
+                    );
+                case StandardIo.StdOut:
+                    return WaitForOutput(
+                        StandardOutputSnapshot,
+                        _stdOutDataAvailable,
+                        matcher,
+                        timeoutMilliseconds
+                    );
+                case StandardIo.StdOutOrStdErr:
+                    return WaitForOutput(
+                        StandardOutputAndErrorInterleavedSnapshot,
+                        _interleavedDataAvailable,
+                        matcher,
+                        timeoutMilliseconds
+                    );
+                default:
+                    throw new ArgumentException(
+                        $"StandardIo value {io} is not handled"
+                    );
+            }
+        }
+
+        private bool WaitForOutput(
+            IEnumerable<string> snapshotSource,
+            ManualResetEventSlim ev,
+            Func<string, bool> matcher,
+            int timeoutMilliseconds
+        )
+        {
+            var offset = 0;
+            // ReSharper disable once PossibleMultipleEnumeration
+            if (HaveOutput(snapshotSource, matcher, ref offset))
+            {
+                return true;
+            }
+
+            var timeout = timeoutMilliseconds;
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            while (!HasExited && timeout > 0)
+            {
+                if (!ev.Wait(timeout))
+                {
+                    return false;
+                }
+
+                // ReSharper disable once PossibleMultipleEnumeration
+                if (HaveOutput(snapshotSource, matcher, ref offset))
+                {
+                    return true;
+                }
+
+                timeout = timeoutMilliseconds - (int)Math.Round(stopwatch.Elapsed.TotalMilliseconds);
+            }
+
+            if (timeout < 1)
+            {
+                return false;
+            }
+
+            // ReSharper disable once PossibleMultipleEnumeration
+            return HaveOutput(snapshotSource, matcher, ref offset);
+        }
+
+        private bool HaveOutput(
+            IEnumerable<string> snapshotSource,
+            Func<string, bool> matcher,
+            ref int offset
+        )
+        {
+            var snapshot = snapshotSource.Skip(offset).ToArray();
+            return snapshot.Any(matcher);
         }
 
         /// <inheritdoc />

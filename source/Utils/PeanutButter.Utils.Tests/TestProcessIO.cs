@@ -530,7 +530,6 @@ console.log(process.env[`{envVar}`]);
         }
 
         [Test]
-        [Repeat(50)]
         public void ShouldBeAbleToSnapshotInterleavedIoThusFar()
         {
             // Arrange
@@ -583,6 +582,354 @@ console.log(process.env[`{envVar}`]);
                         "stdout 2"
                     }
                 );
+        }
+    }
+
+    [TestFixture]
+    public class WaitingForSpecificOutput
+    {
+        [Test]
+        public void ShouldBeAbleToWaitForSpecificStandardOutput()
+        {
+            // Arrange
+            using var tmpFile = new AutoTempFile(
+                @"
+(async function() {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function giveIoAChanceToGetOutThere() {
+        // because the io handlers are async, without a minor
+        // wait, they may end up (slightly) out of order - which
+        // probably doesn't matter for consumers, but consistently
+        // breaks this test; even a sleep(0) works around this
+        await sleep(0);
+    }
+
+    console.log('stdout 1');
+    await giveIoAChanceToGetOutThere()
+    console.error('stderr 1');
+    await giveIoAChanceToGetOutThere()
+
+    console.error('stderr 2');
+    await giveIoAChanceToGetOutThere()
+    console.log('stdout 2');
+
+    await sleep(1000);
+
+    console.log('stdout 3');
+    console.error('stderr 4');
+})();
+".TrimStart()
+            );
+            // Act
+            using var io = ProcessIO
+                .Start(
+                    "node",
+                    tmpFile.Path
+                );
+            io.WaitForOutput(StandardIo.StdOut, s => s.Trim() == "stdout 2");
+            var snapshot = io.StandardOutputAndErrorInterleavedSnapshot.ToArray();
+            // Assert
+            Expect(snapshot)
+                .To.Equal(
+                    new[]
+                    {
+                        "stdout 1",
+                        "stderr 1",
+                        "stderr 2",
+                        "stdout 2"
+                    }
+                );
+        }
+
+        [Test]
+        public void ShouldBeAbleToWaitForSpecificStandardError()
+        {
+            // Arrange
+            using var tmpFile = new AutoTempFile(
+                @"
+(async function() {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function giveIoAChanceToGetOutThere() {
+        // because the io handlers are async, without a minor
+        // wait, they may end up (slightly) out of order - which
+        // probably doesn't matter for consumers, but consistently
+        // breaks this test; even a sleep(0) works around this
+        await sleep(0);
+    }
+
+    console.log('stdout 1');
+    await giveIoAChanceToGetOutThere()
+    console.error('stderr 1');
+    await giveIoAChanceToGetOutThere()
+
+    console.error('stderr 2');
+    await giveIoAChanceToGetOutThere()
+    console.log('stdout 2');
+
+    await sleep(1000);
+
+    console.log('stdout 3');
+    console.error('stderr 4');
+})();
+".TrimStart()
+            );
+            // Act
+            using var io = ProcessIO
+                .Start(
+                    "node",
+                    tmpFile.Path
+                );
+            io.WaitForOutput(StandardIo.StdErr, s => s.Trim() == "stderr 2");
+            var snapshot = io.StandardOutputAndErrorInterleavedSnapshot.ToArray();
+            // Assert
+            Expect(snapshot)
+                .To.Equal(
+                    new[]
+                    {
+                        "stdout 1",
+                        "stderr 1",
+                        "stderr 2",
+                    }
+                );
+        }
+
+        [Test]
+        public void ShouldBeAbleToWaitForSpecificOutputOnAnyPipe()
+        {
+            // Arrange
+            using var tmpFile = new AutoTempFile(
+                @"
+(async function() {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function giveIoAChanceToGetOutThere() {
+        // because the io handlers are async, without a minor
+        // wait, they may end up (slightly) out of order - which
+        // probably doesn't matter for consumers, but consistently
+        // breaks this test; even a sleep(0) works around this
+        await sleep(0);
+    }
+
+    console.log('stdout 1');
+    await giveIoAChanceToGetOutThere()
+    console.error('stderr 1');
+    await giveIoAChanceToGetOutThere()
+
+    console.error('stderr 2');
+    await giveIoAChanceToGetOutThere()
+    console.log('stdout 2');
+
+    await sleep(1000);
+
+    console.log('stdout 3');
+    console.error('stderr 4');
+})();
+".TrimStart()
+            );
+            // Act
+            using var io = ProcessIO
+                .Start(
+                    "node",
+                    tmpFile.Path
+                );
+            io.WaitForOutput(StandardIo.StdOutOrStdErr, s => s.Trim() == "stdout 2");
+            var snapshot = io.StandardOutputAndErrorInterleavedSnapshot.ToArray();
+            // Assert
+            Expect(snapshot)
+                .To.Equal(
+                    new[]
+                    {
+                        "stdout 1",
+                        "stderr 1",
+                        "stderr 2",
+                        "stdout 2"
+                    }
+                );
+        }
+
+        [Test]
+        public void ShouldBeAbleToWaitForSpecificOutputOnStdOutWithTimeout()
+        {
+            // Arrange
+            using var tmpFile = new AutoTempFile(
+                @"
+(async function() {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function giveIoAChanceToGetOutThere() {
+        // because the io handlers are async, without a minor
+        // wait, they may end up (slightly) out of order - which
+        // probably doesn't matter for consumers, but consistently
+        // breaks this test; even a sleep(0) works around this
+        await sleep(0);
+    }
+
+    console.log('stdout 1');
+    await giveIoAChanceToGetOutThere()
+    console.error('stderr 1');
+    await giveIoAChanceToGetOutThere()
+
+    console.error('stderr 2');
+    await giveIoAChanceToGetOutThere()
+    console.log('stdout 2');
+
+    await sleep(4000);
+
+    console.log('stdout 3');
+    console.error('stderr 4');
+})();
+".TrimStart()
+            );
+            // Act
+            using var io = ProcessIO
+                .Start(
+                    "node",
+                    tmpFile.Path
+                );
+            var shouldBeTrue = io.WaitForOutput(
+                StandardIo.StdOut,
+                s => s.Trim() == "stdout 2",
+                100
+            );
+            var shouldBeFalse = io.WaitForOutput(
+                StandardIo.StdOut,
+                s => s.Trim() == "stdoput 3",
+                500
+            );
+            var snapshot = io.StandardOutputAndErrorInterleavedSnapshot.ToArray();
+            // Assert
+            Expect(shouldBeTrue)
+                .To.Be.True();
+            Expect(shouldBeFalse)
+                .To.Be.False();
+            Expect(snapshot)
+                .Not.To.Contain("stdout 3");
+        }
+
+        [Test]
+        public void ShouldBeAbleToWaitForSpecificOutputOnStdErrWithTimeout()
+        {
+            // Arrange
+            using var tmpFile = new AutoTempFile(
+                @"
+(async function() {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function giveIoAChanceToGetOutThere() {
+        // because the io handlers are async, without a minor
+        // wait, they may end up (slightly) out of order - which
+        // probably doesn't matter for consumers, but consistently
+        // breaks this test; even a sleep(0) works around this
+        await sleep(0);
+    }
+
+    console.log('stdout 1');
+    await giveIoAChanceToGetOutThere()
+    console.error('stderr 1');
+    await giveIoAChanceToGetOutThere()
+
+    console.error('stderr 2');
+    await giveIoAChanceToGetOutThere()
+    console.log('stdout 2');
+
+    await sleep(4000);
+
+    console.log('stdout 3');
+    console.error('stderr 4');
+})();
+".TrimStart()
+            );
+            // Act
+            using var io = ProcessIO
+                .Start(
+                    "node",
+                    tmpFile.Path
+                );
+            var shouldBeTrue = io.WaitForOutput(
+                StandardIo.StdErr,
+                s => s.Trim() == "stderr 2",
+                100
+            );
+            var shouldBeFalse = io.WaitForOutput(
+                StandardIo.StdErr,
+                s => s.Trim() == "stderr 3",
+                500
+            );
+            var snapshot = io.StandardOutputAndErrorInterleavedSnapshot.ToArray();
+            // Assert
+            Expect(shouldBeTrue)
+                .To.Be.True();
+            Expect(shouldBeFalse)
+                .To.Be.False();
+            Expect(snapshot)
+                .Not.To.Contain("stdout 3");
+        }
+
+        [Test]
+        public void ShouldBeAbleToWaitForSpecificOutputOnAnyPipeWithTimeout()
+        {
+            // Arrange
+            using var tmpFile = new AutoTempFile(
+                @"
+(async function() {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function giveIoAChanceToGetOutThere() {
+        // because the io handlers are async, without a minor
+        // wait, they may end up (slightly) out of order - which
+        // probably doesn't matter for consumers, but consistently
+        // breaks this test; even a sleep(0) works around this
+        await sleep(0);
+    }
+
+    console.log('stdout 1');
+    await giveIoAChanceToGetOutThere()
+    console.error('stderr 1');
+    await giveIoAChanceToGetOutThere()
+
+    console.error('stderr 2');
+    await giveIoAChanceToGetOutThere()
+    console.log('stdout 2');
+
+    await sleep(4000);
+
+    console.log('stdout 3');
+    console.error('stderr 4');
+})();
+".TrimStart()
+            );
+            // Act
+            using var io = ProcessIO
+                .Start(
+                    "node",
+                    tmpFile.Path
+                );
+            var shouldBeTrue = io.WaitForOutput(
+                StandardIo.StdOutOrStdErr,
+                s => s.Trim() == "stdout 2",
+                100
+            );
+            var shouldBeFalse = io.WaitForOutput(
+                StandardIo.StdOutOrStdErr,
+                s => s.Trim() == "stdout 3",
+                500
+            );
+            var snapshot = io.StandardOutputAndErrorInterleavedSnapshot.ToArray();
+            // Assert
+            Expect(shouldBeTrue)
+                .To.Be.True();
+            Expect(shouldBeFalse)
+                .To.Be.False();
+            Expect(snapshot)
+                .Not.To.Contain("stdout 3");
         }
     }
 
