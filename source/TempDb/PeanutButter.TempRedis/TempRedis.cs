@@ -221,10 +221,12 @@ namespace PeanutButter.TempRedis
 
         private string _executable;
 
+        private Thread _watcherThread;
         private AutoTempFile _configFile;
         private AutoTempFile _saveFile;
         private readonly Action<string> _logger;
         private bool _running;
+        private object _runningLock = new();
         private bool _disposed;
 
         /// <summary>
@@ -321,10 +323,10 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
             var entry = Dns.GetHostEntry("localhost");
 
             var addresses = entry.AddressList
-                    // prefer 127.0.0.1 over ::1
-                    .OrderBy(a => a.AddressFamily == AddressFamily.InterNetworkV6)
-                    .Select(a => $"{a}")
-                    .ToArray();
+                // prefer 127.0.0.1 over ::1
+                .OrderBy(a => a.AddressFamily == AddressFamily.InterNetworkV6)
+                .Select(a => $"{a}")
+                .ToArray();
             _localHostIp = addresses.First();
             return string.Join(" ", addresses);
         }
@@ -332,7 +334,7 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
         /// <inheritdoc />
         public void Start()
         {
-            lock (_lock)
+            lock (_startStopLock)
             {
                 StartInternal(startWatcher: true);
             }
@@ -365,16 +367,19 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
         private void StartInternal(bool startWatcher)
         {
             ValidateNotDisposed();
-            if (_running)
+            lock (_runningLock)
             {
-                Log(
-                    () =>
-                        $"{nameof(TempRedis)} already running with pid: {_serverProcess.Id}"
-                );
-                return;
-            }
+                if (_running)
+                {
+                    Log(
+                        () =>
+                            $"{nameof(TempRedis)} already running with pid: {_serverProcess.Id}"
+                    );
+                    return;
+                }
 
-            _running = true;
+                _running = true;
+            }
 
             var canStart = _serverProcess?.HasExited ?? true;
             if (!canStart)
@@ -468,12 +473,13 @@ stderr:
                 return;
             }
 
-            var t = new Thread(
+            _watcherCancellationTokenSource = new CancellationTokenSource();
+            _watcherThread = new Thread(
                 () =>
                 {
                     try
                     {
-                        while (!_disposed)
+                        while (!_watcherCancellationTokenSource.IsCancellationRequested)
                         {
                             RestartServerIfRequired();
                             Thread.Sleep(100);
@@ -489,12 +495,12 @@ stderr:
                     }
                 }
             );
-            t.Start();
+            _watcherThread.Start();
         }
 
         private void RestartServerIfRequired()
         {
-            lock (_lock)
+            lock (_runningLock)
             {
                 if (_disposed || !_running)
                 {
@@ -506,18 +512,31 @@ stderr:
                     return;
                 }
 
+                _running = false;
+            }
+
+            try
+            {
+                Log("redis-server appears to have exited... restarting...");
+                var serverProcess = Interlocked.Exchange(ref _serverProcess, null);
                 try
                 {
-                    Log("redis-server appears to have exited... restarting...");
-                    Interlocked.Exchange(ref _serverProcess, null);
-                    _running = false;
-                    StartInternal(startWatcher: false);
+                    if (!serverProcess.HasExited)
+                    {
+                        serverProcess.Kill();
+                    }
                 }
                 catch (Exception ex)
                 {
-                    // don't want to leave an unhandled exception in a background thread!
-                    Log($"an attempt to start redis-server failed: {ex}; next round of server-checks will try again");
+                    // suppress
                 }
+
+                StartInternal(startWatcher: false);
+            }
+            catch (Exception ex)
+            {
+                // don't want to leave an unhandled exception in a background thread!
+                Log($"an attempt to start redis-server failed: {ex}; next round of server-checks will try again");
             }
         }
 
@@ -542,7 +561,7 @@ stderr:
         /// <inheritdoc />
         public void Stop()
         {
-            lock (_lock)
+            lock (_startStopLock)
             {
                 StopInternal();
             }
@@ -553,7 +572,11 @@ stderr:
             ValidateNotDisposed();
             try
             {
-                _running = false;
+                lock (_runningLock)
+                {
+                    _running = false;
+                }
+
                 Log("stopping redis-server watcher thread");
                 Log("killing redis-server");
                 var serverProcess = Interlocked.Exchange(ref _serverProcess, null);
@@ -569,7 +592,7 @@ stderr:
         private void ValidateNotDisposed()
         {
             var disposed = false;
-            lock (_lock)
+            lock (_startStopLock)
             {
                 disposed = _disposed;
             }
@@ -587,20 +610,21 @@ stderr:
         public void Restart()
         {
             Log("manual restart invoked");
-            lock (_lock)
+            lock (_startStopLock)
             {
                 StopInternal();
                 StartInternal(startWatcher: true);
             }
         }
 
-        private readonly object _lock = new();
+        private readonly object _startStopLock = new();
         private string _localHostIp;
+        private CancellationTokenSource _watcherCancellationTokenSource;
 
         /// <inheritdoc />
         public void Dispose()
         {
-            lock (_lock)
+            lock (_startStopLock)
             {
                 if (_disposed)
                 {
@@ -608,7 +632,12 @@ stderr:
                 }
 
                 StopInternal();
+                // _disposed flag _must_ be set after stopping
+                // otherwise StopInternal will throw as it
+                // will think the instance is disposed
                 _disposed = true;
+                _watcherCancellationTokenSource.Cancel();
+                _watcherThread?.Join();
                 _configFile?.Dispose();
                 _configFile = null;
                 _saveFile?.Dispose();

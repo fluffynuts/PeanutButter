@@ -120,7 +120,6 @@ public class TestTempRedis
         }
     }
 
-
     [Test]
     public void ShouldProvideConvenienceConnectMethodWithOptions()
     {
