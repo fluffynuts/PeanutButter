@@ -7,7 +7,7 @@
   "license": "BSD-3-Clause",
   "scripts": {
     "test": "cross-env DOTNET_CORE=1 TEST_ADDITIONAL_EXCLUDE=PeanutButter.WindowsServiceManagement.Core.Tests zarro test-dotnet",
-    "test-windows": "TEST_ADDITIONAL_EXCLUDE=PeanutButter.WindowsServiceManagement.Core.Tests zarro test-dotnet",
+    "test-windows": "cross-env TEST_ADDITIONAL_EXCLUDE=PeanutButter.WindowsServiceManagement.Core.Tests zarro test-dotnet",
     "test-ini": "cross-env DOTNET_CORE=1 TEST_INCLUDE=PeanutButter.INI.Tests zarro test",
     "test-fx": "zarro DOTNET_CORE=0 test-dotnet",
     "test-not-tempdb": "cross-env DOTNET_CORE=1 TEST_ADDITIONAL_EXCLUDE=source/TempDb/**/* zarro test-dotnet",
