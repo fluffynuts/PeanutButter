@@ -7,6 +7,22 @@
     <owners>Davyd McColl</owners>
     <description>
       The Service Shell slice of the PeanutButter mini-suite
+      1. Inherit from `Shell`
+      2. Set Desdcription, ServiceName, and, optionally, Version
+      3. override `RunOnce`
+      4. remember to call Shell.RunMain&lt;MyService&gt;(args) from your Program/Main method
+      
+      Service Shell provides an easy way to run polling services - simply implement the
+      RunOnce method and set your interval. Shell ensures that the RunOnce is not re-entered:
+      if your poll time exceeds the interval, you'll simply run polls back-to-back
+      
+      Including (4) means you can, from the cli, perform the following with the service:
+      - install
+      - uninstall
+      - start
+      - stop
+      - restart
+      - run-once (for testing or for running from another scheduler)
     </description>
     <releaseNotes></releaseNotes>
     <summary>
