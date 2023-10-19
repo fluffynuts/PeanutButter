@@ -6,11 +6,32 @@
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
     <description>
-      Provides dead-easy commandline argument parsing. Can be as simple as:
-      1. define an interface of options you'd like to parse
-      2. var opts = args.ParseTo&lt;IArgs&gt;()
+      Provides an easy mechanism for writing win32 polling services:
+      1. inherit from Shell
+      2. Set ServiceName, Description and Interval (and optionally, Version)
+      3. override RunOnce, providing the per-poll logic
+      4. in your Main method, ensure you run your implementation:
+      ```csharp
+      int Main(string[] args)
+      {
+        return Shell.RunMain&lt;MyService&gt;(
+          args
+        );
+      }
+      ```
       
-      See the readme for more info
+      Shell will poll on the set interval, preventing multiple simultaneous
+      runs - so if the last poll took longer than the interval, the next poll
+      will happen immediately after this one finishes.
+      
+      By including step 4, you also gain access to commandline handlers to
+      manipulate the service:
+      - start
+      - stop
+      - restart
+      - install
+      - uninstall
+      - run once (test the logic, or to run as a regular process, scheduled by something else)
     </description>
     <releaseNotes></releaseNotes>
     <summary></summary>
