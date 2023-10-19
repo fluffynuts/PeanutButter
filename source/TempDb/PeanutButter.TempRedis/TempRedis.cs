@@ -216,11 +216,11 @@ namespace PeanutButter.TempRedis
         public string RedisExecutable =>
             _executable ??= FindRedisExecutable();
 
+        /// <inheritdoc />
         public bool IsRunning => _running;
 
         private string _executable;
 
-        private Thread _watcherThread;
         private AutoTempFile _configFile;
         private AutoTempFile _saveFile;
         private readonly Action<string> _logger;
