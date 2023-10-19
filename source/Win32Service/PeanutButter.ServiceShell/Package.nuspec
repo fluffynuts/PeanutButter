@@ -41,6 +41,12 @@
         <dependency id="CommandLineParser" version="1.9.71" />
         <dependency id="log4net" version="2.0.15" />
       </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="PeanutButter.WindowsServiceManagement" version="3.0.200" />
+        <dependency id="CommandLineParser" version="1.9.71" />
+        <dependency id="log4net" version="2.0.15" />
+        <dependency id="System.ServiceProcess.ServiceController" version="7.0.1" />
+      </group>
     </dependencies>
     <references></references>
     <tags>windows service</tags>
