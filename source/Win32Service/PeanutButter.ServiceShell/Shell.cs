@@ -512,10 +512,7 @@ namespace PeanutButter.ServiceShell
         /// derived service.
         /// </summary>
         /// <exception cref="NotImplementedException"></exception>
-        protected virtual void RunOnce()
-        {
-            throw new NotImplementedException("You must override RunOnce in your deriving service class");
-        }
+        protected abstract void RunOnce();
 
         private int StartMe()
         {

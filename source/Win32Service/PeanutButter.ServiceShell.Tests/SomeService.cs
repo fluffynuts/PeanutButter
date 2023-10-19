@@ -7,5 +7,10 @@
             ServiceName = "SomeService";
             DisplayName = "SomeService";
         }
+
+        protected override void RunOnce()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
