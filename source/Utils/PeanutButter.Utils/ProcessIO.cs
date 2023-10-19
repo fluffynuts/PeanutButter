@@ -147,7 +147,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="io"></param>
         /// <param name="matcher"></param>
-        void WaitForOutput(
+        bool WaitForOutput(
             StandardIo io,
             Func<string, bool> matcher
         );
@@ -619,12 +619,12 @@ namespace PeanutButter.Utils
         }
 
         /// <inheritdoc />
-        public void WaitForOutput(
+        public bool WaitForOutput(
             StandardIo io,
             Func<string, bool> matcher
         )
         {
-            WaitForOutput(
+            return WaitForOutput(
                 io,
                 matcher,
                 int.MaxValue
@@ -682,23 +682,25 @@ namespace PeanutButter.Utils
                 return true;
             }
 
-            var timeout = timeoutMilliseconds;
+            var maxLoopTimeout = 100;
+            var timeout = Math.Min(maxLoopTimeout, timeoutMilliseconds);
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             while (!HasExited && timeout > 0)
             {
-                if (!ev.Wait(timeout))
+                if (ev.Wait(timeout))
                 {
-                    return false;
+                    // ReSharper disable once PossibleMultipleEnumeration
+                    if (HaveOutput(snapshotSource, matcher, ref offset))
+                    {
+                        return true;
+                    }
                 }
 
-                // ReSharper disable once PossibleMultipleEnumeration
-                if (HaveOutput(snapshotSource, matcher, ref offset))
-                {
-                    return true;
-                }
-
-                timeout = timeoutMilliseconds - (int)Math.Round(stopwatch.Elapsed.TotalMilliseconds);
+                timeout = Math.Min(
+                    maxLoopTimeout,
+                    timeoutMilliseconds - (int)Math.Round(stopwatch.Elapsed.TotalMilliseconds)
+                );
             }
 
             if (timeout < 1)

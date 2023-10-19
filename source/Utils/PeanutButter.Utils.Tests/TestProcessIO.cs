@@ -931,6 +931,68 @@ console.log(process.env[`{envVar}`]);
             Expect(snapshot)
                 .Not.To.Contain("stdout 3");
         }
+
+        [Test]
+        [Timeout(10000)]
+        public void ShouldReturnFalseWhenProcessExitsWithoutTheRequiredMatcherBeingHit()
+        {
+            // Arrange
+            using var tmpFile = new AutoTempFile(
+                @"
+(async function() {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function giveIoAChanceToGetOutThere() {
+        // because the io handlers are async, without a minor
+        // wait, they may end up (slightly) out of order - which
+        // probably doesn't matter for consumers, but consistently
+        // breaks this test; even a sleep(0) works around this
+        await sleep(0);
+    }
+
+    console.log('stdout 1');
+    await giveIoAChanceToGetOutThere()
+    console.error('stderr 1');
+    await giveIoAChanceToGetOutThere()
+
+    console.error('stderr 2');
+    await giveIoAChanceToGetOutThere()
+    console.log('stdout 2');
+
+    await sleep(2000);
+
+    console.log('stdout 3');
+    console.error('stderr 4');
+})();
+".TrimStart()
+            );
+            // Act
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            using var io = ProcessIO
+                .Start(
+                    "node",
+                    tmpFile.Path
+                );
+            var shouldBeFalse = io.WaitForOutput(
+                StandardIo.StdOutOrStdErr,
+                s => s.Trim() == "wibbles"
+            );
+            stopwatch.Stop();
+            // Assert
+            Expect(shouldBeFalse)
+                .To.Be.False();
+            Expect(stopwatch.Elapsed)
+                .To.Be.Greater.Than(
+                    TimeSpan.FromSeconds(2)
+                )
+                .And
+                .To.Be.Less.Than(
+                    // allow 2 seconds for node overhead
+                    TimeSpan.FromSeconds(4)
+                );
+        }
     }
 
     [TestFixture]
