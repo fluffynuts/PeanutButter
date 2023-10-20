@@ -16,6 +16,7 @@ namespace PeanutButter.Utils.Tests;
 // ReSharper disable once InconsistentNaming
 public class TestProcessIO
 {
+    public const int MAX_WAIT_FOR_SLOW_NODE = 10000;
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
@@ -792,6 +793,11 @@ console.log(process.env[`{envVar}`]);
                     "node",
                     tmpFile.Path
                 );
+            io.WaitForOutput(
+                StandardIo.StdOutOrStdErr,
+                s => s.Trim().Contains("stdout 1"),
+                MAX_WAIT_FOR_SLOW_NODE
+            );
             var shouldBeTrue = io.WaitForOutput(
                 StandardIo.StdOut,
                 s => s.Trim() == "stdout 2",
@@ -842,7 +848,7 @@ console.log(process.env[`{envVar}`]);
     await sleep(4000);
 
     console.log('stdout 3');
-    console.error('stderr 4');
+    console.error('stderr 3');
 })();
 ".TrimStart()
             );
@@ -852,6 +858,11 @@ console.log(process.env[`{envVar}`]);
                     "node",
                     tmpFile.Path
                 );
+            io.WaitForOutput(
+                StandardIo.StdOutOrStdErr,
+                s => s.Trim().Contains("stdout 1"),
+                MAX_WAIT_FOR_SLOW_NODE
+            );
             var shouldBeTrue = io.WaitForOutput(
                 StandardIo.StdErr,
                 s => s.Trim() == "stderr 2",
@@ -859,7 +870,7 @@ console.log(process.env[`{envVar}`]);
             );
             var shouldBeFalse = io.WaitForOutput(
                 StandardIo.StdErr,
-                s => s.Trim() == "stderr 3",
+                s => s.Trim() == "stderr 4",
                 500
             );
             var snapshot = io.StandardOutputAndErrorInterleavedSnapshot.ToArray();
@@ -912,6 +923,11 @@ console.log(process.env[`{envVar}`]);
                     "node",
                     tmpFile.Path
                 );
+            io.WaitForOutput(
+                StandardIo.StdOutOrStdErr,
+                s => s.Trim().Contains("stdout 1"),
+                MAX_WAIT_FOR_SLOW_NODE
+            );
             var shouldBeTrue = io.WaitForOutput(
                 StandardIo.StdOutOrStdErr,
                 s => s.Trim() == "stdout 2",
