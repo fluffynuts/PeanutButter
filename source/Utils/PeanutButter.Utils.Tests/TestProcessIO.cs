@@ -799,7 +799,7 @@ console.log(process.env[`{envVar}`]);
             );
             var shouldBeFalse = io.WaitForOutput(
                 StandardIo.StdOut,
-                s => s.Trim() == "stdoput 3",
+                s => s.Trim() == "stdout 3",
                 500
             );
             var snapshot = io.StandardOutputAndErrorInterleavedSnapshot.ToArray();
