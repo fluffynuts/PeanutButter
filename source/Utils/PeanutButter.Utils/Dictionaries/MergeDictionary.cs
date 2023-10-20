@@ -77,7 +77,7 @@ namespace PeanutButter.Utils.Dictionaries
                 .FirstOrDefault(pi => pi.Name == propertyName);
             if (propInfo == null)
             {
-                throw new Exception($"Member \"${propertyName}\" not found on type \"${type}\"");
+                throw new Exception($"Member \"{propertyName}\" not found on type \"{type}\"");
             }
 
             return propInfo.GetValue(src, null);

@@ -175,7 +175,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders
                 var methodInfo = controllerType.GetMethod(action);
                 if (methodInfo is null)
                 {
-                    throw new Exception($"${controllerType} has no method '{action}'");
+                    throw new Exception($"{controllerType} has no method '{action}'");
                 }
 
                 descriptor.MethodInfo = methodInfo;

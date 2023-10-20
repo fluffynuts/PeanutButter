@@ -655,7 +655,7 @@ namespace PeanutButter.TempDb.MySql.Base
             if (attempt > 10)
             {
                 throw new UnableToInitializeMySqlException(
-                    $"Failed to set root password via cli more than 10 times, error log follows:\n${TryReadErrorLogs().JoinWith("\n")}"
+                    $"Failed to set root password via cli more than 10 times, error log follows:\n{TryReadErrorLogs().JoinWith("\n")}"
                 );
             }
 

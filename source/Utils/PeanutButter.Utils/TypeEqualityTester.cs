@@ -78,7 +78,7 @@ namespace PeanutButter.Utils
             if (!SubMatch && masterMembers.Length != compareMembers.Length)
             {
                 // TODO: report on /what/ is missing / extra
-                return AddError($"Property count mismatch: ${masterMembers.Length} vs ${compareMembers.Length}");
+                return AddError($"Property count mismatch: {masterMembers.Length} vs {compareMembers.Length}");
             }
 
             return masterMembers.Select(cur => new

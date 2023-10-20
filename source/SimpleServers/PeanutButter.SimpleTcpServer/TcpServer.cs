@@ -322,7 +322,7 @@ namespace PeanutButter.SimpleTcpServer
                     if (!_task.Wait(MaxShutDownTime))
                     {
                         Debug.WriteLine(
-                            $"TcpServer did not shut down gracefully within ${MaxShutDownTime}ms"
+                            $"TcpServer did not shut down gracefully within {MaxShutDownTime}ms"
                         );
                     }
                 }

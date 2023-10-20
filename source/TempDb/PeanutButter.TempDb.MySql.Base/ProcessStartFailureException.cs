@@ -12,7 +12,7 @@ namespace PeanutButter.TempDb.MySql.Base
         public ProcessStartFailureException(
             string executable,
             string[] args
-        ) : base($"Unable to start process: ${executable} ${args.Select(ProcessIO.QuoteIfNecessary).JoinWith(" ")}")
+        ) : base($"Unable to start process: {executable} {args.Select(ProcessIO.QuoteIfNecessary).JoinWith(" ")}")
         {
             Executable = executable;
             Arguments = args;
