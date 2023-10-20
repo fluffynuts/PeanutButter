@@ -22,7 +22,7 @@ namespace PeanutButter.Utils
 #else
     public
 #endif
-        class AutoDeleter: IDisposable
+        class AutoDeleter : IDisposable
     {
         private readonly List<string> _toDelete;
 
@@ -55,15 +55,22 @@ namespace PeanutButter.Utils
                     try
                     {
                         if (Directory.Exists(f))
+                        {
                             Directory.Delete(f, true);
+                        }
                         else
+                        {
                             File.Delete(f);
+                        }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // ignored
+                        Console.Error.WriteLine(
+                            $"Unable to delete temporary artifact '{f}': {ex}"
+                        );
                     }
                 }
+
                 _toDelete.Clear();
             }
         }

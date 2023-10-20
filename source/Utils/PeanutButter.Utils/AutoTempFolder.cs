@@ -28,6 +28,13 @@ namespace PeanutButter.Utils
         string Path { get; }
 
         /// <summary>
+        /// How many times to retry operations if they fail
+        /// - operations like read and write are retried on
+        ///   failure as I've seen antivirus hold onto files ):
+        /// </summary>
+        int RetryOperations { get; set; }
+
+        /// <summary>
         /// Resolves a relative path (or path parts) within the auto temp folder
         /// </summary>
         /// <param name="p1"></param>
@@ -204,6 +211,19 @@ namespace PeanutButter.Utils
         class AutoTempFolder : IAutoTempFolder
     {
         /// <summary>
+        /// How many times to retry operations if they fail
+        /// - operations like read and write are retried on
+        ///   failure as I've seen antivirus hold onto files ):
+        /// </summary>
+        public int RetryOperations
+        {
+            get => _retryOperations;
+            set => _retryOperations = Math.Min(1, value);
+        }
+
+        private int _retryOperations = 50;
+
+        /// <summary>
         /// Default file access, as per System.IO.FileStream
         /// </summary>
         public const FileAccess DEFAULT_FILE_ACCESS = FileAccess.Read;
@@ -250,7 +270,7 @@ namespace PeanutButter.Utils
                 Path = System.IO.Path.Combine(baseFolder, Guid.NewGuid().ToString());
             } while (Directory.Exists(Path));
 
-            Directory.CreateDirectory(Path);
+            Retry.Max(RetryOperations).Times(() => Directory.CreateDirectory(Path));
             _autoDeleter = new AutoDeleter(Path);
         }
 
@@ -263,7 +283,14 @@ namespace PeanutButter.Utils
                 {
                     foreach (var stream in _fileStreams)
                     {
-                        stream.Dispose();
+                        try
+                        {
+                            stream.Dispose();
+                        }
+                        catch
+                        {
+                            // suppress
+                        }
                     }
 
                     _fileStreams.Clear();
@@ -327,7 +354,7 @@ namespace PeanutButter.Utils
             var target = ResolvePath(dirname);
             if (!Directory.Exists(target))
             {
-                Directory.CreateDirectory(target);
+                Retry.Max(RetryOperations).Times(() => Directory.CreateDirectory(target));
             }
 
             return target;
@@ -363,24 +390,29 @@ namespace PeanutButter.Utils
             Stream data
         )
         {
-            var result = ResolvePath(filename);
-            var container = System.IO.Path.GetDirectoryName(result);
-            if (container is null)
-            {
-                throw new InvalidOperationException(
-                    $"Unable to determine the containing folder for {result}"
-                );
-            }
+            return Retry.Max(RetryOperations).Times(
+                () =>
+                {
+                    var result = ResolvePath(filename);
+                    var container = System.IO.Path.GetDirectoryName(result);
+                    if (container is null)
+                    {
+                        throw new InvalidOperationException(
+                            $"Unable to determine the containing folder for {result}"
+                        );
+                    }
 
-            if (!Directory.Exists(container))
-            {
-                Directory.CreateDirectory(container);
-            }
+                    if (!Directory.Exists(container))
+                    {
+                        Directory.CreateDirectory(container);
+                    }
 
-            using var filestream = new FileStream(result, FileMode.Create);
-            data.CopyTo(filestream);
-            filestream.Flush();
-            return result;
+                    using var filestream = new FileStream(result, FileMode.Create);
+                    data.CopyTo(filestream);
+                    filestream.Flush();
+                    return result;
+                }
+            );
         }
 
         /// <inheritdoc />
@@ -393,10 +425,15 @@ namespace PeanutButter.Utils
         /// <inheritdoc />
         public byte[] ReadFile(string filename)
         {
-            using var fp = OpenFile(filename, FileAccess.Read);
-            var target = new MemoryStream();
-            fp.CopyTo(target);
-            return target.ToArray();
+            return Retry.Max(RetryOperations).Times(
+                () =>
+                {
+                    using var fp = OpenFile(filename, FileAccess.Read);
+                    var target = new MemoryStream();
+                    fp.CopyTo(target);
+                    return target.ToArray();
+                }
+            );
         }
 
         /// <inheritdoc />
@@ -457,16 +494,21 @@ namespace PeanutButter.Utils
             FileOptions options
         )
         {
-            var fullPath = ResolvePath(filename);
-            return Store(
-                new FileStream(
-                    fullPath,
-                    FileMode.OpenOrCreate,
-                    access,
-                    share,
-                    bufferSize,
-                    options
-                )
+            return Retry.Max(RetryOperations).Times(
+                () =>
+                {
+                    var fullPath = ResolvePath(filename);
+                    return Store(
+                        new FileStream(
+                            fullPath,
+                            FileMode.OpenOrCreate,
+                            access,
+                            share,
+                            bufferSize,
+                            options
+                        )
+                    );
+                }
             );
         }
 

@@ -23,6 +23,19 @@ namespace PeanutButter.Utils
         class AutoTempFile : IDisposable
     {
         /// <summary>
+        /// How many times to retry operations if they fail
+        /// - operations like read and write are retried on
+        ///   failure as I've seen antivirus hold onto files ):
+        /// </summary>
+        public int RetryOperations
+        {
+            get => _retryOperations;
+            set => _retryOperations = Math.Min(1, value);
+        }
+
+        private int _retryOperations = 50;
+
+        /// <summary>
         /// Provides the path to the temporary file on disk
         /// </summary>
         public string Path => _tempFile;
@@ -32,8 +45,8 @@ namespace PeanutButter.Utils
         /// </summary>
         public byte[] BinaryData
         {
-            get => File.ReadAllBytes(_tempFile);
-            set => File.WriteAllBytes(_tempFile, value);
+            get => Retry.Max(RetryOperations).Times(() =>File.ReadAllBytes(_tempFile));
+            set => Retry.Max(RetryOperations).Times(() => File.WriteAllBytes(_tempFile, value));
         }
 
         /// <summary>
@@ -41,8 +54,8 @@ namespace PeanutButter.Utils
         /// </summary>
         public string StringData
         {
-            get => Encoding.UTF8.GetString(File.ReadAllBytes(_tempFile));
-            set => File.WriteAllBytes(_tempFile, Encoding.UTF8.GetBytes(value ?? string.Empty));
+            get => Retry.Max(RetryOperations).Times(() => Encoding.UTF8.GetString(File.ReadAllBytes(_tempFile)));
+            set => Retry.Max(RetryOperations).Times(() => File.WriteAllBytes(_tempFile, Encoding.UTF8.GetBytes(value ?? string.Empty)));
         }
 
         private string _tempFile;
@@ -80,8 +93,11 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="baseFolder">Folder to create the file within</param>
         /// <param name="data">String data to initialize the file with</param>
-        public AutoTempFile(string baseFolder, string data) : this(baseFolder, null,
-            Encoding.UTF8.GetBytes(data ?? string.Empty))
+        public AutoTempFile(string baseFolder, string data) : this(
+            baseFolder,
+            null,
+            Encoding.UTF8.GetBytes(data ?? string.Empty)
+        )
         {
         }
 
@@ -107,12 +123,25 @@ namespace PeanutButter.Utils
             _actual = new AutoDeleter(_tempFile);
             baseFolder = _Path.GetDirectoryName(_tempFile) ?? string.Empty;
             if (!Directory.Exists(baseFolder))
-                Directory.CreateDirectory(baseFolder);
-            File.WriteAllBytes(_tempFile, data ?? new byte[] { });
+            {
+                Retry.Max(RetryOperations).Times(() => Directory.CreateDirectory(baseFolder));
+            }
+
+            Retry.Max(RetryOperations).Times(
+                () =>
+                {
+                    File.WriteAllBytes(
+                        _tempFile,
+                        data ?? new byte[]
+                        {
+                        }
+                    );
+                }
+            );
         }
 
         private readonly List<Func<string, string, string>> _fileNameStrategies =
-            new List<Func<string, string, string>>()
+            new()
             {
                 FileNameWhenFolderAndFileNotSpecified,
                 FileNameWhenFolderSpecifiedAndFileNotSpecified,
@@ -149,7 +178,7 @@ namespace PeanutButter.Utils
         private static string GetFileNameOfNewTempFile()
         {
             var tempFileName = _Path.GetTempFileName();
-            File.Delete(tempFileName);
+            Retry.Max(50).Times(() =>File.Delete(tempFileName));
             return _Path.GetFileName(tempFileName);
         }
 

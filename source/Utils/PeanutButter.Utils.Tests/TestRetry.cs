@@ -35,6 +35,29 @@ namespace PeanutButter.Utils.Tests
             }
 
             [TestFixture]
+            public class WhenFuncReturnsValue
+            {
+                [Test]
+                public void ShouldEventuallyReceiveThatValue()
+                {
+                    // Arrange
+                    var runs = 0;
+                    // Act
+                    var result = Retry.Max(5).Times(() =>
+                    {
+                        if (++runs > 3)
+                        {
+                            return 42;
+                        }
+                        throw new Exception("nope");
+                    });
+                    // Assert
+                    Expect(result)
+                        .To.Equal(42);
+                }
+            }
+
+            [TestFixture]
             public class WhenCompletesBeforeMaxAttempts
             {
                 [Test]
