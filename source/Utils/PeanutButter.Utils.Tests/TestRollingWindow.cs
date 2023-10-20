@@ -4,6 +4,7 @@ using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
 using static NExpect.Expectations;
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace PeanutButter.Utils.Tests
 {

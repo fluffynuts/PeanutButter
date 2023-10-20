@@ -526,7 +526,7 @@ stderr:
                         serverProcess.Kill();
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     // suppress
                 }
