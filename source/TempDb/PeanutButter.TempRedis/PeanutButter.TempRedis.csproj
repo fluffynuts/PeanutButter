@@ -1,25 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
-    <LangVersion>latest</LangVersion>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <Platforms>AnyCPU</Platforms>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.TempRedis.xml</DocumentationFile>
-    <Configurations>Debug;Release;Debug-X</Configurations>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
+        <LangVersion>latest</LangVersion>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <Platforms>AnyCPU</Platforms>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.TempRedis.xml</DocumentationFile>
+        <Configurations>Debug;Release;Debug-X</Configurations>
+        <DebugSymbols>true</DebugSymbols>
+        <DefineConstants>$(DefineConstants);BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\SimpleServers\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj" />
-    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="2.6.122" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="StackExchange.Redis" Version="2.6.122"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="..\..\Utils\PeanutButter.Utils\LeasingFactory.cs">
+        <Link>Imported\LeasingFactory.cs</Link>
+      </Compile>
+    </ItemGroup>
 
 </Project>

@@ -64,6 +64,11 @@ namespace PeanutButter.TempRedis
         bool IsRunning { get; }
 
         /// <summary>
+        /// Exposes the internal disposed flag for reading
+        /// </summary>
+        bool IsDisposed { get; }
+
+        /// <summary>
         /// Provides a simple mechanism to open a connection to the
         /// redis instance
         /// </summary>
@@ -228,6 +233,10 @@ namespace PeanutButter.TempRedis
         private readonly Action<string> _logger;
         private bool _running;
         private readonly SemaphoreSlim _runningLock = new(1, 1);
+        /// <summary>
+        /// Exposes the internal disposed flag for reading
+        /// </summary>
+        public bool IsDisposed => _disposed;
         private bool _disposed;
 
         /// <summary>
