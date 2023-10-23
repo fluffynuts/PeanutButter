@@ -68,7 +68,7 @@ public class TestTempRedis
         using var sut = Create();
 
         // Act
-        var connection = sut.Connect();
+        using var connection = sut.Connect();
         connection.GetDatabase();
         var server = connection.GetEndPoints()
             .Select(e => connection.GetServer(e))
@@ -93,30 +93,41 @@ public class TestTempRedis
         var conn = sut.Connect(
             new ConfigurationOptions()
             {
-                ConnectTimeout = 5000,
-                ConnectRetry = 3,
+                ConnectTimeout = 1000,
+                ConnectRetry = 15,
+                AbortOnConnectFail = false
             }
         );
         sut.Stop();
-        StartTempRedisAfterASecond();
-        var db = conn.GetDatabase(0);
-        db.StringSet(key, value);
-        // can't stop here: redis is in-memory, so the value would be discarded
-        var result = db.StringGet(key);
-        // Assert
-        Expect(result)
-            .To.Equal(value);
-
-
-        void StartTempRedisAfterASecond()
+        var t = StartTempRedisAfterASecond();
+        try
         {
-            Task.Run(
+            var db = conn.GetDatabase(0);
+            Retry.Max(10).Times(
+                () => db.StringSet(key, value)
+            );
+            // can't stop here: redis is in-memory, so the value would be discarded
+            var result = db.StringGet(key);
+            // Assert
+            Expect(result)
+                .To.Equal(value);
+        }
+        finally
+        {
+            t.Join();
+        }
+
+        Thread StartTempRedisAfterASecond()
+        {
+            var thread = new Thread(
                 () =>
                 {
                     Thread.Sleep(1000);
                     sut.Start();
                 }
             );
+            thread.Start();
+            return thread;
         }
     }
 
@@ -206,6 +217,32 @@ public class TestTempRedis
         // Assert
         Expect(result)
             .To.Equal(value);
+    }
+
+    [Test]
+    public void ShouldSurviveSeeSawOperation()
+    {
+        // Arrange
+        using var sut = new TempRedis(
+            new TempRedisOptions()
+            {
+                DebugLogger = Console.Error.WriteLine
+            }
+        );
+        using var conn = sut.Connect();
+        // Act
+        for (var i = 0; i < 20; i++)
+        {
+            var db = conn.GetDatabase();
+            var expected = $"test-value-{i}";
+            db.StringSet("test-key", expected);
+            sut.Restart();
+            var stored = db.StringGet("test-key");
+            Expect(stored)
+                .To.Equal(expected);
+            sut.Restart();
+        }
+        // Assert
     }
 
     /// <summary>
