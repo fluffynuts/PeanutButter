@@ -56,17 +56,21 @@ namespace PeanutButter.Utils
                     {
                         if (Directory.Exists(f))
                         {
-                            Directory.Delete(f, true);
+                            Retry.Max(50).Times(
+                                () => Directory.Delete(f, true)
+                            );
                         }
                         else
                         {
-                            File.Delete(f);
+                            Retry.Max(50).Times(
+                                () => File.Delete(f)
+                            );
                         }
                     }
                     catch (Exception ex)
                     {
                         Console.Error.WriteLine(
-                            $"Unable to delete temporary artifact '{f}': {ex}"
+                            $"WARNING: Unable to delete temporary artifact '{f}': {ex}"
                         );
                     }
                 }
