@@ -32,10 +32,5 @@
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\..\Utils\PeanutButter.Utils\LeasingFactory.cs">
-      <Link>Imported\LeasingFactory.cs</Link>
-    </Compile>
-  </ItemGroup>
   <Import Project="..\..\MonoForFramework.targets" />
 </Project>

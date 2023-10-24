@@ -21,11 +21,4 @@
     <ItemGroup>
         <PackageReference Include="StackExchange.Redis" Version="2.6.122"/>
     </ItemGroup>
-
-    <ItemGroup>
-      <Compile Include="..\..\Utils\PeanutButter.Utils\LeasingFactory.cs">
-        <Link>Imported\LeasingFactory.cs</Link>
-      </Compile>
-    </ItemGroup>
-
 </Project>

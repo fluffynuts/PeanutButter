@@ -25,7 +25,7 @@
         <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="System.ServiceProcess"/>
+        <Reference Include="System.ServiceProcess" Condition="'$(TargetFramework)' == 'net462'"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Utils\PeanutButter.EasyArgs\PeanutButter.EasyArgs.csproj"/>
