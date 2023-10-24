@@ -9,19 +9,20 @@ namespace PeanutButter.SimpleHTTPServer.Testability
 {
     public static class HttpServerExtensions
     {
-        static Dictionary<HttpServer, List<RequestLogItem>> _serverRequests =
-            new Dictionary<HttpServer, List<RequestLogItem>>();
+        static readonly Dictionary<IHttpServer, List<RequestLogItem>> ServerRequests = new();
 
-        public static void EnableRequestLogging(this HttpServer server)
+        public static void EnableRequestLogging(this IHttpServer server)
         {
             var logs = new List<RequestLogItem>();
-            _serverRequests[server] = logs;
+            ServerRequests[server] = logs;
             server.RequestLogAction = logs.Add;
         }
 
-        public static void ShouldHaveReceivedRequestFor(this HttpServer server,
+        public static void ShouldHaveReceivedRequestFor(
+            this IHttpServer server,
             string path,
-            HttpMethods method = HttpMethods.Any)
+            HttpMethods method = HttpMethods.Any
+        )
         {
             if (server.GetRequestLogsMatching(path, method).Any())
             {
@@ -33,9 +34,11 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             );
         }
 
-        public static void ShouldNotHaveReceivedRequestFor(this HttpServer server,
+        public static void ShouldNotHaveReceivedRequestFor(
+            this IHttpServer server,
             string path,
-            HttpMethods method = HttpMethods.Any)
+            HttpMethods method = HttpMethods.Any
+        )
         {
             if (server.GetRequestLogsMatching(path, method).Any())
             {
@@ -45,11 +48,13 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             }
         }
 
-        public static void ShouldHaveHadHeaderFor(this HttpServer server,
+        public static void ShouldHaveHadHeaderFor(
+            this IHttpServer server,
             string path,
             HttpMethods method,
             string header,
-            string expectedValue)
+            string expectedValue
+        )
         {
             var request = GetSingleRequestFor(server, path, method);
             if (!request.Headers.ContainsKey(header))
@@ -67,11 +72,13 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             }
         }
 
-        public static void ShouldNotHaveHadHeaderFor(this HttpServer server,
+        public static void ShouldNotHaveHadHeaderFor(
+            this IHttpServer server,
             string path,
             HttpMethods method,
             string header,
-            string expectedValue)
+            string expectedValue
+        )
         {
             var request = GetSingleRequestFor(server, path, method);
             if (request.Headers.ContainsKey(header) && (expectedValue == request.Headers[header]))
@@ -83,22 +90,27 @@ namespace PeanutButter.SimpleHTTPServer.Testability
         }
 
 
-        public static void Reset(this HttpServer server)
+        public static void Reset(this IHttpServer server)
         {
             server.Reset();
-            if (_serverRequests.TryGetValue(server, out var logs))
+            if (ServerRequests.TryGetValue(server, out var logs))
             {
                 logs.Clear();
             }
         }
 
-        private static RequestLogItem GetSingleRequestFor(HttpServer server, string path, HttpMethods method)
+        private static RequestLogItem GetSingleRequestFor(
+            IHttpServer server,
+            string path,
+            HttpMethods method
+        )
         {
             var requests = server.GetRequestLogsMatching(path, method);
             if (requests.Count() > 1)
             {
                 throw new HttpServerAssertionException(
-                    string.Join(Environment.NewLine,
+                    string.Join(
+                        Environment.NewLine,
                         "Expected to get one request matching",
                         $"{method.ToString().ToUpper()} {path}",
                         "But got none. ",
@@ -117,15 +129,18 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             return requests.FirstOrDefault();
         }
 
-        private static string GetAllRequestsAsLinesFor(HttpServer server)
+        private static string GetAllRequestsAsLinesFor(
+            IHttpServer server
+        )
         {
-            var allRequests = server.GetRequestLogsMatching(o => true);
+            var allRequests = server.GetRequestLogsMatching(_ => true);
             if (allRequests.IsEmpty())
             {
                 return null;
             }
 
-            return string.Join(Environment.NewLine,
+            return string.Join(
+                Environment.NewLine,
                 "Got the following requests: ",
                 string.Join(Environment.NewLine, allRequests.Select(AsReadableLine))
             );
@@ -136,11 +151,13 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             return $"{arg.Method.ToUpper()} {arg.Path}";
         }
 
-        public static IEnumerable<RequestLogItem> GetRequestLogsMatching(this HttpServer server,
-            Func<RequestLogItem, bool> matcher)
+        public static IEnumerable<RequestLogItem> GetRequestLogsMatching(
+            this IHttpServer server,
+            Func<RequestLogItem, bool> matcher
+        )
         {
             List<RequestLogItem> logs;
-            if (!_serverRequests.TryGetValue(server, out logs))
+            if (!ServerRequests.TryGetValue(server, out logs))
             {
                 throw new Exception("Logging hasn't been enabled for this server");
             }
@@ -148,22 +165,31 @@ namespace PeanutButter.SimpleHTTPServer.Testability
             return logs.Where(matcher);
         }
 
-        public static IEnumerable<RequestLogItem> GetRequestLogsMatching(this HttpServer server,
+        public static IEnumerable<RequestLogItem> GetRequestLogsMatching(
+            this IHttpServer server,
             string path,
-            HttpMethods method)
+            HttpMethods method
+        )
         {
-            return server.GetRequestLogsMatching(l =>
-                l.Path == path && HttpMethodsExtensions.Matches(method, l.Method));
+            return server.GetRequestLogsMatching(
+                l =>
+                    l.Path == path && method.Matches(l.Method)
+            );
         }
 
-        private static string RequestErrorFor(this HttpServer server, string mainError)
+        private static string RequestErrorFor(
+            this IHttpServer server,
+            string mainError
+        )
         {
             return $"{mainError}. Got requests: {PrettyPrintRequestsFor(server)}";
         }
 
-        private static string PrettyPrintRequestsFor(HttpServer server)
+        private static string PrettyPrintRequestsFor(
+            IHttpServer server
+        )
         {
-            var logs = _serverRequests[server];
+            var logs = ServerRequests[server];
             return logs.Select(PrettyPrintRequestLog).JoinWith(Environment.NewLine);
         }
 

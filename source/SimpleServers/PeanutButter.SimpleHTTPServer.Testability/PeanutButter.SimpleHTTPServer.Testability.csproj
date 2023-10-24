@@ -1,25 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
-    <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Configurations>Debug;Release;Debug-X</Configurations>
-    <Platforms>AnyCPU</Platforms>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
-    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
-    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PeanutButter.SimpleHTTPServer\PeanutButter.SimpleHTTPServer.csproj" />
-    <ProjectReference Include="..\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj" />
-    <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-  </ItemGroup>
-  <Import Project="..\..\MonoForFramework.targets" />
+    <PropertyGroup>
+        <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
+        <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <Configurations>Debug;Release;Debug-X</Configurations>
+        <LangVersion>latest</LangVersion>
+        <Platforms>AnyCPU</Platforms>
+    </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+        <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+        <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PeanutButter.SimpleHTTPServer\PeanutButter.SimpleHTTPServer.csproj"/>
+        <ProjectReference Include="..\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj"/>
+        <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
+    </ItemGroup>
+    <Import Project="..\..\MonoForFramework.targets"/>
 </Project>
