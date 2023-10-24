@@ -12,20 +12,20 @@ namespace PeanutButter.TempRedis.Tests
         {
             // Arrange
             // Act
-            TempRedis server1;
-            TempRedis server2;
-            TempRedis server3;
+            ITempRedis server1;
+            ITempRedis server2;
+            ITempRedis server3;
 
             using (var sut = Create())
             {
-                using (var lease1 = sut.BorrowServer())
+                using (var lease1 = sut.Borrow())
                 {
                     server1 = lease1.Item;
-                    using var lease2 = sut.BorrowServer();
+                    using var lease2 = sut.Borrow();
                     server2 = lease2.Item;
                 }
 
-                using (var lease3 = sut.BorrowServer())
+                using (var lease3 = sut.Borrow())
                 {
                     server3 = lease3.Item;
                 }

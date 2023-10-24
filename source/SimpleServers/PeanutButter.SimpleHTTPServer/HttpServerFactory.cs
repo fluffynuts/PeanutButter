@@ -3,26 +3,24 @@ using PeanutButter.Utils;
 
 namespace PeanutButter.SimpleHTTPServer
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IHttpServerFactory
     {
-        /// <summary>
-        /// Provides a new or previously-released http server
-        /// </summary>
-        /// <returns></returns>
-        Lease<HttpServer> BorrowServer();
         /// <summary>
         /// Provides a new or previously-released http server and
         /// configures the log action
         /// </summary>
         /// <returns></returns>
-        Lease<HttpServer> BorrowServer(Action<string> logAction);
+        ILease<IHttpServer> Borrow(Action<string> logAction);
     }
 
     /// <summary>
     /// Provides a mechanism for re-usable http-servers, eg in testing
     /// since it takes a little time to spin up an http server
     /// </summary>
-    public class HttpServerFactory : LeasingFactory<HttpServer>, IHttpServerFactory
+    public class HttpServerFactory : LeasingFactory<IHttpServer>, IHttpServerFactory
     {
         /// <summary>
         /// instantiates a new http-server factory
@@ -31,16 +29,18 @@ namespace PeanutButter.SimpleHTTPServer
         {
         }
 
-        public Lease<HttpServer> BorrowServer()
+        /// <inheritdoc />
+        public override ILease<IHttpServer> Borrow()
         {
-            return BorrowServer(null);
+            return Borrow(null);
         }
 
-        public Lease<HttpServer> BorrowServer(
+        /// <inheritdoc />
+        public ILease<IHttpServer> Borrow(
             Action<string> logAction
         )
         {
-            var result = Borrow();
+            var result = base.Borrow();
             result.Item.LogAction = logAction;
             result.Item.Reset();
             return result;

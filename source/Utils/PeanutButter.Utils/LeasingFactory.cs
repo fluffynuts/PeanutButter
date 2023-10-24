@@ -11,14 +11,26 @@ namespace
 #endif
 {
     /// <summary>
+    /// Basic interface for a factory leasing objects
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ILeasingFactory<T> : IDisposable where T : IDisposable
+    {
+        /// <summary>
+        /// Provides a new or previously-released http server
+        /// </summary>
+        /// <returns></returns>
+        ILease<T> Borrow();
+    }
+
+    /// <summary>
     /// provides an abstract base for a leasing factory:
     /// callers can ask to borrow an item and dispose
     /// the lease when done to release the item for re-use
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class LeasingFactory<T>
-        : IDisposable
-        where T : IDisposable
+        : ILeasingFactory<T> where T : IDisposable
     {
         private readonly Func<T> _factory;
         private readonly List<T> _instances = new();
@@ -38,7 +50,7 @@ namespace
         /// Provides a new or previously-released http server
         /// </summary>
         /// <returns></returns>
-        public Lease<T> Borrow()
+        public virtual ILease<T> Borrow()
         {
             lock (_instances)
             {
@@ -61,7 +73,7 @@ namespace
         }
 
         /// <inheritdoc />
-        public void Dispose()
+        public virtual void Dispose()
         {
             T[] toDispose;
             lock (_instances)
@@ -110,11 +122,24 @@ namespace
     }
 
     /// <summary>
+    /// Container for a leased resource
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ILease<T>
+        : IDisposable
+    {
+        /// <summary>
+        /// The leased item
+        /// </summary>
+        T Item { get; }
+    }
+
+    /// <summary>
     /// Provides an IDisposable interface over
     /// a borrowed item
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class Lease<T> : IDisposable
+    public class Lease<T> : ILease<T>
     {
         /// <summary>
         /// The leased item

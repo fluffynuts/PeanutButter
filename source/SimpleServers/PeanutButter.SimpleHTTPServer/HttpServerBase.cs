@@ -15,9 +15,88 @@ using PeanutButter.SimpleTcpServer;
 namespace PeanutButter.SimpleHTTPServer
 {
     /// <summary>
+    /// Describes the base functionality in a simple http-server
+    /// </summary>
+    public interface IHttpServerBase: IDisposable
+    {
+        /// <summary>
+        /// Log action used for requests
+        /// </summary>
+        Action<RequestLogItem> RequestLogAction { get; set; }
+
+        /// <summary>
+        /// Provides the base url from which the server serves
+        /// </summary>
+        string BaseUrl { get; }
+
+        /// <summary>
+        /// Flag: when true, this server has been disposed
+        /// </summary>
+        bool Disposed { get; }
+
+        /// <summary>
+        /// Maximum time, in milliseconds, to wait on the
+        /// listener task when shutting down
+        /// </summary>
+        int MaxShutDownTime { get; set; }
+
+        /// <summary>
+        /// Whether or not to log random port discovery processes
+        /// </summary>
+        bool LogRandomPortDiscovery { get; set; }
+
+        /// <summary>
+        /// Action to employ when logging (defaults to logging to the console)
+        /// </summary>
+        Action<string> LogAction { get; set; }
+
+        /// <summary>
+        /// Port which this server has bound to
+        /// </summary>
+        int Port { get; }
+
+        /// <summary>
+        /// Flag exposing listening state
+        /// </summary>
+        bool IsListening { get; }
+
+        /// <summary>
+        /// Handles a request that does not contain a body (as of the HTTP spec).
+        /// </summary>
+        /// <param name="p">The HTTP processor.</param>
+        /// <param name="method">The HTTP method.</param>
+        void HandleRequestWithoutBody(HttpProcessor p, string method);
+
+        /// <summary>
+        /// Handles a general request with a request body.
+        /// </summary>
+        /// <param name="p">The HTTP processor.</param>
+        /// <param name="inputData">The stream to read the request body from.</param>
+        /// <param name="method">The HTTP method.</param>
+        void HandleRequestWithBody(HttpProcessor p, MemoryStream inputData, string method);
+
+        /// <summary>
+        /// Resolves the full url to the provided path on the current server
+        /// </summary>
+        /// <param name="relativeUrl"></param>
+        /// <returns></returns>
+        string GetFullUrlFor(string relativeUrl);
+
+        /// <summary>
+        /// Start the server
+        /// </summary>
+        void Start();
+
+        /// <summary>
+        /// Stop the server
+        /// </summary>
+        void Stop();
+    }
+
+    /// <summary>
     /// Provides the abstract base HTTP Server
     /// </summary>
-    public abstract class HttpServerBase : TcpServer
+    public abstract class HttpServerBase : TcpServer, IHttpServerBase
     {
         /// <summary>
         /// Log action used for requests
@@ -34,36 +113,19 @@ namespace PeanutButter.SimpleHTTPServer
         {
         }
 
-        /// <summary>
-        /// Factory function to create the processor for a given TcpClient
-        /// </summary>
-        /// <param name="client"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         protected override IProcessor CreateProcessorFor(TcpClient client)
         {
             return new HttpProcessor(client, this);
         }
 
-        /// <summary>
-        /// Handles a request that does not contain a body (as of the HTTP spec).
-        /// </summary>
-        /// <param name="p">The HTTP processor.</param>
-        /// <param name="method">The HTTP method.</param>
+        /// <inheritdoc />
         public abstract void HandleRequestWithoutBody(HttpProcessor p, string method);
 
-        /// <summary>
-        /// Handles a general request with a request body.
-        /// </summary>
-        /// <param name="p">The HTTP processor.</param>
-        /// <param name="inputData">The stream to read the request body from.</param>
-        /// <param name="method">The HTTP method.</param>
+        /// <inheritdoc />
         public abstract void HandleRequestWithBody(HttpProcessor p, MemoryStream inputData, string method);
-        
-        /// <summary>
-        /// Resolves the full url to the provided path on the current server
-        /// </summary>
-        /// <param name="relativeUrl"></param>
-        /// <returns></returns>
+
+        /// <inheritdoc />
         public string GetFullUrlFor(string relativeUrl)
         {
             var joinWith = relativeUrl.StartsWith("/")
@@ -71,11 +133,8 @@ namespace PeanutButter.SimpleHTTPServer
                 : "/";
             return string.Join(joinWith, BaseUrl, relativeUrl);
         }
-        
-        // ReSharper disable once MemberCanBePrivate.Global
-        /// <summary>
-        /// Provides the base url from which the server serves
-        /// </summary>
+
+        /// <inheritdoc />
         public string BaseUrl => $"http://localhost:{Port}";
     }
 }

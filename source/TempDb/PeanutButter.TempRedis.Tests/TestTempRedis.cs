@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -80,7 +81,7 @@ public class TestTempRedis
     }
 
     [Test]
-    [Timeout(30000)]
+    [Timeout(60000)]
     public void ShouldSurviveRedisComingUpLate()
     {
         // Arrange
@@ -88,20 +89,24 @@ public class TestTempRedis
         var value = GetRandomString();
         using var sut = new TempRedis();
         sut.Stop();
-        // Act
-        StartTempRedisAfterASecond();
-        var conn = sut.Connect(
-            new ConfigurationOptions()
-            {
-                ConnectTimeout = 1000,
-                ConnectRetry = 15,
-                AbortOnConnectFail = false
-            }
-        );
-        sut.Stop();
-        var t = StartTempRedisAfterASecond();
+        var threads = new List<Thread>();
         try
         {
+            // Act
+            threads.Add(StartTempRedisAfterASecond());
+
+            var conn = Retry.Max(3).Times(
+                () => sut.Connect(
+                    new ConfigurationOptions()
+                    {
+                        ConnectTimeout = 1500,
+                        ConnectRetry = 5,
+                        AbortOnConnectFail = true
+                    }
+                )
+            );
+            sut.Stop();
+            threads.Add(StartTempRedisAfterASecond());
             var db = conn.GetDatabase(0);
             Retry.Max(10).Times(
                 () => db.StringSet(key, value)
@@ -111,23 +116,26 @@ public class TestTempRedis
             // Assert
             Expect(result)
                 .To.Equal(value);
+
+            Thread StartTempRedisAfterASecond()
+            {
+                var thread = new Thread(
+                    () =>
+                    {
+                        Thread.Sleep(1000);
+                        sut.Start();
+                    }
+                );
+                thread.Start();
+                return thread;
+            }
         }
         finally
         {
-            t.Join();
-        }
-
-        Thread StartTempRedisAfterASecond()
-        {
-            var thread = new Thread(
-                () =>
-                {
-                    Thread.Sleep(1000);
-                    sut.Start();
-                }
-            );
-            thread.Start();
-            return thread;
+            foreach (var t in threads)
+            {
+                t.Join();
+            }
         }
     }
 

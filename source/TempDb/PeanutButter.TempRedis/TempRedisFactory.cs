@@ -19,17 +19,12 @@ namespace
 #else
     public
 #endif
-        interface ITempRedisFactory
+        interface ITempRedisFactory: ILeasingFactory<ITempRedis>
     {
-        /// <summary>
-        /// Borrow a TempRedis server; Dispose of the lease to return it.
-        /// </summary>
-        /// <returns></returns>
-        public Lease<TempRedis> BorrowServer();
     }
 
     /// <inheritdoc cref="PeanutButter.TempRedis.ITempRedisFactory" />
-    public class TempRedisFactory : LeasingFactory<TempRedis>, ITempRedisFactory
+    public class TempRedisFactory : LeasingFactory<ITempRedis>, ITempRedisFactory
     {
         /// <summary>
         /// Instantiates a new TempRedis factory with default
@@ -47,12 +42,6 @@ namespace
         public TempRedisFactory(TempRedisOptions redisOptions)
             : base(() => new TempRedis(redisOptions))
         {
-        }
-
-        /// <inheritdoc />
-        public Lease<TempRedis> BorrowServer()
-        {
-            return Borrow();
         }
     }
 }

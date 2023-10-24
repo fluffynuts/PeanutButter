@@ -82,9 +82,155 @@ namespace PeanutButter.SimpleHTTPServer
 
     // TODO: allow easier way to throw 404 (or other web exception) from simple handlers (file/document handlers)
     /// <summary>
+    /// Provides a simple way to run an in-memory http server situations
+    /// like testing or where a small, very simple http server might be useful
+    /// </summary>
+    public interface IHttpServer: IHttpServerBase
+    {
+        /// <summary>
+        /// Adds a handler to the pipeline
+        /// </summary>
+        /// <param name="handler"></param>
+        void AddHandler(Func<HttpProcessor, Stream, HttpServerPipelineResult> handler);
+
+        /// <summary>
+        /// Adds a handler for providing a file download
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <param name="contentType"></param>
+        void AddFileHandler(
+            Func<HttpProcessor, Stream, byte[]> handler,
+            string contentType = MimeTypes.BYTES
+        );
+
+        /// <summary>
+        /// Adds a handler to serve a text document, with (limited) automatic
+        /// content-type detection.
+        /// </summary>
+        /// <param name="handler"></param>
+        void AddDocumentHandler(Func<HttpProcessor, Stream, string> handler);
+
+        /// <summary>
+        /// Specifically add a handler to serve an HTML document
+        /// </summary>
+        /// <param name="handler"></param>
+        void AddHtmlDocumentHandler(
+            Func<HttpProcessor, Stream, string> handler
+        );
+
+        /// <summary>
+        /// Specifically add a handler to serve a JSON document
+        /// </summary>
+        /// <param name="handler"></param>
+        void AddJsonDocumentHandler(Func<HttpProcessor, Stream, object> handler);
+
+        /// <summary>
+        /// Serves an XDocument from the provided path, for the provided method
+        /// </summary>
+        /// <param name="queryPath">Absolute path to serve the document for</param>
+        /// <param name="doc">XDocument to serve</param>
+        /// <param name="method">Which http method to respond to</param>
+        void ServeDocument(
+            string queryPath,
+            XDocument doc,
+            HttpMethods method = HttpMethods.Any
+        );
+
+        /// <summary>
+        /// Serves an XDocument from the provided path, for the provided method
+        /// </summary>
+        /// <param name="queryPath">Absolute path to serve the document for</param>
+        /// <param name="doc">XDocument to serve</param>
+        /// <param name="method">Which http method to respond to</param>
+        void ServeDocument(
+            string queryPath,
+            string doc,
+            HttpMethods method = HttpMethods.Any
+        );
+
+        /// <summary>
+        /// Serves an XDocument from the provided path, for the provided method
+        /// </summary>
+        /// <param name="queryPath">Absolute path to serve the document for</param>
+        /// <param name="doc">XDocument to serve</param>
+        /// <param name="method">Which http method to respond to</param>
+        void ServeDocument(
+            string queryPath,
+            Func<string> doc,
+            HttpMethods method = HttpMethods.Any
+        );
+
+        /// <summary>
+        /// Serves an XDocument from the provided path, for the provided method
+        /// </summary>
+        /// <param name="queryPath">Absolute path to serve the document for</param>
+        /// <param name="docFactory">Factory function to get the document contents</param>
+        /// <param name="method">Which http method to respond to</param>
+        void ServeDocument(
+            string queryPath,
+            Func<XDocument> docFactory,
+            HttpMethods method = HttpMethods.Any
+        );
+
+        /// <summary>
+        /// Serves a JSON document with the provided data at the provided path for the
+        /// provided method
+        /// </summary>
+        /// <param name="path">Absolute path matched for this document</param>
+        /// <param name="data">Any object which will be serialized into JSON for you</param>
+        /// <param name="method">Which http method to respond to</param>
+        void ServeJsonDocument(
+            string path,
+            object data,
+            HttpMethods method = HttpMethods.Any
+        );
+
+        /// <summary>
+        /// Serves a JSON document with the provided data at the provided path for the
+        /// provided method
+        /// </summary>
+        /// <param name="path">Absolute path matched for this document</param>
+        /// <param name="dataFactory">Factory function returning any object which will be serialized into JSON for you</param>
+        /// <param name="method">Which http method to respond to</param>
+        void ServeJsonDocument(
+            string path,
+            Func<object> dataFactory,
+            HttpMethods method = HttpMethods.Any
+        );
+
+        /// <summary>
+        /// Serves an arbitrary file from the provided path for the
+        /// provided content type (defaults to application/octet-stream)
+        /// </summary>
+        /// <param name="path">Absolute path matched for this file</param>
+        /// <param name="data">Data to provide</param>
+        /// <param name="contentType">Content type of the data</param>
+        void ServeFile(string path, byte[] data, string contentType = MimeTypes.BYTES);
+
+        /// <summary>
+        /// Serves a file via a factory Func
+        /// </summary>
+        /// <param name="path">Absolute path matched for this file</param>
+        /// <param name="dataFactory">Factory for the data</param>
+        /// <param name="contentType">Content type</param>
+        void ServeFile(
+            string path,
+            Func<byte[]> dataFactory,
+            string contentType = MimeTypes.BYTES
+        );
+
+        /// <summary>
+        /// Clears any registered handlers &amp; log actions
+        /// so the server can be re-used with completely
+        /// different logic / handlers
+        /// </summary>
+        void Reset();
+    }
+
+    /// <summary>
     /// Provides the simple HTTP server you may use ad-hoc
     /// </summary>
-    public class HttpServer : HttpServerBase
+    public class HttpServer : HttpServerBase, IHttpServer
     {
         private List<Func<HttpProcessor, Stream, HttpServerPipelineResult>> _handlers;
 
@@ -293,7 +439,7 @@ namespace PeanutButter.SimpleHTTPServer
             Func<HttpProcessor, Stream, string> handler
         )
         {
-            HandleDocumentRequestWith(handler, "html", null, s => MimeTypes.HTML);
+            HandleDocumentRequestWith(handler, "html", null, _ => MimeTypes.HTML);
         }
 
         /// <summary>
@@ -302,7 +448,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="handler"></param>
         public void AddJsonDocumentHandler(Func<HttpProcessor, Stream, object> handler)
         {
-            HandleDocumentRequestWith(handler, "json", o => _jsonSerializer(o), s => MimeTypes.JSON);
+            HandleDocumentRequestWith(handler, "json", o => _jsonSerializer(o), _ => MimeTypes.JSON);
         }
 
         private void HandleDocumentRequestWith(
@@ -440,7 +586,7 @@ namespace PeanutButter.SimpleHTTPServer
         )
         {
             AddHtmlDocumentHandler(
-                (p, s) =>
+                (p, _) =>
                 {
                     if (p.FullPath != queryPath || !method.Matches(p.Method))
                         return null;
@@ -495,7 +641,7 @@ namespace PeanutButter.SimpleHTTPServer
         )
         {
             AddJsonDocumentHandler(
-                (p, s) =>
+                (p, _) =>
                 {
                     if (p.FullPath != path || !method.Matches(p.Method))
                         return null;
@@ -530,7 +676,7 @@ namespace PeanutButter.SimpleHTTPServer
         )
         {
             AddFileHandler(
-                (p, s) =>
+                (p, _) =>
                 {
                     if (p.Path != path)
                     {
