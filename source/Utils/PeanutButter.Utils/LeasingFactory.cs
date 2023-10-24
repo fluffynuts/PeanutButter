@@ -3,7 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PeanutButter.Utils
+namespace
+#if BUILD_PEANUTBUTTER_INTERNAL
+    Imported.PeanutButter.Utils
+#else
+    PeanutButter.Utils
+#endif
 {
     /// <summary>
     /// provides an abstract base for a leasing factory:

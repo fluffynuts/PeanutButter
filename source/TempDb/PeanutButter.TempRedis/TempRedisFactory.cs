@@ -1,11 +1,25 @@
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.Utils;
+#else
 using PeanutButter.Utils;
+#endif
 
-namespace PeanutButter.TempRedis
+namespace
+#if BUILD_PEANUTBUTTER_INTERNAL
+    Internal.PeanutButter.PeanutButter.TempRedis
+#else
+    PeanutButter.TempRedis
+#endif
 {
     /// <summary>
     /// Describes a TempRedis leasing factory
     /// </summary>
-    public interface ITempRedisFactory
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface ITempRedisFactory
     {
         /// <summary>
         /// Borrow a TempRedis server; Dispose of the lease to return it.
@@ -15,13 +29,13 @@ namespace PeanutButter.TempRedis
     }
 
     /// <inheritdoc cref="PeanutButter.TempRedis.ITempRedisFactory" />
-    public class TempRedisFactory: LeasingFactory<TempRedis>, ITempRedisFactory
+    public class TempRedisFactory : LeasingFactory<TempRedis>, ITempRedisFactory
     {
         /// <summary>
         /// Instantiates a new TempRedis factory with default
         /// options
         /// </summary>
-        public TempRedisFactory(): this(new TempRedisOptions())
+        public TempRedisFactory() : this(new TempRedisOptions())
         {
         }
 

@@ -2,7 +2,12 @@
 using System.Linq;
 using PeanutButter.Utils;
 
-namespace PeanutButter.TempRedis
+namespace
+#if BUILD_PEANUTBUTTER_INTERNAL
+    Imported.PeanutButter.TempRedis
+#else
+    PeanutButter.TempRedis
+#endif
 {
     /// <summary>
     /// Utility to try to find the path to the MySQL service binary on Windows
@@ -17,8 +22,8 @@ namespace PeanutButter.TempRedis
         public static string FindPathToRedis()
         {
             var mysqlServiceName = FindFirstMySqlServiceName();
-            return mysqlServiceName == null 
-                ? null 
+            return mysqlServiceName == null
+                ? null
                 : FindPathForService(mysqlServiceName);
         }
 
@@ -40,6 +45,7 @@ namespace PeanutButter.TempRedis
                 var nextQuote = commandLine.IndexOf("\"", 2, StringComparison.InvariantCulture);
                 return commandLine.Substring(1, nextQuote - 1);
             }
+
             return commandLine.Split(' ').First();
         }
 
@@ -53,7 +59,8 @@ namespace PeanutButter.TempRedis
                         var lower = l.ToLower();
                         return lower.StartsWith("service_name") &&
                             lower.Contains("redis");
-                    })?.Split(':').Last().Trim();
+                    }
+                )?.Split(':').Last().Trim();
         }
     }
 }

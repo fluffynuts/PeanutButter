@@ -8,13 +8,23 @@ using System.Threading;
 using PeanutButter.Utils;
 using StackExchange.Redis;
 
-namespace PeanutButter.TempRedis
+namespace
+#if BUILD_PEANUTBUTTER_INTERNAL
+    Imported.PeanutButter.TempRedis
+#else
+    PeanutButter.TempRedis
+#endif
 {
     /// <summary>
     /// Strategies for resolving a temporary redis server executable
     /// </summary>
     [Flags]
-    public enum RedisLocatorStrategies
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        enum RedisLocatorStrategies
     {
         /// <summary>
         /// Look for redis-server.exe or redis-server (linux/osx) in the path
@@ -40,7 +50,12 @@ namespace PeanutButter.TempRedis
     /// levering off of a locally installed redis-server
     /// installation or binary within the path
     /// </summary>
-    public interface ITempRedis : IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        interface ITempRedis : IDisposable
     {
         /// <summary>
         /// The port this instance is listening on
@@ -104,7 +119,12 @@ namespace PeanutButter.TempRedis
     /// <summary>
     /// Options for construction of a TempRedis instance
     /// </summary>
-    public class TempRedisOptions
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class TempRedisOptions
     {
         /// <summary>
         /// name of the environment variable which is observed to disable
@@ -184,7 +204,12 @@ namespace PeanutButter.TempRedis
     }
 
     /// <inheritdoc />
-    public class TempRedis : ITempRedis
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+        class TempRedis : ITempRedis
     {
         /// <summary>
         /// For diagnostic purposes: monitor the actual server process
@@ -233,10 +258,12 @@ namespace PeanutButter.TempRedis
         private readonly Action<string> _logger;
         private bool _running;
         private readonly SemaphoreSlim _runningLock = new(1, 1);
+
         /// <summary>
         /// Exposes the internal disposed flag for reading
         /// </summary>
         public bool IsDisposed => _disposed;
+
         private bool _disposed;
 
         /// <summary>
@@ -683,6 +710,7 @@ stderr:
             {
                 return;
             }
+
             using var _1 = new AutoLocker(_runningLock);
             StopInternal(runnerLocked: true);
             // _disposed flag _must_ be set after stopping

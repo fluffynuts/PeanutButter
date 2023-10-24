@@ -5,7 +5,12 @@ using System.Net;
 using System.Threading.Tasks;
 using PeanutButter.Utils;
 
-namespace PeanutButter.TempRedis
+namespace
+#if BUILD_PEANUTBUTTER_INTERNAL
+    Imported.PeanutButter.TempRedis
+#else
+    PeanutButter.TempRedis
+#endif
 {
     /// <summary>
     /// Attempts to download the Microsoft-built redis server 3.2.100
@@ -54,6 +59,7 @@ namespace PeanutButter.TempRedis
                     $"Unpacked archive doesn't contain a redis-server.exe binary"
                 );
             }
+
             return seek;
         }
 
@@ -78,8 +84,10 @@ namespace PeanutButter.TempRedis
             }
             catch (Exception ex)
             {
-                throw new DownloadFailedException($"Unable to download win32 redis from {RELEASE_URL}: {ex.Message}",
-                    ex);
+                throw new DownloadFailedException(
+                    $"Unable to download win32 redis from {RELEASE_URL}: {ex.Message}",
+                    ex
+                );
             }
         }
 

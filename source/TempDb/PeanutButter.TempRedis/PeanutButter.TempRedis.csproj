@@ -11,7 +11,7 @@
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\PeanutButter.TempRedis.xml</DocumentationFile>
         <Configurations>Debug;Release;Debug-X</Configurations>
         <DebugSymbols>true</DebugSymbols>
-        <DefineConstants>$(DefineConstants);BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
+        <DefineConstants>$(DefineConstants);BUILD_PEANUTBUTTER_UTILS_INTERNAL</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
