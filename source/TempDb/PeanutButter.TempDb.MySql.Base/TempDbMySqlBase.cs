@@ -679,7 +679,26 @@ SHUTDOWN"
                 $"--port={Port}",
                 $"\"--init-file={tmpFile.Path}\""
             );
-            var exitCode = io.WaitForExit();
+            var exitCode = io.WaitForExit(15000);
+            if (exitCode is null)
+            {
+                io.Kill();
+                KeepTemporaryDatabaseArtifactsForDiagnostics = true;
+                var script = Path.Combine(DataDir, "init-root-users.sql");
+                try
+                {
+                    Retry.Max(5).Times(() => File.Copy(tmpFile.Path, script));
+                }
+                catch
+                {
+                    // suppress
+                }
+
+                throw new UnableToInitializeMySqlException(
+                    $"Timed out attempting to set up root users. Please report this, attaching a zip file of '{DatabasePath}'"
+                );
+            }
+
             if (exitCode == 0)
             {
                 // TODO: check the error log
