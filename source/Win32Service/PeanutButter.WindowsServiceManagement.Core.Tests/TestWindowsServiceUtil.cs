@@ -732,6 +732,19 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
             }
         }
 
+        [Test]
+        [Explicit("requires redis to be locally installed")]
+        public void FindingServicesWithSpaces()
+        {
+            // Arrange
+            var sut = Create("redis");
+            // Act
+            var result = sut.ServiceExe;
+            // Assert
+            Expect(result)
+                .To.Equal("C:\\Program Files\\Redis\\redis-server.exe");
+        }
+
         [TearDown]
         public void Teardown()
         {

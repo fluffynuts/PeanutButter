@@ -132,11 +132,31 @@ namespace PeanutButter.WindowsServiceManagement
         {
             return RunServiceControl(
                 (key, value) => key == ServiceControlKeys.BINARY_PATH_NAME
-                    ? value.Trim('"')
+                    ? TrimIfOnlySingleSurroundingQuotes(value)
                     : value,
                 "qc",
                 serviceName
             );
+        }
+
+        private string TrimIfOnlySingleSurroundingQuotes(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return "";
+            }
+
+            if (value.StartsWith("\"") && value.EndsWith("\""))
+            {
+                var trimmed = value.Trim('"');
+                if (trimmed.Contains("\""))
+                {
+                    // this is an entire commandline with stuff in it
+                    return value;
+                }
+                return trimmed;
+            }
+            return value;
         }
 
         /// <inheritdoc />
