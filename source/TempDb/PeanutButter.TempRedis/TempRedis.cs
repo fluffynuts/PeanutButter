@@ -90,6 +90,12 @@ namespace
         IDatabase DefaultDatabase { get; }
 
         /// <summary>
+        /// When the server is running, this is an easy way
+        /// to get at the PID; if you get null, it's not running.
+        /// </summary>
+        int? ServerProcessId { get; }
+
+        /// <summary>
         /// Provides a simple mechanism to open a connection to the
         /// redis instance
         /// </summary>
@@ -174,7 +180,7 @@ namespace
         /// <param name="matching"></param>
         /// <returns></returns>
         IEnumerable<string> FetchKeys(string matching);
-        
+
         /// <summary>
         /// Flush all keys from the default database (0)
         /// </summary>
@@ -280,6 +286,9 @@ namespace
         /// For diagnostic purposes: monitor the actual server process
         /// </summary>
         public Process ServerProcess => _serverProcess;
+
+        /// <inheritdoc />
+        public int? ServerProcessId => _serverProcess?.Id;
 
         private Process _serverProcess;
         private AutoDisposer _autoDisposer = new();
@@ -482,11 +491,11 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
             }
         }
 
-        private void StartInternal(bool startWatcher)
+        private void StartInternal(bool startWatcher, int attempt = 0)
         {
             using (var _ = new AutoLocker(_runningLock))
             {
-                if (_running)
+                if (ServerProcessIsRunning)
                 {
                     Log(
                         () =>
@@ -495,7 +504,22 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
                     return;
                 }
 
-                _running = true;
+                if (_running)
+                {
+                    if (!CanConnect())
+                    {
+                        _running = false;
+                    }
+                    else
+                    {
+                        // server process may have bean dead and restarted in time
+                        Log(
+                            () =>
+                                $"{nameof(TempRedis)} already running with pid: {ServerProcessId}"
+                        );
+                        return;
+                    }
+                }
             }
 
             var serverProcess = Interlocked.Exchange(ref _serverProcess, null);
@@ -531,6 +555,7 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
             Log($"redis-server process started: {serverProcess.Id}");
             Interlocked.Exchange(ref _serverProcess, serverProcess);
             TestServerIsUp();
+            _running = true;
 
             if (startWatcher)
             {

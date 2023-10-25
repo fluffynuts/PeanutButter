@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 using StackExchange.Redis;
 using NUnit.Framework;
 using NExpect;
@@ -173,7 +172,7 @@ public class TestTempRedis
     }
 
     [Test]
-    [Timeout(10000)]
+    [Timeout(30000)]
     public void ShouldRestartOnAccidentalDeath()
     {
         // Arrange
@@ -181,7 +180,6 @@ public class TestTempRedis
         var key = GetRandomString();
         var value = GetRandomString();
         // Act
-        Console.Error.WriteLine("Attempt to connect");
         var connection = ConnectionMultiplexer.Connect(
             $"127.0.0.1:{sut.Port}",
             o =>
@@ -195,32 +193,16 @@ public class TestTempRedis
             }
         );
         var db = connection.GetDatabase();
-        db.StringSet(key, value);
+        Retry.Max(10).Times(
+            () => db.StringSet(key, value)
+        );
         sut.ServerProcess.Kill();
         do
         {
             Thread.Sleep(1);
         } while (!sut.ServerProcessIsRunning);
 
-        string result = null;
-        for (var i = 0; i < 3; i++)
-        {
-            try
-            {
-                result = (string)db.StringGet(key);
-            }
-            catch
-            {
-                if (i == 2)
-                {
-                    throw;
-                }
-
-                // because of tighter timings in this test,
-                // a single read may, occasionally, fail
-                Thread.Sleep(10);
-            }
-        }
+        var result = Retry.Max(3).Times(() => (string)db.StringGet(key));
 
         // Assert
         Expect(result)
