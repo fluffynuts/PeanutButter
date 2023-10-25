@@ -99,6 +99,15 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             Win32Api.CloseServiceHandle(scm);
         }
 
+        [OneTimeTearDown]
+        public void OneTimeTeardown()
+        {
+            // TODO:
+            //  ensure that we have no rogue service registrations left
+            //  ensure that no service processes are left (I'm seeing spacedservice.exe
+            //    still running after tests sometimes)
+        }
+
         [Test]
         [Explicit("Relies on local installation of mysql 5.7")]
         public void ServiceExeShouldReturnServiceExe()
