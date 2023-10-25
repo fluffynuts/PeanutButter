@@ -43,5 +43,17 @@ namespace
             : base(() => new TempRedis(redisOptions))
         {
         }
+
+        /// <summary>
+        /// Borrows a TempRedis instance, clearing all data
+        /// before handing it over.
+        /// </summary>
+        /// <returns></returns>
+        public override ILease<ITempRedis> Borrow()
+        {
+            var result = base.Borrow();
+            result.Item.FlushAll();
+            return result;
+        }
     }
 }

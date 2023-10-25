@@ -1,5 +1,6 @@
 using NExpect;
 using NUnit.Framework;
+using PeanutButter.Utils;
 using static NExpect.Expectations;
 
 namespace PeanutButter.TempRedis.Tests
@@ -47,6 +48,33 @@ namespace PeanutButter.TempRedis.Tests
                 .To.Be.True();
             Expect(server3.IsDisposed)
                 .To.Be.True();
+        }
+
+        [Test]
+        public void ShouldFlushAllBeforeLeasing()
+        {
+            // Arrange
+            using var sut = Create();
+            // Act
+            using (var lease1 = sut.Borrow())
+            {
+                var redis = lease1.Item;
+                redis.Store("foo", "bar");
+                var set = redis.Fetch("foo");
+                Expect(set)
+                    .To.Equal("bar");
+                Expect(redis.FetchKeys())
+                    .Not.To.Be.Empty();
+            }
+
+            using (var lease = sut.Borrow())
+            {
+                var redis = lease.Item;
+                var keys = redis.FetchKeys();
+                Expect(keys)
+                    .To.Be.Empty();
+            }
+            // Assert
         }
 
         private static TempRedisFactory Create()

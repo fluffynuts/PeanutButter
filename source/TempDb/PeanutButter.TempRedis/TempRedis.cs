@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -84,6 +85,11 @@ namespace
         bool IsDisposed { get; }
 
         /// <summary>
+        /// Database 0 - for simple store/retrieve operations
+        /// </summary>
+        IDatabase DefaultDatabase { get; }
+
+        /// <summary>
         /// Provides a simple mechanism to open a connection to the
         /// redis instance
         /// </summary>
@@ -114,6 +120,65 @@ namespace
         /// Restarts the server process (shortcut for Stop/Start)
         /// </summary>
         void Restart();
+
+        /// <summary>
+        /// Stores the value at the redis server
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <typeparam name="T"></typeparam>
+        void Store<T>(string key, T value);
+
+        /// <summary>
+        /// Attempts to fetch the value of the provided key
+        /// - will return default(T) if missing
+        /// </summary>
+        /// <param name="key"></param>
+        /// <typeparam name="T"></typeparam>
+        T Fetch<T>(string key);
+
+        /// <summary>
+        /// Attempts to fetch the value of the provided key
+        /// - will null if missing
+        /// - shorthand for Fetch&lt;string&gt;(key)
+        /// </summary>
+        /// <param name="key"></param>
+        /// <typeparam name="T"></typeparam>
+        string Fetch(string key);
+
+        /// <summary>
+        /// Attempts to fetch the value of the provided key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="result"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        bool TryFetch<T>(string key, out T result);
+
+        /// <summary>
+        /// Creates a connection to the provided database
+        /// </summary>
+        /// <param name="db"></param>
+        /// <returns></returns>
+        IDatabase ConnectAndSelectDatabase(int db);
+
+        /// <summary>
+        /// Fetch all keys at the default database
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> FetchKeys();
+
+        /// <summary>
+        /// Fetch all keys matching
+        /// </summary>
+        /// <param name="matching"></param>
+        /// <returns></returns>
+        IEnumerable<string> FetchKeys(string matching);
+        
+        /// <summary>
+        /// Flush all keys from the default database (0)
+        /// </summary>
+        void FlushAll();
     }
 
     /// <summary>
@@ -283,6 +348,7 @@ namespace
                     ConnectTimeout = 500,
                     AsyncTimeout = 1000,
                     SyncTimeout = 1000,
+                    AllowAdmin = true
                 }
             );
             return result;
@@ -641,6 +707,140 @@ stderr:
             );
         }
 
+        /// <inheritdoc />
+        public IDatabase DefaultDatabase
+            => _defaultDatabase ??= ConnectAndSelectDatabase(0);
+
+        private ConnectionMultiplexer DefaultConnection
+            => _defaultConnection ??= Connect();
+
+        // FIXME: should be disposed
+        private ConnectionMultiplexer _defaultConnection;
+
+        private IDatabase _defaultDatabase;
+
+        /// <inheritdoc />
+        public IDatabase ConnectAndSelectDatabase(int db)
+        {
+            return DefaultConnection.GetDatabase(db);
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<string> FetchKeys()
+        {
+            return FetchKeys("*");
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<string> FetchKeys(string matching)
+        {
+            var server = FetchDefaultServer();
+            foreach (var k in server.Keys(pattern: matching))
+            {
+                yield return $"{k}";
+            }
+        }
+
+        private IServer FetchDefaultServer()
+        {
+            // this overly convoluted code brought to you by
+            // https://stackexchange.github.io/StackExchange.Redis/KeysScan.html
+            // -> because it's so much more convenient than exposing at the DB
+            //    level, right? Even though I don't "have to remember which server
+            //    I connected to", this is not a great DX.
+            var conn = DefaultConnection;
+            var endpoints = conn.GetEndPoints();
+            var target = endpoints.FirstOrDefault(
+                o => o.AddressFamily != AddressFamily.InterNetworkV6
+            ) ?? endpoints.FirstOrDefault();
+            var server = DefaultConnection.GetServer(target);
+            return server;
+        }
+
+        /// <inheritdoc />
+        public void FlushAll()
+        {
+            var server = FetchDefaultServer();
+            server.FlushAllDatabases();
+        }
+
+        /// <inheritdoc />
+        public void Store<T>(string key, T value)
+        {
+            if (TypeIsSimpleEnough<T>())
+            {
+                DefaultDatabase.StringSet(key, $"{value}");
+                return;
+            }
+
+            throw new NotImplementedException(
+                $"{nameof(TempRedis)}.{nameof(Store)} is for convenience - no complex types are handled: rather serialise to string in your own code."
+            );
+        }
+
+        private bool TypeIsSimpleEnough<T>()
+        {
+            // used to decide what we will attempt to store
+            var type = typeof(T);
+            return TypeIsSimpleEnough(type);
+        }
+
+        private bool TypeIsSimpleEnough(
+            Type type
+        )
+        {
+            return type.IsPrimitive ||
+                type == typeof(string) ||
+                type == typeof(DateTime) ||
+                type == typeof(TimeSpan);
+        }
+
+        /// <inheritdoc />
+        public T Fetch<T>(string key)
+        {
+            TryFetch<T>(key, out var result);
+            return result;
+        }
+
+        /// <inheritdoc />
+        public string Fetch(string key)
+        {
+            TryFetch<string>(key, out var result);
+            return result;
+        }
+
+        /// <inheritdoc />
+        public bool TryFetch<T>(string key, out T result)
+        {
+            result = default;
+            var type = typeof(T);
+            if (TypeIsSimpleEnough(type))
+            {
+                var stringValue = (string)DefaultDatabase.StringGet(key);
+                if (stringValue is null)
+                {
+                    return false;
+                }
+
+                try
+                {
+                    result = (T)Convert.ChangeType(
+                        stringValue,
+                        type
+                    );
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            throw new NotImplementedException(
+                $"{nameof(TempRedis)}.{nameof(TryFetch)} is for convenience - no complex types are handled: rather serialise to string in your own code."
+            );
+        }
+
         private void StopInternal(bool runnerLocked)
         {
             if (!runnerLocked)
@@ -653,6 +853,7 @@ stderr:
                 _running = false;
                 Log("stopping redis-server watcher thread");
                 Log("killing redis-server");
+                ClearDefaultConnectionAndDatabase();
                 var serverProcess = Interlocked.Exchange(ref _serverProcess, null);
                 serverProcess?.Kill();
                 serverProcess?.WaitForExit();
@@ -668,6 +869,13 @@ stderr:
                     _runningLock.Release();
                 }
             }
+        }
+
+        private void ClearDefaultConnectionAndDatabase()
+        {
+            _defaultConnection?.Close();
+            _defaultConnection = null;
+            _defaultDatabase = null;
         }
 
         private void IfNotDisposed(Action toRun)
