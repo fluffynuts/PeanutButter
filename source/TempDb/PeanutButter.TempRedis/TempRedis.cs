@@ -341,6 +341,23 @@ namespace
         private bool _disposed;
 
         /// <summary>
+        /// Sets the default connect timeout for new instances of TempRedis::Connect() (2000)
+        /// </summary>
+        public static int DefaultConnectTimeoutMilliseconds { get; set; } = 2000;
+        /// <summary>
+        /// Sets the default connect retry count for new instances of TempRedis::Connect() (15)
+        /// </summary>
+        public static int DefaultConnectRetry { get; set; } = 15;
+        /// <summary>
+        /// Sets the default async timeout for new instances of TempRedis::Connect() (2000)
+        /// </summary>
+        public static int DefaultAsyncTimeoutMilliseconds { get; set; } = 2000;
+        /// <summary>
+        /// Sets the default sync timeout for new instances of TempRedis::Connect() (2000)
+        /// </summary>
+        public static int DefaultSyncTimeoutMilliseconds { get; set; } = 2000;
+
+        /// <summary>
         /// Possible strategies for locating a redis server executable
         /// </summary>
         public RedisLocatorStrategies LocatorStrategies { get; set; }
@@ -353,10 +370,10 @@ namespace
                 {
                     AbortOnConnectFail = false,
                     // don't want infinite - rather fail a test than stall
-                    ConnectRetry = 5,
-                    ConnectTimeout = 500,
-                    AsyncTimeout = 1000,
-                    SyncTimeout = 1000,
+                    ConnectRetry = DefaultConnectRetry,
+                    ConnectTimeout = DefaultConnectTimeoutMilliseconds,
+                    AsyncTimeout = DefaultAsyncTimeoutMilliseconds,
+                    SyncTimeout = DefaultSyncTimeoutMilliseconds,
                     AllowAdmin = true
                 }
             );
@@ -786,7 +803,7 @@ stderr:
         public void FlushAll()
         {
             var server = FetchDefaultServer();
-            server.FlushAllDatabases();
+            Retry.Max(10).Times(() => server.FlushAllDatabases());
         }
 
         /// <inheritdoc />
