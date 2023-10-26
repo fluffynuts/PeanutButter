@@ -164,6 +164,10 @@ namespace PeanutButter.TempDb.MySql.Base
         public Guid InstanceId =>
             TryDetermineInstanceId();
 
+        public MySqlVersionInfo MySqlVersion =>
+            _mysqlVersion ??= QueryVersionOf(MySqld);
+        private MySqlVersionInfo _mysqlVersion;
+
         private Guid TryDetermineInstanceId()
         {
             return ParseFirstGuidFromPath(DatabasePath);
@@ -460,42 +464,40 @@ namespace PeanutButter.TempDb.MySql.Base
         /// <inheritdoc />
         protected override void CreateDatabase()
         {
-            MySqlVersion = QueryVersionOf(MySqld);
             Log($"mysql is version: {MySqlVersion}");
-            using (var _ = new AutoLocker(InstanceLock))
+            using var _ = new AutoLocker(InstanceLock);
+            
+            if (IsMySql8())
             {
-                if (IsMySql8())
-                {
-                    RemoveDeprecatedOptions();
-                }
-
-                Guid? assimilatedInstanceId = null;
-                BootstrappedFromTemplateFolder = Settings?.Options?.TemplateDatabasePath;
-                if (FolderExists(BootstrappedFromTemplateFolder))
-                {
-                    BootstrapFromTemplateFolder();
-                }
-                else
-                {
-                    BootstrapFromScratch();
-                }
-
-                RedirectDebugLogging();
-
-                // now we need the real config file, sitting in the db dir
-                Log($"dumping run-time defaults file into {DatabasePath}");
-                DumpDefaultsFileAt(DatabasePath);
-
-                ConfigFilePath = DefaultMyCnf;
-                Port = DeterminePortToUse();
-
-                SetRootPasswordViaCli();
-                DisableHostNameLookupsIfRequired();
-
-                StartServer(MySqld, assimilatedInstanceId);
-                CreateInitialSchema();
-                SetUpAutoDisposeIfRequired();
+                RemoveDeprecatedOptions();
             }
+
+            Guid? assimilatedInstanceId = null;
+            BootstrappedFromTemplateFolder = Settings?.Options?.TemplateDatabasePath;
+            if (FolderExists(BootstrappedFromTemplateFolder))
+            {
+                BootstrapFromTemplateFolder();
+            }
+            else
+            {
+                BootstrapFromScratch();
+            }
+
+            RedirectDebugLogging();
+
+            // now we need the real config file, sitting in the db dir
+            Log($"dumping run-time defaults file into {DatabasePath}");
+            DumpDefaultsFileAt(DatabasePath);
+
+            ConfigFilePath = DefaultMyCnf;
+            Port = DeterminePortToUse();
+
+            SetRootPasswordViaCli();
+            DisableHostNameLookupsIfRequired();
+
+            StartServer(MySqld, assimilatedInstanceId);
+            CreateInitialSchema();
+            SetUpAutoDisposeIfRequired();
         }
 
         private void DisableHostNameLookupsIfRequired()
@@ -688,6 +690,18 @@ SHUTDOWN"
                 try
                 {
                     Retry.Max(5).Times(() => File.Copy(tmpFile.Path, script));
+                }
+                catch
+                {
+                    // suppress
+                }
+
+                try
+                {
+                    Retry.Max(5).Times(
+                        () =>
+                            File.WriteAllText(Path.Combine(DatabasePath, "init.bat"), io.Commandline)
+                    );
                 }
                 catch
                 {
@@ -1746,8 +1760,6 @@ stderr: {stderr}"
         {
             return MySqlVersion?.Version?.Major >= 8;
         }
-
-        public MySqlVersionInfo MySqlVersion { get; private set; }
 
         private void AttemptManualInitialization(string mysqld)
         {

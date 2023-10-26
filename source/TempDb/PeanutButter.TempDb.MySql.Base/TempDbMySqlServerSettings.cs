@@ -442,6 +442,9 @@ namespace PeanutButter.TempDb.MySql.Base
         [Setting("default-character-set", "client", isBare: false, ignoreIfNull: true)]
         public string DefaultClientCharacterSet { get; set; }
 
+        [Setting("performance-schema")]
+        public int PerformanceSchema { get; set; } = 0;
+
         public TempDbMySqlServerSettings()
         {
             SetPortHintFromEnvironment();

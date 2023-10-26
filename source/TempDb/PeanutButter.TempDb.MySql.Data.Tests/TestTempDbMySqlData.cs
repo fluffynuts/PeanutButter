@@ -306,6 +306,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     {
                         null, // will try to seek out the mysql installation
                         "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
+                        "C:\\apps\\mysql-5.7-grant\\bin\\mysqld.exe",
                         "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
                         "C:\\apps\\mysql-8.0\\bin\\mysqld.exe",
                     }.Where(
@@ -1236,10 +1237,9 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             }
 
             [Test]
-            [Retry(3)]
             public void AbsoluteLifespanShouldOverrideConnectionActivity()
             {
-                Assert.That(
+                Retry.Max(3).Times(
                     () =>
                     {
                         // Arrange
@@ -1266,8 +1266,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         // Assert
                         Expect(connections)
                             .To.Be.Greater.Than(3);
-                    },
-                    Throws.Nothing
+                    }
                 );
             }
         }
