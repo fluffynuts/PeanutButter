@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -9,6 +8,77 @@ namespace
 #else
     PeanutButter.Utils;
 #endif
+/// <summary>
+/// Describes a pooling service for the underlying type T
+/// </summary>
+/// <typeparam name="T"></typeparam>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    interface IPool<T>
+{
+    /// <summary>
+    /// The maximum number of items to hold in the pool
+    /// </summary>
+    int MaxItems { get; }
+
+    /// <summary>
+    /// How many items are currently in the pool
+    /// </summary>
+    int Count { get; }
+
+    /// <summary>
+    /// Attempt to take an item from the pool. If possible and required,
+    /// an item will be created for you. If the pool is full and no item
+    /// can be made available, this will a pool item with a null instance.
+    /// </summary>
+    /// <returns></returns>
+    [Obsolete("This has been renamed to Borrow and will be removed in a future version")]
+    IPoolItem<T> Take();
+
+    /// <summary>
+    /// Attempt to take an item from the pool, with a max wait in ms
+    /// when the pool is already full and you need to wait on something
+    /// else to release an instance. If no instance can be found in time, then
+    /// this will return a PoolItem with a default instance.
+    /// </summary>
+    /// <param name="maxWaitMilliseconds"></param>
+    /// <returns></returns>
+    [Obsolete("This has been renamed to Borrow and will be removed in a future version")]
+    IPoolItem<T> Take(int maxWaitMilliseconds);
+
+    /// <summary>
+    /// Attempt to take an item from the pool. If possible and required,
+    /// an item will be created for you. If the pool is full and no item
+    /// can be made available, this will a pool item with a null instance.
+    /// </summary>
+    /// <returns></returns>
+    IPoolItem<T> Borrow();
+
+    /// <summary>
+    /// Attempt to take an item from the pool, with a max wait in ms
+    /// when the pool is already full and you need to wait on something
+    /// else to release an instance. If no instance can be found in time, then
+    /// this will return a PoolItem with a default instance.
+    /// </summary>
+    /// <param name="maxWaitMilliseconds"></param>
+    /// <returns></returns>
+    IPoolItem<T> Borrow(int maxWaitMilliseconds);
+
+    /// <summary>
+    /// Forget the item from the pool
+    /// </summary>
+    /// <param name="item"></param>
+    void Forget(IPoolItem<T> item);
+
+    /// <summary>
+    /// Disposes of this pool and all items in the pool
+    /// </summary>
+    void Dispose();
+}
+
 /// <summary>
 /// Provides a generic pooling mechanism using the Disposable pattern
 /// </summary>
@@ -18,7 +88,7 @@ internal
 #else
 public
 #endif
-    class Pool<T> : IDisposable
+    class Pool<T> : IDisposable, IPool<T>
 {
     /// <summary>
     /// The maximum number of items to hold in the pool
@@ -30,9 +100,32 @@ public
     /// </summary>
     public int Count => _items.Count;
 
-    private readonly ConcurrentBag<PoolItem<T>> _items = new();
+    private readonly List<IPoolItem<T>> _items = new();
     private readonly Func<T> _factory;
     private readonly Action<T> _onRelease;
+
+    private TResult WithLockedItems<TResult>(Func<List<IPoolItem<T>>, TResult> toRun)
+    {
+        VerifyNotDisposed();
+        lock (_items)
+        {
+            return toRun(_items);
+        }
+    }
+
+    private void WithLockedItems(Action<List<IPoolItem<T>>> toRun)
+    {
+        VerifyNotDisposed();
+        WithLockedItemsInternal(toRun);
+    }
+
+    private void WithLockedItemsInternal(Action<List<IPoolItem<T>>> toRun)
+    {
+        lock (_items)
+        {
+            toRun(_items);
+        }
+    }
 
     /// <summary>
     /// Creates the pool with a factory for the items
@@ -89,15 +182,29 @@ public
         MaxItems = maxItems;
     }
 
+    /// <inheritdoc />
+    [Obsolete("This has been renamed to Borrow and will be removed in a future version")]
+    public IPoolItem<T> Take()
+    {
+        return Borrow();
+    }
+
+    /// <inheritdoc />
+    [Obsolete("This has been renamed to Borrow and will be removed in a future version")]
+    public IPoolItem<T> Take(int maxWaitMilliseconds)
+    {
+        return Borrow(maxWaitMilliseconds);
+    }
+
     /// <summary>
     /// Attempt to take an item from the pool. If possible and required,
     /// an item will be created for you. If the pool is full and no item
     /// can be made available, this will a pool item with a null instance.
     /// </summary>
     /// <returns></returns>
-    public IPoolItem<T> Take()
+    public IPoolItem<T> Borrow()
     {
-        return Take(0);
+        return Borrow(0);
     }
 
     /// <summary>
@@ -108,48 +215,71 @@ public
     /// </summary>
     /// <param name="maxWaitMilliseconds"></param>
     /// <returns></returns>
-    public IPoolItem<T> Take(int maxWaitMilliseconds)
+    public IPoolItem<T> Borrow(int maxWaitMilliseconds)
     {
         if (TryFindExistingAvailableInstance(0, out var result))
         {
             return result;
         }
 
-        lock (_items)
-        {
-            if (Count == MaxItems)
+        return WithLockedItems(
+            items =>
             {
-                return TryFindExistingAvailableInstance(maxWaitMilliseconds, out result)
-                    ? result
-                    : throw new NoPooledItemAvailableException(
-                        typeof(T),
-                        MaxItems,
-                        maxWaitMilliseconds
-                    );
-            }
+                if (Count == MaxItems)
+                {
+                    return TryFindExistingAvailableInstance(maxWaitMilliseconds, out result)
+                        ? result
+                        : throw new NoPooledItemAvailableException(
+                            typeof(T),
+                            MaxItems,
+                            maxWaitMilliseconds
+                        );
+                }
 
-            result = new PoolItem<T>(
-                _factory(),
-                _onRelease
-            );
-            result.TryLock(0);
-            _items.Add(result);
-            return result;
-        }
+                result = new PoolItem<T>(
+                    _factory(),
+                    _onRelease,
+                    this
+                );
+                result.TryLock(0);
+                items.Add(result);
+                return result;
+            }
+        );
     }
 
-    private bool TryFindExistingAvailableInstance(int maxWaitMs, out PoolItem<T> result)
+    /// <inheritdoc />
+    public void Forget(IPoolItem<T> item)
     {
+        WithLockedItems(items =>
+        {
+            items.Remove(item);
+        });
+    }
+
+    private bool TryFindExistingAvailableInstance(int maxWaitMs, out IPoolItem<T> result)
+    {
+        VerifyNotDisposed();
         var timeout = DateTime.Now.AddMilliseconds(maxWaitMs);
         do
         {
-            foreach (var item in _items)
-            {
-                if (item.TryLock(0))
+            result = WithLockedItems(
+                items =>
                 {
-                    result = item;
-                    return true;
+                    foreach (var item in items)
+                    {
+                        if (item.TryLock(0))
+                        {
+                            return item;
+                        }
+                    }
+
+                    return null;
                 }
+            );
+            if (result is not null)
+            {
+                return true;
             }
 
             Thread.Sleep(0);
@@ -164,17 +294,53 @@ public
     /// </summary>
     public void Dispose()
     {
-        lock (_items)
+        lock (_disposedLock)
         {
-            while (_items.TryTake(out var item))
+            if (_disposed)
             {
-                if (item.Instance is IDisposable disposable)
+                return;
+            }
+            _disposed = true;
+        }
+
+        WithLockedItemsInternal(
+            items =>
+            {
+                foreach (var item in items)
                 {
-                    disposable.Dispose();
+                    if (item.Instance is not IDisposable disposable)
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        disposable.Dispose();
+                    }
+                    catch
+                    {
+                        // suppress so we can dispose of others
+                    }
                 }
+            }
+        );
+    }
+
+    private void VerifyNotDisposed()
+    {
+        lock (_disposedLock)
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(
+                    "This pool is already disposed"
+                );
             }
         }
     }
+
+    private readonly object _disposedLock = new();
+    private bool _disposed;
 }
 
 /// <summary>
@@ -220,6 +386,15 @@ public
     /// Flag: is this instance available for usage
     /// </summary>
     bool IsAvailable { get; }
+
+    /// <summary>
+    /// Used internally to try to lock off a pool item
+    /// so it can be handed out to another consumer
+    /// - you should never need to call this, and it
+    ///   should always return false from within consumer code
+    /// </summary>
+    /// <param name="maxWait"></param>
+    public bool TryLock(int maxWait);
 }
 
 /// <inheritdoc />
@@ -231,6 +406,7 @@ public
     class PoolItem<T> : IPoolItem<T>
 {
     private readonly Action<T> _onRelease;
+    private readonly IPool<T> _owner;
 
     /// <summary>
     /// The instance of the pooled item
@@ -249,12 +425,15 @@ public
     /// </summary>
     /// <param name="instance"></param>
     /// <param name="onRelease"></param>
+    /// <param name="owner"></param>
     public PoolItem(
         T instance,
-        Action<T> onRelease
+        Action<T> onRelease,
+        IPool<T> owner
     )
     {
         _onRelease = onRelease;
+        _owner = owner;
         Instance = instance;
         _lock = new SemaphoreSlim(1, 1);
         TryLock(0);
@@ -285,6 +464,12 @@ public
                 "Pooled object was already disposed",
                 e
             );
+        }
+        catch (Exception)
+        {
+            // if we can't complete _onRelease successfully, then
+            // this shouldn't go back in the pool ):
+            _owner.Forget(this);
         }
     }
 }

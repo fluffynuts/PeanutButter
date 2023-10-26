@@ -19,12 +19,12 @@ namespace
 #else
     public
 #endif
-        interface ITempRedisFactory: ILeasingFactory<ITempRedis>
+        interface ITempRedisFactory: IPool<ITempRedis>
     {
     }
 
     /// <inheritdoc cref="PeanutButter.TempRedis.ITempRedisFactory" />
-    public class TempRedisFactory : LeasingFactory<ITempRedis>, ITempRedisFactory
+    public class TempRedisFactory : Pool<ITempRedis>, ITempRedisFactory
     {
         /// <summary>
         /// Instantiates a new TempRedis factory with default
@@ -40,20 +40,13 @@ namespace
         /// </summary>
         /// <param name="redisOptions"></param>
         public TempRedisFactory(TempRedisOptions redisOptions)
-            : base(() => new TempRedis(redisOptions))
+            : base(() => new TempRedis(redisOptions), TryFlush)
         {
         }
 
-        /// <summary>
-        /// Borrows a TempRedis instance, clearing all data
-        /// before handing it over.
-        /// </summary>
-        /// <returns></returns>
-        public override ILease<ITempRedis> Borrow()
+        private static void TryFlush(ITempRedis redis)
         {
-            var result = base.Borrow();
-            result.Item.FlushAll();
-            return result;
+            Retry.Max(50).Times(redis.FlushAll);
         }
     }
 }

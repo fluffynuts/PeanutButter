@@ -21,14 +21,14 @@ namespace PeanutButter.TempRedis.Tests
             {
                 using (var lease1 = sut.Borrow())
                 {
-                    server1 = lease1.Item;
+                    server1 = lease1.Instance;
                     using var lease2 = sut.Borrow();
-                    server2 = lease2.Item;
+                    server2 = lease2.Instance;
                 }
 
                 using (var lease3 = sut.Borrow())
                 {
-                    server3 = lease3.Item;
+                    server3 = lease3.Instance;
                 }
 
                 // Assert
@@ -36,10 +36,10 @@ namespace PeanutButter.TempRedis.Tests
                     .To.Be.An.Instance.Of<TempRedis>()
                     .And
                     .Not.To.Be(server2);
-                Expect(server2)
+                Expect(server3)
                     .To.Be.An.Instance.Of<TempRedis>()
                     .And
-                    .To.Be(server3);
+                    .To.Be(server1);
             }
 
             Expect(server1.IsDisposed)
@@ -58,7 +58,7 @@ namespace PeanutButter.TempRedis.Tests
             // Act
             using (var lease1 = sut.Borrow())
             {
-                var redis = lease1.Item;
+                var redis = lease1.Instance;
                 redis.Store("foo", "bar");
                 var set = redis.Fetch("foo");
                 Expect(set)
@@ -69,7 +69,7 @@ namespace PeanutButter.TempRedis.Tests
 
             using (var lease = sut.Borrow())
             {
-                var redis = lease.Item;
+                var redis = lease.Instance;
                 var keys = redis.FetchKeys();
                 Expect(keys)
                     .To.Be.Empty();

@@ -111,6 +111,14 @@ public class TestHttpServer
         }
     }
 
+    [Test]
+    public void ShouldBeAbleToRemoveHandler()
+    {
+        // Arrange
+        // Act
+        // Assert
+    }
+
     [TestFixture]
     [Parallelizable]
     public class AddDocumentHandler
@@ -327,7 +335,10 @@ public class TestHttpServer
         {
             //---------------Set up test pack-------------------
             var expected = GetRandomString();
-            var data = new SimpleData { SomeProperty = expected };
+            var data = new SimpleData
+            {
+                SomeProperty = expected
+            };
             var route = "api/foo";
             using var server = GlobalSetup.Pool.Take();
             server.Instance.AddJsonDocumentHandler(
@@ -401,7 +412,15 @@ public class TestHttpServer
             using var server = GlobalSetup.Pool.Take();
             //---------------Set up test pack-------------------
             var data = GetRandomBytes(10, 100);
-            var contentType = "text/" + GetRandomFrom(new[] { "xml", "html", "javascript", "plain" });
+            var contentType = "text/" + GetRandomFrom(
+                new[]
+                {
+                    "xml",
+                    "html",
+                    "javascript",
+                    "plain"
+                }
+            );
             server.Instance.ServeFile("/file.bin", data, contentType);
 
             //---------------Assert Precondition----------------
@@ -422,7 +441,15 @@ public class TestHttpServer
             using var server = GlobalSetup.Pool.Take();
             //---------------Set up test pack-------------------
             var data = GetRandomBytes(10, 100);
-            var contentType = "text/" + GetRandomFrom(new[] { "xml", "html", "javascript", "plain" });
+            var contentType = "text/" + GetRandomFrom(
+                new[]
+                {
+                    "xml",
+                    "html",
+                    "javascript",
+                    "plain"
+                }
+            );
             server.Instance.ServeFile("/file.bin", data, contentType);
 
             //---------------Assert Precondition----------------
@@ -903,7 +930,9 @@ public class TestHttpServer
         var key = "X-" + GetRandomString();
         var headers = new Dictionary<string, string>()
         {
-            { key, GetRandomString() }
+            {
+                key, GetRandomString()
+            }
         };
         //---------------Assert Precondition----------------
         Expect(requestLogs)
@@ -941,7 +970,12 @@ public class TestHttpServer
                 processor.UrlParameters.ForEach(
                     kvp => capturedParams.Add(kvp.Key, kvp.Value)
                 );
-                return new[] { 1, 2, 3 };
+                return new[]
+                {
+                    1,
+                    2,
+                    3
+                };
             }
         );
         var client = new HttpClient()
@@ -1130,7 +1164,7 @@ public class TestHttpServer
             var toRead = expectedSize - haveRead;
             if (toRead > 8192)
                 toRead = 8192;
-            var readBuf = reader.ReadBytes((int) toRead);
+            var readBuf = reader.ReadBytes((int)toRead);
             haveRead += readBuf.Length;
             writer.Write(readBuf, 0, readBuf.Length);
             writer.Flush();

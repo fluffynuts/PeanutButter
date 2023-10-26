@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Xml.Linq;
 using Newtonsoft.Json;
+using PeanutButter.Utils;
 using static PeanutButter.SimpleHTTPServer.HttpConstants;
 
 // ReSharper disable UnusedMember.Global
@@ -85,20 +88,20 @@ namespace PeanutButter.SimpleHTTPServer
     /// Provides a simple way to run an in-memory http server situations
     /// like testing or where a small, very simple http server might be useful
     /// </summary>
-    public interface IHttpServer: IHttpServerBase
+    public interface IHttpServer : IHttpServerBase
     {
         /// <summary>
         /// Adds a handler to the pipeline
         /// </summary>
         /// <param name="handler"></param>
-        void AddHandler(Func<HttpProcessor, Stream, HttpServerPipelineResult> handler);
+        Guid AddHandler(Func<HttpProcessor, Stream, HttpServerPipelineResult> handler);
 
         /// <summary>
         /// Adds a handler for providing a file download
         /// </summary>
         /// <param name="handler"></param>
         /// <param name="contentType"></param>
-        void AddFileHandler(
+        Guid AddFileHandler(
             Func<HttpProcessor, Stream, byte[]> handler,
             string contentType = MimeTypes.BYTES
         );
@@ -108,21 +111,19 @@ namespace PeanutButter.SimpleHTTPServer
         /// content-type detection.
         /// </summary>
         /// <param name="handler"></param>
-        void AddDocumentHandler(Func<HttpProcessor, Stream, string> handler);
+        Guid AddDocumentHandler(Func<HttpProcessor, Stream, string> handler);
 
         /// <summary>
         /// Specifically add a handler to serve an HTML document
         /// </summary>
         /// <param name="handler"></param>
-        void AddHtmlDocumentHandler(
-            Func<HttpProcessor, Stream, string> handler
-        );
+        Guid AddHtmlDocumentHandler(Func<HttpProcessor, Stream, string> handler);
 
         /// <summary>
         /// Specifically add a handler to serve a JSON document
         /// </summary>
         /// <param name="handler"></param>
-        void AddJsonDocumentHandler(Func<HttpProcessor, Stream, object> handler);
+        Guid AddJsonDocumentHandler(Func<HttpProcessor, Stream, object> handler);
 
         /// <summary>
         /// Serves an XDocument from the provided path, for the provided method
@@ -154,7 +155,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="queryPath">Absolute path to serve the document for</param>
         /// <param name="doc">XDocument to serve</param>
         /// <param name="method">Which http method to respond to</param>
-        void ServeDocument(
+        Guid ServeDocument(
             string queryPath,
             Func<string> doc,
             HttpMethods method = HttpMethods.Any
@@ -166,7 +167,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="queryPath">Absolute path to serve the document for</param>
         /// <param name="docFactory">Factory function to get the document contents</param>
         /// <param name="method">Which http method to respond to</param>
-        void ServeDocument(
+        Guid ServeDocument(
             string queryPath,
             Func<XDocument> docFactory,
             HttpMethods method = HttpMethods.Any
@@ -179,7 +180,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="path">Absolute path matched for this document</param>
         /// <param name="data">Any object which will be serialized into JSON for you</param>
         /// <param name="method">Which http method to respond to</param>
-        void ServeJsonDocument(
+        Guid ServeJsonDocument(
             string path,
             object data,
             HttpMethods method = HttpMethods.Any
@@ -192,7 +193,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="path">Absolute path matched for this document</param>
         /// <param name="dataFactory">Factory function returning any object which will be serialized into JSON for you</param>
         /// <param name="method">Which http method to respond to</param>
-        void ServeJsonDocument(
+        Guid ServeJsonDocument(
             string path,
             Func<object> dataFactory,
             HttpMethods method = HttpMethods.Any
@@ -205,7 +206,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="path">Absolute path matched for this file</param>
         /// <param name="data">Data to provide</param>
         /// <param name="contentType">Content type of the data</param>
-        void ServeFile(string path, byte[] data, string contentType = MimeTypes.BYTES);
+        Guid ServeFile(string path, byte[] data, string contentType = MimeTypes.BYTES);
 
         /// <summary>
         /// Serves a file via a factory Func
@@ -213,7 +214,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="path">Absolute path matched for this file</param>
         /// <param name="dataFactory">Factory for the data</param>
         /// <param name="contentType">Content type</param>
-        void ServeFile(
+        Guid ServeFile(
             string path,
             Func<byte[]> dataFactory,
             string contentType = MimeTypes.BYTES
@@ -230,9 +231,29 @@ namespace PeanutButter.SimpleHTTPServer
     /// <summary>
     /// Provides the simple HTTP server you may use ad-hoc
     /// </summary>
+    [DebuggerDisplay("HttpServer {Port} ({HandlerCount} handlers)")]
     public class HttpServer : HttpServerBase, IHttpServer
     {
-        private List<Func<HttpProcessor, Stream, HttpServerPipelineResult>> _handlers;
+        /// <summary>
+        /// Used in debug display
+        /// </summary>
+        public int HandlerCount => _handlers.Count;
+        private ConcurrentQueue<Handler> _handlers = new();
+
+        private class Handler
+        {
+            public Func<HttpProcessor, Stream, HttpServerPipelineResult> Logic { get; }
+            public Guid Id { get; } = Guid.NewGuid();
+
+            public Handler(
+                Func<HttpProcessor, Stream, HttpServerPipelineResult> logic
+            )
+            {
+                Logic = logic;
+                var q = new ConcurrentQueue<string>();
+                q.Clear();
+            }
+        }
 
         private readonly Func<object, string> _jsonSerializer = JsonConvert.SerializeObject;
 
@@ -299,7 +320,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <inheritdoc />
         protected override void Init()
         {
-            _handlers = new List<Func<HttpProcessor, Stream, HttpServerPipelineResult>>();
+            _handlers = new();
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -307,9 +328,11 @@ namespace PeanutButter.SimpleHTTPServer
         /// Adds a handler to the pipeline
         /// </summary>
         /// <param name="handler"></param>
-        public void AddHandler(Func<HttpProcessor, Stream, HttpServerPipelineResult> handler)
+        public Guid AddHandler(Func<HttpProcessor, Stream, HttpServerPipelineResult> handler)
         {
-            _handlers.Add(handler);
+            var container = new Handler(handler);
+            _handlers.Enqueue(container);
+            return container.Id;
         }
 
         /// <summary>
@@ -317,12 +340,12 @@ namespace PeanutButter.SimpleHTTPServer
         /// </summary>
         /// <param name="handler"></param>
         /// <param name="contentType"></param>
-        public void AddFileHandler(
+        public Guid AddFileHandler(
             Func<HttpProcessor, Stream, byte[]> handler,
             string contentType = MimeTypes.BYTES
         )
         {
-            AddHandler(
+            return AddHandler(
                 (p, s) =>
                 {
                     Log("Handling file request: {0}", p.FullUrl);
@@ -345,9 +368,9 @@ namespace PeanutButter.SimpleHTTPServer
         /// content-type detection.
         /// </summary>
         /// <param name="handler"></param>
-        public void AddDocumentHandler(Func<HttpProcessor, Stream, string> handler)
+        public Guid AddDocumentHandler(Func<HttpProcessor, Stream, string> handler)
         {
-            HandleDocumentRequestWith(
+            return HandleDocumentRequestWith(
                 handler,
                 "auto",
                 AutoSerializer,
@@ -435,30 +458,38 @@ namespace PeanutButter.SimpleHTTPServer
         /// Specifically add a handler to serve an HTML document
         /// </summary>
         /// <param name="handler"></param>
-        public void AddHtmlDocumentHandler(
-            Func<HttpProcessor, Stream, string> handler
-        )
+        public Guid AddHtmlDocumentHandler(Func<HttpProcessor, Stream, string> handler)
         {
-            HandleDocumentRequestWith(handler, "html", null, _ => MimeTypes.HTML);
+            return HandleDocumentRequestWith(
+                handler,
+                "html",
+                null,
+                _ => MimeTypes.HTML
+            );
         }
 
         /// <summary>
         /// Specifically add a handler to serve a JSON document
         /// </summary>
         /// <param name="handler"></param>
-        public void AddJsonDocumentHandler(Func<HttpProcessor, Stream, object> handler)
+        public Guid AddJsonDocumentHandler(Func<HttpProcessor, Stream, object> handler)
         {
-            HandleDocumentRequestWith(handler, "json", o => _jsonSerializer(o), _ => MimeTypes.JSON);
+            return HandleDocumentRequestWith(
+                handler,
+                "json",
+                o => _jsonSerializer(o),
+                _ => MimeTypes.JSON
+            );
         }
 
-        private void HandleDocumentRequestWith(
+        private Guid HandleDocumentRequestWith(
             Func<HttpProcessor, Stream, object> handler,
             string documentTypeForLogging,
             Func<object, string> stringProcessor,
             Func<string, string> mimeTypeGenerator
         )
         {
-            AddHandler(
+            return AddHandler(
                 (p, s) =>
                 {
                     Log($"Handling {documentTypeForLogging} document request: {p.FullUrl}");
@@ -496,7 +527,7 @@ namespace PeanutButter.SimpleHTTPServer
             {
                 try
                 {
-                    var pipelineResult = handler(p, stream);
+                    var pipelineResult = handler.Logic(p, stream);
                     if (pipelineResult == HttpServerPipelineResult.HandledExclusively)
                     {
                         handled = true;
@@ -579,13 +610,13 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="queryPath">Absolute path to serve the document for</param>
         /// <param name="doc">XDocument to serve</param>
         /// <param name="method">Which http method to respond to</param>
-        public void ServeDocument(
+        public Guid ServeDocument(
             string queryPath,
             Func<string> doc,
             HttpMethods method = HttpMethods.Any
         )
         {
-            AddHtmlDocumentHandler(
+            return AddHtmlDocumentHandler(
                 (p, _) =>
                 {
                     if (p.FullPath != queryPath || !method.Matches(p.Method))
@@ -602,13 +633,17 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="queryPath">Absolute path to serve the document for</param>
         /// <param name="docFactory">Factory function to get the document contents</param>
         /// <param name="method">Which http method to respond to</param>
-        public void ServeDocument(
+        public Guid ServeDocument(
             string queryPath,
             Func<XDocument> docFactory,
             HttpMethods method = HttpMethods.Any
         )
         {
-            ServeDocument(queryPath, () => docFactory().ToString(), method);
+            return ServeDocument(
+                queryPath,
+                () => docFactory().ToString(),
+                method
+            );
         }
 
         /// <summary>
@@ -618,13 +653,13 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="path">Absolute path matched for this document</param>
         /// <param name="data">Any object which will be serialized into JSON for you</param>
         /// <param name="method">Which http method to respond to</param>
-        public void ServeJsonDocument(
+        public Guid ServeJsonDocument(
             string path,
             object data,
             HttpMethods method = HttpMethods.Any
         )
         {
-            ServeJsonDocument(path, () => data, method);
+            return ServeJsonDocument(path, () => data, method);
         }
 
         /// <summary>
@@ -634,13 +669,13 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="path">Absolute path matched for this document</param>
         /// <param name="dataFactory">Factory function returning any object which will be serialized into JSON for you</param>
         /// <param name="method">Which http method to respond to</param>
-        public void ServeJsonDocument(
+        public Guid ServeJsonDocument(
             string path,
             Func<object> dataFactory,
             HttpMethods method = HttpMethods.Any
         )
         {
-            AddJsonDocumentHandler(
+            return AddJsonDocumentHandler(
                 (p, _) =>
                 {
                     if (p.FullPath != path || !method.Matches(p.Method))
@@ -658,9 +693,9 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="path">Absolute path matched for this file</param>
         /// <param name="data">Data to provide</param>
         /// <param name="contentType">Content type of the data</param>
-        public void ServeFile(string path, byte[] data, string contentType = MimeTypes.BYTES)
+        public Guid ServeFile(string path, byte[] data, string contentType = MimeTypes.BYTES)
         {
-            ServeFile(path, () => data, contentType);
+            return ServeFile(path, () => data, contentType);
         }
 
         /// <summary>
@@ -669,13 +704,13 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="path">Absolute path matched for this file</param>
         /// <param name="dataFactory">Factory for the data</param>
         /// <param name="contentType">Content type</param>
-        public void ServeFile(
+        public Guid ServeFile(
             string path,
             Func<byte[]> dataFactory,
             string contentType = MimeTypes.BYTES
         )
         {
-            AddFileHandler(
+            return AddFileHandler(
                 (p, _) =>
                 {
                     if (p.Path != path)
@@ -700,6 +735,11 @@ namespace PeanutButter.SimpleHTTPServer
             LogAction = null;
             RequestLogAction = null;
             _handlers.Clear();
+        }
+
+        public bool RemoveHandler(Guid identifier)
+        {
+            throw new NotImplementedException();
         }
     }
 }

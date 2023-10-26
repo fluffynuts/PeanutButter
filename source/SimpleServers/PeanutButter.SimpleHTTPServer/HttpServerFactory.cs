@@ -1,50 +1,36 @@
-using System;
 using PeanutButter.Utils;
 
 namespace PeanutButter.SimpleHTTPServer
 {
     /// <summary>
-    /// 
+    /// Describes a factory for your http server usage:
+    /// - Take() an IPoolItem&lt;IHttpServer&gt;
+    /// - work with the server
+    /// - return it to the pool by disposing of the pool item (use 'using' for safety)
     /// </summary>
-    public interface IHttpServerFactory
+    public interface IHttpServerFactory : IPool<IHttpServer>
     {
-        /// <summary>
-        /// Provides a new or previously-released http server and
-        /// configures the log action
-        /// </summary>
-        /// <returns></returns>
-        ILease<IHttpServer> Borrow(Action<string> logAction);
     }
 
-    /// <summary>
-    /// Provides a mechanism for re-usable http-servers, eg in testing
-    /// since it takes a little time to spin up an http server
-    /// </summary>
-    public class HttpServerFactory : LeasingFactory<IHttpServer>, IHttpServerFactory
+    /// <inheritdoc cref="PeanutButter.SimpleHTTPServer.IHttpServerFactory" />
+    public class HttpServerFactory : Pool<IHttpServer>, IHttpServerFactory
     {
         /// <summary>
-        /// instantiates a new http-server factory
+        /// Constructs a new HttpServerFactory with no limit
+        /// on the total number of servers that can be in play
         /// </summary>
-        public HttpServerFactory() : base(() => new HttpServer())
+        public HttpServerFactory() : this(int.MaxValue)
         {
         }
 
-        /// <inheritdoc />
-        public override ILease<IHttpServer> Borrow()
+        /// <summary>
+        /// Constructs a new HttpServerFactory with the provided
+        /// limit on servers which can be in play
+        /// </summary>
+        /// <param name="maxItems"></param>
+        public HttpServerFactory(int maxItems)
+            : base(() => new HttpServer(), s => s.Reset(), maxItems)
         {
-            return Borrow(null);
-        }
-
-        /// <inheritdoc />
-        public ILease<IHttpServer> Borrow(
-            Action<string> logAction
-        )
-        {
-            var result = base.Borrow();
-            result.Item.LogAction = logAction;
-            result.Item.Reset();
-            return result;
         }
     }
-    
 }

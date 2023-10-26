@@ -20,14 +20,14 @@ public class TestHttpServerFactory
         {
             using (var lease1 = sut.Borrow())
             {
-                server1 = lease1.Item;
+                server1 = lease1.Instance;
                 using var lease2 = sut.Borrow();
-                server2 = lease2.Item;
+                server2 = lease2.Instance;
             }
 
             using (var lease3 = sut.Borrow())
             {
-                server3 = lease3.Item;
+                server3 = lease3.Instance;
             }
 
             // Assert
@@ -35,10 +35,10 @@ public class TestHttpServerFactory
                 .To.Be.An.Instance.Of<HttpServer>()
                 .And
                 .Not.To.Be(server2);
-            Expect(server2)
+            Expect(server3)
                 .To.Be.An.Instance.Of<HttpServer>()
                 .And
-                .To.Be(server3);
+                .To.Be(server1);
         }
 
         Expect(server1.Disposed)

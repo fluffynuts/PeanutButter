@@ -6,7 +6,7 @@ using static NExpect.Expectations;
 namespace PeanutButter.Utils.NetCore.Tests
 {
     [TestFixture]
-    public class PoolTests
+    public class TestPool
     {
         [Test]
         [Parallelizable]
