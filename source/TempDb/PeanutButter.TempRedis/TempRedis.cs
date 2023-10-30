@@ -372,7 +372,12 @@ namespace
         }
 
         private ConfigurationOptions DefaultConfigurationOptions
-            => _defaultConfigurationOptions ??= new()
+            => _defaultConfigurationOptions ??= GenerateDefaultConfigurationOptions();
+        private ConfigurationOptions _defaultConfigurationOptions;
+
+        private ConfigurationOptions GenerateDefaultConfigurationOptions()
+        {
+            return new()
             {
                 AbortOnConnectFail = false,
                 // don't want infinite - rather fail a test than stall
@@ -388,8 +393,7 @@ namespace
                     }
                 }
             };
-
-        private ConfigurationOptions _defaultConfigurationOptions;
+        }
 
         /// <inheritdoc />
         public ConnectionMultiplexer Connect(
@@ -407,7 +411,14 @@ namespace
         {
             if (options == DefaultConfigurationOptions)
             {
-                return DefaultConnection;
+                return _defaultConnection ??= ConnectInternal(
+                    DefaultConfigurationOptions
+                );
+            }
+
+            if (options is null)
+            {
+                options = GenerateDefaultConfigurationOptions();
             }
 
             options.EndPoints.Clear();
@@ -770,10 +781,22 @@ stderr:
             => _defaultDatabase ??= ConnectAndSelectDatabase(0);
 
         private ConnectionMultiplexer DefaultConnection
-            => _defaultConnection ??= Connect();
+            => OpenOrReuseDefaultConnectionLocked();
 
         // FIXME: should be disposed
         private ConnectionMultiplexer _defaultConnection;
+
+        private ConnectionMultiplexer OpenOrReuseDefaultConnectionLocked()
+        {
+            return IfNotDisposed(OpenOrReUseDefaultConnectionInternal);
+        }
+
+        private ConnectionMultiplexer OpenOrReUseDefaultConnectionInternal()
+        {
+            return _defaultConnection ??= ConnectInternal(
+                DefaultConfigurationOptions
+            );
+        }
 
         private IDatabase _defaultDatabase;
 
@@ -811,7 +834,7 @@ stderr:
             var target = endpoints.FirstOrDefault(
                 o => o.AddressFamily != AddressFamily.InterNetworkV6
             ) ?? endpoints.FirstOrDefault();
-            var server = DefaultConnection.GetServer(target);
+            var server = conn.GetServer(target);
             return server;
         }
 
