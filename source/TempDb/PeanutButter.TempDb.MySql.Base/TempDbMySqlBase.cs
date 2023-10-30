@@ -974,7 +974,7 @@ SHUTDOWN"
             command.ExecuteNonQuery();
         }
 
-        private T QueryFirst<T>(string sql)
+        private TResult QueryFirst<TResult>(string sql)
         {
             using var conn = base.OpenConnection();
             using var cmd = conn.CreateCommand();
@@ -982,7 +982,7 @@ SHUTDOWN"
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                return (T)(Convert.ChangeType(reader[0], typeof(T)));
+                return (TResult)(Convert.ChangeType(reader[0], typeof(T)));
             }
             return default;
         }

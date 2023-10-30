@@ -91,7 +91,7 @@ public class TestHttpServer
             //---------------Set up test pack-------------------
             var doc = $"<html><head></head><body><p>{GetRandomAlphaNumericString()}</p></body></html>";
             const string theDocName = "index.html";
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             server.Instance.AddHtmlDocumentHandler(
                 (p, _) => p.Path == "/" + theDocName
                     ? doc
@@ -112,11 +112,42 @@ public class TestHttpServer
     }
 
     [Test]
-    public void ShouldBeAbleToRemoveHandler()
+    public async Task ShouldBeAbleToRemoveHandler()
     {
         // Arrange
+        using var sut = Create();
+        var expected = GetRandom<Person>();
+        var payload = JsonConvert.SerializeObject(expected);
         // Act
+        var id = sut.AddJsonDocumentHandler(
+            (p, s) =>
+            {
+                if (p.Path == "/doc")
+                {
+                    return payload;
+                }
+
+                return null;
+            }
+        );
+        var client = new HttpClient();
+        var response = await client.GetAsync(sut.GetFullUrlFor("/doc"));
+        var raw = await response.Content.ReadAsStringAsync();
+        var parsed = JsonConvert.DeserializeObject<Person>(raw);
+        Expect(parsed)
+            .To.Deep.Equal(expected);
+        sut.RemoveHandler(id);
+        
+        var result = await client.GetAsync(sut.GetFullUrlFor("/doc"));
         // Assert
+        Expect(result.StatusCode)
+            .To.Equal(HttpStatusCode.NotFound);
+    }
+
+    public class Person
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 
     [TestFixture]
@@ -127,7 +158,7 @@ public class TestHttpServer
         public void ShouldSetContentTypeFromResult()
         {
             // Arrange
-            using var poolItem = GlobalSetup.Pool.Take();
+            using var poolItem = GlobalSetup.Pool.Borrow();
             var server = poolItem.Instance;
             var html1 = $"<html><head></head><body></body>{GetRandomAlphaNumericString()}</html>";
             var html2 = $"<!DOCTYPE html><html><head></head><body></body>{GetRandomAlphaNumericString()}</html>";
@@ -226,7 +257,7 @@ public class TestHttpServer
         public async Task GettingRequestBody(string method)
         {
             // Arrange
-            using var poolItem = GlobalSetup.Pool.Take();
+            using var poolItem = GlobalSetup.Pool.Borrow();
             var server = poolItem.Instance;
             server.LogAction = Console.WriteLine;
             var poco = new
@@ -282,7 +313,7 @@ public class TestHttpServer
             // send the body chunked when using ObjectContent - where net462
             // will not
             // Arrange
-            var poolItem = GlobalSetup.Pool.Take();
+            var poolItem = GlobalSetup.Pool.Borrow();
             var server = poolItem.Instance;
             server.LogAction = Console.WriteLine;
             var poco = new
@@ -340,7 +371,7 @@ public class TestHttpServer
                 SomeProperty = expected
             };
             var route = "api/foo";
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             server.Instance.AddJsonDocumentHandler(
                 (p, _) => p.Path == "/" + route
                     ? data
@@ -376,7 +407,7 @@ public class TestHttpServer
             //---------------Set up test pack-------------------
             var theFile = GetRandomBytes(100, 200);
             const string theFileName = "somefile.bin";
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             //---------------Assert Precondition----------------
             server.Instance.AddFileHandler(
                 (p, _) => p.Path == "/" + theFileName
@@ -396,7 +427,7 @@ public class TestHttpServer
             //---------------Set up test pack-------------------
             var theFile = GetRandomBytes(100, 200);
             const string theFileName = "somefile.bin";
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             //---------------Assert Precondition----------------
             server.Instance.ServeFile("/" + theFileName, () => theFile, contentType: "application/octet-stream");
             //---------------Execute Test ----------------------
@@ -409,7 +440,7 @@ public class TestHttpServer
         [Test]
         public void GivenPathAndDataAndContentType_ShouldServeForThatPath()
         {
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             //---------------Set up test pack-------------------
             var data = GetRandomBytes(10, 100);
             var contentType = "text/" + GetRandomFrom(
@@ -438,7 +469,7 @@ public class TestHttpServer
         [Test]
         public void GivenPathAndData_ShouldGive404ForOtherPaths()
         {
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             //---------------Set up test pack-------------------
             var data = GetRandomBytes(10, 100);
             var contentType = "text/" + GetRandomFrom(
@@ -471,7 +502,7 @@ public class TestHttpServer
         public void ShouldProduceTheFullUrlForTheRequest()
         {
             // Arrange
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             var captured = null as string;
             server.Instance.AddJsonDocumentHandler(
                 (p, s) =>
@@ -500,7 +531,7 @@ public class TestHttpServer
         [Test]
         public void ServeDocument_GivenPathAndDocument_ShouldServeForThatPath()
         {
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             //---------------Set up test pack-------------------
             var doc = new XDocument(
                 new XElement(
@@ -530,7 +561,7 @@ public class TestHttpServer
             HttpMethods serveMethod
         )
         {
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             //---------------Set up test pack-------------------
             var invalidMethod = serveMethod == HttpMethods.Get
                 ? HttpMethods.Post
@@ -574,7 +605,7 @@ public class TestHttpServer
                 "</p></body></html>"
             );
             const string theDocName = "/index?foo=bar";
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             server.Instance.ServeDocument(theDocName, doc, HttpMethods.Get);
             //---------------Assert Precondition----------------
 
@@ -599,7 +630,7 @@ public class TestHttpServer
                 "</p></body></html>"
             );
             const string theDocName = "/index?foo=bar";
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             server.Instance.ServeDocument(theDocName, doc.ToString(), HttpMethods.Get);
             //---------------Assert Precondition----------------
 
@@ -623,7 +654,7 @@ public class TestHttpServer
                 "</p></body></html>"
             );
             const string theDocName = "/index?foo=bar";
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             server.Instance.ServeDocument(theDocName, () => doc.ToString(), HttpMethods.Get);
             //---------------Assert Precondition----------------
 
@@ -647,7 +678,7 @@ public class TestHttpServer
                 "</p></body></html>"
             );
             const string theDocName = "/index?foo=bar";
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             server.Instance.ServeDocument(theDocName, () => doc, HttpMethods.Get);
             //---------------Assert Precondition----------------
 
@@ -664,7 +695,7 @@ public class TestHttpServer
         [Test]
         public void GivenPathAndDocument_ShouldGive404ForOtherPaths()
         {
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             //---------------Set up test pack-------------------
             var doc = new XDocument(
                 new XElement(
@@ -694,7 +725,7 @@ public class TestHttpServer
         [Test]
         public void GivenPathAndDocument_ShouldServeForThatPath()
         {
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             //---------------Set up test pack-------------------
             var obj = GetRandom<SimpleData>();
             server.Instance.ServeJsonDocument("/api/query", obj);
@@ -722,7 +753,7 @@ public class TestHttpServer
         [Test]
         public void ServeJsonDocument_GivenPathAndDocumentFactory_ShouldServeForThatPath()
         {
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             //---------------Set up test pack-------------------
             var obj = GetRandom<SimpleData>();
             server.Instance.ServeJsonDocument("/api/query", () => obj);
@@ -750,7 +781,7 @@ public class TestHttpServer
         [Test]
         public void GivenPathWithParametersAndDocument_ShouldServeForThatPathWithParameters()
         {
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             //---------------Set up test pack-------------------
             var obj = GetRandom<SimpleData>();
             var path = "/api/query?option=value";
@@ -782,7 +813,7 @@ public class TestHttpServer
             HttpMethods valid
         )
         {
-            using var server = GlobalSetup.Pool.Take();
+            using var server = GlobalSetup.Pool.Borrow();
             //---------------Set up test pack-------------------
             var invalid = valid == HttpMethods.Get
                 ? HttpMethods.Post
@@ -869,7 +900,7 @@ public class TestHttpServer
     public void WhenNoHandlerClaimsPath_ShouldReturn404()
     {
         //---------------Set up test pack-------------------
-        using var server = GlobalSetup.Pool.Take();
+        using var server = GlobalSetup.Pool.Borrow();
         //---------------Assert Precondition----------------
 
         //---------------Execute Test ----------------------
@@ -886,7 +917,7 @@ public class TestHttpServer
     public void WhenDocumentHandlerThrows_ShouldReturn500()
     {
         //---------------Set up test pack-------------------
-        using var server = GlobalSetup.Pool.Take();
+        using var server = GlobalSetup.Pool.Borrow();
         var message = GetRandomString();
         var logs = new List<string>();
         server.Instance.LogAction = logs.Add;
@@ -922,7 +953,7 @@ public class TestHttpServer
     public void RequestLogAction_ShouldLogRequests()
     {
         //---------------Set up test pack-------------------
-        using var server = GlobalSetup.Pool.Take();
+        using var server = GlobalSetup.Pool.Borrow();
         var requestLogs = new List<RequestLogItem>();
         server.Instance.RequestLogAction = requestLogs.Add;
         var path = "/index.html";
@@ -962,7 +993,7 @@ public class TestHttpServer
     public async Task ShouldPopulateUrlParameters()
     {
         // Arrange
-        using var server = GlobalSetup.Pool.Take();
+        using var server = GlobalSetup.Pool.Borrow();
         var capturedParams = new Dictionary<string, string>();
         server.Instance.AddJsonDocumentHandler(
             (processor, _) =>
@@ -999,7 +1030,7 @@ public class TestHttpServer
     public void ShouldReturn500WhenHandlerThrows()
     {
         // Arrange
-        using var server = GlobalSetup.Pool.Take();
+        using var server = GlobalSetup.Pool.Borrow();
         var exceptionMessage = GetRandomString(10);
         server.Instance.AddHandler((_, _) => throw new Exception(exceptionMessage));
 
@@ -1096,8 +1127,7 @@ public class TestHttpServer
 
     private static HttpServer Create(int? port = null)
     {
-        var result = CreateWithPort(port);
-        return result;
+        return CreateWithPort(port);
     }
 
     private static HttpServer CreateWithPort(int? port)

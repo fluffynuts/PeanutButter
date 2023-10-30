@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using PeanutButter.Utils;
@@ -238,6 +239,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// Used in debug display
         /// </summary>
         public int HandlerCount => _handlers.Count;
+
         private ConcurrentQueue<Handler> _handlers = new();
 
         private class Handler
@@ -737,9 +739,28 @@ namespace PeanutButter.SimpleHTTPServer
             _handlers.Clear();
         }
 
+        /// <summary>
+        /// Removes a previously-registered handler by it's id
+        /// </summary>
+        /// <param name="identifier"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public bool RemoveHandler(Guid identifier)
         {
-            throw new NotImplementedException();
+            var newHandlers = new ConcurrentQueue<Handler>();
+            var removed = false;
+            foreach (var item in _handlers.ToArray())
+            {
+                if (item.Id == identifier)
+                {
+                    removed = true;
+                    continue;
+                }
+
+                newHandlers.Enqueue(item);
+            }
+            Interlocked.Exchange(ref _handlers, newHandlers);
+            return removed;
         }
     }
 }
