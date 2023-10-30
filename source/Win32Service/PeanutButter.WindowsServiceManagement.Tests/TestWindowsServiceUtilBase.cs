@@ -455,7 +455,6 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         }
 
         [Test]
-        // [Explicit("Slow and flaky")]
         public void KillService_ShouldKillSingleWithoutArgs()
         {
             // Arrange
@@ -495,7 +494,6 @@ namespace PeanutButter.WindowsServiceManagement.Tests
         //    nice for testing this out
 
         [Test]
-        // [Explicit("Slow and flaky")]
         public void KillService_ShouldKillTheCorrectService()
         {
             // Arrange
@@ -1123,6 +1121,19 @@ namespace PeanutButter.WindowsServiceManagement.Tests
                 TryDo(() => Run("sc", "stop", serviceName));
                 TryDo(() => Run("sc", "delete", serviceName));
             });
+            
+            KillAll("spacedservice.exe");
+        }
+
+        void KillAll(string processName)
+        {
+            var processes = Process.GetProcesses()
+                .Where(p => p.MainModule?.FileName.IndexOf(processName, StringComparison.OrdinalIgnoreCase) is > 0)
+                .ToArray();
+            foreach (var proc in processes)
+            {
+                TryDo(() => proc.Kill());
+            }
         }
     }
 

@@ -880,6 +880,14 @@ SHUTDOWN"
         /// <param name="schema"></param>
         public void SwitchToSchema(string schema)
         {
+            SwitchToSchema(schema, true);
+        }
+
+        private void SwitchToSchema(
+            string schema,
+            bool createIfMissing
+        )
+        {
             // last-recorded schema may no longer exist; so go schemaless for this connection
             SchemaName = "";
             if (string.IsNullOrWhiteSpace(schema))
@@ -888,7 +896,11 @@ SHUTDOWN"
                 return;
             }
 
-            CreateSchemaIfNotExists(schema);
+            if (createIfMissing)
+            {
+                CreateSchemaIfNotExists(schema);
+            }
+
             Log($"Attempting to switch to schema {schema} with connection string: {ConnectionString}");
             Execute($"use `{Escape(schema)}`");
 
@@ -897,7 +909,12 @@ SHUTDOWN"
 
         public void CreateSchemaIfNotExists(string schema)
         {
-            Execute($"create schema if not exists `{Escape(schema)}`");
+            var schemaCount = QueryFirst<int>($"select count(*) from information_schema.schemata where schema_name = {Quote(schema)};");
+            if (schemaCount < 1)
+            {
+                Execute($"create schema `{Escape(schema)}`");
+            }
+
             GrantAllPermissionsFor("root", schema, "localhost");
             GrantAllPermissionsFor("root", schema, "%");
         }
@@ -955,6 +972,36 @@ SHUTDOWN"
             using var command = connection.CreateCommand();
             command.CommandText = sql;
             command.ExecuteNonQuery();
+        }
+
+        private T QueryFirst<T>(string sql)
+        {
+            using var conn = base.OpenConnection();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = sql;
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                return (T)(Convert.ChangeType(reader[0], typeof(T)));
+            }
+            return default;
+        }
+
+        public IEnumerable<Dictionary<string, object>> ExecuteReader(string sql)
+        {
+            using var conn = base.OpenConnection();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = sql;
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var row = new Dictionary<string, object>();
+                for (var i = 0; i < reader.FieldCount; i++)
+                {
+                    row[reader.GetName(i)] = reader[i];
+                }
+                yield return row;
+            }
         }
 
         private void EnsureIsRemoved(string databasePath)
@@ -1098,6 +1145,15 @@ SHUTDOWN"
                 {
                     throw new Exception($"MySql process {proc.ProcessId} has not shut down!");
                 }
+
+                if (Platform.IsUnixy)
+                {
+                    var socketFile = Settings.Socket;
+                    if (File.Exists(socketFile))
+                    {
+                        TryDo(() => File.Delete(socketFile));
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -1117,9 +1173,10 @@ SHUTDOWN"
             }
 
             Log("Attempting graceful shutdown of mysql server");
+            TryDo(() => SwitchToSchema("mysql"));
             try
             {
-                SwitchToSchema("mysql");
+                SchemaName = "mysql";
                 KillAllActiveConnections();
                 Execute("SHUTDOWN");
                 var timeout = DateTime.Now.AddSeconds(5);
