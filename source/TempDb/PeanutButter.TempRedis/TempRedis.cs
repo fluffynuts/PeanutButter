@@ -344,14 +344,17 @@ namespace
         /// Sets the default connect timeout for new instances of TempRedis::Connect() (2000)
         /// </summary>
         public static int DefaultConnectTimeoutMilliseconds { get; set; } = 2000;
+
         /// <summary>
         /// Sets the default connect retry count for new instances of TempRedis::Connect() (15)
         /// </summary>
         public static int DefaultConnectRetry { get; set; } = 15;
+
         /// <summary>
         /// Sets the default async timeout for new instances of TempRedis::Connect() (2000)
         /// </summary>
         public static int DefaultAsyncTimeoutMilliseconds { get; set; } = 2000;
+
         /// <summary>
         /// Sets the default sync timeout for new instances of TempRedis::Connect() (2000)
         /// </summary>
@@ -365,20 +368,28 @@ namespace
         /// <inheritdoc />
         public ConnectionMultiplexer Connect()
         {
-            var result = Connect(
-                new ConfigurationOptions()
-                {
-                    AbortOnConnectFail = false,
-                    // don't want infinite - rather fail a test than stall
-                    ConnectRetry = DefaultConnectRetry,
-                    ConnectTimeout = DefaultConnectTimeoutMilliseconds,
-                    AsyncTimeout = DefaultAsyncTimeoutMilliseconds,
-                    SyncTimeout = DefaultSyncTimeoutMilliseconds,
-                    AllowAdmin = true
-                }
-            );
-            return result;
+            return Connect(_defaultConfigurationOptions);
         }
+
+        private ConfigurationOptions DefaultConfigurationOptions
+            => _defaultConfigurationOptions ??= new()
+            {
+                AbortOnConnectFail = false,
+                // don't want infinite - rather fail a test than stall
+                ConnectRetry = DefaultConnectRetry,
+                ConnectTimeout = DefaultConnectTimeoutMilliseconds,
+                AsyncTimeout = DefaultAsyncTimeoutMilliseconds,
+                SyncTimeout = DefaultSyncTimeoutMilliseconds,
+                AllowAdmin = true,
+                EndPoints =
+                {
+                    {
+                        "127.0.0.1", Port
+                    }
+                }
+            };
+
+        private ConfigurationOptions _defaultConfigurationOptions;
 
         /// <inheritdoc />
         public ConnectionMultiplexer Connect(
@@ -394,6 +405,11 @@ namespace
             ConfigurationOptions options
         )
         {
+            if (options == DefaultConfigurationOptions)
+            {
+                return DefaultConnection;
+            }
+
             options.EndPoints.Clear();
             options.EndPoints.Add("127.0.0.1", Port);
             return _autoDisposer.Add(
@@ -967,6 +983,8 @@ stderr:
             // otherwise StopInternal will throw as it
             // will think the instance is disposed
             _disposed = true;
+            _defaultConnection?.Dispose();
+            _defaultConnection = null;
             _autoDisposer?.Dispose();
             _autoDisposer = null;
             _watcherCancellationTokenSource.Cancel();
