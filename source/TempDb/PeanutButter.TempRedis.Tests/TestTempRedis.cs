@@ -24,7 +24,7 @@ public class TestTempRedis
         using var sut = Create();
 
         // Act
-        var connection1 = ConnectionMultiplexer.Connect(
+        using var connection1 = ConnectionMultiplexer.Connect(
             $"{ipOrHostName}:{sut.Port}",
             o => o.ConnectTimeout = 1000
         );

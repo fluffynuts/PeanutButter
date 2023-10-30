@@ -2,6 +2,7 @@
 using NSubstitute;
 using NUnit.Framework;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.NetCore.Tests
 {
@@ -127,6 +128,26 @@ namespace PeanutButter.Utils.NetCore.Tests
                 .Dispose();
         }
 
+        [Test]
+        public void ShouldAllowParallelDisposalOnRequest()
+        {
+            // Arrange
+            var sut = Create();
+            sut.ThreadedDisposal = true;
+            var howMany = GetRandomInt(20, 30);
+            var barrier = new Barrier(howMany + 1);
+            // Act
+            for (var i = 0; i < howMany; i++)
+            {
+                sut.Add(new SomeDisposableWithCallback(() => barrier.SignalAndWait()));
+            }
+            Task.Run(() => sut.Dispose());
+            var completed = barrier.SignalAndWait(5000);
+            // Assert
+            Expect(completed)
+                .To.Be.True();
+        }
+
         private AutoDisposer Create()
         {
             return new AutoDisposer();
@@ -134,12 +155,13 @@ namespace PeanutButter.Utils.NetCore.Tests
 
         public class SomeDisposableWithCallback : IDisposable
         {
-            private Action _toCall;
+            private readonly Action _toCall;
 
             public SomeDisposableWithCallback(Action toCall)
             {
                 _toCall = toCall;
             }
+            
             public void Dispose()
             {
                 _toCall();

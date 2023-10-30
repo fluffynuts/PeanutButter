@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils
@@ -21,6 +24,17 @@ namespace PeanutButter.Utils
         class AutoDisposer: IDisposable
     {
         private readonly List<IDisposable> _toDispose;
+
+        /// <summary>
+        /// When enabled, will background &amp; parallelize disposal
+        /// </summary>
+        public bool ThreadedDisposal { get; set; } = false;
+
+        /// <summary>
+        /// When enabled, disposal happens in the background instead
+        /// of halting the caller on the .Dispose() line
+        /// </summary>
+        public bool BackgroundDisposal { get; set; } = false;
 
         /// <summary>
         /// Constructs a new AutoDisposer
@@ -60,13 +74,58 @@ namespace PeanutButter.Utils
         {
             lock (this)
             {
-                _toDispose.Reverse();
-                foreach (var disposable in _toDispose)
+                var toDispose = _toDispose.ToArray().Reverse().ToArray();
+                _toDispose.Clear();
+                if (ThreadedDisposal)
+                {
+                    CleanupInParallel(toDispose);
+                }
+                else
+                {
+                    CleanupInSerial(toDispose);
+                }
+            }
+        }
+
+        private void CleanupInSerial(IDisposable[] toDispose)
+        {
+            var t = new Thread(() =>
+            {
+                foreach (var disposable in toDispose)
                 {
                     SafelyDispose(disposable);
                 }
-                _toDispose.Clear();
+            });
+            t.Start();
+            if (BackgroundDisposal)
+            {
+                return;
             }
+            t.Join();
+        }
+
+        private void CleanupInParallel(IDisposable[] toDispose)
+        {
+            var t = new Thread(() =>
+            {
+                Parallel.ForEach(toDispose, d =>
+                {
+                    try
+                    {
+                        d.Dispose();
+                    }
+                    catch
+                    {
+                        // suppress
+                    }
+                });
+            });
+            t.Start();
+            if (BackgroundDisposal)
+            {
+                return;
+            }
+            t.Join();
         }
 
         private static void SafelyDispose(IDisposable disposable)

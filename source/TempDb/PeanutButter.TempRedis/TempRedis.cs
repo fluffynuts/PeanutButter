@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using PeanutButter.Utils;
 using StackExchange.Redis;
 
@@ -291,7 +292,12 @@ namespace
         public int? ServerProcessId => _serverProcess?.Id;
 
         private Process _serverProcess;
-        private AutoDisposer _autoDisposer = new();
+
+        private AutoDisposer _managedConnections = new()
+        {
+            ThreadedDisposal = true,
+            BackgroundDisposal = true
+        };
 
         /// <summary>
         /// Test if the server process is running. If we're in the
@@ -373,6 +379,7 @@ namespace
 
         private ConfigurationOptions DefaultConfigurationOptions
             => _defaultConfigurationOptions ??= GenerateDefaultConfigurationOptions();
+
         private ConfigurationOptions _defaultConfigurationOptions;
 
         private ConfigurationOptions GenerateDefaultConfigurationOptions()
@@ -401,18 +408,20 @@ namespace
         )
         {
             return IfNotDisposed(
-                () => ConnectInternal(options)
+                () => ConnectInternal(options, forceNewConnection: false)
             );
         }
 
         private ConnectionMultiplexer ConnectInternal(
-            ConfigurationOptions options
+            ConfigurationOptions options,
+            bool forceNewConnection
         )
         {
-            if (options == DefaultConfigurationOptions)
+            if (!forceNewConnection && options == DefaultConfigurationOptions)
             {
                 return _defaultConnection ??= ConnectInternal(
-                    DefaultConfigurationOptions
+                    DefaultConfigurationOptions,
+                    forceNewConnection: true
                 );
             }
 
@@ -423,7 +432,7 @@ namespace
 
             options.EndPoints.Clear();
             options.EndPoints.Add("127.0.0.1", Port);
-            return _autoDisposer.Add(
+            return _managedConnections.Add(
                 ConnectionMultiplexer.Connect(options)
             );
         }
@@ -745,7 +754,8 @@ stderr:
                     new ConfigurationOptions()
                     {
                         ConnectTimeout = 2000
-                    }
+                    },
+                    forceNewConnection: true
                 );
                 return true;
             }
@@ -794,7 +804,8 @@ stderr:
         private ConnectionMultiplexer OpenOrReUseDefaultConnectionInternal()
         {
             return _defaultConnection ??= ConnectInternal(
-                DefaultConfigurationOptions
+                DefaultConfigurationOptions,
+                forceNewConnection: true
             );
         }
 
@@ -1005,12 +1016,12 @@ stderr:
             // _disposed flag _must_ be set after stopping
             // otherwise StopInternal will throw as it
             // will think the instance is disposed
+            _watcherCancellationTokenSource.Cancel();
             _disposed = true;
             _defaultConnection?.Dispose();
             _defaultConnection = null;
-            _autoDisposer?.Dispose();
-            _autoDisposer = null;
-            _watcherCancellationTokenSource.Cancel();
+            _managedConnections?.Dispose();
+            _managedConnections = null;
             _watcherThread?.Join();
             _configFile?.Dispose();
             _configFile = null;
