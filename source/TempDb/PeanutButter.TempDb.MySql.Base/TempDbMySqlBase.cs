@@ -166,6 +166,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         public MySqlVersionInfo MySqlVersion =>
             _mysqlVersion ??= QueryVersionOf(MySqld);
+
         private MySqlVersionInfo _mysqlVersion;
 
         private Guid TryDetermineInstanceId()
@@ -466,7 +467,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             Log($"mysql is version: {MySqlVersion}");
             using var _ = new AutoLocker(InstanceLock);
-            
+
             if (IsMySql8())
             {
                 RemoveDeprecatedOptions();
@@ -909,7 +910,9 @@ SHUTDOWN"
 
         public void CreateSchemaIfNotExists(string schema)
         {
-            var schemaCount = QueryFirst<int>($"select count(*) from information_schema.schemata where schema_name = {Quote(schema)};");
+            var schemaCount = QueryFirst<int>(
+                $"select count(*) from information_schema.schemata where schema_name = {Quote(schema)};"
+            );
             if (schemaCount < 1)
             {
                 Execute($"create schema `{Escape(schema)}`");
@@ -982,8 +985,9 @@ SHUTDOWN"
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                return (TResult)(Convert.ChangeType(reader[0], typeof(T)));
+                return (TResult)(Convert.ChangeType(reader[0], typeof(TResult)));
             }
+
             return default;
         }
 
@@ -1000,6 +1004,7 @@ SHUTDOWN"
                 {
                     row[reader.GetName(i)] = reader[i];
                 }
+
                 yield return row;
             }
         }
@@ -1062,7 +1067,8 @@ SHUTDOWN"
 
                 try
                 {
-                    Stop();
+                    using var _ = new AutoLocker(InstanceLock);
+                    StopFast();
                 }
                 catch (Exception ex)
                 {
@@ -1077,7 +1083,7 @@ SHUTDOWN"
             }
             catch (Exception ex)
             {
-                Log($"Unable to kill MySql instance {_serverProcess?.ProcessId}: {ex.Message}");
+                Log($"Unable to stop MySql instance {_serverProcess?.ProcessId}: {ex.Message}");
             }
         }
 
@@ -1093,6 +1099,13 @@ SHUTDOWN"
         {
             StopWatcher();
             AttemptGracefulShutdown();
+            ForceEndServerProcess();
+            TryDo(() => File.Delete(Settings.Socket));
+        }
+
+        private void StopFast()
+        {
+            StopWatcher();
             ForceEndServerProcess();
             TryDo(() => File.Delete(Settings.Socket));
         }
