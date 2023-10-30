@@ -1265,7 +1265,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                             .With.Message.Containing("not running");
                         // Assert
                         Expect(connections)
-                            .To.Be.Greater.Than(3);
+                            .To.Be.Greater.Than(1);
                     }
                 );
             }

@@ -77,6 +77,8 @@ namespace PeanutButter.TempDb.MySql.Data
             var builder = new MySqlConnectionStringBuilder
             {
                 Port = (uint) Port,
+                Pooling = true,
+                MaximumPoolSize = 100,
                 UserID = "root",
                 Password = RootPasswordSet
                     ? Settings.Options.RootUserPassword
@@ -104,7 +106,7 @@ namespace PeanutButter.TempDb.MySql.Data
             var stats = PoolStatsFetcher.GetPoolStatsViaReflection(
                 ConnectionString
             );
-            return stats.TotalInUse;
+            return stats.TotalInUse - stats.TotalIdle;
         }
 
         private MySqlPoolStatsFetcher PoolStatsFetcher
