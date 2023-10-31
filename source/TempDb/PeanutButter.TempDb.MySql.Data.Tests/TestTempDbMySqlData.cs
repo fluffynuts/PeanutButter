@@ -317,9 +317,16 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     {
                         null, // will try to seek out the mysql installation
                         "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
+                        "C:\\apps\\mysql-5.7.36-winx64\\bin\\mysqld.exe",
+                        "C:\\apps\\mysql-5.7.36-win32\\bin\\mysqld.exe",
                         "C:\\apps\\mysql-5.7-grant\\bin\\mysqld.exe",
                         "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
                         "C:\\apps\\mysql-8.0\\bin\\mysqld.exe",
+                        
+                        "C:\\apps\\spaced folder\\mysql-5.7.36-winx64\\bin\\mysqld.exe",
+                        "C:\\apps\\spaced folder\\mysql-5.7.36-win32\\bin\\mysqld.exe",
+                        "C:\\apps\\spaced folder\\mysql-5.7-grant\\bin\\mysqld.exe",
+                        "C:\\apps\\spaced folder\\mysql-8.0\\bin\\mysqld.exe",
                     }.Where(
                         p =>
                         {
