@@ -943,7 +943,7 @@ SHUTDOWN"
             string host
         )
         {
-            Execute($"grant all privileges on {Escape(schema)}.* to {Quote(user)}@{Quote(host)}");
+            Execute($"grant all privileges on `{Escape(schema)}`.* to {Quote(user)}@{Quote(host)}");
         }
 
 

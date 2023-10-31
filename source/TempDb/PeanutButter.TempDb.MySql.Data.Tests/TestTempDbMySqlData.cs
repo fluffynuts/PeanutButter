@@ -156,6 +156,17 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             }
         }
 
+        [Test]
+        public void ShouldBeAbleToSwitchToNewSchemaRequiringEscaping()
+        {
+            // Arrange
+            using var db = Create();
+            // Act
+            Expect(() => db.SwitchToSchema("yumbi-test-FOO_BAR_QUUX"))
+                .Not.To.Throw();
+            // Assert
+        }
+
         [TestFixture]
         [Timeout(LONG_TIMEOUT)]
         public class WhenProvidedPathToMySqlD : AutoDestroyTempDbOnTimeout
