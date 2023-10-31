@@ -63,15 +63,16 @@ namespace PeanutButter.TempDb.Tests
             // Arrange
             using var resetter = new AutoResetter<int?>(
                 StoreCurrentPortHint,
-                RestorePortHint);
+                RestorePortHint
+            );
             var expected = GetRandomInt(15000, 20000);
             Environment.SetEnvironmentVariable(
-                TempDbMySqlServerSettings.EnvironmentVariables.PORT_HINT,
+                EnvironmentVariables.PORT_HINT,
                 expected.ToString()
             );
             Expect(
                 Environment.GetEnvironmentVariable(
-                    TempDbMySqlServerSettings.EnvironmentVariables.PORT_HINT
+                    EnvironmentVariables.PORT_HINT
                 )
             ).To.Equal(expected.ToString());
             // Act
@@ -99,8 +100,7 @@ namespace PeanutButter.TempDb.Tests
             if (priorValue.HasValue)
             {
                 Environment.SetEnvironmentVariable(
-                    TempDbMySqlServerSettings
-                        .EnvironmentVariables
+                    EnvironmentVariables
                         .PORT_HINT,
                     priorValue.ToString()
                 );
@@ -108,8 +108,7 @@ namespace PeanutButter.TempDb.Tests
             else
             {
                 Environment.SetEnvironmentVariable(
-                    TempDbMySqlServerSettings
-                        .EnvironmentVariables
+                    EnvironmentVariables
                         .PORT_HINT,
                     ""
                 );
@@ -119,8 +118,7 @@ namespace PeanutButter.TempDb.Tests
         private int? StoreCurrentPortHint()
         {
             var current = Environment.GetEnvironmentVariable(
-                TempDbMySqlServerSettings
-                    .EnvironmentVariables
+                EnvironmentVariables
                     .PORT_HINT
             );
             if (string.IsNullOrWhiteSpace(current))
@@ -132,6 +130,7 @@ namespace PeanutButter.TempDb.Tests
             {
                 return result;
             }
+
             Console.Error.WriteLine($"Unable to parse '{current}' as an integer");
             return null;
         }

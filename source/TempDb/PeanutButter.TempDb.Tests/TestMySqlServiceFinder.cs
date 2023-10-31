@@ -8,7 +8,7 @@ using static NExpect.Expectations;
 namespace PeanutButter.TempDb.Tests
 {
     [TestFixture]
-    public class TestMySqlWindowsServiceFinder
+    public class TestMySqlServiceFinder
     {
         [Test]
         public void ShouldBeAbleToFindServiceWhenNotRunning()

@@ -8,6 +8,18 @@ using PeanutButter.Utils.Dictionaries;
 
 namespace PeanutButter.TempDb.MySql.Base
 {
+    public static class EnvironmentVariables
+    {
+        public const string PORT_HINT = "TEMPDB_PORT_HINT";
+        public const string SQL_MODE = "TEMPDB_MYSQL_SQL_MODE";
+        public const string MYSQL_MAX_STARTUP_TIME_IN_SECONDS = 
+            "TEMPDB_MYSQL_MAX_STARTUP_TIME_IN_SECONDS";
+        public const string VERBOSE = "TEMPDB_VERBOSE";
+        public const string GRACEFUL_SHUTDOWN = "TEMPDB_GRACEFUL_SHUTDOWN";
+        public const string BASE_PATH = "TEMPDB_BASE_PATH";
+        public const string PREFERRED_SERVICE = "TEMPDB_MYSQL_PREFERRED_SERVICE";
+    }
+
     /// <summary>
     /// Settings for starting up a TempDbMySql instance
     /// - Settings decorated with a [Setting("setting_name")] attribute
@@ -18,12 +30,6 @@ namespace PeanutButter.TempDb.MySql.Base
     /// </summary>
     public class TempDbMySqlServerSettings
     {
-        public static class EnvironmentVariables
-        {
-            public const string PORT_HINT = "TEMPDB_PORT_HINT";
-            public const string SQL_MODE = "TEMPDB_MYSQL_SQL_MODE";
-        }
-
         /// <summary>
         /// Options which define how to start up mysqld
         /// </summary>

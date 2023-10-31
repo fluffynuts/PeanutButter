@@ -767,7 +767,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 public void ShouldIncrementPortWhenHintedPortIsNotAvailable()
                 {
                     // Arrange
-                    if (Environment.GetEnvironmentVariable("TEMPDB_PORT_HINT") is null)
+                    if (Environment.GetEnvironmentVariable(EnvironmentVariables.PORT_HINT) is null)
                     {
                         Assert.Ignore("Requires TEMPDB_PORT_HINT env var to be set");
                     }
@@ -847,7 +847,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 private void RestorePortHintEnvVar(string prior)
                 {
                     Environment.SetEnvironmentVariable(
-                        TempDbMySqlServerSettings.EnvironmentVariables.PORT_HINT,
+                        EnvironmentVariables.PORT_HINT,
                         prior
                     );
                 }
@@ -855,10 +855,10 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 private string SetPortHintEnvVar(int port)
                 {
                     var existing = Environment.GetEnvironmentVariable(
-                        TempDbMySqlServerSettings.EnvironmentVariables.PORT_HINT
+                        EnvironmentVariables.PORT_HINT
                     );
                     Environment.SetEnvironmentVariable(
-                        TempDbMySqlServerSettings.EnvironmentVariables.PORT_HINT,
+                        EnvironmentVariables.PORT_HINT,
                         port.ToString()
                     );
                     return existing;
@@ -958,7 +958,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             [Retry(3)]
             public void ShouldReconfigurePortOnConflict_QuickStart()
             {
-                using var _ = new AutoTempEnvironmentVariable("TEMPDB_PORT_HINT", null);
+                using var _ = new AutoTempEnvironmentVariable(EnvironmentVariables.PORT_HINT, null);
                 Assert.That(
                     () =>
                     {

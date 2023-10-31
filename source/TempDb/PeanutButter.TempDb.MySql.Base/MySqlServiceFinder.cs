@@ -49,6 +49,7 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 util = $"{util}.exe";
             }
+
             var seek = Path.Combine(container, util);
             return File.Exists(seek)
                 ? seek
@@ -80,15 +81,30 @@ namespace PeanutButter.TempDb.MySql.Base
         private static string FindFirstMySqlServiceName()
         {
             using var io = ProcessIO.Start("sc", "query", "state=", "all");
-            return io.StandardOutput
-                .FirstOrDefault(
+            var possibleServices = io.StandardOutput
+                .Where(
                     l =>
                     {
                         var lower = l.ToLower();
                         return lower.StartsWith("service_name") &&
                             lower.Contains("mysql");
                     }
-                )?.Split(':').Last().Trim();
+                ).Select(
+                    s => s.Split(':').Last().Trim()
+                )
+                .OrderByDescending(s => s)
+                .ToArray();
+            if (!possibleServices.Any())
+            {
+                return null;
+            }
+            var preferred = Environment.GetEnvironmentVariable(EnvironmentVariables.PREFERRED_SERVICE);
+            if (preferred is null)
+            {
+                return possibleServices[0];
+            }
+            var preferredMatch = possibleServices.FirstOrDefault(s => s.Equals(preferred, StringComparison.OrdinalIgnoreCase));
+            return preferredMatch ?? possibleServices[0];
         }
     }
 }

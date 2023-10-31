@@ -61,7 +61,9 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private static int DetermineMaxSecondsToWaitForMySqlToStart()
         {
-            var env = Environment.GetEnvironmentVariable("MYSQL_MAX_STARTUP_TIME_IN_SECONDS");
+            var env = Environment.GetEnvironmentVariable(
+                EnvironmentVariables.MYSQL_MAX_STARTUP_TIME_IN_SECONDS
+            );
             if (env is null || !int.TryParse(env, out var value))
             {
                 return DefaultStartupMaxWaitSeconds;
@@ -96,7 +98,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private bool DetermineIfVerboseLoggingShouldBeEnabled()
         {
-            var envValue = Environment.GetEnvironmentVariable("TEMPDB_VERBOSE");
+            var envValue = Environment.GetEnvironmentVariable(EnvironmentVariables.VERBOSE);
             if (envValue is null)
             {
                 return Settings?.Options?.EnableVerboseLogging ?? false;
@@ -109,7 +111,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             get
             {
-                var envValue = Environment.GetEnvironmentVariable("TEMPDB_GRACEFUL_SHUTDOWN");
+                var envValue = Environment.GetEnvironmentVariable(EnvironmentVariables.GRACEFUL_SHUTDOWN);
                 if (envValue is null)
                 {
                     return Settings?.Options?.AttemptGracefulShutdown ?? true;
@@ -537,7 +539,7 @@ namespace PeanutButter.TempDb.MySql.Base
             // mysql 5.7 wants an empty data base dir, so we have to use
             // a temp defaults file for init only, which 8 seems to be ok with
             using var tempFolder = new AutoTempFolder(
-                Environment.GetEnvironmentVariable("TEMPDB_BASE_PATH")
+                Environment.GetEnvironmentVariable(EnvironmentVariables.BASE_PATH)
             );
             Log($"temp folder created at {tempFolder}");
             Log($"dumping defaults in temp folder {tempFolder.Path} for initialization");
