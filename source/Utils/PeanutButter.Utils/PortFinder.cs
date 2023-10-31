@@ -27,8 +27,11 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// The highest port number considered by default
+        /// - this is just below the dynamic port range default for linux
+        ///   (32768) and well below that of windows (49152 - see
+        ///   https://learn.microsoft.com/en-US/troubleshoot/windows-server/networking/default-dynamic-port-range-tcpip-chang
         /// </summary>
-        public const int MAX_PORT = 65535;
+        public const int MAX_PORT = 32767;
 
         /// <summary>
         /// Attempts to find a random unbound port on the loopback device (localhost)
