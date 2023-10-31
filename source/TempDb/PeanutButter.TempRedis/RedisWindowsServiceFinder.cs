@@ -21,7 +21,7 @@ namespace
         /// <exception cref="Exception"></exception>
         public static string FindPathToRedis()
         {
-            var mysqlServiceName = FindFirstMySqlServiceName();
+            var mysqlServiceName = FindFirstRedisServiceName();
             return mysqlServiceName == null
                 ? null
                 : FindPathForService(mysqlServiceName);
@@ -49,7 +49,7 @@ namespace
             return commandLine.Split(' ').First();
         }
 
-        private static string FindFirstMySqlServiceName()
+        private static string FindFirstRedisServiceName()
         {
             using var io = ProcessIO.Start("sc", "query", "state=", "all");
             return io.StandardOutput

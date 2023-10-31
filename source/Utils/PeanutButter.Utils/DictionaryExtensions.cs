@@ -347,6 +347,7 @@ namespace PeanutButter.Utils
                     return generated = generator();
                 }
             );
+            
             if (concurrentDictionary.TryGetValue(key, out var result))
             {
                 if (skipCaching?.Invoke(result) ?? false)

@@ -325,7 +325,7 @@ namespace
 
         /// <inheritdoc />
         public string RedisExecutable =>
-            _executable ??= FindRedisExecutable();
+            _executable ??= RedisExecutableFinder.FindRedisExecutable(LocatorStrategies);
 
         /// <inheritdoc />
         public bool IsRunning => _running;
@@ -1027,95 +1027,6 @@ stderr:
             _configFile = null;
             _saveFile?.Dispose();
             _saveFile = null;
-        }
-
-        private string FindRedisExecutable()
-        {
-            var lookInPath = LocatorStrategies.HasFlag(RedisLocatorStrategies.FindInPath);
-            if (lookInPath)
-            {
-                // prefer redis-server in the path
-                var inPath = Find.InPath("redis-server");
-                if (inPath is not null)
-                {
-                    return inPath;
-                }
-            }
-
-            if (Platform.IsUnixy)
-            {
-                throw new NotSupportedException(
-                    lookInPath
-                        ? $"{nameof(TempRedis)} requires redis-server to be in your path for this platform. Is redis installed on this system? Searched folders:\n{string.Join("\n", Find.FoldersInPath)}"
-                        : $"{nameof(TempRedis)} only supports finding redis-server in your path for this platform. Please enable the flag or pass in a path to redis-server."
-                );
-            }
-
-            var lookForService = LocatorStrategies.HasFlag(RedisLocatorStrategies.FindAsWindowsService);
-            if (lookForService)
-            {
-                var serviceExePath = RedisWindowsServiceFinder.FindPathToRedis();
-                if (serviceExePath is not null)
-                {
-                    return serviceExePath;
-                }
-            }
-
-            var attemptDownload = LocatorStrategies.HasFlag(RedisLocatorStrategies.DownloadForWindowsIfNecessary);
-            if (!attemptDownload)
-            {
-                throw new NotSupportedException(
-                    GenerateFailMessageFor(lookInPath, lookForService, false, null)
-                );
-            }
-
-            var downloadError = "unknown";
-            var result = Async.RunSync(
-                () =>
-                {
-                    var downloader = new MicrosoftRedisDownloader();
-                    try
-                    {
-                        return downloader.Fetch();
-                    }
-                    catch (Exception ex)
-                    {
-                        downloadError = ex.Message;
-                        return null;
-                    }
-                }
-            );
-
-            if (result is not null)
-            {
-                return result;
-            }
-
-            throw new NotSupportedException(
-                GenerateFailMessageFor(lookInPath, lookForService, true, downloadError)
-            );
-        }
-
-        private static string GenerateFailMessageFor(
-            bool lookInPath,
-            bool lookForService,
-            bool attemptDownload,
-            string downloadError
-        )
-        {
-            return new[]
-            {
-                "Unable to start up a temporary redis instance: no redis-server.exe could be found",
-                lookInPath
-                    ? "* Try adding the folder containing redis-server.exe to your path"
-                    : "* Try enabling the FindInPath location strategy",
-                lookForService
-                    ? "* Try installing the Redis windows service (must be called 'redis' to be found)"
-                    : "* Try enabling a search for a locally-installed Redis service",
-                attemptDownload
-                    ? $"* Unable to download Redis from github/Microsoft/archive: {downloadError}"
-                    : "* Try enabling auto-download of Redis from github/Microsoft/archive"
-            }.JoinWith("\n");
         }
     }
 }
