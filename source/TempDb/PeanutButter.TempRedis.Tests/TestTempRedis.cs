@@ -311,6 +311,28 @@ public class TestTempRedis
             .To.Be.Null();
     }
 
+    [Test]
+    public void ShouldNotHandBackDisposedConnections()
+    {
+        // Arrange
+        using var sut = Create();
+        // Act
+        IConnectionMultiplexer c1;
+        using (c1 = sut.Connect())
+        {
+        }
+
+        using (var c2 = sut.Connect())
+        {
+            Expect(c2.Get<IConnectionMultiplexer>("Actual"))
+                .To.Be(c1.Get<IConnectionMultiplexer>("Actual"));
+        }
+
+        Expect(() => sut.Store("foo", "bar"))
+            .Not.To.Throw();
+        // Assert
+    }
+
     private static TempRedis Create()
     {
         return new();

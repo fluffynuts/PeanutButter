@@ -9,6 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using PeanutButter.Utils;
 using StackExchange.Redis;
+using StackExchange.Redis.Maintenance;
+using StackExchange.Redis.Profiling;
 
 namespace
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -101,14 +103,14 @@ namespace
         /// redis instance
         /// </summary>
         /// <returns></returns>
-        ConnectionMultiplexer Connect();
+        IConnectionMultiplexer Connect();
 
         /// <summary>
         /// Connect to the redis instance with your own options
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        ConnectionMultiplexer Connect(ConfigurationOptions config);
+        IConnectionMultiplexer Connect(ConfigurationOptions config);
 
         /// <summary>
         /// Starts up the server, if not auto-started at construction time
@@ -378,9 +380,9 @@ namespace
         public RedisLocatorStrategies LocatorStrategies { get; set; }
 
         /// <inheritdoc />
-        public ConnectionMultiplexer Connect()
+        public IConnectionMultiplexer Connect()
         {
-            return Connect(_defaultConfigurationOptions);
+            return Connect(DefaultConfigurationOptions);
         }
 
         private ConfigurationOptions DefaultConfigurationOptions
@@ -435,16 +437,18 @@ namespace
         }
 
         /// <inheritdoc />
-        public ConnectionMultiplexer Connect(
+        public IConnectionMultiplexer Connect(
             ConfigurationOptions options
         )
         {
-            return IfNotDisposed(
-                () => ConnectInternal(options, forceNewConnection: false)
+            return new ConnectionMultiplexerFacade(
+                IfNotDisposed(
+                    () => ConnectInternal(options, forceNewConnection: false)
+                )
             );
         }
 
-        private ConnectionMultiplexer ConnectInternal(
+        private IConnectionMultiplexer ConnectInternal(
             ConfigurationOptions options,
             bool forceNewConnection
         )
@@ -820,18 +824,20 @@ stderr:
         public IDatabase DefaultDatabase
             => _defaultDatabase ??= ConnectAndSelectDatabase(0);
 
-        private ConnectionMultiplexer DefaultConnection
+        /// <summary>
+        /// The default connection used for operations
+        /// </summary>
+        public IConnectionMultiplexer DefaultConnection
             => OpenOrReuseDefaultConnectionLocked();
 
-        // FIXME: should be disposed
-        private ConnectionMultiplexer _defaultConnection;
+        private IConnectionMultiplexer _defaultConnection;
 
-        private ConnectionMultiplexer OpenOrReuseDefaultConnectionLocked()
+        private IConnectionMultiplexer OpenOrReuseDefaultConnectionLocked()
         {
             return IfNotDisposed(OpenOrReUseDefaultConnectionInternal);
         }
 
-        private ConnectionMultiplexer OpenOrReUseDefaultConnectionInternal()
+        private IConnectionMultiplexer OpenOrReUseDefaultConnectionInternal()
         {
             return _defaultConnection ??= ConnectInternal(
                 DefaultConfigurationOptions,
@@ -1080,6 +1086,242 @@ stderr:
             _configFile = null;
             _saveFile?.Dispose();
             _saveFile = null;
+        }
+    }
+
+    internal class ConnectionMultiplexerFacade : IConnectionMultiplexer
+    {
+        public string ClientName => _actual.ClientName;
+        public string Configuration => _actual.Configuration;
+        public int TimeoutMilliseconds => _actual.TimeoutMilliseconds;
+        public long OperationCount => _actual.OperationCount;
+
+        [Obsolete("Obsolete")]
+        public bool PreserveAsyncOrder
+        {
+            get => _actual.PreserveAsyncOrder;
+            set => _actual.PreserveAsyncOrder = value;
+        }
+
+        public bool IsConnected => _actual.IsConnected;
+        public bool IsConnecting => _actual.IsConnecting;
+
+        [Obsolete("Obsolete")]
+        public bool IncludeDetailInExceptions
+        {
+            get => _actual.IncludeDetailInExceptions;
+            set => _actual.IncludeDetailInExceptions = value;
+        }
+
+        public int StormLogThreshold
+        {
+            get => _actual.StormLogThreshold;
+            set => _actual.StormLogThreshold = value;
+        }
+
+        public event EventHandler<RedisErrorEventArgs> ErrorMessage
+        {
+            add => _actual.ErrorMessage += value;
+            remove => _actual.ErrorMessage -= value;
+        }
+
+        public event EventHandler<ConnectionFailedEventArgs> ConnectionFailed
+        {
+            add => _actual.ConnectionFailed += value;
+            remove => _actual.ConnectionFailed -= value;
+        }
+
+        public event EventHandler<InternalErrorEventArgs> InternalError
+        {
+            add => _actual.InternalError += value;
+            remove => _actual.InternalError -= value;
+        }
+
+        public event EventHandler<ConnectionFailedEventArgs> ConnectionRestored
+        {
+            add => _actual.ConnectionRestored += value;
+            remove => _actual.ConnectionRestored -= value;
+        }
+
+        public event EventHandler<EndPointEventArgs> ConfigurationChanged
+        {
+            add => _actual.ConfigurationChanged += value;
+            remove => _actual.ConfigurationChanged -= value;
+        }
+
+        public event EventHandler<EndPointEventArgs> ConfigurationChangedBroadcast
+        {
+            add => _actual.ConfigurationChangedBroadcast += value;
+            remove => _actual.ConfigurationChangedBroadcast -= value;
+        }
+
+        public event EventHandler<ServerMaintenanceEvent> ServerMaintenanceEvent
+        {
+            add => _actual.ServerMaintenanceEvent += value;
+            remove => _actual.ServerMaintenanceEvent -= value;
+        }
+
+        public event EventHandler<HashSlotMovedEventArgs> HashSlotMoved
+        {
+            add => _actual.HashSlotMoved += value;
+            remove => _actual.HashSlotMoved -= value;
+        }
+
+        private readonly IConnectionMultiplexer _actual;
+
+        /// <summary>
+        /// Exposes the underlying IConnectionMultiplexer for _testing purposes_
+        /// - do not dispose this or stuff will probably break
+        /// </summary>
+        public IConnectionMultiplexer Actual => _actual;
+        internal ConnectionMultiplexerFacade(
+            IConnectionMultiplexer actual
+        )
+        {
+            _actual = actual;
+        }
+
+        public void Dispose()
+        {
+            // suppress: outer calls to Dispose
+            // are to be ignored by managed connections
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await Task.Delay(0); // ensure async/await doesn't cause warnings
+            // suppress: outer calls to Dispose
+            // are to be ignored by managed connections
+        }
+
+        public void RegisterProfiler(Func<ProfilingSession> profilingSessionProvider)
+        {
+            _actual.RegisterProfiler(profilingSessionProvider);
+        }
+
+        public ServerCounters GetCounters()
+        {
+            return _actual.GetCounters();
+        }
+
+        public EndPoint[] GetEndPoints(bool configuredOnly = false)
+        {
+            return _actual.GetEndPoints(configuredOnly);
+        }
+
+        public void Wait(Task task)
+        {
+            _actual.Wait(task);
+        }
+
+        public T Wait<T>(Task<T> task)
+        {
+            return _actual.Wait(task);
+        }
+
+        public void WaitAll(params Task[] tasks)
+        {
+            _actual.WaitAll(tasks);
+        }
+
+        public int HashSlot(RedisKey key)
+        {
+            return _actual.HashSlot(key);
+        }
+
+        public ISubscriber GetSubscriber(object asyncState = null)
+        {
+            return _actual.GetSubscriber(asyncState);
+        }
+
+        public IDatabase GetDatabase(int db = -1, object asyncState = null)
+        {
+            return _actual.GetDatabase(db, asyncState);
+        }
+
+        public IServer GetServer(string host, int port, object asyncState = null)
+        {
+            return _actual.GetServer(host, port, asyncState);
+        }
+
+        public IServer GetServer(string hostAndPort, object asyncState = null)
+        {
+            return _actual.GetServer(hostAndPort, asyncState);
+        }
+
+        public IServer GetServer(IPAddress host, int port)
+        {
+            return _actual.GetServer(host, port);
+        }
+
+        public IServer GetServer(EndPoint endpoint, object asyncState = null)
+        {
+            return _actual.GetServer(endpoint, asyncState);
+        }
+
+        public IServer[] GetServers()
+        {
+            return _actual.GetServers();
+        }
+
+        public Task<bool> ConfigureAsync(TextWriter log = null)
+        {
+            return _actual.ConfigureAsync(log);
+        }
+
+        public bool Configure(TextWriter log = null)
+        {
+            return _actual.Configure(log);
+        }
+
+        public string GetStatus()
+        {
+            return _actual.GetStatus();
+        }
+
+        public void GetStatus(TextWriter log)
+        {
+            _actual.GetStatus(log);
+        }
+
+        public void Close(bool allowCommandsToComplete = true)
+        {
+            _actual.Close(allowCommandsToComplete);
+        }
+
+        public Task CloseAsync(bool allowCommandsToComplete = true)
+        {
+            return _actual.CloseAsync(allowCommandsToComplete);
+        }
+
+        public string GetStormLog()
+        {
+            return _actual.GetStormLog();
+        }
+
+        public void ResetStormLog()
+        {
+            _actual.ResetStormLog();
+        }
+
+        public long PublishReconfigure(CommandFlags flags = CommandFlags.None)
+        {
+            return _actual.PublishReconfigure(flags);
+        }
+
+        public Task<long> PublishReconfigureAsync(CommandFlags flags = CommandFlags.None)
+        {
+            return _actual.PublishReconfigureAsync(flags);
+        }
+
+        public int GetHashSlot(RedisKey key)
+        {
+            return _actual.GetHashSlot(key);
+        }
+
+        public void ExportConfiguration(Stream destination, ExportOptions options = ExportOptions.All)
+        {
+            _actual.ExportConfiguration(destination, options);
         }
     }
 }
