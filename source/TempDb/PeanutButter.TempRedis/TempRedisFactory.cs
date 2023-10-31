@@ -40,13 +40,13 @@ namespace
         /// </summary>
         /// <param name="redisOptions"></param>
         public TempRedisFactory(TempRedisOptions redisOptions)
-            : base(() => new TempRedis(redisOptions), TryFlush)
+            : base(() => new TempRedis(redisOptions), TryReset)
         {
         }
 
-        private static void TryFlush(ITempRedis redis)
+        private static void TryReset(ITempRedis redis)
         {
-            Retry.Max(50).Times(redis.FlushAll);
+            Retry.Max(50).Times(redis.Reset);
         }
     }
 }

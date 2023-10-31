@@ -180,7 +180,7 @@ public class TestTempRedis
         var key = GetRandomString();
         var value = GetRandomString();
         // Act
-        var connection = ConnectionMultiplexer.Connect(
+        using var connection = ConnectionMultiplexer.Connect(
             $"127.0.0.1:{sut.Port}",
             o =>
             {
@@ -277,7 +277,7 @@ public class TestTempRedis
             }
         );
         // Act
-        var connection = ConnectionMultiplexer.Connect(
+        using var connection = ConnectionMultiplexer.Connect(
             $"127.0.0.1:{sut.Port}"
         );
         connection.GetDatabase();
@@ -287,6 +287,28 @@ public class TestTempRedis
         // Assert
         Expect(server)
             .Not.To.Be.Null(() => "Can't determine the redis server");
+    }
+
+    [Test]
+    public void ShouldBeAbleToReset()
+    {
+        // reset restarts the process & flushes all keys
+        // Arrange
+        using var sut = Create();
+        // Act
+        Expect(() => sut.Store("foo", "bar"))
+            .Not.To.Throw();
+        var port = sut.Port;
+        var pid = sut.ServerProcessId;
+        
+        sut.Reset();
+        // Assert
+        Expect(sut.Port)
+            .To.Equal(port, () => "port should not change between resets");
+        Expect(sut.ServerProcessId)
+            .Not.To.Equal(pid, () => "server process should have been restarted");
+        Expect(sut.Fetch("foo"))
+            .To.Be.Null();
     }
 
     private static TempRedis Create()

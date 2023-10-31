@@ -186,6 +186,12 @@ namespace
         /// Flush all keys from the default database (0)
         /// </summary>
         void FlushAll();
+
+        /// <summary>
+        /// Close all managed connections, restart the server,
+        /// flush all data
+        /// </summary>
+        void Reset();
     }
 
     /// <summary>
@@ -400,6 +406,32 @@ namespace
                     }
                 }
             };
+        }
+
+        /// <inheritdoc />
+        public void Reset()
+        {
+            using (var _ = new AutoLocker(_disposedLock))
+            {
+                var defaultConnection = Interlocked.Exchange(
+                    ref _defaultConnection,
+                    null
+                );
+                defaultConnection?.Dispose();
+                var managedConnections = Interlocked.Exchange(
+                    ref _managedConnections,
+                    new AutoDisposer()
+                    {
+                        ThreadedDisposal = true,
+                        BackgroundDisposal = true
+                    }
+                );
+                managedConnections?.Dispose();
+
+                RestartInternal();
+                OpenOrReUseDefaultConnectionInternal();
+                FlushAllInternal();
+            }
         }
 
         /// <inheritdoc />
@@ -775,15 +807,13 @@ stderr:
         public void Restart()
         {
             Log("manual restart invoked");
-            IfNotDisposed(
-                () =>
-                {
-                    {
-                        StopInternal(runnerLocked: false);
-                        StartInternal(startWatcher: true);
-                    }
-                }
-            );
+            IfNotDisposed(RestartInternal);
+        }
+
+        private void RestartInternal()
+        {
+            StopInternal(runnerLocked: false);
+            StartInternal(startWatcher: true);
         }
 
         /// <inheritdoc />
@@ -826,21 +856,21 @@ stderr:
         /// <inheritdoc />
         public IEnumerable<string> FetchKeys(string matching)
         {
-            var server = FetchDefaultServer();
+            var server = IfNotDisposed(FetchDefaultServerInternal);
             foreach (var k in server.Keys(pattern: matching))
             {
                 yield return $"{k}";
             }
         }
 
-        private IServer FetchDefaultServer()
+        private IServer FetchDefaultServerInternal()
         {
             // this overly convoluted code brought to you by
             // https://stackexchange.github.io/StackExchange.Redis/KeysScan.html
             // -> because it's so much more convenient than exposing at the DB
             //    level, right? Even though I don't "have to remember which server
             //    I connected to", this is not a great DX.
-            var conn = DefaultConnection;
+            var conn = OpenOrReUseDefaultConnectionInternal();
             var endpoints = conn.GetEndPoints();
             var target = endpoints.FirstOrDefault(
                 o => o.AddressFamily != AddressFamily.InterNetworkV6
@@ -852,8 +882,31 @@ stderr:
         /// <inheritdoc />
         public void FlushAll()
         {
-            var server = FetchDefaultServer();
-            Retry.Max(10).Times(() => server.FlushAllDatabases());
+            Retry.Max(10).Times(
+                () =>
+                {
+                    if (DefaultConnection is null)
+                    {
+                        return;
+                    }
+
+                    var server = FetchDefaultServerInternal();
+
+                    using var _ = new AutoLocker(_disposedLock);
+                    if (_disposed)
+                    {
+                        return;
+                    }
+
+                    FlushAllInternal();
+                }
+            );
+        }
+
+        private void FlushAllInternal()
+        {
+            var server = FetchDefaultServerInternal();
+            server.FlushAllDatabases();
         }
 
         /// <inheritdoc />

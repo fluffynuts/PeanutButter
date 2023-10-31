@@ -1,6 +1,5 @@
 using NExpect;
 using NUnit.Framework;
-using PeanutButter.Utils;
 using static NExpect.Expectations;
 
 namespace PeanutButter.TempRedis.Tests

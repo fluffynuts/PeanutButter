@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils
@@ -205,6 +208,7 @@ namespace PeanutButter.Utils
             {
                 return max;
             }
+
             return current + 1;
         }
 
@@ -284,16 +288,31 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static bool PortIsActivelyInUse(IPAddress forAddress, int port)
         {
-            try
-            {
-                using var client = new TcpClient();
-                client.Connect(new IPEndPoint(forAddress, port));
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            var results = Run.InParallel(
+                () => TcpPortIsActivelyInUse(forAddress, port),
+                () => UdpPortIsActivelyInUse(forAddress, port)
+            );
+            return results.Any(o => o.Result);
+        }
+
+        private static bool TcpPortIsActivelyInUse(
+            IPAddress forAddress,
+            int port
+        )
+        {
+            return IPGlobalProperties.GetIPGlobalProperties()
+                .GetActiveTcpListeners()
+                .Any(o => o.Port == port && o.Address.Equals(forAddress));
+        }
+
+        private static bool UdpPortIsActivelyInUse(
+            IPAddress forAddress,
+            int port
+        )
+        {
+            return IPGlobalProperties.GetIPGlobalProperties()
+                .GetActiveUdpListeners()
+                .Any(o => o.Port == port && o.Address.Equals(forAddress));
         }
 
         private static int Next(
