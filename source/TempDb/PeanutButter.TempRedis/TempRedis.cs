@@ -152,7 +152,6 @@ namespace
         /// - shorthand for Fetch&lt;string&gt;(key)
         /// </summary>
         /// <param name="key"></param>
-        /// <typeparam name="T"></typeparam>
         string Fetch(string key);
 
         /// <summary>
@@ -301,7 +300,7 @@ namespace
 
         private Process _serverProcess;
 
-        private AutoDisposer _managedConnections = new()
+        private AutoDisposer _managedConnections = new(CloseConnection)
         {
             ThreadedDisposal = true,
             BackgroundDisposal = true
@@ -326,6 +325,17 @@ namespace
             {
                 return false;
             }
+        }
+
+        private static void CloseConnection(IDisposable conn)
+        {
+            TryDo(() =>
+            {
+                if (conn is IConnectionMultiplexer c)
+                {
+                    c.Close(allowCommandsToComplete: false);
+                }
+            });
         }
 
         /// <inheritdoc />
@@ -816,6 +826,8 @@ stderr:
 
         private void RestartInternal()
         {
+            _defaultConnection = null;
+            _defaultDatabase = null;
             StopInternal(runnerLocked: false);
             StartInternal(startWatcher: true);
         }
@@ -1064,29 +1076,53 @@ stderr:
         /// <inheritdoc />
         public void Dispose()
         {
-            using var _2 = new AutoLocker(_disposedLock);
+            using var disposedLock = new AutoLocker(_disposedLock);
             if (_disposed)
             {
                 return;
             }
 
-            using var _1 = new AutoLocker(_runningLock);
+            using var runningLock = new AutoLocker(_runningLock);
             StopInternal(runnerLocked: true);
             // _disposed flag _must_ be set after stopping
             // otherwise StopInternal will throw as it
             // will think the instance is disposed
             _watcherCancellationTokenSource.Cancel();
-            _disposed = true;
-            _defaultConnection?.Dispose();
-            _defaultConnection = null;
-            _managedConnections?.Dispose();
-            _managedConnections = null;
             _watcherThread?.Join();
-            _configFile?.Dispose();
-            _configFile = null;
-            _saveFile?.Dispose();
-            _saveFile = null;
+            _disposed = true;
+            TryDispose(ref _configFile);
+            TryDispose(ref _saveFile);
+            TryDo(() =>
+            {
+                _defaultConnection?.Close(allowCommandsToComplete: false);
+                _defaultConnection?.Dispose();
+                _defaultConnection = null;
+            });
+            TryDispose(ref _managedConnections);
         }
+
+        private static void TryDispose<T>(ref T disposable) where T: IDisposable
+        {
+            var d = disposable;
+            disposable = default;
+            TryDo(() =>
+            {
+                d?.Dispose();
+            });
+        }
+
+        private static void TryDo(Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch
+            {
+                // suppress
+            }
+        }
+
     }
 
     internal class ConnectionMultiplexerFacade : IConnectionMultiplexer

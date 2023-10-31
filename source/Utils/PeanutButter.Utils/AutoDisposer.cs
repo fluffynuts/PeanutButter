@@ -23,7 +23,8 @@ namespace PeanutButter.Utils
 #endif
         class AutoDisposer: IDisposable
     {
-        private readonly List<IDisposable> _toDispose;
+        private readonly Action<IDisposable> _beforeDisposing;
+        private readonly List<IDisposable> _toDispose = new();
 
         /// <summary>
         /// When enabled, will background &amp; parallelize disposal
@@ -42,7 +43,6 @@ namespace PeanutButter.Utils
         /// <param name="toDispose">Params array of objects implementing IDisposable which the AutoDisposer will dispose of when it it disposed</param>
         public AutoDisposer(params IDisposable[] toDispose)
         {
-            _toDispose = new List<IDisposable>();
             Add(toDispose);
         }
 
@@ -53,6 +53,16 @@ namespace PeanutButter.Utils
         public void Add(params IDisposable[] toDispose)
         {
             _toDispose.AddRange(toDispose);
+        }
+
+        /// <summary>
+        /// Constructs a new AutoDisposer with an action to run, per-item,
+        /// before disposing items
+        /// </summary>
+        /// <param name="beforeDisposing"></param>
+        public AutoDisposer(Action<IDisposable> beforeDisposing)
+        {
+            _beforeDisposing = beforeDisposing;
         }
 
         /// <summary>
@@ -110,14 +120,8 @@ namespace PeanutButter.Utils
             {
                 Parallel.ForEach(toDispose, d =>
                 {
-                    try
-                    {
-                        d.Dispose();
-                    }
-                    catch
-                    {
-                        // suppress
-                    }
+                    TryDo(() => _beforeDisposing?.Invoke(d));
+                    TryDo(d.Dispose);
                 });
             });
             t.Start();
@@ -126,6 +130,18 @@ namespace PeanutButter.Utils
                 return;
             }
             t.Join();
+        }
+
+        private static void TryDo(Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch
+            {
+                // suppress
+            }
         }
 
         private static void SafelyDispose(IDisposable disposable)

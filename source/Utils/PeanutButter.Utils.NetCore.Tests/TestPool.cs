@@ -15,7 +15,7 @@ namespace PeanutButter.Utils.NetCore.Tests
             // Arrange
             using var sut = Create(() => new Service());
             // Act
-            using var result = sut.Take();
+            using var result = sut.Borrow();
             // Assert
             Expect(result)
                 .Not.To.Be.Null();
@@ -31,11 +31,11 @@ namespace PeanutButter.Utils.NetCore.Tests
             using var sut = Create(() => new Service());
 
             // Act
-            using (var _ = sut.Take())
+            using (var _ = sut.Borrow())
             {
             }
 
-            using (var _ = sut.Take())
+            using (var _ = sut.Borrow())
             {
             }
 
@@ -53,7 +53,7 @@ namespace PeanutButter.Utils.NetCore.Tests
             using (var sut = Create(() => new Service()))
             {
                 // Act
-                using var result = sut.Take();
+                using var result = sut.Borrow();
                 // Assert
                 Expect(result)
                     .Not.To.Be.Null();
@@ -77,10 +77,10 @@ namespace PeanutButter.Utils.NetCore.Tests
                 onRelease: s => s.UseCount++
             );
             // Act
-            using (var _ = sut.Take())
+            using (var _ = sut.Borrow())
             {
             }
-            using var result = sut.Take();
+            using var result = sut.Borrow();
             // Assert
             Expect(result.Instance.UseCount)
                 .To.Equal(1);
@@ -89,13 +89,13 @@ namespace PeanutButter.Utils.NetCore.Tests
         [Test]
         [Parallelizable]
         [Timeout(5000)]
-        public void ShouldOnlyCreateProvidedMaxAndWaitForInstanceOnExceedingTake()
+        public void ShouldOnlyCreateProvidedMaxAndWaitForInstanceOnExceedingMax()
         {
             // Arrange
             using var sut = Create(() => new Service(), 2);
             // Act
-            sut.Take();
-            var result2 = sut.Take();
+            sut.Borrow();
+            var result2 = sut.Borrow();
             Expect(sut.Count)
                 .To.Equal(2);
             var t = new Thread(() =>
@@ -104,7 +104,7 @@ namespace PeanutButter.Utils.NetCore.Tests
                 result2.Dispose();
             });
             t.Start();
-            var result3 = sut.Take(1500);
+            var result3 = sut.Borrow(1500);
             // Assert
             Expect(sut.Count)
                 .To.Equal(2);
@@ -119,8 +119,8 @@ namespace PeanutButter.Utils.NetCore.Tests
             // Arrange
             using var sut = Create(() => new Service(), 1);
             // Act
-            sut.Take();
-            Expect(() => sut.Take())
+            sut.Borrow();
+            Expect(() => sut.Borrow())
                 .To.Throw<NoPooledItemAvailableException>();
             // Assert
         }
@@ -148,7 +148,7 @@ namespace PeanutButter.Utils.NetCore.Tests
                         try
                         {
                             capturedTimes.Add(
-                                Benchmark.Time(() => item = sut.Take(itemWait))
+                                Benchmark.Time(() => item = sut.Borrow(itemWait))
                             );
                             captured.Add(
                                 item
