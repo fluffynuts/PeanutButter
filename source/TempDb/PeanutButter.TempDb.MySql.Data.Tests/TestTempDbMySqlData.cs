@@ -695,7 +695,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
 
                 var reconnected = false;
                 var maxWait = DateTime.Now.AddMilliseconds(
-                    TempDBMySql.PROCESS_POLL_INTERVAL * 50
+                    5000
                 );
                 while (DateTime.Now < maxWait)
                 {

@@ -12,6 +12,9 @@ using System.Threading;
 using PeanutButter.FileSystem;
 using PeanutButter.Utils;
 
+// ReSharper disable StaticMemberInGenericType
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 // ReSharper disable IdentifierTypo
 // ReSharper disable StringLiteralTypo
 // ReSharper disable CommentTypo
@@ -71,8 +74,6 @@ namespace PeanutButter.TempDb.MySql.Base
 
             return value;
         }
-
-        public const int PROCESS_POLL_INTERVAL = 100;
 
         public bool VerboseLoggingEnabled
         {
@@ -209,13 +210,13 @@ namespace PeanutButter.TempDb.MySql.Base
             );
         }
 
-        private static ConcurrentDictionary<string, Guid> InstanceIdCache = new();
+        private static readonly ConcurrentDictionary<string, Guid> InstanceIdCache = new();
 
         private static readonly Regex GuidMatcher = new(
             "(?<guid>[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})"
         );
 
-        private int _conflictingPortRetries = 0;
+        private int _conflictingPortRetries;
 
 #if NETSTANDARD
         private readonly FatalTempDbInitializationException _noMySqlFoundException =
@@ -254,7 +255,7 @@ namespace PeanutButter.TempDb.MySql.Base
         )
             : this(
                 settings,
-                o =>
+                _ =>
                 {
                 },
                 creationScripts
@@ -503,6 +504,11 @@ namespace PeanutButter.TempDb.MySql.Base
         private void DisableHostNameLookupsIfRequired()
         {
             var shouldDisable = Settings.Options.DisableHostnameLookups;
+            if (!shouldDisable)
+            {
+                return;
+            }
+
             var lines = File.ReadAllLines(DefaultMyCnf);
             foreach (var line in lines)
             {
@@ -627,7 +633,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 TryDo(() => File.Delete(_debugLogFile));
 
                 var targetFolder = Path.GetDirectoryName(_debugLogFile);
-                if (!Directory.Exists(targetFolder))
+                if (targetFolder is not null && !Directory.Exists(targetFolder))
                 {
                     Directory.CreateDirectory(targetFolder);
                 }
@@ -652,6 +658,7 @@ namespace PeanutButter.TempDb.MySql.Base
                 .JoinWith(",");
         }
 
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private void SetRootPasswordViaCli(int attempt = 0)
         {
             if (attempt > 10)
@@ -690,15 +697,17 @@ SHUTDOWN"
                 MySqld,
                 args
             );
-            var exitCode = io.WaitForExit(15000);
+            var exitCode = io.WaitForExit(StartupCommandTimeout);
             if (exitCode is null)
             {
+                var commandline = io.Commandline;
                 io.Kill();
                 KeepTemporaryDatabaseArtifactsForDiagnostics = true;
                 var script = Path.Combine(DataDir, "init-root-users.sql");
+                var toCopy = tmpFile.Path;
                 try
                 {
-                    Retry.Max(5).Times(() => File.Copy(tmpFile.Path, script));
+                    Retry.Max(5).Times(() => File.Copy(toCopy, script));
                 }
                 catch
                 {
@@ -709,7 +718,7 @@ SHUTDOWN"
                 {
                     Retry.Max(5).Times(
                         () =>
-                            File.WriteAllText(Path.Combine(DatabasePath, "init.bat"), io.Commandline)
+                            File.WriteAllText(Path.Combine(DatabasePath, "init.bat"), commandline)
                     );
                 }
                 catch
@@ -747,6 +756,30 @@ SHUTDOWN"
                 $"Unable to set root password via cli:\n{Collect(stdout, stderr, errorLog)}"
             );
         }
+
+        private int StartupCommandTimeout =>
+            Env.Integer(
+                EnvironmentVariables.STARTUP_COMMAND_TIMEOUT,
+                fallback: Defaults.DEFAULT_STARTUP_COMMAND_TIMEOUT,
+                min: Defaults.MIN_STARTUP_COMMAND_TIMEOUT,
+                max: Defaults.MAX_STARTUP_COMMAND_TIMEOUT
+            );
+
+        private int InitTimeout =>
+            Env.Integer(
+                EnvironmentVariables.INIT_TIMEOUT,
+                fallback: Defaults.DEFAULT_STARTUP_COMMAND_TIMEOUT,
+                min: Defaults.MIN_STARTUP_COMMAND_TIMEOUT,
+                max: Defaults.MAX_STARTUP_COMMAND_TIMEOUT
+            );
+
+        private int PollInterval =>
+            Env.Integer(
+                EnvironmentVariables.POLL_INTERVAL,
+                fallback: Defaults.DEFAULT_POLL_INTERVAL,
+                min: Defaults.MIN_POLL_INTERVAL,
+                max: Defaults.MAX_POLL_INTERVAL
+            );
 
         private string Collect(
             params LogSource[] sources
@@ -832,6 +865,7 @@ SHUTDOWN"
             foreach (var pid in pids)
             {
                 cmd.CommandText = $"kill {pid}";
+                // ReSharper disable once AccessToDisposedClosure
                 TryDo(() => cmd.ExecuteNonQuery());
             }
         }
@@ -853,7 +887,7 @@ SHUTDOWN"
                 if (mysqldump is null)
                 {
                     throw new InvalidOperationException(
-                        $"Unable to find mysqldump at {mysqldump}"
+                        $"Unable to find mysqldump in path"
                     );
                 }
             }
@@ -1034,7 +1068,7 @@ SHUTDOWN"
         private const string MYSQL_CONFIG_FILE = "my.cnf";
         private string DefaultMyCnf => Path.Combine(DatabasePath, MYSQL_CONFIG_FILE);
 
-        private string DumpDefaultsFileAt(
+        private void DumpDefaultsFileAt(
             string databasePath,
             string configFileName = MYSQL_CONFIG_FILE
         )
@@ -1055,7 +1089,6 @@ SHUTDOWN"
                 )
             );
             Log($"Dumped defaults at {outputFile}");
-            return outputFile;
         }
 
         /// <inheritdoc />
@@ -1139,47 +1172,46 @@ SHUTDOWN"
 
         private void ForceEndServerProcess()
         {
-            try
+            var proc = _serverProcess;
+            _serverProcess = null;
+            if (proc is null || proc.HasExited)
             {
-                var proc = _serverProcess;
-                _serverProcess = null;
-                if (proc is null || proc.HasExited)
-                {
-                    return;
-                }
-
-                if (Platform.IsWindows)
-                {
-                    Console.Error.WriteLine(
-                        $"WARNING: killing mysqld with process id {proc.ProcessId} - this may leave temporary files on your filesystem"
-                    );
-                }
-                else
-                {
-                    Log($"Killing mysqld process {proc.ProcessId}");
-                }
-
-                proc.Kill();
-                proc.WaitForExit(3000);
-
-                if (!proc.HasExited)
-                {
-                    throw new Exception($"MySql process {proc.ProcessId} has not shut down!");
-                }
-
-                if (Platform.IsUnixy)
-                {
-                    var socketFile = Settings.Socket;
-                    if (File.Exists(socketFile))
-                    {
-                        TryDo(() => File.Delete(socketFile));
-                    }
-                }
+                return;
             }
-            catch (Exception ex)
+
+            if (Platform.IsWindows)
             {
-                var foo = ex;
-                throw;
+                Console.Error.WriteLine(
+                    $"WARNING: killing mysqld with process id {proc.ProcessId} - this may leave temporary files on your filesystem"
+                );
+            }
+            else
+            {
+                Log($"Killing mysqld process {proc.ProcessId}");
+            }
+
+            proc.Kill();
+            proc.WaitForExit(
+                Env.Integer(
+                    EnvironmentVariables.SHUTDOWN_TIMEOUT,
+                    Defaults.DEFAULT_SHUTDOWN_TIMEOUT,
+                    min: Defaults.MIN_SHUTDOWN_TIMEOUT,
+                    max: Defaults.MAX_SHUTDOWN_TIMEOUT
+                )
+            );
+
+            if (!proc.HasExited)
+            {
+                throw new Exception($"MySql process {proc.ProcessId} has not shut down!");
+            }
+
+            if (Platform.IsUnixy)
+            {
+                var socketFile = Settings.Socket;
+                if (File.Exists(socketFile))
+                {
+                    TryDo(() => File.Delete(socketFile));
+                }
             }
         }
 
@@ -1208,7 +1240,7 @@ SHUTDOWN"
                         return;
                     }
 
-                    Thread.Sleep(100);
+                    Thread.Sleep(PollInterval);
                 }
 
                 Log($"Unable to perform graceful shutdown: mysqld remains alive after issuing SHUTDOWN and waiting");
@@ -1265,7 +1297,7 @@ SHUTDOWN"
             _watcherPaused = false;
         }
 
-        private bool _watcherPaused = false;
+        private bool _watcherPaused;
 
         private void StartServer(
             string mysqld
@@ -1416,7 +1448,7 @@ SHUTDOWN"
         {
             while (_running)
             {
-                Thread.Sleep(PROCESS_POLL_INTERVAL);
+                Thread.Sleep(PollInterval);
                 if (_watcherPaused)
                 {
                     continue;
@@ -1552,11 +1584,11 @@ on duplicate key update `value` = '{newId}';
             using var cmd2 = conn.CreateCommand();
             cmd2.CommandText = "FLUSH TABLES;";
             cmd2.ExecuteNonQuery();
-            var timeout = DateTime.Now.AddSeconds(5);
+            var timeout = DateTime.Now.AddSeconds(StartupCommandTimeout);
             while (FetchDbInstanceId() != newId && DateTime.Now < timeout)
             {
                 cmd.ExecuteNonQuery();
-                Thread.Sleep(250);
+                Thread.Sleep(PollInterval);
             }
 
             var currentId = FetchDbInstanceId();
@@ -1613,7 +1645,7 @@ where `variable` = '__tempdb_id__';";
                     return;
                 }
 
-                Thread.Sleep(250);
+                Thread.Sleep(PollInterval);
             } while (DateTime.Now < maxTime);
 
             KeepTemporaryDatabaseArtifactsForDiagnostics = true;
@@ -1744,7 +1776,7 @@ stderr: {stderr}"
                     }
 
                     Log($"Unable to connect ({ex.Message}). Will continue to try until {cutoff}");
-                    Thread.Sleep(250);
+                    Thread.Sleep(PollInterval);
                 }
             }
 
@@ -1780,11 +1812,10 @@ stderr: {stderr}"
                 mysqld,
                 args
             );
-            var waitSeconds = 60;
-            var exitCode = process.WaitForExit(waitSeconds * 1000);
+            var exitCode = process.WaitForExit(InitTimeout);
             if (exitCode is null)
             {
-                throw new Exception($"Initialize command for mysqld does not complete within {waitSeconds} seconds");
+                throw new Exception($"Initialize command for mysqld does not complete within {InitTimeout}ms");
             }
 
             if (exitCode == 0)
@@ -2005,7 +2036,7 @@ stderr: {stderr}"
                 }
                 catch
                 {
-                    Thread.Sleep(500);
+                    Thread.Sleep(PollInterval);
                 }
             }
         }
@@ -2027,7 +2058,7 @@ stderr: {stderr}"
                 IPAddress.Loopback,
                 minPort,
                 maxPort,
-                (min, max, last) => last < 1
+                (_, _, last) => last < 1
                     ? portHint
                     : last + 1,
                 LogPortDiscoveryInfo

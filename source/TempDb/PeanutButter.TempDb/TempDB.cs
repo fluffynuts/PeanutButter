@@ -306,7 +306,7 @@ namespace PeanutButter.TempDb
                         // Suppress; this is a background thread; nothing we can really do about it anyway
                     }
 
-                    Thread.Sleep(100);
+                    Thread.Sleep(500);
                 }
             }
             catch (ThreadAbortException)
@@ -532,7 +532,7 @@ namespace PeanutButter.TempDb
                 catch
                 {
                     // perhaps someone else wants to take care of this or inspect it
-                    Thread.Sleep(100);
+                    Thread.Sleep(500);
                 }
             }
 

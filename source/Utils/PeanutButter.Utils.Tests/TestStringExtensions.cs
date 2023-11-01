@@ -508,6 +508,8 @@ public class TestStringExtensions
         [TestCase("True", true)]
         [TestCase("TRUE", true)]
         [TestCase("true", true)]
+        [TestCase("On", true)]
+        [TestCase("oFf", false)]
         [TestCase("", false)]
         [TestCase(" ", false)]
         [TestCase("\t", false)]

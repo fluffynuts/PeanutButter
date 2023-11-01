@@ -113,6 +113,22 @@ namespace
         IConnectionMultiplexer Connect(ConfigurationOptions config);
 
         /// <summary>
+        /// Provides a simple mechanism to connect to the redis
+        /// instance with an _unmanaged_ connection - you will
+        /// be responsible for disposing of it
+        /// </summary>
+        /// <returns></returns>
+        IConnectionMultiplexer ConnectUnmanaged();
+
+        /// <summary>
+        /// Provides a simple mechanism to connect to the redis
+        /// instance with an _unmanaged_ connection - you will
+        /// be responsible for disposing of it
+        /// </summary>
+        /// <returns></returns>
+        IConnectionMultiplexer ConnectUnmanaged(ConfigurationOptions options);
+
+        /// <summary>
         /// Starts up the server, if not auto-started at construction time
         /// (default is to auto-start)
         /// </summary>
@@ -329,13 +345,15 @@ namespace
 
         private static void CloseConnection(IDisposable conn)
         {
-            TryDo(() =>
-            {
-                if (conn is IConnectionMultiplexer c)
+            TryDo(
+                () =>
                 {
-                    c.Close(allowCommandsToComplete: false);
+                    if (conn is IConnectionMultiplexer c)
+                    {
+                        c.Close(allowCommandsToComplete: false);
+                    }
                 }
-            });
+            );
         }
 
         /// <inheritdoc />
@@ -393,6 +411,20 @@ namespace
         public IConnectionMultiplexer Connect()
         {
             return Connect(DefaultConfigurationOptions);
+        }
+
+        /// <inheritdoc />
+        public IConnectionMultiplexer ConnectUnmanaged()
+        {
+            return ConnectUnmanaged(DefaultConfigurationOptions);
+        }
+
+        /// <inheritdoc />
+        public IConnectionMultiplexer ConnectUnmanaged(
+            ConfigurationOptions options
+        )
+        {
+            return ConnectionMultiplexer.Connect(options);
         }
 
         private ConfigurationOptions DefaultConfigurationOptions
@@ -465,9 +497,8 @@ namespace
         {
             if (!forceNewConnection && options == DefaultConfigurationOptions)
             {
-                return _defaultConnection ??= ConnectInternal(
-                    DefaultConfigurationOptions,
-                    forceNewConnection: true
+                return _defaultConnection ??= ConnectUnmanaged(
+                    DefaultConfigurationOptions
                 );
             }
 
@@ -590,7 +621,9 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
             }
         }
 
-        private void StartInternal(bool startWatcher, int attempt = 0)
+        private void StartInternal(
+            bool startWatcher
+        )
         {
             using (var _ = new AutoLocker(_runningLock))
             {
@@ -667,7 +700,7 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
             try
             {
                 Log("testing connection to server...");
-                using var db = ConnectionMultiplexer.Connect(
+                using var db = ConnectUnmanaged(
                     new ConfigurationOptions()
                     {
                         EndPoints =
@@ -796,12 +829,11 @@ stderr:
         {
             try
             {
-                ConnectInternal(
+                using var _ = ConnectUnmanaged(
                     new ConfigurationOptions()
                     {
                         ConnectTimeout = 2000
-                    },
-                    forceNewConnection: true
+                    }
                 );
                 return true;
             }
@@ -851,9 +883,8 @@ stderr:
 
         private IConnectionMultiplexer OpenOrReUseDefaultConnectionInternal()
         {
-            return _defaultConnection ??= ConnectInternal(
-                DefaultConfigurationOptions,
-                forceNewConnection: true
+            return _defaultConnection ??= ConnectUnmanaged(
+                DefaultConfigurationOptions
             );
         }
 
@@ -1092,23 +1123,27 @@ stderr:
             _disposed = true;
             TryDispose(ref _configFile);
             TryDispose(ref _saveFile);
-            TryDo(() =>
-            {
-                _defaultConnection?.Close(allowCommandsToComplete: false);
-                _defaultConnection?.Dispose();
-                _defaultConnection = null;
-            });
+            TryDo(
+                () =>
+                {
+                    _defaultConnection?.Close(allowCommandsToComplete: false);
+                    _defaultConnection?.Dispose();
+                    _defaultConnection = null;
+                }
+            );
             TryDispose(ref _managedConnections);
         }
 
-        private static void TryDispose<T>(ref T disposable) where T: IDisposable
+        private static void TryDispose<T>(ref T disposable) where T : IDisposable
         {
             var d = disposable;
             disposable = default;
-            TryDo(() =>
-            {
-                d?.Dispose();
-            });
+            TryDo(
+                () =>
+                {
+                    d?.Dispose();
+                }
+            );
         }
 
         private static void TryDo(Action action)
@@ -1122,7 +1157,6 @@ stderr:
                 // suppress
             }
         }
-
     }
 
     internal class ConnectionMultiplexerFacade : IConnectionMultiplexer
@@ -1210,6 +1244,7 @@ stderr:
         /// - do not dispose this or stuff will probably break
         /// </summary>
         public IConnectionMultiplexer Actual => _actual;
+
         internal ConnectionMultiplexerFacade(
             IConnectionMultiplexer actual
         )
