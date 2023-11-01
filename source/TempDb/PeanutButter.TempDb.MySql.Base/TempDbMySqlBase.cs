@@ -392,7 +392,7 @@ namespace PeanutButter.TempDb.MySql.Base
             // id should cause the instance id to be automagically rewritten
             if (restart)
             {
-                StartServer(MySqld, null);
+                StartServer(MySqld);
             }
 
             return result;
@@ -473,7 +473,6 @@ namespace PeanutButter.TempDb.MySql.Base
                 RemoveDeprecatedOptions();
             }
 
-            Guid? assimilatedInstanceId = null;
             BootstrappedFromTemplateFolder = Settings?.Options?.TemplateDatabasePath;
             if (FolderExists(BootstrappedFromTemplateFolder))
             {
@@ -496,7 +495,7 @@ namespace PeanutButter.TempDb.MySql.Base
             SetRootPasswordViaCli();
             DisableHostNameLookupsIfRequired();
 
-            StartServer(MySqld, assimilatedInstanceId);
+            StartServer(MySqld);
             CreateInitialSchema();
             SetUpAutoDisposeIfRequired();
         }
@@ -674,13 +673,22 @@ grant all privileges on *.* to 'root'@'%' with grant option;
 grant all privileges on *.* to 'root'@'localhost' with grant option;
 SHUTDOWN"
             );
-            using var io = ProcessIO.Start(
-                MySqld,
+            var args = new[]
+            {
                 $"\"--defaults-file={DefaultMyCnf}\"",
                 $"\"--basedir={BaseDirOf(MySqld)}\"",
                 $"\"--datadir={DataDir}\"",
                 $"--port={Port}",
                 $"\"--init-file={tmpFile.Path}\""
+            };
+            if (IsMySql8())
+            {
+                args = args.And("--no-monitor");
+            }
+
+            using var io = ProcessIO.Start(
+                MySqld,
+                args
             );
             var exitCode = io.WaitForExit(15000);
             if (exitCode is null)
@@ -1260,8 +1268,7 @@ SHUTDOWN"
         private bool _watcherPaused = false;
 
         private void StartServer(
-            string mysqld,
-            Guid? assimilatedInstanceId
+            string mysqld
         )
         {
             PauseWatcher();
@@ -1284,6 +1291,11 @@ SHUTDOWN"
                 args = args.And("--innodb-fast-shutdown=2");
                 // stay connected on the console
                 args = args.And("--console");
+
+                // disable monitoring
+                // -> this means that RESTART won't work
+                // -> but also means that there's only one server process
+                args = args.And("--no-monitor");
             }
 
             _serverProcess = RunCommand(
@@ -1293,7 +1305,7 @@ SHUTDOWN"
             );
             try
             {
-                TestIsRunning(assimilatedInstanceId);
+                TestIsRunning();
                 Log("MySql appears to be up and running! Setting up an auto-restarter in case it falls over.");
                 if (_running)
                 {
@@ -1336,7 +1348,7 @@ SHUTDOWN"
 
                 Port = DeterminePortToUse();
                 ForceEndServerProcess();
-                StartServer(mysqld, assimilatedInstanceId);
+                StartServer(mysqld);
             }
         }
 
@@ -1372,7 +1384,7 @@ SHUTDOWN"
             // ReSharper disable once ConvertToUsingDeclaration
             using (var _ = new AutoLocker(InstanceLock))
             {
-                StartServer(MySqld, null);
+                StartServer(MySqld);
             }
         }
 
@@ -1440,7 +1452,7 @@ SHUTDOWN"
                 if (shouldResurrect && shouldBeRunning)
                 {
                     Log($"{MySqld} seems to have gone away; restarting on port {Port}");
-                    StartServer(MySqld, null);
+                    StartServer(MySqld);
                 }
             }
 
@@ -1574,7 +1586,7 @@ where `variable` = '__tempdb_id__';";
             return $"{reader["value"]}";
         }
 
-        private void TestIsRunning(Guid? assimilatedInstanceId)
+        private void TestIsRunning()
         {
             Log("testing to see if mysqld is running");
             var maxTime = DateTime.Now.AddSeconds(MaxSecondsToWaitForMySqlToStart);
@@ -1591,26 +1603,6 @@ where `variable` = '__tempdb_id__';";
 
                 if (CanConnect())
                 {
-                    var isAssimilated = assimilatedInstanceId is not null;
-                    if (isAssimilated)
-                    {
-                        var currentId = FetchDbInstanceId();
-                        if (currentId == $"{InstanceId}")
-                        {
-                            return;
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(currentId))
-                        {
-                            throw new TryAnotherPortException(
-                                $"mysqld listening on {Port} is a different instance ({currentId})"
-                            );
-                        }
-
-                        TrySetDbInstanceId(InstanceId, assimilatedInstanceId);
-                        return;
-                    }
-
                     if (!IsMyInstance(InstanceId))
                     {
                         throw new TryAnotherPortException(

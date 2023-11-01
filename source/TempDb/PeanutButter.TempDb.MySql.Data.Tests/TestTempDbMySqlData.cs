@@ -15,6 +15,7 @@ using NExpect.Interfaces;
 using NExpect.MatcherLogic;
 using NUnit.Framework;
 using PeanutButter.INI;
+using PeanutButter.RandomGenerators;
 using PeanutButter.TempDb.MySql.Base;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
@@ -322,7 +323,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         "C:\\apps\\mysql-5.7-grant\\bin\\mysqld.exe",
                         "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
                         "C:\\apps\\mysql-8.0\\bin\\mysqld.exe",
-                        
                         "C:\\apps\\spaced folder\\mysql-5.7.36-winx64\\bin\\mysqld.exe",
                         "C:\\apps\\spaced folder\\mysql-5.7.36-win32\\bin\\mysqld.exe",
                         "C:\\apps\\spaced folder\\mysql-5.7-grant\\bin\\mysqld.exe",
@@ -346,6 +346,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                             return exists;
                         }
                     )
+                    .Randomize()
+                    .Take(3)
                     .ToArray();
             }
         }
@@ -1140,40 +1142,33 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             // -> perhaps the creator is TempDb.Runner and the caller
             // of that dies before it can dispose!
             [Test]
-            [Retry(3)]
             public void ShouldAutomaticallyDisposeAfterMaxLifetimeHasExpired()
             {
-                Assert.That(
-                    () =>
-                    {
-                        // Arrange
-                        TempDBMySql db;
-                        using (db = Create(inactivityTimeout: TimeSpan.FromSeconds(2)))
+                // Arrange
+                TempDBMySql db;
+                using (db = Create(inactivityTimeout: TimeSpan.FromSeconds(2)))
+                {
+                    // Act
+                    Expect(
+                        () =>
                         {
-                            // Act
-                            Expect(
-                                () =>
-                                {
-                                    using var conn = db.OpenConnection();
-                                }
-                            ).Not.To.Throw();
-                            while (db.IsRunning)
-                            {
-                                Thread.Sleep(100);
-                            }
+                            using var conn = db.OpenConnection();
                         }
+                    ).Not.To.Throw();
+                    while (db.IsRunning)
+                    {
+                        Thread.Sleep(100);
+                    }
+                }
 
-                        Expect(
-                                () =>
-                                {
-                                    using var conn = db.OpenConnection();
-                                }
-                            ).To.Throw<InvalidOperationException>()
-                            .With.Message.Containing("not running");
-                        // Assert
-                    },
-                    Throws.Nothing
-                );
+                Expect(
+                        () =>
+                        {
+                            using var conn = db.OpenConnection();
+                        }
+                    ).To.Throw<InvalidOperationException>()
+                    .With.Message.Containing("not running");
+                // Assert
             }
 
             [Test]

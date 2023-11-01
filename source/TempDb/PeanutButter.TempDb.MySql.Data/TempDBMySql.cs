@@ -106,7 +106,7 @@ namespace PeanutButter.TempDb.MySql.Data
             var stats = PoolStatsFetcher.GetPoolStatsViaReflection(
                 ConnectionString
             );
-            return stats.TotalInUse - stats.TotalIdle;
+            return stats.TotalInUse;
         }
 
         private MySqlPoolStatsFetcher PoolStatsFetcher
