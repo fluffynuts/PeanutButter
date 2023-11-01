@@ -119,7 +119,8 @@ namespace PeanutButter.Utils
             "yes",
             "y",
             "1",
-            "true"
+            "true",
+            "on"
         };
 
         /// <summary>
