@@ -208,7 +208,7 @@ namespace PeanutButter.SimpleTcpServer
                     Log(" --> success!");
                     break;
                 }
-                catch
+                catch (Exception ex)
                 {
                     Log(" --> failed ):");
                     if (_portExplicitlySpecified)
@@ -218,7 +218,7 @@ namespace PeanutButter.SimpleTcpServer
 
                     if (attempts++ > 150)
                     {
-                        throw new UnableToFindAvailablePortException();
+                        throw new UnableToFindAvailablePortException(ex);
                     }
 
                     Thread.Sleep(10); // back off the bind attempts briefly
