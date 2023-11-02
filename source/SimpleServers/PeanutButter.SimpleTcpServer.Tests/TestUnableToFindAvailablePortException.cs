@@ -1,6 +1,9 @@
 ﻿using System;
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
+using static PeanutButter.RandomGenerators.RandomValueGen;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace PeanutButter.SimpleTcpServer.Tests
 {
@@ -26,15 +29,20 @@ namespace PeanutButter.SimpleTcpServer.Tests
         {
             //---------------Set up test pack-------------------
             var expected = "Can't find a port to listen on ):";
+            var innerMessage = GetRandomString(10);
+            var inner = new InvalidOperationException(innerMessage);
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var sut = new UnableToFindAvailablePortException();
+            var sut = new UnableToFindAvailablePortException(inner);
             var result = sut.Message;
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Contain(expected)
+                .And
+                .To.Contain(innerMessage);
         }
     }
 }
