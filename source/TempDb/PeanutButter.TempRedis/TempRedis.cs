@@ -743,7 +743,7 @@ stderr:
 
         private void WatchServerProcess()
         {
-            if (_watcherThread is not null)
+            if (_watcherThread is not null || _watcherCancellationTokenSource is not null)
             {
                 // already watching
                 return;
@@ -758,7 +758,7 @@ stderr:
                         while (!_watcherCancellationTokenSource.IsCancellationRequested)
                         {
                             RestartServerIfRequired();
-                            Thread.Sleep(100);
+                            Thread.Sleep(500);
                         }
                     }
                     catch (ThreadAbortException)
@@ -778,6 +778,8 @@ stderr:
         {
             if (!_runningLock.Wait(50))
             {
+                // can't do anything right now - something else
+                // has the lock
                 return;
             }
 
@@ -1119,7 +1121,7 @@ stderr:
             // otherwise StopInternal will throw as it
             // will think the instance is disposed
             _watcherCancellationTokenSource.Cancel();
-            _watcherThread?.Join();
+            _watcherThread?.Join(1000); // in case the thread gets stuck - I've seen .Join just hang
             _disposed = true;
             TryDispose(ref _configFile);
             TryDispose(ref _saveFile);
