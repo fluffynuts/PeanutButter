@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using StackExchange.Redis;
 using NUnit.Framework;
 using NExpect;
@@ -100,7 +101,7 @@ public class TestTempRedis
                     {
                         ConnectTimeout = 1500,
                         ConnectRetry = 5,
-                        AbortOnConnectFail = true
+                        AbortOnConnectFail = false
                     }
                 )
             );
@@ -300,7 +301,7 @@ public class TestTempRedis
             .Not.To.Throw();
         var port = sut.Port;
         var pid = sut.ServerProcessId;
-        
+
         sut.Reset();
         // Assert
         Expect(sut.Port)
@@ -331,6 +332,40 @@ public class TestTempRedis
         Expect(() => sut.Store("foo", "bar"))
             .Not.To.Throw();
         // Assert
+    }
+
+    [Test]
+    [Explicit("testing AbortOnConnectFail true vs false")]
+    public void ConfigurationOptionsVsConnectAndRetry()
+    {
+        // Arrange
+        using var sut = Create();
+        var barrier = new Barrier(2);
+        // Act
+        sut.Stop();
+        Task.Run(() =>
+        {
+            barrier.SignalAndWait();
+            Thread.Sleep(15000);
+            sut.Start();
+        });
+        barrier.SignalAndWait();
+        using var connection = sut.ConnectUnmanaged(
+            new ConfigurationOptions()
+            {
+                ConnectTimeout = 500,
+                ConnectRetry = 3,
+                // if this is true, this line will fail
+                // if this is false, the StringSet below will fail
+                AbortOnConnectFail = false
+            }
+        );
+        var db = connection.GetDatabase(0);
+        db.StringSet("foo", "bar");
+        var result = (string)(db.StringGet("foo"));
+        // Assert
+        Expect(result)
+            .To.Equal("bar");
     }
 
     private static TempRedis Create()

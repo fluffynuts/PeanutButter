@@ -135,14 +135,22 @@ namespace PeanutButter.Utils.NetCore.Tests
             var sut = Create();
             sut.ThreadedDisposal = true;
             var howMany = GetRandomInt(20, 30);
-            var barrier = new Barrier(howMany + 1);
+            var start = new Barrier(2);
+            var done = new Barrier(howMany + 1);
             // Act
             for (var i = 0; i < howMany; i++)
             {
-                sut.Add(new SomeDisposableWithCallback(() => barrier.SignalAndWait()));
+                sut.Add(new SomeDisposableWithCallback(() => done.SignalAndWait()));
             }
-            Task.Run(() => sut.Dispose());
-            var completed = barrier.SignalAndWait(5000);
+            Task.Run(
+                () =>
+                {
+                    start.SignalAndWait();
+                    sut.Dispose();
+                }
+            );
+            start.SignalAndWait();
+            var completed = done.SignalAndWait(5000);
             // Assert
             Expect(completed)
                 .To.Be.True();

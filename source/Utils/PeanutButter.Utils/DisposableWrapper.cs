@@ -9,7 +9,7 @@ namespace
 /// <summary>
 /// The delegate type for disposable wrapper event handling
 /// </summary>
-#if BUILD_PEANUTBUTTER_INTERNALE
+#if BUILD_PEANUTBUTTER_INTERNAL
 internal
 #else
 public

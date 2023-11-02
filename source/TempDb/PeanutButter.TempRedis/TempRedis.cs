@@ -424,6 +424,8 @@ namespace
             ConfigurationOptions options
         )
         {
+            options.EndPoints.Clear();
+            options.EndPoints.Add("127.0.0.1", Port);
             return ConnectionMultiplexer.Connect(options);
         }
 
@@ -443,6 +445,7 @@ namespace
                 AsyncTimeout = DefaultAsyncTimeoutMilliseconds,
                 SyncTimeout = DefaultSyncTimeoutMilliseconds,
                 AllowAdmin = true,
+                KeepAlive = 15,
                 EndPoints =
                 {
                     {
@@ -834,7 +837,9 @@ stderr:
                 using var _ = ConnectUnmanaged(
                     new ConfigurationOptions()
                     {
-                        ConnectTimeout = 2000
+                        ConnectTimeout = 500,
+                        ConnectRetry = 5,
+                        AbortOnConnectFail = true
                     }
                 );
                 return true;
