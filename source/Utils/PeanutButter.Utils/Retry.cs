@@ -17,8 +17,58 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static RetryContext Max(int maxAttempts)
         {
-            return new RetryContext(maxAttempts);
+            return new RetryContext(
+                maxAttempts,
+                _defaultBackoffStrategyFactory
+            );
         }
+
+        /// <summary>
+        /// installs a default backoff strategy to use other
+        /// than the DefaultBackoffStrategy of PeanutButter.Utils
+        /// so you don't have to specify the strategy every time
+        /// </summary>
+        /// <param name="backoffStrategy"></param>
+        public static void InstallDefaultBackoffStrategy(
+            IBackoffStrategy backoffStrategy
+        )
+        {
+            InstallDefaultBackoffStrategy(
+                () => backoffStrategy
+            );
+        }
+
+        /// <summary>
+        /// installs a factory for the default backoff strategy
+        /// to use other than the DefaultBackoffStrategy of
+        /// PeanutButter.Utils so you don't have to specify
+        /// the strategy every time
+        /// </summary>
+        /// <param name="factory"></param>
+        public static void InstallDefaultBackoffStrategy(
+            Func<IBackoffStrategy> factory
+        )
+        {
+            _defaultBackoffStrategyFactory = factory;
+        }
+
+        /// <summary>
+        /// Corollary to InstallDefaultBackoffStrategy
+        /// - will uninstall the default (if any) such that
+        ///   DefaultBackoffStrategy from PeanutButter.Utils
+        ///   is used instead
+        /// </summary>
+        public static void ForgetDefaultBackoffStrategy()
+        {
+            _defaultBackoffStrategyFactory = () => DefaultBackoffStrategyInstance;
+        }
+
+        private static Func<IBackoffStrategy> _defaultBackoffStrategyFactory
+            = () => DefaultBackoffStrategyInstance;
+
+        private static readonly IBackoffStrategy DefaultBackoffStrategyInstance
+            = new DefaultBackoffStrategy();
+
 
         /// <summary>
         /// Provides a wrapping context around retried code
@@ -30,16 +80,31 @@ namespace PeanutButter.Utils
             /// </summary>
             public int MaxAttempts { get; }
 
+            // ReSharper disable once MemberHidesStaticFromOuterClass
+            private readonly Func<IBackoffStrategy> _defaultBackoffStrategyFactory;
+
             /// <summary>
             /// Creates a RetryContext for the specified maxRetries
             /// </summary>
             /// <param name="maxAttempts"></param>
+            /// <param name="defaultBackoffStrategy"></param>
             public RetryContext(
-                int maxAttempts
+                int maxAttempts,
+                Func<IBackoffStrategy> defaultBackoffStrategy
             )
             {
+                _defaultBackoffStrategyFactory = defaultBackoffStrategy ??
+                    throw new ArgumentNullException(nameof(defaultBackoffStrategy));
+                if (maxAttempts < 1)
+                {
+                    throw new ArgumentException(
+                        $"Cannot retry less than once"
+                    );
+                }
+
                 MaxAttempts = maxAttempts;
             }
+
 
             /// <summary>
             /// Run the code...
@@ -51,7 +116,7 @@ namespace PeanutButter.Utils
                 [CallerMemberName] string caller = null
             )
             {
-                Times(toRun, new DefaultBackoffStrategy(), caller);
+                Times(toRun, _defaultBackoffStrategyFactory(), caller);
             }
 
             /// <summary>
@@ -99,7 +164,7 @@ namespace PeanutButter.Utils
                 [CallerMemberName] string caller = null
             )
             {
-                return await Times(toRun, new DefaultBackoffStrategy(), caller);
+                return await Times(toRun, _defaultBackoffStrategyFactory(), caller);
             }
 
             /// <summary>
@@ -114,6 +179,13 @@ namespace PeanutButter.Utils
                 [CallerMemberName] string caller = null
             )
             {
+                if (backoffStrategy is null)
+                {
+                    throw new ArgumentNullException(
+                        nameof(backoffStrategy)
+                    );
+                }
+
                 Exception lastException = null;
 
                 for (var i = 0; i < MaxAttempts; i++)
@@ -146,7 +218,7 @@ namespace PeanutButter.Utils
                 [CallerMemberName] string caller = null
             )
             {
-                return Times(toRun, new DefaultBackoffStrategy(), caller);
+                return Times(toRun, _defaultBackoffStrategyFactory(), caller);
             }
 
             /// <summary>
@@ -193,7 +265,10 @@ namespace PeanutButter.Utils
                 [CallerMemberName] string caller = null
             )
             {
-                await Times(toRun, new DefaultBackoffStrategy());
+                await Times(
+                    toRun,
+                    _defaultBackoffStrategyFactory()
+                );
             }
 
             /// <summary>
@@ -240,7 +315,8 @@ namespace PeanutButter.Utils
                 {
                     return;
                 }
-                backoffStrategy.Backoff(attempt);
+
+                backoffStrategy.Backoff(attempt + 1);
             }
         }
     }
@@ -263,10 +339,16 @@ namespace PeanutButter.Utils
     /// </summary>
     public class DefaultBackoffStrategy : IBackoffStrategy
     {
+        /// <summary>
+        /// The number of milliseconds this will back off with
+        /// after each failure
+        /// </summary>
+        public const int BACKOFF_MILLISECONDS = 100;
+
         /// <inheritdoc />
         public void Backoff(int attempt)
         {
-            Thread.Sleep(100);
+            Thread.Sleep(BACKOFF_MILLISECONDS);
         }
     }
 
