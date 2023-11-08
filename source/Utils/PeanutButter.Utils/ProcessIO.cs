@@ -255,7 +255,7 @@ namespace PeanutButter.Utils
         public string WorkingDirectory { get; private set; }
 
         /// <inheritdoc />
-        public int MaxBufferLines { get; set; }
+        public int MaxBufferLines { get; set; } = int.MaxValue;
 
         /// <inheritdoc />
         public string Commandline =>
