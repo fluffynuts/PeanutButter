@@ -82,6 +82,14 @@ namespace PeanutButter.Utils
         IEnumerable<string> StandardOutputAndErrorInterleavedSnapshot { get; }
 
         /// <summary>
+        /// IO is buffered internally so you can start listening to it
+        /// whenever you want, from the start - however, when the target
+        /// process produces a lot of IO (eg mysqldump), it's reasonable
+        /// to enforce a history limit to reduce memory usage
+        /// </summary>
+        int MaxBufferLines { get; set; }
+
+        /// <summary>
         /// stdin for the process
         /// </summary>
         StreamWriter StandardInput { get; }
@@ -245,6 +253,9 @@ namespace PeanutButter.Utils
 
         /// <inheritdoc />
         public string WorkingDirectory { get; private set; }
+
+        /// <inheritdoc />
+        public int MaxBufferLines { get; set; }
 
         /// <inheritdoc />
         public string Commandline =>
@@ -495,9 +506,19 @@ namespace PeanutButter.Utils
                 }
 
                 _stdErrBuffer.Enqueue(data);
+                Trim(_stdErrBuffer);
                 _stdErrDataAvailable.Set();
                 _interleavedBuffer.Enqueue(data);
+                Trim(_interleavedBuffer);
                 _interleavedDataAvailable.Set();
+            }
+        }
+
+        private void Trim(ConcurrentQueue<string> buffer)
+        {
+            while (buffer.Count > MaxBufferLines)
+            {
+                buffer.TryDequeue(out _);
             }
         }
 
@@ -522,8 +543,10 @@ namespace PeanutButter.Utils
                 }
 
                 _stdOutBuffer.Enqueue(data);
+                Trim(_stdOutBuffer);
                 _stdOutDataAvailable.Set();
                 _interleavedBuffer.Enqueue(data);
+                Trim(_interleavedBuffer);
                 _interleavedDataAvailable.Set();
             }
         }

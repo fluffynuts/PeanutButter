@@ -15,7 +15,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="nexpect" Version="2.0.51" />
-    <PackageReference Include="nunit" Version="3.13.3" />
+    <PackageReference Include="nunit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Quackers.TestLogger" Version="1.0.21" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
