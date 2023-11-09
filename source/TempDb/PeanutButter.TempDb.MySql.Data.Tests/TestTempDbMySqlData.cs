@@ -59,6 +59,41 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             // Assert
         }
 
+        [Test]
+        public void ShouldBeAbleToEnableVerboseLogging()
+        {
+            // Arrange
+            using var _ = new AutoTempFile(
+                EnvironmentVariables.VERBOSE,
+                "1"
+            );
+
+            // Act
+            using var db = Create();
+            // Assert
+            Expect(db.ServerProcessCommand)
+                .To.Contain("--log-error-verbosity");
+        }
+
+        [Test]
+        public void ShouldOnlyDisableMonitorWhenNecessary()
+        {
+            // Arrange
+            // Act
+            using var db = Create();
+            // Assert
+            if (Platform.IsWindows)
+            {
+                Expect(db.ServerCommandline)
+                    .To.Contain("--no-monitor");
+            }
+            else
+            {
+                Expect(db.ServerCommandline)
+                    .Not.To.Contain("--no-monitor");
+            }
+        }
+
         [TestFixture]
         [Timeout(LONG_TIMEOUT)]
         public class SnapshottingAndReusing : AutoDestroyTempDbOnTimeout

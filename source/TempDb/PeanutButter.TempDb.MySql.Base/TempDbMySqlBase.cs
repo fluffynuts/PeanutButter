@@ -89,14 +89,6 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private bool? _verboseLoggingEnabled;
 
-        private string[] VerboseLoggingCommandLineArgs =>
-            VerboseLoggingEnabled
-                ? new[]
-                {
-                    "--log-error-verbosity=3"
-                }
-                : new string[0];
-
         private bool DetermineIfVerboseLoggingShouldBeEnabled()
         {
             var envValue = Environment.GetEnvironmentVariable(EnvironmentVariables.VERBOSE);
@@ -150,6 +142,7 @@ namespace PeanutButter.TempDb.MySql.Base
         public TempDbMySqlServerSettings Settings { get; private set; }
 
         public int? ServerProcessId => _serverProcess?.ProcessId;
+        public string ServerProcessCommand => _serverProcess?.Commandline;
 
         private IProcessIO _serverProcess;
         public int Port { get; protected set; }
@@ -461,7 +454,64 @@ namespace PeanutButter.TempDb.MySql.Base
         }
 
         private string MySqld =>
-            _mysqld ??= Settings?.Options?.PathToMySqlD ?? FindInstalledMySqlD();
+            _mysqld ??= StoreValidCommandlineArgumentsFor(
+                Settings?.Options?.PathToMySqlD ?? FindInstalledMySqlD()
+            );
+
+        private string StoreValidCommandlineArgumentsFor(string pathToMySqlD)
+        {
+            if (string.IsNullOrWhiteSpace(pathToMySqlD) || !File.Exists(pathToMySqlD))
+            {
+                return pathToMySqlD;
+            }
+
+            if (MySqlArguments.ContainsKey(pathToMySqlD))
+            {
+                return pathToMySqlD;
+            }
+
+            using var io = ProcessIO.Start(pathToMySqlD, "--help", "--verbose");
+            var collected = new List<string>();
+            foreach (var line in io.StandardOutput)
+            {
+                var trimmed = line.Trim();
+                if (trimmed.StartsWith("-"))
+                {
+                    var sw = trimmed.Split(' ', '=', '[');
+                    foreach (var sub in sw)
+                    {
+                        if (sub.StartsWith("-"))
+                        {
+                            collected.Add(sub);
+                        }
+                    }
+                }
+            }
+
+            MySqlArguments[pathToMySqlD] = new HashSet<string>(
+                collected,
+                StringComparer.OrdinalIgnoreCase
+            );
+            return pathToMySqlD;
+        }
+
+        private bool IsValidArgument(string arg)
+        {
+            if (!MySqlArguments.TryGetValue(MySqld, out var validArgs))
+            {
+                throw new InvalidOperationException(
+                    $"mysqld argument validation attempted before gathering valid args for '{MySqld}'"
+                );
+            }
+
+            return validArgs.Contains(arg);
+        }
+
+        private static readonly ConcurrentDictionary<string, HashSet<string>> MySqlArguments = new(
+            Platform.IsUnixy
+                ? StringComparer.Ordinal
+                : StringComparer.OrdinalIgnoreCase
+        );
 
         /// <inheritdoc />
         protected override void CreateDatabase()
@@ -688,8 +738,13 @@ SHUTDOWN"
                 $"--port={Port}",
                 $"\"--init-file={tmpFile.Path}\""
             };
-            if (IsMySql8())
+            if (IsValidArgument("--no-monitor"))
             {
+                // - the windows service adds it's own monitor
+                //   process - which we disable via --no-monitor
+                // - the linux service has an optional, completely
+                //   separate, monitor service. Why doesn't windows
+                //   have this? Who knows. Good job Oracle.
                 args = args.And("--no-monitor");
             }
 
@@ -1312,10 +1367,7 @@ SHUTDOWN"
                 $"--port={Port}"
             };
 
-            if (VerboseLoggingEnabled)
-            {
-                args = args.And(VerboseLoggingCommandLineArgs);
-            }
+            args = EnableVerboseLoggingIfRequested(args);
 
             if (IsMySql8())
             {
@@ -1784,6 +1836,20 @@ stderr: {stderr}"
             return false;
         }
 
+        private string[] EnableVerboseLoggingIfRequested(
+            string[] existingArgs
+        )
+        {
+            if (!VerboseLoggingEnabled)
+            {
+                return existingArgs;
+            }
+            
+            return IsValidArgument("--log-error-verbosity")
+                ? existingArgs.And("--log-error-verbosity=3")
+                : existingArgs;
+        }
+
         private void InitializeWith(string mysqld, string tempDefaultsFile)
         {
             Directory.CreateDirectory(DataDir);
@@ -1802,10 +1868,8 @@ stderr: {stderr}"
                 $"\"--basedir={BaseDirOf(mysqld)}\"",
                 $"\"--datadir={DataDir}\""
             };
-            if (VerboseLoggingEnabled)
-            {
-                args = args.And(VerboseLoggingCommandLineArgs);
-            }
+            
+            args = EnableVerboseLoggingIfRequested(args);
 
             using var process = RunCommand(
                 false,
