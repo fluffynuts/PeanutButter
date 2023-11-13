@@ -738,15 +738,7 @@ SHUTDOWN"
                 $"--port={Port}",
                 $"\"--init-file={tmpFile.Path}\""
             };
-            if (IsValidArgument("--no-monitor"))
-            {
-                // - the windows service adds it's own monitor
-                //   process - which we disable via --no-monitor
-                // - the linux service has an optional, completely
-                //   separate, monitor service. Why doesn't windows
-                //   have this? Who knows. Good job Oracle.
-                args = args.And("--no-monitor");
-            }
+            args = DisableMonitoring(args);
 
             using var io = ProcessIO.Start(
                 MySqld,
@@ -1354,6 +1346,23 @@ SHUTDOWN"
 
         private bool _watcherPaused;
 
+        private string[] DisableMonitoring(string[] args)
+        {
+            // disable monitoring
+            // -> this means that RESTART won't work
+            // -> but also means that there's only one server process
+            // -> note that this is a windows-only thing (at least for now)
+            //    as a linux installation of mysql will typically create 2
+            //    proper services - one database server and one monitor -
+            //    so adding --no-monitor on linux (at least at time of writing)
+            //    causes mysqld to error and exit early. Why it's done right
+            //    on Linux and hacked to death on windows is a mystery only Oracle
+            //    can answer
+            return IsValidArgument("--no-monitor")
+                ? args.And("--no-monitor")
+                : args;
+        }
+
         private void StartServer(
             string mysqld
         )
@@ -1376,10 +1385,7 @@ SHUTDOWN"
                 // stay connected on the console
                 args = args.And("--console");
 
-                // disable monitoring
-                // -> this means that RESTART won't work
-                // -> but also means that there's only one server process
-                args = args.And("--no-monitor");
+                args = DisableMonitoring(args);
             }
 
             _serverProcess = RunCommand(
@@ -1844,7 +1850,7 @@ stderr: {stderr}"
             {
                 return existingArgs;
             }
-            
+
             return IsValidArgument("--log-error-verbosity")
                 ? existingArgs.And("--log-error-verbosity=3")
                 : existingArgs;
@@ -1868,7 +1874,7 @@ stderr: {stderr}"
                 $"\"--basedir={BaseDirOf(mysqld)}\"",
                 $"\"--datadir={DataDir}\""
             };
-            
+
             args = EnableVerboseLoggingIfRequested(args);
 
             using var process = RunCommand(
