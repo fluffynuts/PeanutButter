@@ -742,7 +742,7 @@ create user if not exists 'root'@'%' identified with mysql_native_password by {p
 alter user 'root'@'%' identified with mysql_native_password by {pass};
 grant all privileges on *.* to 'root'@'%' with grant option;
 grant all privileges on *.* to 'root'@'localhost' with grant option;
-SHUTDOWN"
+SHUTDOWN;".Replace("\r", "")
             );
             var args = new[]
             {
