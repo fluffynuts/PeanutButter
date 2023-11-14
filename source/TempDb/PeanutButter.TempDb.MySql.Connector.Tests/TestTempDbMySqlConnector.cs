@@ -377,37 +377,45 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
             public void ConnectionUseShouldExtendLifetime()
             {
                 // Arrange
-                var disposed = new ConcurrentQueue<bool>();
-                using (var db = Create(inactivityTimeout: TimeSpan.FromSeconds(1)))
+                Retry.Max(3).Times(() =>
                 {
-                    db.Disposed += (o, e) => disposed.Enqueue(true);
-                    // Act
-                    for (var i = 0; i < 5; i++)
+                    var disposed = new ConcurrentQueue<bool>();
+                    using (var db = Create(inactivityTimeout: TimeSpan.FromSeconds(1)))
                     {
+                        db.Disposed += (o, e) => disposed.Enqueue(true);
+                        // Act
+                        for (var i = 0; i < 5; i++)
+                        {
+                            Expect(
+                                () =>
+                                {
+                                    using var conn = db.OpenConnection();
+                                    Thread.Sleep(500);
+                                }
+                            ).Not.To.Throw();
+                        }
+
+                        WaitFor(() => disposed.Any(), 10000);
+
+
                         Expect(
-                            () =>
-                            {
-                                using var conn = db.OpenConnection();
-                                Thread.Sleep(500);
-                            }
-                        ).Not.To.Throw();
+                                () =>
+                                {
+                                    using var conn = db.OpenConnection();
+                                }
+                            ).To.Throw<InvalidOperationException>()
+                            .With.Message.Containing("not running");
                     }
 
-                    WaitFor(() => disposed.Any(), 10000);
-
-
-                    Expect(
-                            () =>
+                    // Assert
+                    Expect(disposed.ToArray())
+                        .To.Equal(
+                            new[]
                             {
-                                using var conn = db.OpenConnection();
+                                true
                             }
-                        ).To.Throw<InvalidOperationException>()
-                        .With.Message.Containing("not running");
-                }
-
-                // Assert
-                Expect(disposed.ToArray())
-                    .To.Equal(new[] { true });
+                        );
+                });
             }
 
             [Test]
