@@ -180,7 +180,7 @@ innodb_doublewrite=0
 innodb_use_native_aio=0
 character-set-server=utf8
 default-storage-engine=INNODB
-sql-mode=""STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION""
+sql-mode=""STRICT_TRANS_TABLES,STRICT_ALL_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION""
 log-output=FILE
 general-log=0
 general_log_file=""mysql-general.log""
@@ -219,6 +219,7 @@ sync_master_info=10000
 sync_relay_log=10000
 sync_relay_log_info=10000
 sync_binlog=1
+performance-schema=0
 ";
     }
 }
