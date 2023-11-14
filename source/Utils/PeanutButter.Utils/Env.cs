@@ -165,9 +165,14 @@ namespace
         {
             var stringValue = Environment.GetEnvironmentVariable(envVar)
                 ?? $"{fallback}";
-            if (bool.TryParse(stringValue, out var result))
+            if (TruthyValues.Contains(stringValue))
             {
-                return result;
+                return true;
+            }
+
+            if (FalseyValues.Contains(stringValue))
+            {
+                return false;
             }
 
             throw new InvalidEnvironmentVariableValue(
@@ -188,7 +193,7 @@ namespace
             StringComparer.OrdinalIgnoreCase
         );
 
-        private static readonly HashSet<string> FalseyyValues = new(
+        private static readonly HashSet<string> FalseyValues = new(
             new[]
             {
                 "false",
