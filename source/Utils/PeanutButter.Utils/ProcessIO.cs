@@ -317,7 +317,10 @@ namespace PeanutButter.Utils
 
         private string RenderCommandline()
         {
-            return $"{QuoteIfNecessary(Filename)} {Arguments.Select(QuoteIfNecessary).JoinWith(" ")}";
+            var args = Arguments is null || !Arguments.Any()
+                ? ""
+                : $" {Arguments.Select(QuoteIfNecessary).JoinWith(" ")}";
+            return $"{QuoteIfNecessary(Filename)}{args}";
         }
 
         /// <summary>
@@ -590,6 +593,15 @@ namespace PeanutButter.Utils
             {
                 if (_process is null)
                 {
+                    if (StartException is not null)
+                    {
+                        throw new ProcessFailedToStartException(
+                            Commandline,
+                            StandardOutputAndErrorInterleavedSnapshot.ToArray(),
+                            StartException
+                        );
+                    }
+
                     throw new InvalidOperationException(
                         "Process has not started yet"
                     );
@@ -974,6 +986,32 @@ namespace PeanutButter.Utils
         {
             var result = new UnstartedProcessIO(Environment.CurrentDirectory);
             return result.WithEnvironment(environment);
+        }
+    }
+
+    /// <summary>
+    /// Thrown when ProcessIO is unable to start the requested application
+    /// </summary>
+    public class ProcessFailedToStartException
+        : Exception
+    {
+        /// <summary>
+        /// The full commandline used when attempting to start the process
+        /// </summary>
+        public string Commandline { get; }
+        /// <summary>
+        /// Whatever IO could be captured from the process
+        /// </summary>
+        public string[] Io { get; }
+
+        internal ProcessFailedToStartException(
+            string commandline,
+            string[] io,
+            Exception startException
+        ): base($"Unable to start process with commandline:\n{commandline}:\n{string.Join("\n", io)}", startException)
+        {
+            Commandline = commandline;
+            Io = io;
         }
     }
 }
