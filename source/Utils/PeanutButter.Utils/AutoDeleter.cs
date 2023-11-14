@@ -54,18 +54,9 @@ namespace PeanutButter.Utils
                 {
                     try
                     {
-                        if (Directory.Exists(f))
-                        {
-                            Retry.Max(50).Times(
-                                () => Directory.Delete(f, true)
-                            );
-                        }
-                        else
-                        {
-                            Retry.Max(50).Times(
-                                () => File.Delete(f)
-                            );
-                        }
+                        Retry.Max(50).Times(
+                            () => Delete(f)
+                        );
                     }
                     catch (Exception ex)
                     {
@@ -76,6 +67,18 @@ namespace PeanutButter.Utils
                 }
 
                 _toDelete.Clear();
+            }
+        }
+
+        private void Delete(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            else if (Directory.Exists(path))
+            {
+                Directory.Delete(path, recursive: true);
             }
         }
     }
