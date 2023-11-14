@@ -24,12 +24,13 @@ namespace PeanutButter.TempDb.MySql.Base
         public const string SHUTDOWN_TIMEOUT = "TEMPDB_MYSQL_SHUTDOWN_TIMEOUT";
         public const string INIT_TIMEOUT = "TEMPDB_MYSQL_INIT_TIMEOUT";
         public const string POLL_INTERVAL = "TEMPDB_MYSQL_POLL_INTERVAL";
+        public const string DISABLE_TEMPLATING = "TEMPDB_DISABLE_TEMPLATING";
     }
 
     public static class Defaults
     {
         public const int MIN_STARTUP_COMMAND_TIMEOUT = 5000;
-        public const int DEFAULT_STARTUP_COMMAND_TIMEOUT = 20000;
+        public const int DEFAULT_STARTUP_COMMAND_TIMEOUT = 30000;
         public const int MAX_STARTUP_COMMAND_TIMEOUT = 90000;
         
         public const int MIN_SHUTDOWN_TIMEOUT = 1000;
