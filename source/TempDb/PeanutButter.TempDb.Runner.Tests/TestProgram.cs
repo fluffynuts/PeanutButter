@@ -51,7 +51,7 @@ namespace PeanutButter.TempDb.Runner.Tests
         public class ExplicitMySqlEngineTesting
         {
             [Test]
-            // [Timeout(DEFAULT_TIMEOUT)]
+            [Timeout(DEFAULT_TIMEOUT)]
             public void ShouldBeAbleToExplicitlyStart()
             {
                 // Arrange
