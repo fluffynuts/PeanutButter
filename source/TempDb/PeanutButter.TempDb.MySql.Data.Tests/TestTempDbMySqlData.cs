@@ -481,7 +481,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             [SetUp]
             public void Setup()
             {
-                // SkipIfNotOnWindows();
                 SkipIfOnWindowsButNoMySqlInstalled();
                 SkipIfNotOnWindowsAndNotInPath();
             }
@@ -532,12 +531,16 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Explicit("relies on machine-specific setup")]
         public class FindingInPath : AutoDestroyTempDbOnTimeout
         {
             [Test]
             public void ShouldBeAbleToFindInPath_WhenIsInPath()
             {
+                if (Find.InPath("mysqld") is null)
+                {
+                    Assert.Ignore("mysqld must be in the PATH to run this test");
+                }
+
                 // Arrange
                 Expect(
                     () =>
@@ -570,8 +573,20 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     throw new InvalidOperationException("How can you have no PATH variable?");
                 }
 
-                var modified = $"C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin;{_envPath}";
-                Environment.SetEnvironmentVariable("PATH", modified);
+                var search = new[]
+                {
+                    "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin",
+                    "C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin"
+                };
+                foreach (var item in search)
+                {
+                    if (Directory.Exists(item))
+                    {
+                        var modified = $"{item};{_envPath}";
+                        Environment.SetEnvironmentVariable("PATH", modified);
+                        return;
+                    }
+                }
             }
 
             [TearDown]

@@ -596,12 +596,26 @@ namespace PeanutButter.TempDb.MySql.Base
             using var tempFolder = new AutoTempFolder(
                 Environment.GetEnvironmentVariable(EnvironmentVariables.BASE_PATH)
             );
+
             Log($"temp folder created at {tempFolder}");
             Log($"dumping defaults in temp folder {tempFolder.Path} for initialization");
             DumpDefaultsFileAt(tempFolder.Path);
+            MakeDatabaseWorldReadable();
+            MakeDatabaseWorldReadable(tempFolder.Path);
             InitializeWith(MySqld, Path.Combine(tempFolder.Path, "my.cnf"));
 
             StoreSharedTemplate();
+        }
+
+        private void MakeDatabaseWorldReadable(
+            string path = null
+        )
+        {
+            using var io = ProcessIO.Start(
+                "chmod",
+                "a+rwx",
+                path ?? DatabasePath
+            );
         }
 
 
@@ -655,6 +669,8 @@ namespace PeanutButter.TempDb.MySql.Base
             );
             var src = Path.GetFileName(BootstrappedFromTemplateFolder);
             fs.Copy(src, DatabasePath);
+
+            MakeDatabaseWorldReadable();
 
             Log($"Re-using data from {BootstrappedFromTemplateFolder} in {DatabasePath}");
         }
@@ -745,39 +761,6 @@ SHUTDOWN"
                 args
             );
             var exitCode = io.WaitForExit(StartupCommandTimeout);
-            if (exitCode is null)
-            {
-                var commandline = io.Commandline;
-                io.Kill();
-                KeepTemporaryDatabaseArtifactsForDiagnostics = true;
-                var script = Path.Combine(DataDir, "init-root-users.sql");
-                var toCopy = tmpFile.Path;
-                try
-                {
-                    Retry.Max(5).Times(() => File.Copy(toCopy, script));
-                }
-                catch
-                {
-                    // suppress
-                }
-
-                try
-                {
-                    Retry.Max(5).Times(
-                        () =>
-                            File.WriteAllText(Path.Combine(DatabasePath, "init.bat"), commandline)
-                    );
-                }
-                catch
-                {
-                    // suppress
-                }
-
-                throw new UnableToInitializeMySqlException(
-                    $"Timed out attempting to set up root users. Please report this, attaching a zip file of '{DatabasePath}'"
-                );
-            }
-
             if (exitCode == 0)
             {
                 // TODO: check the error log
@@ -786,6 +769,19 @@ SHUTDOWN"
                 //    - search for Error in log
                 //    - look for happy exit, eg: "Received SHUTDOWN from user boot. Shutting down mysqld (Version: 8.0.34)."
                 return;
+            }
+
+            if (exitCode is null)
+            {
+                var commandline = io.Commandline;
+                io.Kill();
+                KeepTemporaryDatabaseArtifactsForDiagnostics = true;
+                TryStoreRootUserInitSql(tmpFile);
+                TryStoreInitScriptForDiagnosticPurposes(commandline);
+
+                throw new UnableToInitializeMySqlException(
+                    $"Timed out attempting to set up root users. Please report this, attaching a zip file of '{DatabasePath}'"
+                );
             }
 
             if (LooksLikePortConflict())
@@ -802,6 +798,58 @@ SHUTDOWN"
             throw new UnableToInitializeMySqlException(
                 $"Unable to set root password via cli:\n{Collect(stdout, stderr, errorLog)}"
             );
+        }
+
+        private void TryStoreRootUserInitSql(AutoTempFile tmpFile)
+        {
+            var script = Path.Combine(DataDir, "init-root-users.sql");
+            var toCopy = tmpFile.Path;
+            try
+            {
+                Retry.Max(5).Times(() => File.Copy(toCopy, script));
+            }
+            catch
+            {
+                // suppress
+            }
+        }
+
+        private void TryStoreInitScriptForDiagnosticPurposes(string commandline)
+        {
+            try
+            {
+                Retry.Max(5).Times(
+                    () =>
+                    {
+                        if (Platform.IsUnixy)
+                        {
+                            File.WriteAllText(
+                                Path.Combine(
+                                    DatabasePath,
+                                    "init.sh"
+                                ),
+                                $@"#!/bin/bash
+{commandline}
+"
+                            );
+                        }
+                        else
+                        {
+                            File.WriteAllText(
+                                Path.Combine(
+                                    DatabasePath,
+                                    "init.bat"
+                                ),
+                                commandline
+                            );
+                        }
+                    }
+                );
+            }
+            catch
+            {
+                // suppress
+            }
         }
 
         private int StartupCommandTimeout =>
@@ -1888,6 +1936,7 @@ stderr: {stderr}"
                 throw new Exception($"Initialize command for mysqld does not complete within {InitTimeout}ms");
             }
 
+            MakeDatabaseWorldReadable();
             if (exitCode == 0)
             {
                 return;
