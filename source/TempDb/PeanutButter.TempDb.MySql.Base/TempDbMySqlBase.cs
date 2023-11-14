@@ -282,6 +282,7 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             self.LogAction = WrapWithDebugLogger(self, settings?.Options?.LogAction);
             self._autoDeleter = new AutoDeleter();
+            self._autoDeleter.Add(self.DatabasePath);
             self.Settings = settings;
 
             beforeInit?.Invoke(self);
@@ -513,6 +514,15 @@ namespace PeanutButter.TempDb.MySql.Base
                 : StringComparer.OrdinalIgnoreCase
         );
 
+        private static bool TemplatingIsDisabled()
+        {
+            return Env.Flag(
+                EnvironmentVariables.DISABLE_TEMPLATING,
+                false
+            );
+        }
+
+
         /// <inheritdoc />
         protected override void CreateDatabase()
         {
@@ -527,11 +537,11 @@ namespace PeanutButter.TempDb.MySql.Base
             BootstrappedFromTemplateFolder = Settings?.Options?.TemplateDatabasePath;
             if (FolderExists(BootstrappedFromTemplateFolder))
             {
-                BootstrapFromTemplateFolder();
+                BootstrapFromProvidedTemplateFolder();
             }
             else
             {
-                BootstrapFromScratch();
+                BootstrapFromScratchOrSharedTemplate();
             }
 
             RedirectDebugLogging();
@@ -571,19 +581,24 @@ namespace PeanutButter.TempDb.MySql.Base
             File.AppendAllText(DefaultMyCnf, "\nskip-name-resolve\n");
         }
 
-        private void BootstrapFromScratch()
+        private void BootstrapFromScratchOrSharedTemplate()
         {
-            var shouldUseSharedTemplate = Settings?.Options?.AutoTemplate ??
+            var enableSharedTemplates = Settings?.Options?.AutoTemplate ??
                 // mysql8 is particularly slow at startup, default
-                // to using a shared template when available
+                // to using a shared template when available & not disabled
                 IsMySql8();
 
-            if (shouldUseSharedTemplate && SharedTemplateFolderExists)
+            var shouldUseSharedTemplate =
+                SharedTemplateFolderExists &&
+                enableSharedTemplates &&
+                !TemplatingIsDisabled();
+
+            if (shouldUseSharedTemplate)
             {
                 Log($"Quicker bootstrap via shared template at {SharedTemplateFolder}");
                 TemplateFolderIsShared = true;
                 BootstrappedFromTemplateFolder = SharedTemplateFolder;
-                BootstrapFromTemplateFolder();
+                BootstrapFromProvidedTemplateFolder();
                 return;
             }
 
@@ -600,36 +615,21 @@ namespace PeanutButter.TempDb.MySql.Base
             Log($"temp folder created at {tempFolder}");
             Log($"dumping defaults in temp folder {tempFolder.Path} for initialization");
             DumpDefaultsFileAt(tempFolder.Path);
-            MakeDatabaseWorldReadable();
-            MakeDatabaseWorldReadable(tempFolder.Path);
             InitializeWith(MySqld, Path.Combine(tempFolder.Path, "my.cnf"));
 
             StoreSharedTemplate();
         }
 
-        private void MakeDatabaseWorldReadable(
-            string path = null
-        )
-        {
-            using var io = ProcessIO.Start(
-                "chmod",
-                "a+rwx",
-                path ?? DatabasePath
-            );
-        }
-
-
         private void StoreSharedTemplate()
         {
             try
             {
-                var cacheDir = SharedTemplateFolder;
-                if (Directory.Exists(cacheDir))
+                if (SharedTemplateFolderExists)
                 {
                     return;
                 }
 
-                Snapshot(cacheDir, stop: false, restart: false);
+                Snapshot(SharedTemplateFolder, stop: false, restart: false);
             }
             catch (Exception ex)
             {
@@ -659,7 +659,7 @@ namespace PeanutButter.TempDb.MySql.Base
             );
         }
 
-        private void BootstrapFromTemplateFolder()
+        private void BootstrapFromProvidedTemplateFolder()
         {
             RootPasswordSet = true; // prior snapshot should have set the root password
             var container = Path.GetDirectoryName(BootstrappedFromTemplateFolder);
@@ -669,8 +669,6 @@ namespace PeanutButter.TempDb.MySql.Base
             );
             var src = Path.GetFileName(BootstrappedFromTemplateFolder);
             fs.Copy(src, DatabasePath);
-
-            MakeDatabaseWorldReadable();
 
             Log($"Re-using data from {BootstrappedFromTemplateFolder} in {DatabasePath}");
         }
@@ -752,9 +750,10 @@ SHUTDOWN"
                 $"\"--basedir={BaseDirOf(MySqld)}\"",
                 $"\"--datadir={DataDir}\"",
                 $"--port={Port}",
-                $"\"--init-file={tmpFile.Path}\""
+                $"\"--init-file={tmpFile.Path}\"",
             };
             args = DisableMonitoring(args);
+            args = AddSocketIfRequired(args);
 
             using var io = ProcessIO.Start(
                 MySqld,
@@ -763,11 +762,19 @@ SHUTDOWN"
             var exitCode = io.WaitForExit(StartupCommandTimeout);
             if (exitCode == 0)
             {
+                RootPasswordSet = true;
                 // TODO: check the error log
                 // -> I've seen this command return 0 when there was an error,
                 //    and no data on stderr/stdout, but data in data/mysql-err.log
                 //    - search for Error in log
                 //    - look for happy exit, eg: "Received SHUTDOWN from user boot. Shutting down mysqld (Version: 8.0.34)."
+                return;
+            }
+
+            if (LooksLikePortConflict(io.StandardOutputAndErrorInterleavedSnapshot.ToArray()))
+            {
+                Port = DeterminePortToUse();
+                SetRootPasswordViaCli(++attempt);
                 return;
             }
 
@@ -780,15 +787,13 @@ SHUTDOWN"
                 TryStoreInitScriptForDiagnosticPurposes(commandline);
 
                 throw new UnableToInitializeMySqlException(
-                    $"Timed out attempting to set up root users. Please report this, attaching a zip file of '{DatabasePath}'"
-                );
-            }
+                    @$"Timed out attempting to set up root users. 
+Full output from attempted server startup:
 
-            if (LooksLikePortConflict())
-            {
-                Port = DeterminePortToUse();
-                SetRootPasswordViaCli(++attempt);
-                return;
+{string.Join("\n", io.StandardOutputAndErrorInterleavedSnapshot)}
+
+Please report this, attaching a zip file of '{DatabasePath}'"
+                );
             }
 
             var stdout = new LogSource("stdout", io.StandardOutput.JoinWith("\n"));
@@ -1214,7 +1219,11 @@ SHUTDOWN"
                 }
 
                 base.Dispose();
-                _autoDeleter?.Dispose();
+                if (!KeepTemporaryDatabaseArtifactsForDiagnostics)
+                {
+                    _autoDeleter?.Dispose();
+                }
+
                 _autoDeleter = null;
             }
             catch (Exception ex)
@@ -1236,14 +1245,25 @@ SHUTDOWN"
             StopWatcher();
             AttemptGracefulShutdown();
             ForceEndServerProcess();
+            CleanupSocketMess();
+        }
+
+        private void CleanupSocketMess()
+        {
+            if (Platform.IsWindows)
+            {
+                return;
+            }
+
             TryDo(() => File.Delete(Settings.Socket));
+            TryDo(() => File.Delete($"{Settings.Socket}.lock"));
         }
 
         private void StopFast()
         {
             StopWatcher();
             ForceEndServerProcess();
-            TryDo(() => File.Delete(Settings.Socket));
+            CleanupSocketMess();
         }
 
         private void TryDo(Action action)
@@ -1425,6 +1445,7 @@ SHUTDOWN"
             };
 
             args = EnableVerboseLoggingIfRequested(args);
+            args = AddSocketIfRequired(args);
 
             if (IsMySql8())
             {
@@ -1488,6 +1509,13 @@ SHUTDOWN"
                 ForceEndServerProcess();
                 StartServer(mysqld);
             }
+        }
+
+        private string[] AddSocketIfRequired(string[] args)
+        {
+            return Platform.IsWindows
+                ? args
+                : args.And($"--socket={Settings.Socket}");
         }
 
         public bool IsRunning
@@ -1786,7 +1814,7 @@ where `variable` = '__tempdb_id__';";
                 }
             );
 
-            if (LooksLikePortConflict() &&
+            if (LooksLikePortConflict(_serverProcess.StandardOutputAndErrorInterleavedSnapshot.ToArray()) &&
                 ++_conflictingPortRetries < 5)
             {
                 KeepTemporaryDatabaseArtifactsForDiagnostics = false;
@@ -1802,15 +1830,24 @@ stderr: {stderr}"
             );
         }
 
-        private bool LooksLikePortConflict()
+        private bool LooksLikePortConflict(
+            string[] processIoLines
+        )
         {
-            foreach (var line in TryReadErrorLogs())
+            foreach (var source in new[]
+                     {
+                         processIoLines,
+                         TryReadErrorLogs()
+                     })
             {
-                foreach (var re in PortConflictMatches)
+                foreach (var line in source)
                 {
-                    if (re.IsMatch(line))
+                    foreach (var re in PortConflictMatches)
                     {
-                        return true;
+                        if (re.IsMatch(line))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -1936,7 +1973,6 @@ stderr: {stderr}"
                 throw new Exception($"Initialize command for mysqld does not complete within {InitTimeout}ms");
             }
 
-            MakeDatabaseWorldReadable();
             if (exitCode == 0)
             {
                 return;

@@ -545,8 +545,14 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 Expect(
                     () =>
                     {
-                        using var db = Create();
-                        using (db.OpenConnection())
+                        using var db1 = Create();
+                        using var db2 = Create();
+                        using (db1.OpenConnection())
+                        {
+                            // Act
+                            // Assert
+                        }
+                        using (db2.OpenConnection())
                         {
                             // Act
                             // Assert
@@ -962,6 +968,11 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             [Test]
             public void ShouldBeAbleToQueryDumpedSchema()
             {
+                if (Find.InPath("mysqldump") is null)
+                {
+                    Assert.Ignore("Requires mysqldump in the PATH");
+                }
+
                 // Arrange
                 using var outer = new TempDBMySql(SCHEMA);
                 // Act
@@ -1414,7 +1425,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         InactivityTimeout = inactivityTimeout ?? TimeSpan.FromMinutes(1),
                         AbsoluteLifespan = absoluteLifespan ?? TimeSpan.FromMinutes(5),
                         EnableVerboseLogging = true,
-                        TemplateDatabasePath = templatePath
+                        TemplateDatabasePath = templatePath,
                     }
                 }
             );

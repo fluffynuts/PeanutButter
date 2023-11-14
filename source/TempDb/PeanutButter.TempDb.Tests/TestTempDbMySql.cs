@@ -1,5 +1,4 @@
 using System.Linq;
-using System.ServiceProcess;
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.TempDb.MySql.Base;
