@@ -282,7 +282,6 @@ namespace PeanutButter.TempDb.MySql.Base
         {
             self.LogAction = WrapWithDebugLogger(self, settings?.Options?.LogAction);
             self._autoDeleter = new AutoDeleter();
-            self._autoDeleter.Add(self.DatabasePath);
             self.Settings = settings;
 
             beforeInit?.Invoke(self);
@@ -548,6 +547,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
             // now we need the real config file, sitting in the db dir
             Log($"dumping run-time defaults file into {DatabasePath}");
+            _autoDeleter.Add(DatabasePath);
             DumpDefaultsFileAt(DatabasePath);
 
             ConfigFilePath = DefaultMyCnf;
@@ -1151,17 +1151,17 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             }
         }
 
-        private void EnsureIsRemoved(string databasePath)
+        private void EnsureIsRemoved(string path)
         {
-            Log($"Ensuring {databasePath} does not already exist");
-            if (File.Exists(databasePath))
+            Log($"Ensuring {path} does not already exist");
+            if (File.Exists(path))
             {
-                File.Delete(databasePath);
+                File.Delete(path);
             }
 
-            if (Directory.Exists(databasePath))
+            if (Directory.Exists(path))
             {
-                Directory.Delete(databasePath, true);
+                Directory.Delete(path, true);
             }
         }
 
