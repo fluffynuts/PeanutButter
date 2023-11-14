@@ -71,6 +71,12 @@ jobs:
   test-tempdb-osx:
     runs-on: macos-latest
     steps:
+      - name: Setup mysql via homebrew
+        uses: tecolicom/actions-use-homebrew-tools@v1
+        with:
+          tools: 'mysql'
+          cache: yes
+          
       - name: Checkout project
         uses: actions/checkout@v3
         
