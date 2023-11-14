@@ -24,15 +24,29 @@ namespace PeanutButter.Utils
             : ";";
 
         /// <summary>
-        /// Produces a fresh list of the folders in your path according
+        /// Produces a list of the folders in your path according
         /// to the current value of the PATH environment variable on
-        /// every invocation.
         /// </summary>
-        public static string[] FoldersInPath =>
-            (Environment.GetEnvironmentVariable("PATH") ?? "").Split(
-                new[] { PathItemSeparator },
-                StringSplitOptions.RemoveEmptyEntries
-            );
+        public static string[] FoldersInPath => FindFoldersInPath();
+        private static string _environmentPath = Environment.GetEnvironmentVariable("PATH");
+        private static string[] _cachedPathFolders;
+
+        private static string[] FindFoldersInPath()
+        {
+            var envPath = Environment.GetEnvironmentVariable("PATH");
+            if (_cachedPathFolders is null || _environmentPath != envPath)
+            {
+                _cachedPathFolders = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(
+                    new[]
+                    {
+                        PathItemSeparator
+                    },
+                    StringSplitOptions.RemoveEmptyEntries
+                );
+                _environmentPath = envPath;
+            }
+            return _cachedPathFolders;
+        }
 
         /// <summary>
         /// Finds the first match for a given filename in the PATH
@@ -85,7 +99,13 @@ namespace PeanutButter.Utils
         private static string[] GenerateWindowsExecutableExtensionsList()
         {
             return (Environment.GetEnvironmentVariable("PATHEXT") ?? "")
-                .Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                .Split(
+                    new[]
+                    {
+                        ";"
+                    },
+                    StringSplitOptions.RemoveEmptyEntries
+                );
         }
 
         private static string SearchFor(
