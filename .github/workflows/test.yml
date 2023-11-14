@@ -10,17 +10,22 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup .NET Core 3
-        uses: actions/setup-dotnet@v1
+      - name: Checkout project
+        uses: actions/checkout@v2
+        
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: |
             3.1
             6.x
             7.x
-      - uses: actions/setup-node@v2-beta
+      
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2-beta
         with:
           node-version: '18'
+          
       - name: Build and test
         env:
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -29,11 +34,13 @@ jobs:
         run: |
           npm i
           npm run test-windows
-      - uses: actions/upload-artifact@v2
+          
+      - name: Upload build reports    
+        uses: actions/upload-artifact@v2
         with:
           name: build-reports
           path: buildreports/
-    
+          
   test-linux:
     # disabled, for now, because it hangs
     if: false

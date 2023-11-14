@@ -1,0 +1,93 @@
+name: Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test-tempdb-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v2
+        
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            3.1
+            6.x
+            7.x
+      
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '18'
+          
+      - name: Build and test
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+          SUPPRESS_DOWNLOAD_PROGRESS: 1
+        run: |
+          npm i
+          npm run test-tempdb
+          
+  test-tempdb-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v2
+        
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            3.1
+            6.x
+            7.x
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '18'
+
+      - name: Build and test
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+          SUPPRESS_DOWNLOAD_PROGRESS: 1
+        run: |
+          npm i
+          npm run test-tempdb
+    
+  test-tempdb-osx:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+        
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: |
+            3.1
+            6.x
+            7.x
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '18'
+
+      - name: Build and test
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+          SUPPRESS_DOWNLOAD_PROGRESS: 1
+        run: |
+          npm i
+          npm run test-tempdb
+    
