@@ -365,6 +365,7 @@ namespace PeanutButter.TempDb.Runner.Tests
 
             private void CaptureLine(string line)
             {
+                StdOut.Add(line);
                 var isConnectionStringLine = (line ?? "")
                     .Contains("connection string", StringComparison.OrdinalIgnoreCase);
                 if (!_haveStartedListening && isConnectionStringLine)
@@ -372,8 +373,6 @@ namespace PeanutButter.TempDb.Runner.Tests
                     _waitForListeningBarrier.SignalAndWait();
                     _haveStartedListening = true;
                 }
-
-                StdOut.Add(line);
             }
 
             public void Dispose()
