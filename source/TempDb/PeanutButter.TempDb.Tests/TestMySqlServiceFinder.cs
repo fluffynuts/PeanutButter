@@ -23,9 +23,15 @@ namespace PeanutButter.TempDb.Tests
                 return;
             }
 
+            var serviceName = MySqlWindowsServiceFinder.FindFirstMySqlServiceName();
+            if (serviceName is null)
+            {
+                Assert.Ignore("Requires MySql to be installed as a service");
+            }
+
             try
             {
-                var svc = new WindowsServiceUtil("mysql80");
+                var svc = new WindowsServiceUtil(serviceName);
                 svc.Stop();
             }
             catch (ServiceControlException ex)
@@ -34,6 +40,12 @@ namespace PeanutButter.TempDb.Tests
                 {
                     Assert.Ignore("test requires admin privileges to run");
                 }
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(
+                    $"Unable to stop mysql service '{serviceName}': {ex}"
+                );
             }
 
             // Act

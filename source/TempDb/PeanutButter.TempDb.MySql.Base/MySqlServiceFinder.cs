@@ -78,7 +78,7 @@ namespace PeanutButter.TempDb.MySql.Base
             return commandLine.Split(' ').First();
         }
 
-        private static string FindFirstMySqlServiceName()
+        public static string FindFirstMySqlServiceName()
         {
             using var io = ProcessIO.Start("sc", "query", "state=", "all");
             var possibleServices = io.StandardOutput
