@@ -784,7 +784,7 @@ namespace PeanutButter.WindowsServiceManagement
             else
             {
                 throw new InvalidOperationException(
-                    $"Pending state for requested state {toState} is unknown"
+                    $"Pending state for requested state {transitionKey.Item2} from state {transitionKey.Item1} is unknown)"
                 );
             }
 
