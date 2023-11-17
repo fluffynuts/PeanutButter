@@ -713,6 +713,22 @@ public class TestHttpRequestBuilder
             Expect(result1.Headers)
                 .Not.To.Be.Null();
         }
+        [Test]
+        public void ShouldBeAbleToGenerateRandomForm()
+        {
+            // Arrange
+            // Act
+            var result = HttpRequestBuilder.Create()
+                .WithRandomForm()
+                .Build();
+            // Assert
+            Expect(result.Form)
+                .Not.To.Be.Null();
+            Expect(result.Form.Files)
+                .To.Be.Empty();
+            Expect(result.Form)
+                .Not.To.Be.Empty();
+        }
 
         [Test]
         public void ShouldBeAbleToSetFormField()

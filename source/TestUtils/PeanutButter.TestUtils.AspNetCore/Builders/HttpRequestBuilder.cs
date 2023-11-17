@@ -87,6 +87,17 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
     }
 
     /// <summary>
+    /// Adds a random form to the request
+    /// </summary>
+    /// <returns></returns>
+    public HttpRequestBuilder WithRandomForm()
+    {
+        return WithForm(
+            FormBuilder.BuildRandom()
+        );
+    }
+
+    /// <summary>
     /// Selects a random http method for the request
     /// </summary>
     /// <returns></returns>
