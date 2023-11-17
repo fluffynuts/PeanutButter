@@ -742,10 +742,45 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [TestFixture]
+        public class AnyOf
+        {
+            [Test]
+            public void ShouldProvideQuickParamsInterfaceToGetRandomFrom()
+            {
+                //---------------Set up test pack-------------------
+                var o1 = new object();
+                var o2 = new object();
+                var o3 = new object();
+                var results = new List<object>();
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                // warm up
+                var time = Benchmark.Time(
+                    () =>
+                    {
+                        for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
+                        {
+                            results.Add(AnyOneOf(o1, o2, o3));
+                        }
+                    }
+                );
+
+                Console.Error.WriteLine(time);
+
+                //---------------Test Result -----------------------
+                Expect(results)
+                    .To.Contain.All.Of(o1, o2, o3);
+                Expect(o1, o2, o3)
+                    .To.Contain.All.Of(results);
+            }
+        }
+
+        [TestFixture]
         public class GetRandomFrom
         {
             [Test]
-            // [Parallelizable]
+            [Parallelizable]
             public void ShouldReturnARandomItemFromTheListCollection()
             {
                 //---------------Set up test pack-------------------
@@ -763,7 +798,6 @@ namespace PeanutButter.RandomGenerators.Tests
 
                 //---------------Execute Test ----------------------
                 // warm up
-                var _ = GetRandomFrom(items);
                 var time = Benchmark.Time(
                     () =>
                     {
@@ -777,8 +811,10 @@ namespace PeanutButter.RandomGenerators.Tests
                 Console.Error.WriteLine(time);
 
                 //---------------Test Result -----------------------
-                Assert.IsTrue(results.All(r => items.Contains(r)));
-                Assert.IsTrue(items.All(i => results.Any(r => r == i)));
+                Expect(results)
+                    .To.Contain.All.Of(items);
+                Expect(items)
+                    .To.Contain.All.Of(results);
             }
 
             [Test]
@@ -814,8 +850,10 @@ namespace PeanutButter.RandomGenerators.Tests
                 Console.Error.WriteLine(time);
 
                 //---------------Test Result -----------------------
-                Assert.IsTrue(results.All(r => items.Contains(r)));
-                Assert.IsTrue(items.All(i => results.Any(r => r == i)));
+                Expect(results)
+                    .To.Contain.All.Of(items);
+                Expect(items)
+                    .To.Contain.All.Of(results);
             }
 
             [Test]
@@ -853,8 +891,10 @@ namespace PeanutButter.RandomGenerators.Tests
                 Console.Error.WriteLine(time);
 
                 //---------------Test Result -----------------------
-                Assert.IsTrue(results.All(r => items.Contains(r)));
-                Assert.IsTrue(items.All(i => results.Any(r => r == i)));
+                Expect(results)
+                    .To.Contain.All.Of(items);
+                Expect(items)
+                    .To.Contain.All.Of(results);
             }
 
             [Test]
@@ -894,8 +934,10 @@ namespace PeanutButter.RandomGenerators.Tests
                 Console.Error.WriteLine(time);
 
                 //---------------Test Result -----------------------
-                Assert.IsTrue(results.All(r => items.Contains(r)));
-                Assert.IsTrue(items.All(i => results.Any(r => r == i)));
+                Expect(results)
+                    .To.Contain.All.Of(items);
+                Expect(items)
+                    .To.Contain.All.Of(results);
             }
 
             [Test]

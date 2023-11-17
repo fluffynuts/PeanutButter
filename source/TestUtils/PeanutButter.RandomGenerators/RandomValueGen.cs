@@ -2138,6 +2138,21 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Convenience: select any of some items from a params array
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="more"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T AnyOneOf<T>(
+            T item,
+            params T[] more
+        )
+        {
+            return GetRandomFrom(more.And(item));
+        }
+
+        /// <summary>
         /// Gets a random sub-selection of items from a larger collection
         /// </summary>
         /// <param name="items">Collection to search for items to return</param>
