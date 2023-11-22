@@ -288,10 +288,8 @@ namespace PeanutButter.TempDb.Runner.Tests
 
         public class TestArena : IDisposable
         {
-            public const int MAX_WAIT_MS = 65000;
             private bool _haveStartedListening;
             private readonly Barrier _waitForListeningBarrier = new(2);
-            private readonly Barrier _waitForExitBarrier = new(2);
             private Barrier _readlineBarrier;
             private string _waitingInput;
             public List<string> StdOut { get; } = new();
@@ -320,8 +318,29 @@ namespace PeanutButter.TempDb.Runner.Tests
                             WaitFor(_waitForListeningBarrier, "program to be listening");
                         }
 
-                        WaitFor(_waitForExitBarrier, "process to exit");
+                        WaitForProgramToExit();
                     }
+                );
+            }
+
+            private void WaitFor(
+                Func<bool> condition,
+                string label
+            )
+            {
+                var timeout = DateTime.Now.AddMilliseconds(DEFAULT_TIMEOUT);
+                do
+                {
+                    if (condition())
+                    {
+                        return;
+                    }
+
+                    Thread.Sleep(500);
+                } while (DateTime.Now < timeout);
+
+                throw new TimeoutException(
+                    $"Timed out whilst waiting for: {label}"
                 );
             }
 
@@ -330,7 +349,7 @@ namespace PeanutButter.TempDb.Runner.Tests
                 string context
             )
             {
-                if (!barrier.SignalAndWait(MAX_WAIT_MS))
+                if (!barrier.SignalAndWait(DEFAULT_TIMEOUT))
                 {
                     throw new TimeoutException($"Timed out waiting for: {context}");
                 }
@@ -346,7 +365,8 @@ namespace PeanutButter.TempDb.Runner.Tests
 
             public void WaitForProgramToExit()
             {
-                WaitFor(_waitForExitBarrier, "program to exit");
+                WaitFor(() => Program.Instance is not null, "program to have created tempdb instance");
+                WaitFor(() => Program.Instance is null, "program to have finished using tempdb instance");
             }
 
             public void WriteStdIn(string line)
