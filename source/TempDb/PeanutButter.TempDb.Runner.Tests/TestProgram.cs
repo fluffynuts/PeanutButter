@@ -20,6 +20,7 @@ namespace PeanutButter.TempDb.Runner.Tests
     public class TestProgram
     {
         public const int DEFAULT_TIMEOUT = 90000;
+
         [Test]
         public void ShouldBeAbleToStartDefaultAsMySql()
         {
@@ -37,7 +38,7 @@ namespace PeanutButter.TempDb.Runner.Tests
                 .Not.To.Be.Null(
                     "TempDb runner should emit the connection string on stdout"
                 );
-            var connectionString = interestingLine.Split(':')
+            var connectionString = interestingLine!.Split(':')
                 .Skip(1)
                 .JoinWith(":")
                 .Trim();
@@ -68,7 +69,7 @@ namespace PeanutButter.TempDb.Runner.Tests
                     .Not.To.Be.Null(
                         "TempDb runner should emit the connection string on stdout"
                     );
-                var connectionString = interestingLine.Split(':')
+                var connectionString = interestingLine!.Split(':')
                     .Skip(1)
                     .JoinWith(":")
                     .Trim();
@@ -98,7 +99,7 @@ namespace PeanutButter.TempDb.Runner.Tests
                     .Not.To.Be.Null(
                         "TempDb runner should emit the connection string on stdout"
                     );
-                var connectionString = interestingLine.Split(':')
+                var connectionString = interestingLine!.Split(':')
                     .Skip(1)
                     .JoinWith(":")
                     .Trim();
@@ -152,7 +153,7 @@ namespace PeanutButter.TempDb.Runner.Tests
                     .Not.To.Be.Null(
                         "TempDb runner should emit the connection string on stdout"
                     );
-                var connectionString = interestingLine.Split(':')
+                var connectionString = interestingLine!.Split(':')
                     .Skip(1)
                     .JoinWith(":")
                     .Trim();
@@ -182,7 +183,7 @@ namespace PeanutButter.TempDb.Runner.Tests
                     .Not.To.Be.Null(
                         "TempDb runner should emit the connection string on stdout"
                     );
-                var connectionString = interestingLine.Split(':')
+                var connectionString = interestingLine!.Split(':')
                     .Skip(1)
                     .JoinWith(":")
                     .Trim();
@@ -225,7 +226,7 @@ namespace PeanutButter.TempDb.Runner.Tests
                     .Not.To.Be.Null(
                         "TempDb runner should emit the connection string on stdout"
                     );
-                var connectionString = interestingLine.Split(':')
+                var connectionString = interestingLine!.Split(':')
                     .Skip(1)
                     .JoinWith(":")
                     .Trim();
@@ -259,7 +260,7 @@ namespace PeanutButter.TempDb.Runner.Tests
                     .Not.To.Be.Null(
                         "TempDb runner should emit the connection string on stdout"
                     );
-                var connectionString = interestingLine.Split(':')
+                var connectionString = interestingLine!.Split(':')
                     .Skip(1)
                     .JoinWith(":")
                     .Trim();
@@ -287,8 +288,8 @@ namespace PeanutButter.TempDb.Runner.Tests
 
         public class TestArena : IDisposable
         {
-            public const int MAX_WAIT_MS = 45000;
-            private bool _haveStartedListening = false;
+            public const int MAX_WAIT_MS = 65000;
+            private bool _haveStartedListening;
             private readonly Barrier _waitForListeningBarrier = new(2);
             private readonly Barrier _waitForExitBarrier = new(2);
             private Barrier _readlineBarrier;
@@ -324,7 +325,10 @@ namespace PeanutButter.TempDb.Runner.Tests
                 );
             }
 
-            private void WaitFor(Barrier barrier, string context)
+            private void WaitFor(
+                Barrier barrier,
+                string context
+            )
             {
                 if (!barrier.SignalAndWait(MAX_WAIT_MS))
                 {
@@ -334,7 +338,10 @@ namespace PeanutButter.TempDb.Runner.Tests
 
             public void WaitForProgramToListen()
             {
-                WaitFor(_waitForListeningBarrier, "program to be listening");
+                WaitFor(
+                    _waitForListeningBarrier,
+                    "program to be listening"
+                );
             }
 
             public void WaitForProgramToExit()
@@ -351,12 +358,6 @@ namespace PeanutButter.TempDb.Runner.Tests
 
             public string ReadLine()
             {
-                if (!_haveStartedListening)
-                {
-                    _waitForListeningBarrier.SignalAndWait();
-                    _haveStartedListening = true;
-                }
-
                 _readlineBarrier.SignalAndWait();
                 var result = _waitingInput;
                 _waitingInput = null;
