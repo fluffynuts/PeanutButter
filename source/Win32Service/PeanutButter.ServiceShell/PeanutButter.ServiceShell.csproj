@@ -32,15 +32,11 @@
         <ProjectReference Include="..\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="CommandLineParser" Version="2.9.1"/>
         <PackageReference Include="log4net" Version="2.0.15"/>
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="System.Management" Version="7.0.2"/>
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
-        <PackageReference Include="System.ServiceProcess.ServiceController" Version="7.0.1" Condition="'$(TargetFramework)' == 'netstandard2.0'"/>
+        <PackageReference 
+            Include="System.ServiceProcess.ServiceController" 
+            Version="8.0.0" 
+            Condition="'$(TargetFramework)' == 'netstandard2.0'"/>
     </ItemGroup>
     <ItemGroup>
         <Content Include="..\..\Utils\PeanutButter.EasyArgs\icon.png">
