@@ -392,7 +392,7 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                                     using var conn = db.OpenConnection();
                                     Thread.Sleep(500);
                                 }
-                            ).Not.To.Throw();
+                            ).Not.To.Throw(() => $"Failed to connect with connection string: {db.ConnectionString}");
                         }
 
                         WaitFor(() => disposed.Any(), 10000);
