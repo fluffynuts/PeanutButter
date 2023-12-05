@@ -1,20 +1,19 @@
 ﻿using System;
 
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
-namespace Imported.PeanutButter.EasyArgs.Attributes
+namespace Imported.PeanutButter.EasyArgs.Attributes;
 #else
-namespace PeanutButter.EasyArgs.Attributes
+namespace PeanutButter.EasyArgs.Attributes;
 #endif
-{
-    /// <summary>
-    /// Marks an option as required
-    /// </summary>
+/// <summary>
+/// Marks an option as required
+/// </summary>
+[AttributeUsage(AttributeTargets.Property)]
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
-    internal
+internal
 #else
-    public
+public
 #endif
-        class RequiredAttribute : Attribute
-    {
-    }
+    class RequiredAttribute : Attribute
+{
 }

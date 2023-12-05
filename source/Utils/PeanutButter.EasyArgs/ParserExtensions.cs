@@ -790,6 +790,7 @@ namespace PeanutButter.EasyArgs
         private static List<CommandlineArgument> GrokOptionsFor<T>()
         {
             return GetAllPropertiesOf<T>()
+                .Where(pi => pi.GetCustomAttributes().OfType<IgnoreAttribute>().IsEmpty())
                 .Aggregate(
                     new List<CommandlineArgument>(),
                     (acc, cur) =>

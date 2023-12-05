@@ -1,17 +1,21 @@
 using System;
+
 // ReSharper disable ClassNeverInstantiated.Global
 
-namespace PeanutButter.EasyArgs.Attributes
-{
-    /// <summary>
-    /// Verify that the provided path is an existing file
-    /// </summary>
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
-    internal
+namespace Imported.PeanutButter.EasyArgs.Attributes;
 #else
-    public
+namespace PeanutButter.EasyArgs.Attributes;
 #endif
-        class ExistingFileAttribute: Attribute
-    {
-    }
+/// <summary>
+/// Verify that the provided path is an existing file
+/// </summary>
+[AttributeUsage(AttributeTargets.Property)]
+#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+internal
+#else
+public
+#endif
+    class ExistingFileAttribute : Attribute
+{
 }

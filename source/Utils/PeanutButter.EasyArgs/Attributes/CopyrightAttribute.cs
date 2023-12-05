@@ -1,22 +1,23 @@
+using System;
+
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
-namespace Imported.PeanutButter.EasyArgs.Attributes
+namespace Imported.PeanutButter.EasyArgs.Attributes;
 #else
-namespace PeanutButter.EasyArgs.Attributes
+namespace PeanutButter.EasyArgs.Attributes;
 #endif
-{
-    /// <summary>
-    /// Adds more information to the help screen, as a footer
-    /// </summary>
+/// <summary>
+/// Adds more information to the help screen, as a footer
+/// </summary>
+[AttributeUsage(AttributeTargets.Property)]
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
     internal
 #else
-    public
+public
 #endif
-        class CopyrightAttribute : StringAttribute
+    class CopyrightAttribute : StringAttribute
+{
+    /// <inheritdoc />
+    public CopyrightAttribute(string value) : base(value)
     {
-        /// <inheritdoc />
-        public CopyrightAttribute(string value) : base(value)
-        {
-        }
     }
 }

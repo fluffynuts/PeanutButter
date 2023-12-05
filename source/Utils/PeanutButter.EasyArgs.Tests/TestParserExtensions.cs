@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using NExpect;
 using PeanutButter.EasyArgs.Attributes;
 using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using DescriptionAttribute = PeanutButter.EasyArgs.Attributes.DescriptionAttribute;
+using IgnoreAttribute = PeanutButter.EasyArgs.Attributes.IgnoreAttribute;
 
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable MemberCanBePrivate.Global
@@ -644,7 +645,7 @@ Report bugs to <no-one-cares@whatevs.org>
             }
 
 
-            [Attributes.Description(
+            [Description(
                 @"
 Some Program Name
 This program is designed to make your life so much easier
@@ -661,10 +662,10 @@ Report bugs to <no-one-cares@whatevs.org>
             )]
             public interface IHelpArgs
             {
-                [Attributes.Description("user name to use")]
+                [Description("user name to use")]
                 public string User { get; set; }
 
-                [Attributes.Description("host to connect to")]
+                [Description("host to connect to")]
                 [Default("localhost")]
                 public string Host { get; set; }
 
@@ -677,11 +678,11 @@ Report bugs to <no-one-cares@whatevs.org>
                 // should get kebab-cased long name
                 public string LongOption { get; set; }
 
-                [Attributes.Description("the off flag")]
+                [Description("the off flag")]
                 public bool Flag { get; set; }
 
                 [Default(true)]
-                [Attributes.Description("the on flag")]
+                [Description("the on flag")]
                 public bool OnFlag { get; set; }
             }
 
@@ -1207,6 +1208,71 @@ Report bugs to <no-one-cares@whatevs.org>
                 [Min(5)]
                 [Max(10)]
                 public int SomeNumber { get; set; }
+            }
+        }
+
+        [TestFixture]
+        public class IgnoredProperties
+        {
+            [Test]
+            public void ShouldNotMapThemFromCommandLine()
+            {
+                // Arrange
+                var args = new[]
+                {
+                    "--not-ignored",
+                    "123",
+                    "--ignored",
+                    "456"
+                };
+                // Act
+                var result = args.ParseTo<IOptionsWithIgnoredProperty>(
+                    new ParserOptions()
+                    {
+                        ExitOnError = false
+                    }
+                );
+                // Assert
+                Expect(result.NotIgnored)
+                    .To.Equal(123);
+                Expect(result.Ignored)
+                    .To.Equal(0);
+            }
+
+            [Test]
+            public void ShouldNotPresentHelpForThem()
+            {
+                // Arrange
+                var args = new[]
+                {
+                    "--help"
+                };
+                var captured = new List<string>();
+                // Act
+                args.ParseTo<IOptionsWithIgnoredProperty>(
+                    new ParserOptions()
+                    {
+                        LineWriter = captured.Add,
+                        ExitAction = _ => { /* intentionally blank - --help should make the program exit */ }
+                    }
+                );
+                // Assert
+                Expect(captured)
+                    .Not.To.Contain.Any
+                    .Matched.By(
+                        s => s.Contains("--ignored") ||
+                            s.Contains("-i ")
+                    );
+            }
+
+            public interface IOptionsWithIgnoredProperty
+            {
+                [Description("not ignored")]
+                int NotIgnored { get; set; }
+
+                [Description("ignored")]
+                [Ignore]
+                int Ignored { get; set; }
             }
         }
 

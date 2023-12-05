@@ -1,42 +1,41 @@
 ﻿using System;
 
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
-namespace Imported.PeanutButter.EasyArgs.Attributes
+namespace Imported.PeanutButter.EasyArgs.Attributes;
 #else
-namespace PeanutButter.EasyArgs.Attributes
+namespace PeanutButter.EasyArgs.Attributes;
 #endif
+/// <summary>
+/// Attribute specifying a required numeric value
+/// </summary>
+[AttributeUsage(AttributeTargets.Property)]
+#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+internal
+#else
+public
+#endif
+    abstract class NumericAttribute : Attribute
 {
     /// <summary>
-    /// Attribute specifying a required numeric value
+    /// The required value
     /// </summary>
-#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
-    internal
-#else
-    public
-#endif
-        abstract class NumericAttribute : Attribute
+    public decimal Value { get; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="min"></param>
+    public NumericAttribute(decimal min)
     {
-        /// <summary>
-        /// The required value
-        /// </summary>
-        public decimal Value { get; }
+        Value = min;
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="min"></param>
-        public NumericAttribute(decimal min)
-        {
-            Value = min;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="min"></param>
-        public NumericAttribute(long min)
-        {
-            Value = min;
-        }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="min"></param>
+    public NumericAttribute(long min)
+    {
+        Value = min;
     }
 }

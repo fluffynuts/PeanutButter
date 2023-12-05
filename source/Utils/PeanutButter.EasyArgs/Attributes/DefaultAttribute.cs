@@ -1,22 +1,23 @@
-﻿#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
-namespace Imported.PeanutButter.EasyArgs.Attributes
+﻿using System;
+
+#if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+namespace Imported.PeanutButter.EasyArgs.Attributes;
 #else
-namespace PeanutButter.EasyArgs.Attributes
+namespace PeanutButter.EasyArgs.Attributes;
 #endif
-{
-    /// <summary>
-    /// Sets the default value for a parsed argument
-    /// </summary>
+/// <summary>
+/// Sets the default value for a parsed argument
+/// </summary>
+[AttributeUsage(AttributeTargets.Property)]
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
     internal
 #else
-    public
+public
 #endif
-        class DefaultAttribute : ObjectAttribute
+    class DefaultAttribute : ObjectAttribute
+{
+    /// <inheritdoc />
+    public DefaultAttribute(object value) : base(value)
     {
-        /// <inheritdoc />
-        public DefaultAttribute(object value) : base(value)
-        {
-        }
     }
 }
