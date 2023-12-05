@@ -351,6 +351,17 @@ namespace PeanutButter.TempDb.Runner.Tests
             {
                 if (!barrier.SignalAndWait(DEFAULT_TIMEOUT))
                 {
+                    var output = new List<string>();
+                    if (StdOut.Any())
+                    {
+                        output.Add("stdout:");
+                        output.AddRange(StdOut);
+                    }
+
+                    var moreInfo = output.Any()
+                        ? $"\n{string.Join("\n", output)}"
+                        : "";
+
                     throw new TimeoutException($"Timed out waiting for: {context}");
                 }
             }
