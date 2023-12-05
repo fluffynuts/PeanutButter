@@ -16,7 +16,7 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
         public Type T2 => typeof(T);
 
 
-        public T Convert(string value)
+        public virtual T Convert(string value)
         {
             var parameters = new object[] { value, null };
             var parsed = (bool) _tryParse.Invoke(null, parameters);
@@ -25,7 +25,7 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
                 : default;
         }
 
-        public string Convert(T value)
+        public virtual string Convert(T value)
         {
             try
             {
@@ -37,9 +37,49 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
             }
         }
 
-        public bool CanConvert(Type t1, Type t2)
+        public virtual bool CanConvert(Type t1, Type t2)
         {
             return CanConvert(t1, t2, T1, T2);
         }
+    }
+
+    internal class GenericStringToBoolConverter : GenericStringConverter<bool>
+    {
+        public override bool Convert(string value)
+        {
+            if (TruthyValues.Contains(value))
+            {
+                return true;
+            }
+
+            if (FalsyValues.Contains(value))
+            {
+                return false;
+            }
+
+            return base.Convert(value);
+        }
+
+        private static readonly HashSet<string> TruthyValues = new(
+            new[]
+            {
+                "true",
+                "yes",
+                "1",
+                "enabled"
+            },
+            StringComparer.OrdinalIgnoreCase
+        );
+
+        private static readonly HashSet<string> FalsyValues = new(
+            new[]
+            {
+                "false",
+                "no",
+                "0",
+                "disabled"
+            },
+            StringComparer.OrdinalIgnoreCase
+        );
     }
 }

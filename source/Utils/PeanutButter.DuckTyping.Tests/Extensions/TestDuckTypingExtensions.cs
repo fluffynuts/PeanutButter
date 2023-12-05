@@ -3428,6 +3428,47 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                 }
             }
 
+            [TestCase("true", true)]
+            [TestCase("True", true)]
+            [TestCase("yes", true)]
+            [TestCase("1", true)]
+            [TestCase("false", false)]
+            [TestCase("False", false)]
+            [TestCase("0", false)]
+            public void ShouldParseNullableBooleans_(string stringValue, bool expected)
+            {
+                // Arrange
+                var data = new { flag = stringValue, number1 = "123" };
+                // Act
+                var result = data.ForceFuzzyDuckAs<IHasFlag>();
+                // Assert
+                Expect(result.Flag)
+                    .To.Equal(expected);
+            }
+
+            [TestCase("true", true)]
+            [TestCase("True", true)]
+            [TestCase("yes", true)]
+            [TestCase("1", true)]
+            [TestCase("false", false)]
+            [TestCase("False", false)]
+            [TestCase("0", false)]
+            public void ShouldParseBooleans_(string stringValue, bool expected)
+            {
+                // Arrange
+                var data = new { flag = stringValue, number1 = "123" };
+                // Act
+                var result = data.ForceFuzzyDuckAs<IHasNonNullableFlag>();
+                // Assert
+                Expect(result.Flag)
+                    .To.Equal(expected);
+            }
+
+            public interface IHasNonNullableFlag
+            {
+                bool Flag { get; set; }
+            }
+
             public interface IAddInts
             {
                 int Add(int a, int b);
