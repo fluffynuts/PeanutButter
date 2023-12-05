@@ -39,10 +39,10 @@
             Condition="'$(TargetFramework)' == 'netstandard2.0'"/>
     </ItemGroup>
     <ItemGroup>
-        <Content Include="..\..\Utils\PeanutButter.EasyArgs\icon.png">
+        <Content Include="icon.png">
             <Link>icon.png</Link>
         </Content>
-        <Content Include="..\..\Utils\PeanutButter.EasyArgs\Package.nuspec">
+        <Content Include="Package.nuspec">
             <Link>Package.nuspec</Link>
         </Content>
     </ItemGroup>
