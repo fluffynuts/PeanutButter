@@ -797,7 +797,7 @@ namespace PeanutButter.ServiceShell
                 WaitForIntervalFrom(lastRun);
             }
 
-            GetLogger().Info(ServiceName + ": Exiting");
+            LogInfo(ServiceName + ": Exiting");
         }
 
         /// <summary>
