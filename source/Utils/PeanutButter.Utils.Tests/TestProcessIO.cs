@@ -629,7 +629,12 @@ console.log(process.env[`{envVar}`]);
                     "node",
                     tmpFile.Path
                 );
+            // this is the actual wait I want
             io.WaitForOutput(StandardIo.StdOut, s => s.Trim() == "stdout 2");
+            // but we're going to test _all_ output, and
+            // it may take a tiny amount of time to end up in the unified
+            // output
+            io.WaitForOutput(StandardIo.StdOutOrStdErr, s => s.Trim() == "stdout 2");
             var snapshot = io.StandardOutputAndErrorInterleavedSnapshot.ToArray();
             // Assert
             Expect(snapshot)
