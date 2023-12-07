@@ -1591,8 +1591,11 @@ public class TestObjectExtensions
 
             public class HasPrivateField
             {
+                // ReSharper disable once ConvertToAutoProperty
                 public bool Flag => _flag;
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
                 private bool _flag;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
             }
 
             [Test]

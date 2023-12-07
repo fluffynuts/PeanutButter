@@ -27,20 +27,19 @@ import { ExecStepConfiguration } from "exec-step";
       architecture: "x64"
     };
 
-
   gulp.task("clean-old-packages", async () => {
     const paths = await del("**/*.nupkg.bak") as string[];
     paths.forEach(p => {
-      console.log(`removed: ${ p }`);
+      console.log(`removed: ${p}`);
     });
   });
 
-  gulp.task("build-binaries-for-nuget-packages", [ "prebuild" ], () => {
+  gulp.task("build-binaries-for-nuget-packages", ["prebuild"], () => {
     const config = Object.assign({}, commonConfig) as any; // FIXME: should type GulpMsBuildOptions
-    config.targets = [ "Clean", "Build" ];
+    config.targets = ["Clean", "Build"];
     config.configuration = "Release"; // TODO: change back to Release once all .NugetPackage.csproj projects have been purged
     config.toolsVersion = "auto";
-    return gulp.src([ "**/*.sln", "!**/node_modules/**/*.sln", "!./tools/**/*.sln" ])
+    return gulp.src(["**/*.sln", "!**/node_modules/**/*.sln", "!./tools/**/*.sln"])
       .pipe(msbuild(config));
   });
 
@@ -64,12 +63,12 @@ import { ExecStepConfiguration } from "exec-step";
       } as ExecStepConfiguration,
       ctx = new ExecStepContext(config),
       es = require("event-stream") as any; // fixme: type es.through
-    const files = [];
+    const files = [] as string[];
     const stream = es.through(function (this: Stream, file: any) {
       if (!file) {
         fail(stream, "file may not be empty or undefined");
       }
-      const filePath = file.history[0];
+      const filePath = file.history[0] as string;
       files.push(filePath);
       this.emit("data", file);
     }, function () {
@@ -78,34 +77,34 @@ import { ExecStepConfiguration } from "exec-step";
         .then(function (nuget) {
           const queue = new PQueue({ concurrency: 3 });
           queue.addAll(files.map(pkgPath => {
-              const args = getNugetArgsFor(pkgPath);
-              const packageName = path.basename(pkgPath).toLowerCase() === "package.nuspec"
-                ? path.basename(path.dirname(pkgPath))
-                : path.basename(pkgPath);
-              if (args) {
-                return () => {
-                  return retry(
-                    () => ctx.exec(
-                      `${ labelPrefix }: ${ packageName }`,
-                      () => exec(nuget, args)
-                    ),
-                    10,
-                    (e: any) => {
-                      if (e && e.info) {
-                        const errors = e.info.stderr.join("\n").trim();
-                        if (errors.match(/: 409 \(/)) {
-                          console.warn(errors);
-                          return true;
-                        }
+            const args = getNugetArgsFor(pkgPath);
+            const packageName = path.basename(pkgPath).toLowerCase() === "package.nuspec"
+              ? path.basename(path.dirname(pkgPath))
+              : path.basename(pkgPath);
+            if (args) {
+              return () => {
+                return retry(
+                  () => ctx.exec(
+                    `${labelPrefix}: ${packageName}`,
+                    () => exec(nuget, args)
+                  ),
+                  10,
+                  (e: any) => {
+                    if (e && e.info) {
+                      const errors = e.info.stderr.join("\n").trim();
+                      if (errors.match(/: 409 \(/)) {
+                        console.warn(errors);
+                        return true;
                       }
-                      return false;
                     }
-                  );
-                };
-              } else {
-                return () => Promise.reject(`Can't determine nuget args for ${ pkgPath }`);
-              }
-            })
+                    return false;
+                  }
+                );
+              };
+            } else {
+              return () => Promise.reject(`Can't determine nuget args for ${pkgPath}`);
+            }
+          })
           ).then(
             () => stream.emit("end")
           ).catch((e: string) => {
@@ -147,7 +146,7 @@ import { ExecStepConfiguration } from "exec-step";
       "pushing",
       "🚀",
       (filePath: string): string[] => {
-        const result = [ "push", filePath, "-NonInteractive", "-Source", "nuget.org", "-Timeout", "900" ];
+        const result = ["push", filePath, "-NonInteractive", "-Source", "nuget.org", "-Timeout", "900"];
         if (skipDuplicates) {
           result.push("-SkipDuplicate");
         }
@@ -192,7 +191,7 @@ import { ExecStepConfiguration } from "exec-step";
       "pushing",
       "🚀",
       filePath => {
-        const result = [ "nuget", "push", filePath, "--source", "nuget.org", "--timeout", "300", "--skip-duplicate" ];
+        const result = ["nuget", "push", filePath, "--source", "nuget.org", "--timeout", "300", "--skip-duplicate"];
         if (skipDuplicates) {
           result.push("--skip-duplicates");
         }
@@ -214,7 +213,7 @@ import { ExecStepConfiguration } from "exec-step";
       "packing with nuget.exe",
       "📦",
       filePath => {
-        const args = [ "pack", filePath, "-NonInteractive", "-Verbosity", "Detailed", "-OutputDirectory", nugetReleaseDir ];
+        const args = ["pack", filePath, "-NonInteractive", "-Verbosity", "Detailed", "-OutputDirectory", nugetReleaseDir];
         if (includeSymbols) {
           args.push("-Symbols");
         }
@@ -229,7 +228,7 @@ import { ExecStepConfiguration } from "exec-step";
       contents = lsSync(dir) as string[],
       project = contents.filter(o => o.match(/\.(cs|vb)proj$/))[0];
     if (!project) {
-      throw new Error(`Can't find project in ${ dir }`);
+      throw new Error(`Can't find project in ${dir}`);
     }
     return path.join(dir, project);
   }
@@ -240,7 +239,7 @@ import { ExecStepConfiguration } from "exec-step";
       "📦",
       filePath => {
         const projectPath = findProjectNextTo(filePath);
-        const args = [ "pack", projectPath, `-p:NuspecFile=${ filePath }`, "--verbosity", "minimal", "--output", nugetReleaseDir ];
+        const args = ["pack", projectPath, `-p:NuspecFile=${filePath}`, "--verbosity", "minimal", "--output", nugetReleaseDir];
         if (includeSymbols) {
           args.push("--include-symbols");
         }
@@ -253,7 +252,7 @@ import { ExecStepConfiguration } from "exec-step";
 
   gulp.task("build-binary-nuget-packages", function () {
     return gulp.src(
-      [ "**/source/**/*.nuspec",
+      ["**/source/**/*.nuspec",
         "!**/packages/**/*.nuspec",
         "!**/_deprecated_/**"
       ])
@@ -261,11 +260,11 @@ import { ExecStepConfiguration } from "exec-step";
   });
 
 
-  gulp.task("build-binaries-for-nuget-packages-from-zero", [ "purge" ], function (done) {
+  gulp.task("build-binaries-for-nuget-packages-from-zero", ["purge"], function (done) {
     runSequence("build-binaries-for-nuget-packages", done);
   });
 
-  gulp.task("test-package-build", [ "build-binaries-for-nuget-packages-from-zero" ], function (done) {
+  gulp.task("test-package-build", ["build-binaries-for-nuget-packages-from-zero"], function (done) {
     runSequence("build-binary-nuget-packages", "test-packages-exist", done);
   });
 
@@ -279,7 +278,7 @@ import { ExecStepConfiguration } from "exec-step";
 
   gulp.task(
     "build-nuget-packages",
-    [ "clean-nuget-releasedir", "build-binaries-for-nuget-packages" ],
+    ["clean-nuget-releasedir", "build-binaries-for-nuget-packages"],
     function (done) {
       runSequence(
         "update-tempdb-runner-files",
@@ -293,15 +292,18 @@ import { ExecStepConfiguration } from "exec-step";
   gulp.task("increment-package-versions", () => {
     const name = "NO_VERSION_INCREMENT";
     if (envFlag(name, false)) {
-      gutil.log(gutil.colors.red(`Skipping package version increment: env var ${ name } is set to ${ process.env[name] }`));
+      gutil.log(gutil.colors.red(`Skipping package version increment: env var ${name} is set to ${process.env[name]}`));
       return Promise.resolve();
     }
     const incrementer = "NugetPackageVersionIncrementer";
-    const util = findTool(`${ incrementer }.exe`, `source/${ incrementer }`);
-    return system(util, [ "source" ]);
+    const util = findTool(`${incrementer}.exe`, `source/${incrementer}`);
+    if (!util) {
+      throw new Error(`Can't find ${incrementer}.exe under source/${incrementer}`);
+    }
+    return system(util, ["source"]);
   });
 
-  gulp.task("release", [ "build-nuget-packages" ], function (done) {
+  gulp.task("release", ["build-nuget-packages"], function (done) {
     runSequence("push-packages", "commit-release", "tag-and-push", done);
   });
 
@@ -310,12 +312,12 @@ import { ExecStepConfiguration } from "exec-step";
   });
 
   gulp.task("push-packages", () => {
-    return gulp.src([ nugetReleaseDir + "/*.nupkg", "!" + nugetReleaseDir + "/*.symbols.nupkg", "!**/packages/**/*.nupkg" ])
+    return gulp.src([nugetReleaseDir + "/*.nupkg", "!" + nugetReleaseDir + "/*.symbols.nupkg", "!**/packages/**/*.nupkg"])
       .pipe(pushNugetPackages(false));
   });
 
   gulp.task("re-push-packages", "Attempt re-push of all packages, skipping those already found at nuget.org", () => {
-    return gulp.src([ nugetReleaseDir + "/*.nupkg", "!" + nugetReleaseDir + "/*.symbols.nupkg", "!**/packages/**/*.nupkg" ])
+    return gulp.src([nugetReleaseDir + "/*.nupkg", "!" + nugetReleaseDir + "/*.symbols.nupkg", "!**/packages/**/*.nupkg"])
       .pipe(pushNugetPackages(true));
   });
 })();

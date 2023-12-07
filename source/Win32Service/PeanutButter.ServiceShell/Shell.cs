@@ -779,6 +779,12 @@ namespace PeanutButter.ServiceShell
             LogState("Running");
             while (Running)
             {
+                if (Paused)
+                {
+                    Thread.Sleep(1000);
+                    continue;
+                }
+
                 if (Stopped())
                 {
                     break;
@@ -841,7 +847,7 @@ namespace PeanutButter.ServiceShell
         /// Provide the ILog logger
         /// </summary>
         /// <returns></returns>
-        protected ILog GetLogger()
+        protected virtual ILog GetLogger()
         {
             if (!_haveConfiguredLogging)
             {

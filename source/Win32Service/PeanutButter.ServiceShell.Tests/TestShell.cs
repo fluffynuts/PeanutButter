@@ -1,9 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using log4net;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using NExpect;
+using NSubstitute;
 using PeanutButter.Utils;
 using PeanutButter.WindowsServiceManagement;
 using static NExpect.Expectations;
@@ -81,14 +86,95 @@ namespace PeanutButter.ServiceShell.Tests
             }
         }
 
+        [TestFixture]
+        public class WhenPaused
+        {
+            [Test]
+            public void ShouldNotCallRunOnceFromRun()
+            {
+                // Arrange
+                using var sut = new SomeService();
+                var method = sut.GetType()
+                    .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Where(mi => mi.Name == "Run" && mi.GetParameters().Length == 0);
+                Expect(method)
+                    .Not.To.Be.Null();
+                Expect(sut.Get<bool>("Paused"))
+                    .To.Be.False();
+                // fake that we're running
+                sut.Set("Running", true);
+                Expect(sut.RunCount)
+                    .To.Equal(0);
+                var barrier = new Barrier(2);
+                Task.Run(
+                    () =>
+                    {
+                        barrier.SignalAndWait();
+                        sut.InvokeMethodWithResult("Run");
+                    }
+                );
+                // Act
+                barrier.SignalAndWait();
+                while (sut.RunCount < 1)
+                {
+                    Thread.Sleep(1);
+                }
+
+                sut.InvokeMethodWithResult("OnPause");
+                var before = sut.RunCount;
+                Expect(before)
+                    .To.Be.Greater.Than(0);
+                Expect(sut.Get<bool>("Paused"))
+                    .To.Be.True();
+                Task.Run(() => sut.InvokeMethodWithResult("Run"));
+                
+                // Assert
+                Expect(sut.RunCount)
+                    .To.Equal(before);
+                
+            }
+
+            public class SomeService: Shell
+            {
+                public int RunCount { get; private set; }
+                private readonly ILog _logger;
+
+                public SomeService()
+                {
+                    DisplayName = nameof(SomeService);
+                    ServiceName = nameof(SomeService);
+                    _logger = Substitute.For<ILog>();
+                }
+
+                protected override void RunOnce()
+                {
+                    RunCount++;
+                }
+
+                protected override void Dispose(bool disposing)
+                {
+                    OnStop();
+                    if (Platform.IsWindows)
+                    {
+                        base.Dispose(disposing);
+                    }
+                }
+
+                protected override ILog GetLogger()
+                {
+                    return _logger;
+                }
+            }
+        }
+
         private const string SCM_FLAKY = "Flaky when run from cli because SCM sucks";
         [TestFixture]
         [Explicit(SCM_FLAKY)]
-        public class CommandLine: TestShell
+        public class CommandLine
         {
             [TestFixture]
             [Explicit(SCM_FLAKY)]
-            public class WhenServiceIsNotInstalled: CommandLine
+            public class WhenServiceIsNotInstalled
             {
                 [SetUp]
                 public void OneTimeSetup()
@@ -131,7 +217,7 @@ namespace PeanutButter.ServiceShell.Tests
 
             [TestFixture]
             [Explicit(SCM_FLAKY)]
-            public class WhenServiceInstalled: CommandLine
+            public class WhenServiceInstalled
             {
                 [SetUp]
                 public void OneTimeSetup()
