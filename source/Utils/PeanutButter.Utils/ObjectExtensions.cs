@@ -150,7 +150,10 @@ namespace PeanutButter.Utils
                 objSource,
                 objCompare,
                 ignorePropertiesByName
-            ) { IncludeFields = comparison == ObjectComparisons.PropertiesAndFields };
+            )
+            {
+                IncludeFields = comparison == ObjectComparisons.PropertiesAndFields
+            };
             return tester.AreDeepEqual();
         }
 
@@ -203,7 +206,10 @@ namespace PeanutButter.Utils
                 objSource,
                 objCompare,
                 ignorePropertiesByName
-            ) { FailOnMissingProperties = false };
+            )
+            {
+                FailOnMissingProperties = false
+            };
             return tester.AreDeepEqual();
         }
 
@@ -225,7 +231,10 @@ namespace PeanutButter.Utils
                 objSource,
                 objCompare,
                 ignorePropertiesByName
-            ) { OnlyTestIntersectingProperties = true };
+            )
+            {
+                OnlyTestIntersectingProperties = true
+            };
             return tester.AreDeepEqual();
         }
 
@@ -500,7 +509,13 @@ namespace PeanutButter.Utils
             if (itemType == null)
                 return false;
             var method = GenericMakeListCopy.MakeGenericMethod(itemType);
-            var newValue = method.Invoke(null, new[] { srcVal });
+            var newValue = method.Invoke(
+                null,
+                new[]
+                {
+                    srcVal
+                }
+            );
             dstPropertyInfo.SetValue(dst, newValue);
             return true;
         }
@@ -521,7 +536,13 @@ namespace PeanutButter.Utils
                 return false;
             var specific = GenericMakeArrayCopy.MakeGenericMethod(underlyingType);
             // ReSharper disable once RedundantExplicitArrayCreation
-            var newValue = specific.Invoke(null, new[] { srcVal });
+            var newValue = specific.Invoke(
+                null,
+                new[]
+                {
+                    srcVal
+                }
+            );
             dstPropertyInfo.SetValue(dst, newValue);
             return true;
         }
@@ -616,7 +637,7 @@ namespace PeanutButter.Utils
         {
             return item is null || item.Equals(default(T))
                 ? default(T)
-                : (T) item.DeepCloneInternal(item.GetType());
+                : (T)item.DeepCloneInternal(item.GetType());
         }
 
         private static object DeepCloneInternal(
@@ -672,7 +693,14 @@ namespace PeanutButter.Utils
                 DictionaryCopyMethodCache.TryAdd(key, method);
             }
 
-            return method.Invoke(null, new[] { src, cloneType });
+            return method.Invoke(
+                null,
+                new[]
+                {
+                    src,
+                    cloneType
+                }
+            );
         }
 
         private static readonly ConcurrentDictionary<Tuple<Type, Type>, MethodInfo> DictionaryCopyMethodCache = new();
@@ -687,7 +715,13 @@ namespace PeanutButter.Utils
                 GenericMakeArrayCopy,
                 ArrayCopyMethodCache
             );
-            return method.Invoke(null, new[] { src });
+            return method.Invoke(
+                null,
+                new[]
+                {
+                    src
+                }
+            );
         }
 
         private static object CloneList(object src, Type cloneType)
@@ -700,7 +734,13 @@ namespace PeanutButter.Utils
                 GenericMakeListCopy,
                 ListCopyMethodCache
             );
-            return method.Invoke(null, new[] { src });
+            return method.Invoke(
+                null,
+                new[]
+                {
+                    src
+                }
+            );
         }
 
         private static object CloneArray(object src, Type cloneType)
@@ -713,7 +753,13 @@ namespace PeanutButter.Utils
                 GenericMakeArrayCopy,
                 ArrayCopyMethodCache
             );
-            return method.Invoke(null, new[] { src });
+            return method.Invoke(
+                null,
+                new[]
+                {
+                    src
+                }
+            );
         }
 
         private static readonly ConcurrentDictionary<Type, MethodInfo> ListCopyMethodCache = new();
@@ -850,7 +896,10 @@ namespace PeanutButter.Utils
         )]
         public static T[] AsArray<T>(this T input)
         {
-            return new[] { input };
+            return new[]
+            {
+                input
+            };
         }
 
         /// <summary>
@@ -862,7 +911,10 @@ namespace PeanutButter.Utils
         /// <returns>A single-element array containing the input object</returns>
         public static T[] InArray<T>(this T input)
         {
-            return new[] { input };
+            return new[]
+            {
+                input
+            };
         }
 
         /// <summary>
@@ -874,7 +926,10 @@ namespace PeanutButter.Utils
         /// <returns>A single-element list containing the input object</returns>
         public static List<T> InList<T>(this T input)
         {
-            return new List<T>() { input };
+            return new List<T>()
+            {
+                input
+            };
         }
 
         private static T ResolvePropertyValueFor<T>(
@@ -914,13 +969,13 @@ namespace PeanutButter.Utils
                 if (type == typeof(string))
                 {
                     typeWasConverted = true;
-                    return (T) (object) valueAsObject.ToString();
+                    return (T)(object)valueAsObject.ToString();
                 }
 
                 try
                 {
                     typeWasConverted = true;
-                    return (T) Convert.ChangeType(valueAsObject, typeof(T));
+                    return (T)Convert.ChangeType(valueAsObject, typeof(T));
                 }
                 catch
                 {
@@ -940,7 +995,7 @@ namespace PeanutButter.Utils
             }
 
             typeWasConverted = false;
-            return (T) valueAsObject;
+            return (T)valueAsObject;
         }
 
         /// <summary>
@@ -980,28 +1035,53 @@ namespace PeanutButter.Utils
             Type type
         )
         {
-            var ancestry = type.Ancestry()
-                .Reverse()
-                .Select((t, idx) => new { type = t, idx })
-                .ToDictionary(o => o.type, o => o.idx);
-            var result = type.GetProperties(AllOnInstance)
+            var ancestry = CreateAncestryLookupFor(type);
+            return type.GetProperties(AllOnInstance)
                 .Where(pi => !(pi.DeclaringType is null))
-                .Select(pi => new { pi, idx = ancestry[pi.DeclaringType] })
+                .Select(
+                    pi => new
+                    {
+                        pi,
+                        idx = ancestry[pi.DeclaringType]
+                    }
+                )
                 .OrderBy(o => o.pi.Name)
                 .ThenBy(o => o.idx)
                 .Select(o => o.pi)
                 .ImplicitCast<PropertyOrField>()
                 .ToArray();
-            return result;
         }
 
         private static PropertyOrField[] AnyInstanceField(
             Type type
         )
         {
-            return type.GetFields(AllOnInstance)
-                .ImplicitCast<PropertyOrField>()
-                .ToArray();
+            var ancestry = CreateAncestryLookupFor(type);
+            var fields = new List<PropertyOrField>();
+            foreach (var implementation in ancestry.OrderBy(o => o.Value))
+            {
+                fields.AddRange(
+                    implementation.Key.GetFields(AllOnInstance)
+                        .ImplicitCast<PropertyOrField>()
+                );
+            }
+            return fields.ToArray();
+        }
+
+        private static Dictionary<Type, int> CreateAncestryLookupFor(
+            Type type
+        )
+        {
+            return type.Ancestry()
+                .Reverse()
+                .Select(
+                    (t, idx) => new
+                    {
+                        type = t,
+                        idx
+                    }
+                )
+                .ToDictionary(o => o.type, o => o.idx);
         }
 
         /// <summary>
@@ -1251,7 +1331,7 @@ namespace PeanutButter.Utils
         public static T GetPropertyValue<T>(this object src, string propertyPath)
         {
             var objectResult = GetPropertyValue(src, propertyPath);
-            return (T) objectResult;
+            return (T)objectResult;
         }
 
         /// <summary>
@@ -1395,7 +1475,7 @@ namespace PeanutButter.Utils
             }
 
             var result = TryChangeType(input, typeof(T), out var outputObj);
-            output = (T) outputObj;
+            output = (T)outputObj;
             return result;
         }
 
@@ -1490,7 +1570,13 @@ namespace PeanutButter.Utils
             var method = GenericIsInstanceOf.MakeGenericMethod(
                 type
             );
-            return (bool) method.Invoke(null, new[] { obj });
+            return (bool)method.Invoke(
+                null,
+                new[]
+                {
+                    obj
+                }
+            );
         }
 
         /// <summary>

@@ -1554,6 +1554,48 @@ public class TestObjectExtensions
             }
 
             [Test]
+            public void ShouldBeAbleToGetAndSetAPrivateField()
+            {
+                // Arrange
+                var obj = new HasPrivateField();
+                Expect(obj.Flag)
+                    .To.Be.False();
+                // Act
+                obj.Set("_flag", true);
+                // Assert
+                Expect(obj.Flag)
+                    .To.Be.True();
+                Expect(obj.Get<bool>("_flag"))
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldBeAbleToSetPrivateFieldOnBaseClass()
+            {
+                // Arrange
+                var obj = new Derivative();
+                Expect(obj.Flag)
+                    .To.Be.False();
+                // Act
+                obj.Set("_flag", true);
+                // Assert
+                Expect(obj.Flag)
+                    .To.Be.True();
+                Expect(obj.Get<bool>("_flag"))
+                    .To.Be.True();
+            }
+
+            public class Derivative: HasPrivateField
+            {
+            }
+
+            public class HasPrivateField
+            {
+                public bool Flag => _flag;
+                private bool _flag;
+            }
+
+            [Test]
             public void ShouldAttemptCastToString()
             {
                 // Arrange
