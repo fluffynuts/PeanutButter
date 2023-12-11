@@ -623,7 +623,7 @@ namespace PeanutButter.ServiceShell
             }
 
             Console.WriteLine(
-                $"Attempt top install with:\nServiceName: {ServiceName}\nDisplayName: {DisplayName}\nExecutable: {exe}"
+                $"Attempt to install with:\n  ServiceName: {ServiceName}\n  DisplayName: {DisplayName}\n  Executable: {exe}"
             );
             var svcUtil = new WindowsServiceUtil(ServiceName, DisplayName, exe);
             try
