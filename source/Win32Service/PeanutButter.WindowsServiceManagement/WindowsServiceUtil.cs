@@ -363,7 +363,9 @@ namespace PeanutButter.WindowsServiceManagement
         public bool IsDisabled => StartupType == ServiceStartupTypes.Disabled;
 
         /// <inheritdoc />
-        public bool IsInstalled => StartupType != ServiceStartupTypes.Unknown && !IsMarkedForDelete;
+        public bool IsInstalled => RefreshAndThen(
+            () => StartupType != ServiceStartupTypes.Unknown && !IsMarkedForDelete
+        );
 
         /// <inheritdoc />
         public bool IsRunning => ProcessIsStillRunning();
@@ -394,6 +396,12 @@ namespace PeanutButter.WindowsServiceManagement
             _commandline ??= new Commandline(ServiceExe, Arguments);
 
         private string _commandline;
+
+        private T RefreshAndThen<T>(Func<T> generateResult)
+        {
+            Refresh();
+            return generateResult();
+        }
 
         /// <summary>
         /// The timeout, in seconds, whilst waiting for service control
@@ -561,7 +569,13 @@ namespace PeanutButter.WindowsServiceManagement
 
             foreach (var line in io.StandardOutput)
             {
-                var parts = line.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var parts = line.Trim().Split(
+                    new[]
+                    {
+                        ' '
+                    },
+                    StringSplitOptions.RemoveEmptyEntries
+                );
                 if (parts.FirstOrDefault() == valueName)
                 {
                     return parts.Skip(2).FirstOrDefault() == "0x1";
@@ -632,7 +646,8 @@ namespace PeanutButter.WindowsServiceManagement
         private void DeterminePossibleStates(
             ServiceState currentState,
             bool isDisabled,
-            string s)
+            string s
+        )
         {
             var parensPart = s.Split('(').Last().Trim(')');
             var states = parensPart.Split(',').Trim();
@@ -923,11 +938,16 @@ namespace PeanutButter.WindowsServiceManagement
             _ctl.RunServiceControl(
                 "create",
                 config.ServiceName,
-                "type=", "own",
-                "start=", verb,
-                "error=", "normal",
-                "binpath=", new Commandline(config.ServiceExe, config.Arguments),
-                "displayname=", config.DisplayName
+                "type=",
+                "own",
+                "start=",
+                verb,
+                "error=",
+                "normal",
+                "binpath=",
+                new Commandline(config.ServiceExe, config.Arguments),
+                "displayname=",
+                config.DisplayName
             );
 
             Refresh();

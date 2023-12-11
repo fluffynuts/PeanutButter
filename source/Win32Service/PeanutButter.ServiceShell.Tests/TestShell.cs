@@ -73,7 +73,10 @@ namespace PeanutButter.ServiceShell.Tests
             public void WhenNotInTestMode_ShouldThrowException()
             {
                 //---------------Set up test pack-------------------
-                var args = new[] { "-v" };
+                var args = new[]
+                {
+                    "-v"
+                };
 
                 //---------------Assert Precondition----------------
 
@@ -127,14 +130,13 @@ namespace PeanutButter.ServiceShell.Tests
                 Expect(sut.Get<bool>("Paused"))
                     .To.Be.True();
                 Task.Run(() => sut.InvokeMethodWithResult("Run"));
-                
+
                 // Assert
                 Expect(sut.RunCount)
                     .To.Equal(before);
-                
             }
 
-            public class SomeService: Shell
+            public class SomeService : Shell
             {
                 public int RunCount { get; private set; }
                 private readonly ILog _logger;
@@ -168,237 +170,248 @@ namespace PeanutButter.ServiceShell.Tests
         }
 
         private const string SCM_FLAKY = "Flaky when run from cli because SCM sucks";
+
         [TestFixture]
         [Explicit(SCM_FLAKY)]
         public class CommandLine
         {
             [TestFixture]
-            [Explicit(SCM_FLAKY)]
-            public class WhenServiceIsNotInstalled
+            public class NetFX
             {
-                [SetUp]
-                public void OneTimeSetup()
+                [TestFixture]
+                [Explicit(SCM_FLAKY)]
+                public class WhenServiceIsNotInstalled
                 {
-                    EnsureTestServiceIsNotInstalled();
+                    [SetUp]
+                    public void OneTimeSetup()
+                    {
+                        EnsureTestServiceIsNotInstalled();
+                    }
+
+                    [TestCase("--uninstall")]
+                    [TestCase("-u")]
+                    [TestCase("--stop")]
+                    [TestCase("-x")]
+                    [TestCase("--start")]
+                    [TestCase("-s")]
+                    public void ShouldErrorWhenPassed_(string arg)
+                    {
+                        // Arrange
+                        // Act
+                        var exitCode = RunTestService(arg);
+                        // Assert
+                        Expect(exitCode).Not.To.Equal(0);
+                        var util = MakeTestServiceUtil();
+                        Expect(util.IsInstalled)
+                            .To.Be.False();
+                    }
+
+                    [TestCase("--install")]
+                    [TestCase("-i")]
+                    public void ShouldInstallWhenPassed_(string arg)
+                    {
+                        // Arrange
+                        // Act
+                        var exitCode = RunTestService(arg);
+                        // Assert
+                        Expect(exitCode).To.Equal(0);
+                        var util = MakeTestServiceUtil();
+                        Expect(util.IsInstalled)
+                            .To.Be.True();
+                    }
                 }
 
-                [TestCase("--uninstall")]
-                [TestCase("-u")]
-                [TestCase("--stop")]
-                [TestCase("-x")]
-                [TestCase("--start")]
-                [TestCase("-s")]
-                public void ShouldErrorWhenPassed_(string arg)
+                [TestFixture]
+                [Explicit(SCM_FLAKY)]
+                public class WhenServiceInstalled
                 {
-                    // Arrange
-                    // Act
-                    var exitCode = RunTestService(arg);
-                    // Assert
-                    Expect(exitCode).Not.To.Equal(0);
+                    [SetUp]
+                    public void OneTimeSetup()
+                    {
+                        EnsureTestServiceIsInstalled();
+                    }
+
+                    [TearDown]
+                    public void OneTimeTeardown()
+                    {
+                        EnsureTestServiceIsNotInstalled();
+                    }
+
+
+                    [TestCase("--start")]
+                    [TestCase("-s")]
+                    public void ShouldStartTheServiceWhenPassed_(string arg)
+                    {
+                        // Arrange
+                        EnsureTestServiceIsStopped();
+                        // Act
+                        var exitCode = RunTestService(arg);
+                        // Assert
+                        Expect(exitCode).To.Equal(0);
+                        var util = MakeTestServiceUtil();
+                        Expect(util.State)
+                            .To.Equal(ServiceState.Running);
+                    }
+
+                    [TestCase("--start")]
+                    [TestCase("-s")]
+                    public void ShouldErrorWhenServiceRunningAndWhenPassed_(string arg)
+                    {
+                        // Arrange
+                        EnsureTestServiceIsRunning();
+                        // Act
+                        var exitCode = RunTestService(arg);
+                        // Assert
+                        Expect(exitCode).Not.To.Equal(0);
+                    }
+
+                    [TestCase("--stop")]
+                    [TestCase("-x")]
+                    public void ShouldStopTheRunningServiceWhenPassed_(string arg)
+                    {
+                        // Arrange
+                        EnsureTestServiceIsRunning();
+                        // Act
+                        var exitCode = RunTestService(arg);
+                        // Assert
+                        Expect(exitCode).To.Equal(0);
+                        var util = MakeTestServiceUtil();
+                        Expect(util.State)
+                            .To.Equal(ServiceState.Stopped);
+                    }
+
+                    [TestCase("--stop")]
+                    [TestCase("-x")]
+                    public void ShouldErrorWhenServiceNotRunningAndPassed_(string arg)
+                    {
+                        // Arrange
+                        EnsureTestServiceIsStopped();
+                        // Act
+                        var exitCode = RunTestService(arg);
+                        // Assert
+                        Expect(exitCode).Not.To.Equal(0);
+                    }
+                }
+
+                private static void EnsureTestServiceIsStopped()
+                {
                     var util = MakeTestServiceUtil();
-                    Expect(util.IsInstalled)
-                        .To.Be.False();
+                    if (util.State == ServiceState.Running)
+                    {
+                        util.Stop(true);
+                    }
                 }
 
-                [TestCase("--install")]
-                [TestCase("-i")]
-                public void ShouldInstallWhenPassed_(string arg)
+                private static void EnsureTestServiceIsRunning()
                 {
-                    // Arrange
-                    // Act
-                    var exitCode = RunTestService(arg);
-                    // Assert
-                    Expect(exitCode).To.Equal(0);
                     var util = MakeTestServiceUtil();
-                    Expect(util.IsInstalled)
-                        .To.Be.True();
-                }
-            }
-
-            [TestFixture]
-            [Explicit(SCM_FLAKY)]
-            public class WhenServiceInstalled
-            {
-                [SetUp]
-                public void OneTimeSetup()
-                {
-                    EnsureTestServiceIsInstalled();
-                }
-
-                [TearDown]
-                public void OneTimeTeardown()
-                {
-                    EnsureTestServiceIsNotInstalled();
+                    if (util.State != ServiceState.Running)
+                    {
+                        util.Start(true);
+                    }
                 }
 
 
-                [TestCase("--start")]
-                [TestCase("-s")]
-                public void ShouldStartTheServiceWhenPassed_(string arg)
+                private static void EnsureTestServiceIsInstalled()
                 {
-                    // Arrange
-                    EnsureTestServiceIsStopped();
-                    // Act
-                    var exitCode = RunTestService(arg);
-                    // Assert
-                    Expect(exitCode).To.Equal(0);
                     var util = MakeTestServiceUtil();
-                    Expect(util.State)
-                        .To.Equal(ServiceState.Running);
+                    if (util.IsInstalled)
+                    {
+                        return;
+                    }
+
+                    if (RunTestService("--install") != 0)
+                    {
+                        Assert.Fail("Can't install test service");
+                    }
+
+                    WaitFor(() => util.IsInstalled, 2000);
+
+                    if (!util.IsInstalled)
+                    {
+                        Assert.Fail($"Unable to install service {TestServiceName}");
+                    }
                 }
 
-                [TestCase("--start")]
-                [TestCase("-s")]
-                public void ShouldErrorWhenServiceRunningAndWhenPassed_(string arg)
+                private static void EnsureTestServiceIsNotInstalled()
                 {
-                    // Arrange
-                    EnsureTestServiceIsRunning();
-                    // Act
-                    var exitCode = RunTestService(arg);
-                    // Assert
-                    Expect(exitCode).Not.To.Equal(0);
-                }
-
-                [TestCase("--stop")]
-                [TestCase("-x")]
-                public void ShouldStopTheRunningServiceWhenPassed_(string arg)
-                {
-                    // Arrange
-                    EnsureTestServiceIsRunning();
-                    // Act
-                    var exitCode = RunTestService(arg);
-                    // Assert
-                    Expect(exitCode).To.Equal(0);
                     var util = MakeTestServiceUtil();
-                    Expect(util.State)
-                        .To.Equal(ServiceState.Stopped);
+                    if (!util.IsInstalled)
+                    {
+                        return;
+                    }
+
+                    if (RunTestService("--uninstall") != 0)
+                    {
+                        Assert.Fail($"Can't uninstall test service: '{util.ServiceName}'");
+                    }
+
+                    WaitFor(() => !util.IsInstalled, 2000);
+
+                    if (util.IsInstalled)
+                    {
+                        Assert.Fail($"Test service NOT uninstalled: '{util.ServiceName}'");
+                    }
                 }
 
-                [TestCase("--stop")]
-                [TestCase("-x")]
-                public void ShouldErrorWhenServiceNotRunningAndPassed_(string arg)
+                private static void WaitFor(
+                    Func<bool> condition,
+                    int maxMilliseconds
+                )
                 {
-                    // Arrange
-                    EnsureTestServiceIsStopped();
-                    // Act
-                    var exitCode = RunTestService(arg);
-                    // Assert
-                    Expect(exitCode).Not.To.Equal(0);
+                    var endAt = DateTime.Now.AddMilliseconds(maxMilliseconds);
+                    while (DateTime.Now > endAt && condition())
+                    {
+                    }
                 }
-            }
 
-            private static void EnsureTestServiceIsStopped()
-            {
-                var util = MakeTestServiceUtil();
-                if (util.State == ServiceState.Running)
+                private static int RunTestService(params string[] args)
                 {
-                    util.Stop(true);
+                    return Run(TestService, args);
                 }
-            }
 
-            private static void EnsureTestServiceIsRunning()
-            {
-                var util = MakeTestServiceUtil();
-                if (util.State != ServiceState.Running)
+                private static int Run(
+                    string program,
+                    params string[] args
+                )
                 {
-                    util.Start(true);
+                    using var io = ProcessIO.Start(
+                        program,
+                        args.And("--name", TestServiceName)
+                    );
+                    io.StandardOutput.ForEach(
+                        line =>
+                            Console.WriteLine($"stdout: {line}")
+                    );
+                    io.StandardError.ForEach(
+                        line => Console.WriteLine($"stderr: {line}")
+                    );
+                    return io.ExitCode;
                 }
-            }
 
-
-            private static void EnsureTestServiceIsInstalled()
-            {
-                var util = MakeTestServiceUtil();
-                if (util.IsInstalled)
+                private static WindowsServiceUtil MakeTestServiceUtil()
                 {
-                    return;
+                    return new WindowsServiceUtil(TestServiceName);
                 }
 
-                if (RunTestService("--install") != 0)
-                {
-                    Assert.Fail("Can't install test service");
-                }
-
-                WaitFor(() => util.IsInstalled, 2000);
-
-                if (!util.IsInstalled)
-                {
-                    Assert.Fail($"Unable to install service {TestServiceName}");
-                }
-            }
-
-            private static void EnsureTestServiceIsNotInstalled()
-            {
-                var util = MakeTestServiceUtil();
-                if (!util.IsInstalled)
-                {
-                    return;
-                }
-
-                if (RunTestService("--uninstall") != 0)
-                {
-                    Assert.Fail($"Can't uninstall test service: '{util.ServiceName}'");
-                }
-
-                WaitFor(() => !util.IsInstalled, 2000);
-
-                if (util.IsInstalled)
-                {
-                    Assert.Fail($"Test service NOT uninstalled: '{util.ServiceName}'");
-                }
-            }
-
-            private static void WaitFor(
-                Func<bool> condition,
-                int maxMilliseconds)
-            {
-                var endAt = DateTime.Now.AddMilliseconds(maxMilliseconds);
-                while (DateTime.Now > endAt && condition())
-                {
-                }
-            }
-
-            private static int RunTestService(params string[] args)
-            {
-                return Run(TestService, args);
-            }
-
-            private static int Run(
-                string program,
-                params string[] args)
-            {
-                using var io = ProcessIO.Start(
-                    program,
-                    args.And("-n", TestServiceName));
-                io.StandardOutput.ForEach(line =>
-                    Console.WriteLine($"stdout: {line}")
+                private static string MyFolder = Path.GetDirectoryName(
+                    new Uri(typeof(TestShell).GetAssembly().Location).LocalPath
                 );
-                io.StandardError.ForEach(
-                    line => Console.WriteLine($"stderr: {line}")
+
+                private static string TestService = Path.Combine(
+                    MyFolder,
+                    "TestService.exe"
                 );
-                return io.ExitCode;
+
+                private static string TestServiceName = $"test-service-{Guid.NewGuid()}";
+
+                [SetUp]
+                public void Setup()
+                {
+                    TestServiceName = $"test-service-{Guid.NewGuid()}";
+                }
             }
-
-            private static WindowsServiceUtil MakeTestServiceUtil()
-            {
-                return new WindowsServiceUtil(TestServiceName);
-            }
-
-            private static string MyFolder = Path.GetDirectoryName(
-                new Uri(typeof(TestShell).GetAssembly().Location).LocalPath
-            );
-
-            private static string TestService = Path.Combine(
-                MyFolder,
-                "TestService.exe"
-            );
-
-            private static string TestServiceName = $"test-service-{Guid.NewGuid()}";
-            [SetUp]
-            public void Setup()
-            {
-                TestServiceName = $"test-service-{Guid.NewGuid()}";
-            }
+            
         }
     }
 }
