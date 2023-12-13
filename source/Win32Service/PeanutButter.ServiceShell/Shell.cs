@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.ServiceProcess;
 using System.Threading;
 using System.Xml.Linq;
