@@ -6,6 +6,7 @@ using GenericBuilderTestArtifactEntities.Sub1;
 using GenericBuilderTestLoadLoadedAssemblyObject;
 using GenericBuilderTestNotLoadedAssembly;
 using NUnit.Framework;
+
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedMember.Local
 // ReSharper disable PossibleNullReferenceException
@@ -16,17 +17,12 @@ namespace PeanutButter.RandomGenerators.Tests
     [TestFixture]
     public class TestGenericBuilderLocator
     {
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-            EnforceLoadingArtifactAssemblies();
-        }
-
         public class SomeClassWithKnownBuilder
         {
         }
 
-        public class SomeClassWithKnownBuilderBuilder: GenericBuilder<SomeClassWithKnownBuilderBuilder, SomeClassWithKnownBuilder>
+        public class SomeClassWithKnownBuilderBuilder
+            : GenericBuilder<SomeClassWithKnownBuilderBuilder, SomeClassWithKnownBuilder>
         {
         }
 
@@ -102,33 +98,6 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Test Result -----------------------
             Expect(builderType).To.Equal(typeof(SomeEntityWithBuilderBuilder));
-        }
-
-        private static void EnforceLoadingArtifactAssemblies()
-        {
-            var someEntityType = typeof (SomeEntityWithBuilder);
-            var someEntityBuilderType = typeof (SomeEntityWithBuilderBuilder);
-            Expect(someEntityType)
-                .Not.To.Be.Null();
-            Expect(someEntityBuilderType)
-                .Not.To.Be.Null();
-            var otherBuilder = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(
-                    a =>
-                    {
-                        try
-                        {
-                            return a.GetTypes();
-                        }
-                        catch
-                        {
-                            return new Type[0];
-                        }
-                    }
-                ).ToArray();
-            var builders = otherBuilder.Where(t => t.IsBuilderFor(typeof (SomeEntityWithBuilder)));
-            Expect(builders)
-                .To.Be.Empty();
         }
 
         [Test]

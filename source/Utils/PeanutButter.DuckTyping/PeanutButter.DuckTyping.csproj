@@ -32,12 +32,9 @@
     <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\PeanutButter.Utils\ArrayExtensions.cs">
-      <Link>Imported\ArrayExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\PeanutButter.Utils\DeepEqualityTester.cs">
-      <Link>Imported\DeepEqualityTester.cs</Link>
-    </Compile>
+    <Compile Include="..\PeanutButter.Utils\ArrayExtensions.cs" Link="Imported\ArrayExtensions.cs" />
+    <Compile Include="..\PeanutButter.Utils\DecimalDecorator.cs" Link="Imported\DecimalDecorator.cs" />
+    <Compile Include="..\PeanutButter.Utils\DeepEqualityTester.cs" Link="Imported\DeepEqualityTester.cs" />
     <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs" Link="Imported\CaseWarpingDictionaryWrapper.cs" />
     <Compile Include="..\PeanutButter.Utils\Dictionaries\DefaultDictionary.cs" Link="Imported\DefaultDictionary.cs" />
     <Compile Include="..\PeanutButter.Utils\DictionaryExtensions.cs" Link="Imported\DictionaryExtensions.cs" />

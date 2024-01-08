@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -276,7 +277,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     decimal value
                 )
                 {
-                    var str = value.ToString();
+                    var str = value.ToString(CultureInfo.InvariantCulture);
                     var parts = str.Split('.');
                     if (parts.Length < 2)
                     {
@@ -359,7 +360,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     decimal value
                 )
                 {
-                    var str = value.ToString();
+                    var str = value.ToString(CultureInfo.InvariantCulture);
                     var parts = str.Split('.');
                     if (parts.Length < 2)
                     {
@@ -442,7 +443,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     decimal value
                 )
                 {
-                    var str = value.ToString();
+                    var str = value.ToString(CultureInfo.InvariantCulture);
                     var parts = str.Split('.');
                     if (parts.Length < 2)
                     {
@@ -625,8 +626,8 @@ namespace PeanutButter.RandomGenerators.Tests
                     .And
                     .To.Contain.All
                     .Matched.By(s => s.Length <= maxLength);
-                Expect(strings)
-                    .Not.To.Be.Distinct();
+                Expect(strings.Distinct())
+                    .To.Contain.At.Least(2).Items();
             }
 
             [Test]
@@ -716,6 +717,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public class GetRandomEnum
         {
             [Retry(5)] // can fail when the odds are really against us
+            [Test]
             public void ShouldReturnRandomValueFromEnumSelection()
             {
                 //---------------Set up test pack-------------------
@@ -1779,7 +1781,8 @@ namespace PeanutButter.RandomGenerators.Tests
                                     2,
                                     0,
                                     0,
-                                    0
+                                    0,
+                                    DateTimeKind.Local
                                 )
                             );
                     }
@@ -1829,7 +1832,8 @@ namespace PeanutButter.RandomGenerators.Tests
                                     1,
                                     0,
                                     0,
-                                    0
+                                    0,
+                                    DateTimeKind.Local
                                 )
                             );
                     }
@@ -2332,7 +2336,8 @@ namespace PeanutButter.RandomGenerators.Tests
                                     2,
                                     0,
                                     0,
-                                    0
+                                    0,
+                                    DateTimeKind.Utc
                                 )
                             );
                     }
@@ -2382,7 +2387,8 @@ namespace PeanutButter.RandomGenerators.Tests
                                     1,
                                     0,
                                     0,
-                                    0
+                                    0,
+                                    DateTimeKind.Utc
                                 )
                             );
                     }
@@ -2899,7 +2905,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public void GivenMinDate_ShouldReturnRangeWithBothDatesGreaterThanMinDate()
             {
                 //---------------Set up test pack-------------------
-                var minDate = GetRandomDate();
+                var minDate = GetRandomUtcDate();
 
                 //---------------Assert Precondition----------------
 
@@ -2917,7 +2923,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public void GivenMinDateAndMaxDate_ShouldReturnRangeWithinMinAndMaxRange()
             {
                 //---------------Set up test pack-------------------
-                var minDate = GetRandomDate();
+                var minDate = GetRandomUtcDate();
                 var maxDate = minDate.AddDays(
                     GetRandomInt(
                         1,
@@ -2947,7 +2953,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public void GivenMinDateAndMaxDateAndDateOnlyTrue_ShouldReturnRangeWithinMinAndMaxRangeWithNoTimes()
             {
                 //---------------Set up test pack-------------------
-                var minDate = GetRandomDate();
+                var minDate = GetRandomUtcDate();
                 var maxDate = minDate.AddDays(
                     GetRandomInt(
                         1,
@@ -4688,34 +4694,32 @@ namespace PeanutButter.RandomGenerators.Tests
             public void CreateRandomTextFileIn_GivenPath_ShouldReturnNameOfFileCreatedThereWithRandomContents()
             {
                 //---------------Set up test pack-------------------
-                using (var folder = new AutoTempFolder())
-                {
-                    //---------------Assert Precondition----------------
+                using var folder = new AutoTempFolder();
+                //---------------Assert Precondition----------------
 
-                    //---------------Execute Test ----------------------
-                    var result = CreateRandomTextFileIn(folder.Path);
+                //---------------Execute Test ----------------------
+                var result = CreateRandomTextFileIn(folder.Path);
 
-                    //---------------Test Result -----------------------
-                    Expect(result)
-                        .To.Be.A.File();
-                    var lines = File.ReadAllLines(
-                        Path.Combine(
-                            folder.Path,
-                            result
-                        )
+                //---------------Test Result -----------------------
+                Expect(folder.ResolvePath(result))
+                    .To.Be.A.File();
+                var lines = File.ReadAllLines(
+                    Path.Combine(
+                        folder.Path,
+                        result
+                    )
+                );
+                Expect(lines)
+                    .Not.To.Be.Empty();
+                var areAllSafe =
+                    lines.All(
+                        l =>
+                        {
+                            return l.All(c => !char.IsControl(c));
+                        }
                     );
-                    Expect(lines)
-                        .Not.To.Be.Empty();
-                    var areAllSafe =
-                        lines.All(
-                            l =>
-                            {
-                                return l.All(c => !char.IsControl(c));
-                            }
-                        );
-                    Expect(areAllSafe)
-                        .To.Be.True();
-                }
+                Expect(areAllSafe)
+                    .To.Be.True();
             }
 
             [Test]
@@ -5470,7 +5474,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 var result = GetRandom<SomePOCO>();
                 // Assert
                 var propValue = result.Get<decimal>(prop);
-                var stringValue = $"{propValue}";
+                var stringValue = propValue.ToString(CultureInfo.InvariantCulture);
                 var parts = stringValue.Split('.');
                 if (parts.Length == 1)
                 {
@@ -5502,7 +5506,7 @@ namespace PeanutButter.RandomGenerators.Tests
                 var result = GetRandom<SomePOCO>();
                 // Assert
                 var propValue = result.Get<decimal>(prop);
-                var stringValue = $"{propValue}";
+                var stringValue = propValue.ToString(CultureInfo.InvariantCulture);
                 var parts = stringValue.Split('.');
                 if (parts.Length == 1)
                 {

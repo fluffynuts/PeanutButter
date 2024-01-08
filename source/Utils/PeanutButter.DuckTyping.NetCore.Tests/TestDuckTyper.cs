@@ -14,7 +14,10 @@ namespace PeanutButter.DuckTyping.NetCore.Tests
         public void ShouldBeAbleToDuckInNetCore()
         {
             // Arrange
-            var data = new HasAnId() { Id = 42 };
+            var data = new HasAnId()
+            {
+                Id = 42
+            };
             // Act
             var ducked = data.DuckAs<IHasAnId>();
             // Assert
@@ -22,32 +25,92 @@ namespace PeanutButter.DuckTyping.NetCore.Tests
                 .To.Equal(42);
         }
 
-        [Test]
-        public void TryConvertStringToDecimal()
+        [TestFixture]
+        public class FloatingPointTypeConversions
         {
-            // Arrange
-            var s = "1.23";
-            // Act
-            var converted = s.TryConvertTo<decimal>(out var result);
-            // Assert
-            Expect(converted)
-                .To.Be.True();
-            Expect(result)
-                .To.Equal(1.23M);
-        }
+            [Test]
+            public void TryConvertStringToDecimal()
+            {
+                // Arrange
+                var s = "1.23";
+                // Act
+                var converted = s.TryConvertTo<decimal>(out var result);
+                // Assert
+                Expect(converted)
+                    .To.Be.True();
+                Expect(result)
+                    .To.Equal(1.23M);
+            }
 
-        [Test]
-        public void TryConvertStringToDecimal2()
-        {
-            // Arrange
-            var s = "1.23";
-            // Act
-            var converted = s.TryConvertTo(typeof(decimal), out var result);
-            // Assert
-            Expect(converted)
-                .To.Be.True();
-            Expect(result)
-                .To.Equal(1.23M);
+            [Test]
+            public void TryConvertStringToDecimal2()
+            {
+                // Arrange
+                var s = "1.23";
+                // Act
+                var converted = s.TryConvertTo(typeof(decimal), out var result);
+                // Assert
+                Expect(converted)
+                    .To.Be.True();
+                Expect(result)
+                    .To.Equal(1.23M);
+            }
+
+            [Test]
+            public void TryConvertStringToFloat()
+            {
+                // Arrange
+                var s = "1.23";
+                // Act
+                var converted = s.TryConvertTo<float>(out var result);
+                // Assert
+                Expect(converted)
+                    .To.Be.True();
+                Expect(Math.Abs(result - 1.23))
+                    .To.Be.Less.Than(0.001);
+            }
+
+            [Test]
+            public void TryConvertStringToFloat2()
+            {
+                // Arrange
+                var s = "1.23";
+                // Act
+                var converted = s.TryConvertTo(typeof(float), out var result);
+                // Assert
+                Expect(converted)
+                    .To.Be.True();
+                Expect(result)
+                    .To.Equal(1.23);
+            }
+
+            [Test]
+            public void TryConvertStringToDouble()
+            {
+                // Arrange
+                var s = "1.23";
+                // Act
+                var converted = s.TryConvertTo<double>(out var result);
+                // Assert
+                Expect(converted)
+                    .To.Be.True();
+                Expect(Math.Abs(result - 1.23))
+                    .To.Be.Less.Than(0.001);
+            }
+
+            [Test]
+            public void TryConvertStringToDouble2()
+            {
+                // Arrange
+                var s = "1.23";
+                // Act
+                var converted = s.TryConvertTo(typeof(double), out var result);
+                // Assert
+                Expect(converted)
+                    .To.Be.True();
+                Expect(result)
+                    .To.Equal(1.23);
+            }
         }
 
         [Test]
@@ -80,13 +143,13 @@ namespace PeanutButter.DuckTyping.NetCore.Tests
                 Expect(result.ChangeRequestNumber)
                     .To.Equal(data.ChangeRequestNumber);
             }
-            
+
             public interface IWrapped
             {
                 int Id { get; set; }
                 int ChangeRequestNumber { get; set; }
             }
-            
+
             public class ChangeRequest
             {
                 public int Id { get; set; }
@@ -110,7 +173,6 @@ namespace PeanutButter.DuckTyping.NetCore.Tests
                 public int CompletedDate { get; set; }
                 public string AttachmentGuidsCsv { get; set; }
             }
-
         }
     }
 

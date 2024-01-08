@@ -11,7 +11,7 @@ namespace PeanutButter.RandomGenerators.Tests
         public void Type_ShouldInheritFrom_Exception()
         {
             //---------------Set up test pack-------------------
-            var sut = typeof (GenericBuilderInstanceCreationException);
+            var sut = typeof(GenericBuilderInstanceCreationException);
 
             //---------------Assert Precondition----------------
 
@@ -33,8 +33,8 @@ namespace PeanutButter.RandomGenerators.Tests
         public void Construct_ShouldSetMessage()
         {
             //---------------Set up test pack-------------------
-            var builderType = typeof (SomeBuilder);
-            var entityType = typeof (SomeEntity);
+            var builderType = typeof(SomeBuilder);
+            var entityType = typeof(SomeEntity);
 
             //---------------Assert Precondition----------------
 
@@ -43,15 +43,13 @@ namespace PeanutButter.RandomGenerators.Tests
 
             //---------------Test Result -----------------------
             Expect(sut.Message)
-                .To.Contain(builderType.Name)
-                .And
-                .To.Contain(entityType.Name)
-                .And
-                .To.Contain("parameterless constructor")
-                .And
-                .To.Contain("override CreateInstance");
+                .To.Contain(builderType.Name);
+            Expect(sut.Message)
+                .To.Contain(entityType.Name);
+            Expect(sut.Message)
+                .To.Contain("parameterless constructor");
+            Expect(sut.Message)
+                .To.Contain("override SomeBuilder.CreateInstance");
         }
-
-
     }
 }

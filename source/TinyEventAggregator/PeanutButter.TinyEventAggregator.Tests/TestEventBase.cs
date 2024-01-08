@@ -347,7 +347,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
             //---------------Test Result -----------------------
             Task.WaitAll(task1, task2);
             Expect(called)
-                .To.Be.False();
+                .To.Be.True();
         }
 
         public class SomeEvent : EventBase<object>

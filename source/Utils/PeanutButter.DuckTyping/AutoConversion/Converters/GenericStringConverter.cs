@@ -43,6 +43,33 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
         }
     }
 
+    internal class GenericStringToDecimalConverter : GenericStringConverter<decimal>
+    {
+        public override decimal Convert(string value)
+        {
+            var dd = new DecimalDecorator(value);
+            return dd.ToDecimal();
+        }
+    }
+
+    internal class GenericStringToFloatConverter : GenericStringConverter<float>
+    {
+        public override float Convert(string value)
+        {
+            var dd = new DecimalDecorator(value);
+            return (float)dd.ToDecimal();
+        }
+    }
+
+    internal class GenericStringToDoubleConverter : GenericStringConverter<double>
+    {
+        public override double Convert(string value)
+        {
+            var dd = new DecimalDecorator(value);
+            return (double)dd.ToDecimal();
+        }
+    }
+
     internal class GenericStringToBoolConverter : GenericStringConverter<bool>
     {
         public override bool Convert(string value)

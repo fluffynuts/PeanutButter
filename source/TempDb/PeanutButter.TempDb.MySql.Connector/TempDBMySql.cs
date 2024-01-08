@@ -48,7 +48,8 @@ namespace PeanutButter.TempDb.MySql.Connector
                 o =>
                 {
                 },
-                creationScripts)
+                creationScripts
+            )
         {
         }
 
@@ -80,7 +81,7 @@ namespace PeanutButter.TempDb.MySql.Connector
         {
             var builder = new MySqlConnectionStringBuilder
             {
-                Port = (uint) Port,
+                Port = (uint)Port,
                 UserID = "root",
                 Password = RootPasswordSet
                     ? Settings.Options.RootUserPassword
@@ -130,30 +131,44 @@ namespace PeanutButter.TempDb.MySql.Connector
 
         private static MethodInfo GetPoolMethod =
             ConnectionPoolType.GetMethods(PublicStatic)
-                .Single(mi =>
-                {
-                    if (mi.Name.ToLowerInvariant() != "getpool")
+                .FirstOrDefault(
+                    mi =>
                     {
-                        return false;
-                    }
+                        if (mi.Name.ToLowerInvariant() != "getpool")
+                        {
+                            return false;
+                        }
 
-                    var parameters = mi.GetParameters();
-                    return parameters.Length == 1 &&
-                        parameters[0].ParameterType == typeof(string);
-                });
+                        var parameters = mi.GetParameters();
+                        return parameters.Length == 3 &&
+                            parameters[0].ParameterType == typeof(string) &&
+                            // parameters[1] is the internal type MySqlConnectorLoggingConfiguration
+                            // but we shouldn't need it when querying without creating
+                            parameters[2].ParameterType == typeof(bool);
+                    }
+                );
 
         public static int FetchSessionCountFor(string connectionString)
         {
-            var pool = GetPoolMethod.Invoke(null, new object[] { connectionString });
+            var pool =  GetPoolMethod.Invoke(null, new object[] { connectionString, null, false });
             if (pool is null)
             {
                 return 0;
             }
-
-            var leasedSessionsValue = LeasedSessionsField.GetValue(pool);
-            return (int) leasedSessionsValue.GetType()
-                .GetProperty("Count")
-                .GetValue(leasedSessionsValue);
+            
+            var field = LeasedSessionsField.GetValue(pool);
+            if (field is null)
+            {
+                throw new Exception("Can't find leased sessions field on connection pool");
+            }
+            
+            var collection = new EnumerableWrapper(field);
+            var result = 0;
+            foreach (var item in collection)
+            {
+                result++;
+            }
+            return result;
         }
     }
 }

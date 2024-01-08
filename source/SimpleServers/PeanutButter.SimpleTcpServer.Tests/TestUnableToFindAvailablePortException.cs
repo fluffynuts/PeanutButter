@@ -2,8 +2,6 @@
 using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using static NExpect.Expectations;
 
 namespace PeanutButter.SimpleTcpServer.Tests
 {
@@ -14,7 +12,7 @@ namespace PeanutButter.SimpleTcpServer.Tests
         public void Type_ShouldInheritFrom_Exception()
         {
             //---------------Set up test pack-------------------
-            var sut = typeof (UnableToFindAvailablePortException);
+            var sut = typeof(UnableToFindAvailablePortException);
 
             //---------------Assert Precondition----------------
 
@@ -28,7 +26,7 @@ namespace PeanutButter.SimpleTcpServer.Tests
         public void Construct_GivenPort_ShouldSetMessage()
         {
             //---------------Set up test pack-------------------
-            var expected = "Can't find a port to listen on ):";
+            var expected = "Can't find a port to listen on:";
             var innerMessage = GetRandomString(10);
             var inner = new InvalidOperationException(innerMessage);
 
@@ -40,8 +38,8 @@ namespace PeanutButter.SimpleTcpServer.Tests
 
             //---------------Test Result -----------------------
             Expect(result)
-                .To.Contain(expected)
-                .And
+                .To.Contain(expected);
+            Expect(result)
                 .To.Contain(innerMessage);
         }
     }

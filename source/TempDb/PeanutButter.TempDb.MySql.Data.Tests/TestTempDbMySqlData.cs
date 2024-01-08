@@ -616,8 +616,8 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 Expect(contents)
                     .To.Contain.Exactly(1)
                     .Matched.By(
-                        s => s.StartsWith("CLI:") &&
-                            s.Contains("mysqld.exe")
+                        s => s.StartsWith("CLI:", StringComparison.OrdinalIgnoreCase) &&
+                            s.Contains("mysqld.exe", StringComparison.OrdinalIgnoreCase)
                     );
                 Expect(contents)
                     .To.Contain.Exactly(1)

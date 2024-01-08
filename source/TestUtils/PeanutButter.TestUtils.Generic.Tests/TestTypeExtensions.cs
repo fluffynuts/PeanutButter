@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable UnusedVariable
@@ -45,7 +44,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result = t.HasActionMethodWithName(GetRandomAlphaString(2, 10));
 
             //---------------Test Result -----------------------
-            Expect(result).To.Be.False();
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -59,7 +59,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result = t.HasActionMethodWithName("Foo");
 
             //---------------Test Result -----------------------
-            Expect(result).To.Be.False();
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -73,7 +74,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result = t.HasActionMethodWithName("Foo");
 
             //---------------Test Result -----------------------
-            Expect(result).To.Be.True();
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -589,7 +591,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Expect(() => sut.ShouldNotHaveProperty("intProperty"))
+            Expect(() => sut.ShouldNotHaveProperty("IntProperty"))
                 .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
