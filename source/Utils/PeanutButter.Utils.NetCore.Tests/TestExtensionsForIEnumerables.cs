@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NExpect;
-using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using static NExpect.Expectations;
 
 // ReSharper disable ExpressionIsAlwaysNull
 // ReSharper disable CollectionNeverUpdated.Local

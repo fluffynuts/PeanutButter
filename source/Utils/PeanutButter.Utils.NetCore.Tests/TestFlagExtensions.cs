@@ -1,9 +1,6 @@
 using System;
 using System.Reflection;
-using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
 {

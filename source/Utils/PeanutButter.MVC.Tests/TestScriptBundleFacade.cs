@@ -38,10 +38,11 @@ namespace PeanutButter.MVC.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<ArgumentException>(() => new ScriptBundleFacade(name));
+            Expect(() => new ScriptBundleFacade(name))
+                .To.Throw<ArgumentException>()
+                .For("name");
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("name", ex.ParamName);
         }
 
         [Test]
@@ -58,16 +59,21 @@ namespace PeanutButter.MVC.Tests
             var result = sut.IncludeDirectory(expectedFolder, expectedSearchPattern);
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<ScriptBundle>(result);
+            Expect(result)
+                .To.Be.An.Instance.Of<ScriptBundle>();
+            
             var propValue = result.GetPropertyValue<IEnumerable<object>>("Items");
             var item = propValue.Single();
             var virtualPath = item.GetPropertyValue<string>("VirtualPath");
             var searchPattern = item.GetPropertyValue<string>("SearchPattern");
             var searchSubdirectories = item.GetPropertyValue<bool>("SearchSubdirectories");
-            Assert.AreEqual(expectedSearchPattern, searchPattern);
-            Assert.AreEqual(expectedFolder, virtualPath);
-            Assert.IsFalse(searchSubdirectories);
+
+            Expect(searchPattern)
+                .To.Equal(expectedSearchPattern);
+            Expect(virtualPath)
+                .To.Equal(expectedFolder);
+            Expect(searchSubdirectories)
+                .To.Be.False();
         }
 
         [Test]
@@ -79,16 +85,21 @@ namespace PeanutButter.MVC.Tests
             var expectedSearchPattern = "*." + RandomValueGen.GetRandomString(2, 3);
 
             //---------------Assert Precondition----------------
-            CollectionAssert.IsEmpty(sut.IncludedDirectories);
+            Expect(sut.IncludedDirectories)
+                .To.Be.Empty();
 
             //---------------Execute Test ----------------------
             sut.IncludeDirectory(expectedFolder, expectedSearchPattern);
 
             //---------------Test Result -----------------------
             var item = sut.IncludedDirectories.Single();
-            Assert.AreEqual(expectedFolder, item.Path);
-            Assert.AreEqual(expectedSearchPattern, item.SearchPattern);
-            Assert.IsFalse(item.SearchSubdirectories);
+
+            Expect(item.Path)
+                .To.Equal(expectedFolder);
+            Expect(item.SearchPattern)
+                .To.Equal(expectedSearchPattern);
+            Expect(item.SearchSubdirectories)
+                .To.Be.False();
         }
 
         [TestCase(true)]
@@ -106,16 +117,20 @@ namespace PeanutButter.MVC.Tests
             var result = sut.IncludeDirectory(expectedFolder, expectedSearchPattern, expectedSearchSubdirectories);
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<ScriptBundle>(result);
+            Expect(result)
+                .To.Be.An.Instance.Of<ScriptBundle>();
             var propValue = result.GetPropertyValue<IEnumerable<object>>("Items");
             var item = propValue.Single();
             var virtualPath = item.GetPropertyValue<string>("VirtualPath");
             var searchPattern = item.GetPropertyValue<string>("SearchPattern");
             var searchSubdirectories = item.GetPropertyValue<bool>("SearchSubdirectories");
-            Assert.AreEqual(expectedSearchPattern, searchPattern);
-            Assert.AreEqual(expectedFolder, virtualPath);
-            Assert.AreEqual(expectedSearchSubdirectories, searchSubdirectories);
+
+            Expect(searchPattern)
+                .To.Equal(expectedSearchPattern);
+            Expect(virtualPath)
+                .To.Equal(expectedFolder);
+            Expect(searchSubdirectories)
+                .To.Equal(expectedSearchSubdirectories);
         }
 
         [TestCase(true)]
@@ -128,16 +143,20 @@ namespace PeanutButter.MVC.Tests
             var expectedSearchPattern = "*." + RandomValueGen.GetRandomString(2, 3);
 
             //---------------Assert Precondition----------------
-            CollectionAssert.IsEmpty(sut.IncludedDirectories);
+            Expect(sut.IncludedDirectories)
+                .To.Be.Empty();
 
             //---------------Execute Test ----------------------
             sut.IncludeDirectory(expectedFolder, expectedSearchPattern, expectedSearchSubdirectories);
 
             //---------------Test Result -----------------------
             var item = sut.IncludedDirectories.Single();
-            Assert.AreEqual(expectedFolder, item.Path);
-            Assert.AreEqual(expectedSearchPattern, item.SearchPattern);
-            Assert.AreEqual(expectedSearchSubdirectories, item.SearchSubdirectories);
+            Expect(item.Path)
+                .To.Equal(expectedFolder);
+            Expect(item.SearchPattern)
+                .To.Equal(expectedSearchPattern);
+            Expect(item.SearchSubdirectories)
+                .To.Equal(expectedSearchSubdirectories);
         }
 
         [Test]
@@ -153,14 +172,15 @@ namespace PeanutButter.MVC.Tests
             var result = sut.Include(expected);
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<ScriptBundle>(result);
+            Expect(result)
+                .To.Be.An.Instance.Of<ScriptBundle>();
             var propValue = result.GetPropertyValue<IEnumerable<object>>("Items");
             var item = propValue.Single();
             var virtualPath = item.GetPropertyValue<string>("VirtualPath");
             item.GetType().ShouldNotHaveProperty("SearchPattern");
             item.GetType().ShouldNotHaveProperty("SearchSubdirectories");
-            Assert.AreEqual(expected, virtualPath);
+            Expect(virtualPath)
+                .To.Equal(expected);
         }
 
         private ScriptBundleFacade Create(string name = null)

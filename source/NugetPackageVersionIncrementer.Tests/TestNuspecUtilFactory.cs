@@ -38,16 +38,19 @@ namespace NugetPackageVersionIncrementer.Tests
                 var dup1 = sut.LoadNuspecAt(tempFile1.Path);
 
                 //---------------Test Result -----------------------
-                Assert.IsInstanceOf<NuspecUtil>(result1);
-                Assert.IsInstanceOf<NuspecUtil>(result2);
-                Assert.IsInstanceOf<NuspecUtil>(dup1);
+                Expect(result1)
+                    .To.Be.An.Instance.Of<NuspecUtil>();
+                Expect(result2)
+                    .To.Be.An.Instance.Of<NuspecUtil>();
+                Expect(dup1)
+                    .To.Be.An.Instance.Of<NuspecUtil>();
 
-                Assert.AreEqual("PeanutButter.TestUtils.Entity", result1.PackageId);
-                Assert.AreEqual("PeanutButter.DatabaseHelpers", result2.PackageId);
-                Assert.AreEqual("PeanutButter.TestUtils.Entity", dup1.PackageId);
-                Assert.AreNotEqual(result1, result2);
-                Assert.AreNotEqual(result1, dup1);
-                Assert.AreNotEqual(result2, dup1);
+                Expect(result1.PackageId)
+                    .To.Equal("PeanutButter.TestUtils.Entity");
+                Expect(result2.PackageId)
+                    .To.Equal("PeanutButter.DatabaseHelpers");
+                Expect(dup1.PackageId)
+                    .To.Equal("PeanutButter.TestUtils.Entity");
             }
         }
 

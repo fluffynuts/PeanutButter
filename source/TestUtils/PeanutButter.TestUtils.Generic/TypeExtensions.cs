@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NUnit.Framework;
 using PeanutButter.TestUtils.Generic.NUnitAbstractions;
 using PeanutButter.Utils;
 using Assert = PeanutButter.TestUtils.Generic.NUnitAbstractions.Assert;
@@ -41,7 +40,10 @@ namespace PeanutButter.TestUtils.Generic
         {
             var hasMethod = type.HasActionMethodWithName(methodName);
             if (hasMethod)
+            {
                 return;
+            }
+
             Assert.Fail("Expected to find method '" + methodName + "' on type '" + type.PrettyName() + "' but didn't.");
         }
 
@@ -64,7 +66,10 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldImplement(this Type type, Type shouldImplementType)
         {
             if (!shouldImplementType.IsInterface)
+            {
                 Assert.Fail(type.PrettyName() + " is not an interface");
+            }
+
             type.ShouldBeAssignableFrom(shouldImplementType);
         }
 
@@ -97,7 +102,9 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldBeAssignableFrom(this Type type, Type shouldBeImplemented)
         {
             if (!shouldBeImplemented.IsAssignableFrom(type))
+            {
                 Assert.Fail(type.PrettyName() + " should implement " + shouldBeImplemented.PrettyName());
+            }
         }
 
         /// <summary>
@@ -120,7 +127,9 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldNotBeAssignableFrom(this Type type, Type shouldNotBeImplemented)
         {
             if (shouldNotBeImplemented.IsAssignableFrom(type))
+            {
                 Assert.Fail(type.PrettyName() + " should not implement " + shouldNotBeImplemented.PrettyName());
+            }
         }
 
         /// <summary>
@@ -132,7 +141,10 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldInheritFrom(this Type type, Type shouldBeAncestor)
         {
             if (shouldBeAncestor.IsInterface)
+            {
                 Assert.Fail(shouldBeAncestor.PrettyName() + " is not a class");
+            }
+
             ShouldBeAssignableFrom(type, shouldBeAncestor);
         }
 
@@ -156,7 +168,10 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldNotInheritFrom(this Type type, Type shouldNotBeAncestor)
         {
             if (shouldNotBeAncestor.IsInterface)
+            {
                 Assert.Fail(shouldNotBeAncestor.PrettyName() + " is not a class");
+            }
+
             ShouldNotBeAssignableFrom(type, shouldNotBeAncestor);
         }
 
@@ -167,7 +182,9 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldBeAbstract(this Type type)
         {
             if (!type.IsAbstract)
+            {
                 Assert.Fail(type.PrettyName() + " should be abstract");
+            }
         }
 
         /// <summary>
@@ -185,7 +202,12 @@ namespace PeanutButter.TestUtils.Generic
             var methodName = nameof(ConstructorTestUtils.ShouldExpectNonNullParameterFor);
             var methodInfo = typeof(ConstructorTestUtils).GetMethod(methodName);
             if (methodInfo == null)
-                throw new AssertionException("Can't find method '" + methodName + "' on '" + typeof(ConstructorTestUtils).PrettyName() + "'");
+            {
+                throw new Exception(
+                    $"Can't find method '{methodName}' on '{typeof(ConstructorTestUtils).PrettyName()}'"
+                );
+            }
+
             var genericMethod = methodInfo.MakeGenericMethod(type);
             try
             {
@@ -223,10 +245,15 @@ namespace PeanutButter.TestUtils.Generic
         {
             var propertyInfo = GetPropertyForPath(type, name);
             if (withType != null && withType != propertyInfo.PropertyType)
+            {
                 Assert.AreEqual(withType, propertyInfo.PropertyType,
                     "Found property '" + name + "' but not with expected type '" + withType.PrettyName() + "'");
+            }
+
             if (shouldBeVirtual)
+            {
                 Assert.IsTrue(propertyInfo.GetAccessors().First().IsVirtual);
+            }
         }
 
         /// <summary>
@@ -241,9 +268,14 @@ namespace PeanutButter.TestUtils.Generic
             Assert.IsNotNull(type, "Cannot interrogate properties on NULL type");
             var propertyInfo = FindPropertyInfoForPath(type, name);
             if (withType == null)
+            {
                 Assert.IsNull(propertyInfo, $"Expected not to find property {name} on type {type.Name}");
+            }
+
             if (propertyInfo != null && propertyInfo.PropertyType == withType)
+            {
                 Assert.Fail($"Expected not to find property {name} with type {withType} on type {type.Name}");
+            }
         }
 
         /// <summary>
@@ -277,8 +309,11 @@ namespace PeanutButter.TestUtils.Generic
         {
             var propInfo = FindPropertyInfoForPath(type, name, Assert.Fail);
             if (withType != null)
+            {
                 Assert.AreEqual(withType, propInfo.PropertyType,
                     $"Expected {type.Name}.{name} to have type {withType}, but found {propInfo.PropertyType}");
+            }
+
             Assert.IsNull(propInfo.GetSetMethod(), $"Expected {type.Name}.{name} to be read-only");
         }
 
@@ -425,10 +460,15 @@ namespace PeanutButter.TestUtils.Generic
             var methodInfo = type.GetMethod(name,
                 BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             if (methodInfo == null)
+            {
                 Assert.Fail($"Method not found: {name}");
+            }
+
             // ReSharper disable once PossibleNullReferenceException
             if (methodInfo.IsPublic)
+            {
                 Assert.Fail($"Expected method '{name}' not to be public");
+            }
         }
 
 
@@ -504,7 +544,10 @@ namespace PeanutButter.TestUtils.Generic
         private static void ShouldHaveEnumValueInternal(this Type type, string valueName, int? expectedValue)
         {
             if (!type.IsEnum)
+            {
                 throw new InvalidOperationException($"{type.PrettyName()} is not an enum type");
+            }
+
             var enumValues = Enum.GetValues(type);
             foreach (var value in enumValues)
             {
@@ -512,7 +555,10 @@ namespace PeanutButter.TestUtils.Generic
                 if (thisValueName == valueName)
                 {
                     if (expectedValue == null || (int) value == expectedValue.Value)
+                    {
                         return;
+                    }
+
                     Assert.Fail(
                         $"Could not find enum key \"{valueName}\" with value \"{expectedValue}\" on enum {type.PrettyName()}"
                     );

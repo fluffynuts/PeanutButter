@@ -100,7 +100,8 @@ namespace PeanutButter.DuckTyping.Tests
             var result = Create.InstanceOf<ICaptureDetailsTravelRequestActivityParameters>();
 
             //--------------- Assert -----------------------
-            Assert.IsNotNull(result.Payload);
+            Expect(result.Payload)
+                .Not.To.Be.Null();
         }
 
         public class MyAttribute: Attribute

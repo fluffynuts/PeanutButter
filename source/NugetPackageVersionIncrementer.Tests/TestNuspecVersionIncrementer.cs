@@ -19,10 +19,11 @@ namespace NugetPackageVersionIncrementer.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<ArgumentException>(() => new NuspecVersionIncrementer(xml, ""));
+            Expect(() => new NuspecVersionIncrementer(xml, ""))
+                .To.Throw<ArgumentException>()
+                .With.Message.Containing("not valid xml");
 
             //---------------Test Result -----------------------
-            StringAssert.Contains("not valid xml", ex.Message.ToLower());
         }
 
         [Test]
@@ -39,7 +40,7 @@ namespace NugetPackageVersionIncrementer.Tests
             var result = sut.Version;
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
         }
 
 
@@ -53,13 +54,13 @@ namespace NugetPackageVersionIncrementer.Tests
             var sut = Create(input);
 
             //---------------Assert Precondition----------------
-            Assert.AreEqual(initial, sut.Version);
+            Expect(sut.Version).To.Equal(initial);
 
             //---------------Execute Test ----------------------
             sut.IncrementMinorVersion();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, sut.Version);
+            Expect(sut.Version).To.Equal(expected);
         }
 
         private NuspecVersionIncrementer Create(

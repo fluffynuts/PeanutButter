@@ -1,5 +1,7 @@
 using System;
 using NUnit.Framework;
+using NExpect;
+using static NExpect.Expectations;
 
 namespace NugetPackageVersionIncrementer.Tests
 {
@@ -20,7 +22,8 @@ namespace NugetPackageVersionIncrementer.Tests
             var result = container.Resolve(interfaceType);
 
             //---------------Test Result -----------------------
-            Assert.IsInstanceOf(expectedResolution, result);
+            Expect(result)
+                .To.Be.An.Instance.Of(expectedResolution);
 
         }
 

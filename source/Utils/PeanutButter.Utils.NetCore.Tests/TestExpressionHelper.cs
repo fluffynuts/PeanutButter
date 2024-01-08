@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-
-namespace PeanutButter.Utils.Tests
+﻿namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestExpressionHelper
@@ -21,7 +19,8 @@ namespace PeanutButter.Utils.Tests
             var result = ExpressionUtil.GetMemberPathFor<SomeThing>(o => o.StringProperty);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("StringProperty", result);
+            Expect(result)
+                .To.Equal("StringProperty");
         }
 
         [Test]
@@ -35,7 +34,8 @@ namespace PeanutButter.Utils.Tests
             var result = ExpressionUtil.GetMemberPathFor<SomeThing>(o => o.Child.StringProperty);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("Child.StringProperty", result);
+            Expect(result)
+                .To.Equal("Child.StringProperty");
         }
 
 
@@ -50,7 +50,8 @@ namespace PeanutButter.Utils.Tests
             var result = ExpressionUtil.GetPropertyTypeFor<SomeThing>(o => o.StringProperty);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(typeof(string), result);
+            Expect(result)
+                .To.Equal(typeof(string));
         }
 
 

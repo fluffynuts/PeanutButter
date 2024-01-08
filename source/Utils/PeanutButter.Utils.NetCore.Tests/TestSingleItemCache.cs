@@ -1,7 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using NUnit.Framework;
-using NExpect;
-using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.NetCore.Tests

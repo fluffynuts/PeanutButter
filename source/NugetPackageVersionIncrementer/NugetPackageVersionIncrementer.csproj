@@ -13,7 +13,7 @@
     <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DryIoc" Version="5.4.1" />
+    <PackageReference Include="DryIoc" Version="5.4.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />

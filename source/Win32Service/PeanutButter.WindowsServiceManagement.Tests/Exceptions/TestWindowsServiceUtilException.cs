@@ -3,6 +3,8 @@ using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.WindowsServiceManagement.Exceptions;
+using static NExpect.Expectations;
+using NExpect;
 
 namespace PeanutButter.WindowsServiceManagement.Tests.Exceptions
 {
@@ -36,7 +38,8 @@ namespace PeanutButter.WindowsServiceManagement.Tests.Exceptions
             var result = sut.Message;
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         public class MyException : WindowsServiceUtilException

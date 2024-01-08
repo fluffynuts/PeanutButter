@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 
 namespace PeanutButter.Utils.NetCore.Tests
@@ -14,7 +13,8 @@ namespace PeanutButter.Utils.NetCore.Tests
             var tempFile = Path.GetTempFileName();
 
             //---------------Assert Precondition----------------
-            Assert.IsTrue(File.Exists(tempFile));
+            Expect(tempFile)
+                .To.Be.A.File();
 
             //---------------Execute Test ----------------------
             using (new AutoDeleter(tempFile))
@@ -22,7 +22,8 @@ namespace PeanutButter.Utils.NetCore.Tests
             }
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(File.Exists(tempFile));
+            Expect(tempFile)
+                .Not.To.Exist();
         }
 
         [Test]
@@ -32,7 +33,8 @@ namespace PeanutButter.Utils.NetCore.Tests
             var tempFile = Path.GetTempFileName();
 
             //---------------Assert Precondition----------------
-            Assert.IsTrue(File.Exists(tempFile));
+            Expect(tempFile)
+                .To.Be.A.File();
 
             //---------------Execute Test ----------------------
             using (var ad = new AutoDeleter())
@@ -41,7 +43,8 @@ namespace PeanutButter.Utils.NetCore.Tests
             }
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(File.Exists(tempFile));
+            Expect(tempFile)
+                .Not.To.Exist();
         }
 
         [Test]
@@ -51,7 +54,8 @@ namespace PeanutButter.Utils.NetCore.Tests
             var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(tempFolder);
             //---------------Assert Precondition----------------
-            Assert.IsTrue(Directory.Exists(tempFolder));
+            Expect(tempFolder)
+                .To.Be.A.Folder();
 
             //---------------Execute Test ----------------------
             using (var ad = new AutoDeleter())
@@ -60,7 +64,8 @@ namespace PeanutButter.Utils.NetCore.Tests
             }
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(Directory.Exists(tempFolder));
+            Expect(tempFolder)
+                .Not.To.Exist();
         }
 
         [Test]
@@ -75,9 +80,12 @@ namespace PeanutButter.Utils.NetCore.Tests
             File.WriteAllBytes(f2, Encoding.UTF8.GetBytes(RandomValueGen.GetRandomString(100, 200)));
 
             //---------------Assert Precondition----------------
-            Assert.IsTrue(Directory.Exists(tempFolder));
-            Assert.IsTrue(File.Exists(f1));
-            Assert.IsTrue(File.Exists(f2));
+            Expect(tempFolder)
+                .To.Be.A.Folder();
+            Expect(f1)
+                .To.Be.A.File();
+            Expect(f2)
+                .To.Be.A.File();
 
             //---------------Execute Test ----------------------
             using (var ad = new AutoDeleter())
@@ -86,9 +94,12 @@ namespace PeanutButter.Utils.NetCore.Tests
             }
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(File.Exists(f1));
-            Assert.IsFalse(File.Exists(f2));
-            Assert.IsFalse(Directory.Exists(tempFolder));
+            Expect(f1)
+                .Not.To.Exist();
+            Expect(f2)
+                .Not.To.Exist();
+            Expect(tempFolder)
+                .Not.To.Exist();
         }
     }
 }

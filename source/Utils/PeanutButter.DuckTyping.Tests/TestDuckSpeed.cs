@@ -55,7 +55,8 @@ namespace PeanutButter.DuckTyping.Tests
                 TIMES
             );
             var ducked = tPoco.DuckAs<IPropPoco>();
-            Assert.IsNotNull(ducked);
+            Expect(ducked)
+                .Not.To.Be.Null();
             var duckedElapsed = Time(
                 () =>
                 {

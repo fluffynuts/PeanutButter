@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.SQLite;
-using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PeanutButter.TempDb.Sqlite;
@@ -31,19 +30,17 @@ public class TestTempDBSqlite
     public void Construct_ShouldCreateTemporarySqliteDatabase()
     {
         //---------------Set up test pack-------------------
-        using (var db = new TempDBSqlite())
-        {
-            //---------------Assert Precondition----------------
+        using var db = new TempDBSqlite();
+        Expect(db.DatabasePath)
+            .To.Be.A.File();
+        //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
+        //---------------Execute Test ----------------------
+        using var conn = new SQLiteConnection(db.ConnectionString);
+        Expect(conn.Open)
+            .Not.To.Throw();
 
-            //---------------Test Result -----------------------
-            Assert.IsTrue(File.Exists(db.DatabasePath));
-            using (var conn = new SQLiteConnection(db.ConnectionString))
-            {
-                Assert.DoesNotThrow(conn.Open);
-            }
-        }
+        //---------------Test Result -----------------------
     }
 
     [Test]
@@ -55,14 +52,16 @@ public class TestTempDBSqlite
         {
             //---------------Assert Precondition----------------
             file = db.DatabasePath;
-            Assert.IsTrue(File.Exists(file));
+            Expect(file)
+                .To.Be.A.File();
 
             //---------------Execute Test ----------------------
 
             //---------------Test Result -----------------------
         }
 
-        Assert.IsFalse(File.Exists(file));
+        Expect(file)
+            .Not.To.Exist();
     }
 
     [Test]
@@ -71,50 +70,42 @@ public class TestTempDBSqlite
         var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
         var insertData = "insert into TheTable(id, name) values (1, 'one');";
         var selectData = "select name from TheTable where id = 1;";
-        using (var db = new TempDBSqlite(createTable, insertData))
-        {
-            //---------------Set up test pack-------------------
+        using var db = new TempDBSqlite(createTable, insertData);
+        //---------------Set up test pack-------------------
 
-            //---------------Assert Precondition----------------
+        //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            using (var conn = db.OpenConnection())
-            {
-                using (var cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = selectData;
-                    using (var rdr = cmd.ExecuteReader())
-                    {
-                        Assert.IsTrue(rdr.Read());
-                        Assert.AreEqual("one", rdr["name"].ToString());
-                    }
-                }
-            }
+        //---------------Execute Test ----------------------
+        using var conn = db.OpenConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = selectData;
+        using var rdr = cmd.ExecuteReader();
+        Expect(rdr.Read())
+            .To.Be.True();
+        Expect(rdr["name"].ToString())
+            .To.Equal("one");
 
-            //---------------Test Result -----------------------
-        }
+        //---------------Test Result -----------------------
     }
 
     [Test]
     public void ShouldPlayNicelyInParallel()
     {
         //---------------Set up test pack-------------------
-        using (var disposer = new AutoDisposer())
-        {
-            //---------------Assert Precondition----------------
+        using var disposer = new AutoDisposer();
+        //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            Parallel.For(
-                0,
-                100,
-                i =>
-                {
-                    // ReSharper disable once AccessToDisposedClosure
-                    disposer.Add(new TempDBSqlite());
-                }
-            );
+        //---------------Execute Test ----------------------
+        Parallel.For(
+            0,
+            100,
+            _ =>
+            {
+                // ReSharper disable once AccessToDisposedClosure
+                disposer.Add(new TempDBSqlite());
+            }
+        );
 
-            //---------------Test Result -----------------------
-        }
+        //---------------Test Result -----------------------
     }
 }

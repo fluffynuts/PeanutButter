@@ -3,7 +3,7 @@
     <id>PeanutButter.TestUtils.Entity</id>
     <version>1.1.33</version>
     <title>PeanutButter.TestUtils.Entity</title>
-    <authors>davyd</authors>
+    <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
     Contains classes to help with testing when entity and a SQL Server would be involved in production:

@@ -1,7 +1,4 @@
-﻿using NExpect;
-using NSubstitute;
-using NUnit.Framework;
-using static NExpect.Expectations;
+﻿using NSubstitute;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.NetCore.Tests

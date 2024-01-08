@@ -9,6 +9,8 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 using static NExpect.Expectations;
 using static PeanutButter.Utils.PyLike;
 using static PeanutButter.RandomGenerators.Tests.RandomTestCycles;
+// ReSharper disable VirtualMemberCallInConstructor
+// ReSharper disable RedundantBoolCompare
 
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable PossibleNullReferenceException
@@ -278,10 +280,9 @@ namespace PeanutButter.RandomGenerators.Tests
             }
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(
-                items.Select(i => i.Enabled)
-                    .All(v => v)
-            );
+            Expect(items)
+                .To.Contain.All
+                .Matched.By(o => o.Enabled == true);
             VarianceAssert.IsVariant<TestBooleans, bool>(
                 items,
                 "SomeOtherBoolean"
@@ -319,10 +320,8 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             //---------------Set up test pack-------------------
             BuilderInspector.Clear();
-            Assert.AreEqual(
-                0,
-                BuilderInspector.Calls.Length
-            );
+            Expect(BuilderInspector.Calls)
+                .To.Be.Empty();
 
             //---------------Assert Precondition----------------
 
@@ -330,18 +329,14 @@ namespace PeanutButter.RandomGenerators.Tests
             BuilderInspector.BuildRandom();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(
-                2,
-                BuilderInspector.Calls.Length
-            );
-            Assert.AreEqual(
-                "WithRandomProps",
-                BuilderInspector.Calls[0]
-            );
-            Assert.AreEqual(
-                "Build",
-                BuilderInspector.Calls[1]
-            );
+            Expect(BuilderInspector.Calls)
+                .To.Equal(
+                    new[]
+                    {
+                        "WithRandomProps",
+                        "Build"
+                    }
+                );
         }
 
         public class ComplexMember1
@@ -377,8 +372,10 @@ namespace PeanutButter.RandomGenerators.Tests
             var obj = ClassWithComplexMembersBuilder.BuildDefault();
 
             //---------------Test Result -----------------------
-            Assert.IsNull(obj.ComplexMember1);
-            Assert.IsNull(obj.ComplexMember2);
+            Expect(obj.ComplexMember1)
+                .To.Be.Null();
+            Expect(obj.ComplexMember2)
+                .To.Be.Null();
         }
 
         [Test]
@@ -396,16 +393,18 @@ namespace PeanutButter.RandomGenerators.Tests
                  i++)
             {
                 var randomItem = ClassWithComplexMembersBuilder.BuildRandom();
-                Assert.IsNotNull(randomItem.ComplexMember1);
-                Assert.IsNotNull(randomItem.ComplexMember2);
+                Expect(randomItem.ComplexMember1)
+                    .Not.To.Be.Null();
+                Expect(randomItem.ComplexMember2)
+                    .Not.To.Be.Null();
                 randomItems.Add(randomItem);
             }
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(
-                NORMAL_RANDOM_TEST_CYCLES,
-                randomItems.Count
-            );
+            Expect(randomItems.Count)
+                .To.Equal(
+                    NORMAL_RANDOM_TEST_CYCLES
+                );
             VarianceAssert.IsVariant<ClassWithComplexMembers, ComplexMember1>(
                 randomItems,
                 "ComplexMember1"
@@ -427,7 +426,6 @@ namespace PeanutButter.RandomGenerators.Tests
         }
 
         [Test]
-        [Timeout(10000)]
         public void
             WhenUsingExistingBuildersWhichWouldCauseStackOverflow_ShouldAttemptToProtectAgainstStackOverflow()
         {
@@ -436,7 +434,8 @@ namespace PeanutButter.RandomGenerators.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => ParentWithBuilderBuilder.BuildRandom());
+            Expect(ParentWithBuilderBuilder.BuildRandom)
+                .Not.To.Throw();
             //---------------Test Result -----------------------
         }
 
@@ -512,10 +511,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = ParentBuilder.BuildRandom();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(
-                1337,
-                result.Child.Id
-            );
+            Expect(result.Child.Id).To.Equal(1337);
         }
 
         public class EmailBuilder : GenericBuilder<EmailBuilder, Email>
@@ -555,7 +551,7 @@ namespace PeanutButter.RandomGenerators.Tests
             public string Sender { get; set; }
             public string Subject { get; set; }
             public string Body { get; set; }
-            public System.DateTime SendAt { get; set; }
+            public DateTime SendAt { get; set; }
             public int SendAttempts { get; set; }
             public bool Sent { get; set; }
             public string LastError { get; set; }
@@ -587,10 +583,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = EmailRecipientBuilder.BuildRandom();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(
-                "local is lekker",
-                result.Email.Subject
-            );
+            Expect(result.Email.Subject).To.Equal("local is lekker");
         }
 
         [TestCase(
@@ -649,10 +642,7 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = leftParts.MatchIndexFor(rightParts);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(
-                expected,
-                result
-            );
+            Expect(result).To.Equal(expected);
         }
 
         // real-world usage, has inner exception about defining duplicate dynamic module
@@ -842,8 +832,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = sut.Strings;
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            CollectionAssert.IsEmpty(result);
+            Expect(result)
+                .To.Be.Empty();
         }
 
         public class SomePOCOWithArray
@@ -867,8 +857,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = sut.Strings;
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            CollectionAssert.IsEmpty(result);
+            Expect(result)
+                .To.Be.Empty();
         }
 
         public class SomePOCOWithList
@@ -892,8 +882,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = sut.Strings;
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            CollectionAssert.IsEmpty(result);
+            Expect(result)
+                .To.Be.Empty();
         }
 
         [Test]
@@ -911,8 +901,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var result = sut.Strings;
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            CollectionAssert.IsNotEmpty(result);
+            Expect(result)
+                .Not.To.Be.Empty();
         }
 
         public interface IInterfaceWithNoImplementation
@@ -944,8 +934,10 @@ namespace PeanutButter.RandomGenerators.Tests
             );
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.Name);
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result.Name)
+                .Not.To.Be.Null();
         }
 
         public interface IImplementedInterface
@@ -994,20 +986,22 @@ namespace PeanutButter.RandomGenerators.Tests
                 .ExportedTypes
                 .Where(t => interfaceType.IsAssignableFrom(t))
                 .ToArray();
-            CollectionAssert.Contains(
-                types,
-                concrete
-            );
-            Assert.IsTrue(concrete.IsClass);
-            Assert.IsFalse(concrete.IsAbstract);
+            Expect(types)
+                .To.Contain(concrete);
+            Expect(concrete.IsClass)
+                .To.Be.True();
+            Expect(concrete.IsAbstract)
+                .To.Be.False();
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
             var result = SomeImplementingClassBuilder.BuildRandom();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<SomeImplementingClass>(result);
+            Expect(result)
+                .Not.To.Be.Null()
+                .And
+                .To.Be.An.Instance.Of<SomeImplementingClass>();
         }
 
         public interface ITokenValidationResponse
@@ -1188,7 +1182,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     10
                 )
                 .Select(
-                    i => SomeStructBuilder.Create()
+                    _ => SomeStructBuilder.Create()
                         .WithRandomProps()
                         .Build()
                 )
@@ -1221,7 +1215,7 @@ namespace PeanutButter.RandomGenerators.Tests
                     10
                 )
                 .Select(
-                    i => GetRandom<SomeClass>()
+                    _ => GetRandom<SomeClass>()
                 )
                 .ToArray();
 

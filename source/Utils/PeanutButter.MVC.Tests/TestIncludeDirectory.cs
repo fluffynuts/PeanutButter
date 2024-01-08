@@ -21,9 +21,12 @@ namespace PeanutButter.MVC.Tests
             var sut = new IncludeDirectory(expectedPath, expectedPattern, expectedSubdirectories);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expectedPath, sut.Path);
-            Assert.AreEqual(expectedPattern, sut.SearchPattern);
-            Assert.AreEqual(expectedSubdirectories, sut.SearchSubdirectories);
+            Expect(sut.Path)
+                .To.Equal(expectedPath);
+            Expect(sut.SearchPattern)
+                .To.Equal(expectedPattern);
+            Expect(sut.SearchSubdirectories)
+                .To.Equal(expectedSubdirectories);
         }
 
         [TestCase("Path")]
@@ -37,7 +40,8 @@ namespace PeanutButter.MVC.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            sut.ShouldHaveReadOnlyProperty(property);
+            Expect(() => sut.ShouldHaveReadOnlyProperty(property))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }

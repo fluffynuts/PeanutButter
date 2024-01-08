@@ -1,5 +1,7 @@
 ﻿Imports NUnit.Framework
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
+Imports NExpect
+Imports NExpect.Expectations
 
 Namespace TestStatementBuilders
 
@@ -13,7 +15,8 @@ Namespace TestStatementBuilders
             Dim rightRight = New Condition("col4", Condition.EqualityOperators.Equals, "val4")
             Dim cc = New ConditionChain(op, leftLeft, leftRight, rightLeft, rightRight)
             Dim opString = CStr(IIf(op = CompoundCondition.BooleanOperators.OperatorAnd, " and ", " or "))
-            Assert.AreEqual("([col1]='val1'" + opString + "[col2]='val2'" + opString + "[col3]='val3'" + opString + "[col4]='val4')", cc.ToString())
+            Expect(cc.ToString()) _
+                .To.Equal("([col1]='val1'" + opString + "[col2]='val2'" + opString + "[col3]='val3'" + opString + "[col4]='val4')")
         End Sub
 
 

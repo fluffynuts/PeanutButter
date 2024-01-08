@@ -2,16 +2,18 @@
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
 Imports PeanutButter.Utils
+Imports NExpect
+Imports NExpect.Expectations
 
 Namespace TestStatementBuilders
-
     Public Class TestCondition
         <Test()>
         Public Sub Constructor_GivenFieldAndValue_ProducesExpectedCondition()
             Dim fld = RandomValueGen.GetRandomString()
             Dim value = RandomValueGen.GetRandomString()
             Dim c = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, value)
-            Assert.AreEqual("[" + fld + "]='" + value + "'", c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + fld + "]='" + value + "'")
         End Sub
 
         <Test()>
@@ -19,7 +21,8 @@ Namespace TestStatementBuilders
             Dim fld = RandomValueGen.GetRandomString()
             Dim val = RandomValueGen.GetRandomInt()
             Dim c = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val.ToString(), False)
-            Assert.AreEqual("[" + fld + "]=" + val.ToString(), c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + fld + "]=" + val.ToString())
         End Sub
 
         <Test()>
@@ -27,26 +30,30 @@ Namespace TestStatementBuilders
             Dim fld = RandomValueGen.GetRandomString()
             Dim val = RandomValueGen.GetRandomInt()
             Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, val.ToString(), False)
-            Dim test = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
-            Assert.AreEqual(expected.ToString(), test.ToString())
+            Dim sut = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
+            Expect(sut.ToString()).To.Equal(expected.ToString())
         End Sub
 
         <Test()>
         Public Sub Constructor_GivenSelectFieldInsteadOfFieldNameForDecimal_ShouldProduceSameResults()
             Dim fld = RandomValueGen.GetRandomString()
             Dim val = RandomValueGen.GetRandomDecimal()
-            Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, new DecimalDecorator(val).ToString(), False)
-            Dim test = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
-            Assert.AreEqual(expected.ToString(), test.ToString())
+            Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals,
+                                         new DecimalDecorator(val).ToString(), False)
+            Dim sut = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
+            Expect(sut.ToString()) _
+                .To.Equal(expected.ToString())
         End Sub
 
         <Test()>
         Public Sub Constructor_GivenSelectFieldInsteadOfFieldNameForNullableDecimal_ShouldProduceSameResults()
             Dim fld = RandomValueGen.GetRandomString()
             Dim val as Nullable(Of Decimal) = RandomValueGen.GetRandomDecimal()
-            Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, new DecimalDecorator(Convert.ToDecimal(val)).ToString(), False)
+            Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals,
+                                         new DecimalDecorator(Convert.ToDecimal(val)).ToString(), False)
             Dim test = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
-            Assert.AreEqual(expected.ToString(), test.ToString())
+            Expect(test.ToString()) _
+            .To.Equal(expected.ToString())
         End Sub
 
         <Test()>
@@ -55,16 +62,19 @@ Namespace TestStatementBuilders
             Dim val = RandomValueGen.GetRandomDouble()
             Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, val.ToString(), False)
             Dim test = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
-            Assert.AreEqual(expected.ToString(), test.ToString())
+            Expect(test.ToString()) _
+                .To.Equal(expected.ToString())
         End Sub
 
         <Test()>
         Public Sub Constructor_GivenSelectFieldInsteadOfFieldNameForDateTime_ShouldProduceSameResults()
             Dim fld = RandomValueGen.GetRandomString()
             Dim val = RandomValueGen.GetRandomDate()
-            Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals, val.ToString("yyyy/MM/dd HH:mm:ss"), True)
+            Dim expected = new Condition(new SelectField(fld), Condition.EqualityOperators.Equals,
+                                         val.ToString("yyyy/MM/dd HH:mm:ss"), True)
             Dim test = New Condition(New SelectField(fld), Condition.EqualityOperators.Equals, val)
-            Assert.AreEqual(expected.ToString(), test.ToString())
+            Expect(test.ToString()) _
+            .To.Equal(expected.ToString())
         End Sub
 
         <Test()>
@@ -76,7 +86,8 @@ Namespace TestStatementBuilders
             Dim leftField As SelectField = New SelectField(t1, f1)
             Dim rightField As SelectField = New SelectField(t2, f2)
             Dim c = New Condition(leftField, Condition.EqualityOperators.Equals, rightField)
-            Assert.AreEqual(leftField.ToString() + "=" + rightField.ToString(), c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal(leftField.ToString() + "=" + rightField.ToString())
         End Sub
 
         <Test()>
@@ -88,7 +99,8 @@ Namespace TestStatementBuilders
             Dim leftField As SelectField = New SelectField(t1, f1)
             Dim rightField As SelectField = New SelectField(t2, f2)
             Dim c = New Condition(leftField, rightField)
-            Assert.AreEqual(leftField.ToString() + "=" + rightField.ToString(), c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal(leftField.ToString() + "=" + rightField.ToString())
         End Sub
 
         <Test()>
@@ -96,7 +108,8 @@ Namespace TestStatementBuilders
             Dim fld = RandomValueGen.GetRandomString()
             Dim value = RandomValueGen.GetRandomString()
             Dim c = New Condition(fld, value)
-            Assert.AreEqual("[" + fld + "]='" + value + "'", c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + fld + "]='" + value + "'")
         End Sub
 
         <Test()>
@@ -104,9 +117,10 @@ Namespace TestStatementBuilders
             Dim t1 = RandomValueGen.GetRandomString(),
                 f1 = RandomValueGen.GetRandomString(),
                 val = RandomValueGen.GetRandomString()
-            Dim leftField As SelectField = New SelectField(t1, f1)
+            Dim leftField = New SelectField(t1, f1)
             Dim c = New Condition(leftField, val)
-            Assert.AreEqual(leftField.ToString() + "='" + val + "'", c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal(leftField.ToString() + "='" + val + "'")
         End Sub
 
         <Test()>
@@ -114,7 +128,8 @@ Namespace TestStatementBuilders
             Dim f = RandomValueGen.GetRandomString(),
                 v = Int16.Parse(CStr(RandomValueGen.GetRandomInt(1, 100))),
                 c = New Condition(f, Condition.EqualityOperators.Equals, v)
-            Assert.AreEqual("[" + f + "]=" + v.ToString(), c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + f + "]=" + v.ToString())
         End Sub
 
         <Test()>
@@ -122,7 +137,8 @@ Namespace TestStatementBuilders
             Dim f = RandomValueGen.GetRandomString(),
                 v = Int32.Parse(CStr(RandomValueGen.GetRandomInt(1, 100))),
                 c = New Condition(f, Condition.EqualityOperators.Equals, v)
-            Assert.AreEqual("[" + f + "]=" + v.ToString(), c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + f + "]=" + v.ToString())
         End Sub
 
         <Test()>
@@ -130,7 +146,8 @@ Namespace TestStatementBuilders
             Dim f = RandomValueGen.GetRandomString(),
                 v = Int64.Parse(CStr(RandomValueGen.GetRandomInt(1, 100))),
                 c = New Condition(f, Condition.EqualityOperators.Equals, v)
-            Assert.AreEqual("[" + f + "]=" + v.ToString(), c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + f + "]=" + v.ToString())
         End Sub
 
         <Test()>
@@ -138,7 +155,8 @@ Namespace TestStatementBuilders
             Dim f = RandomValueGen.GetRandomString(),
                 v = Decimal.Parse(CStr(RandomValueGen.GetRandomInt(1, 100))),
                 c = New Condition(f, Condition.EqualityOperators.Equals, v)
-            Assert.AreEqual("[" + f + "]=" + v.ToString(), c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + f + "]=" + v.ToString())
         End Sub
 
         <Test()>
@@ -146,7 +164,8 @@ Namespace TestStatementBuilders
             Dim f = RandomValueGen.GetRandomString(),
                 v = Double.Parse(CStr(RandomValueGen.GetRandomInt(1, 100))),
                 c = New Condition(f, Condition.EqualityOperators.Equals, v)
-            Assert.AreEqual("[" + f + "]=" + v.ToString(), c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + f + "]=" + v.ToString())
         End Sub
 
         <Test()>
@@ -154,7 +173,8 @@ Namespace TestStatementBuilders
             Dim f = RandomValueGen.GetRandomString(),
                 v = RandomValueGen.GetRandomDate(),
                 c = New Condition(f, Condition.EqualityOperators.Equals, v)
-            Assert.AreEqual("[" + f + "]='" + v.ToString("yyyy/MM/dd HH:mm:ss") + "'", c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + f + "]='" + v.ToString("yyyy/MM/dd HH:mm:ss") + "'")
         End Sub
 
         <Test()>
@@ -162,7 +182,8 @@ Namespace TestStatementBuilders
             Dim f = RandomValueGen.GetRandomString(),
                 v = DirectCast(Nothing, String)
             Dim c = New Condition(f, Condition.EqualityOperators.Equals, v)
-            Assert.AreEqual("[" + f + "] is NULL", c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + f + "] is NULL")
         End Sub
 
         <Test()>
@@ -170,7 +191,8 @@ Namespace TestStatementBuilders
             Dim f = RandomValueGen.GetRandomString(),
                 v = DirectCast(Nothing, String)
             Dim c = New Condition(f, Condition.EqualityOperators.NotEquals, v)
-            Assert.AreEqual("[" + f + "] is NOT NULL", c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + f + "] is NOT NULL")
         End Sub
 
         <Test()>
@@ -178,9 +200,11 @@ Namespace TestStatementBuilders
             Dim f = RandomValueGen.GetRandomString(),
                 v = RandomValueGen.GetRandomString()
             Dim c = new Condition(new SelectField(f), v)
-            Assert.AreEqual("[" + f + "]='" + v + "'", c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + f + "]='" + v + "'")
             c.UseDatabaseProvider(DatabaseProviders.Firebird)
-            Assert.AreEqual("""" + f + """='" + v + "'", c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("""" + f + """='" + v + "'")
         End Sub
 
         <Test()>
@@ -188,9 +212,11 @@ Namespace TestStatementBuilders
             Dim f1 = RandomValueGen.GetRandomString(),
                 f2 = RandomValueGen.GetRandomString()
             Dim c = new Condition(new SelectField(f1), new SelectField(f2))
-            Assert.AreEqual("[" + f1 + "]=[" + f2 + "]", c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("[" + f1 + "]=[" + f2 + "]")
             c.UseDatabaseProvider(DatabaseProviders.Firebird)
-            Assert.AreEqual("""" + f1 + """=""" + f2 + """", c.ToString())
+            Expect(c.ToString()) _
+                .To.Equal("""" + f1 + """=""" + f2 + """")
         End Sub
     End Class
 End NameSpace

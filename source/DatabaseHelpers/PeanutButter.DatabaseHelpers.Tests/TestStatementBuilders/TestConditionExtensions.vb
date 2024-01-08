@@ -1,9 +1,10 @@
 Imports NUnit.Framework
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
+Imports NExpect
+Imports NExpect.Expectations
 
 Namespace TestStatementBuilders
-
     <TestFixture()>
     Public class TestConditionExtensions
         <Test()>
@@ -15,7 +16,8 @@ Namespace TestStatementBuilders
             Dim left = New Condition(field1, Condition.EqualityOperators.Equals, value1)
             Dim right = New Condition(field2, Condition.EqualityOperators.Equals, value2)
             Dim result = left.And(right)
-            Assert.AreEqual("([" + field1 + "]='" + value1 + "' and [" + field2 + "]='" + value2 + "')", result.ToString())
+            Expect(result.ToString()) _
+                .To.Equal("([" + field1 + "]='" + value1 + "' and [" + field2 + "]='" + value2 + "')")
         End Sub
 
         <Test()>
@@ -28,7 +30,8 @@ Namespace TestStatementBuilders
             Dim left = New Condition(field1, Condition.EqualityOperators.Equals, value1)
             Dim right = New Condition(field2, Condition.EqualityOperators.Equals, value2)
             Dim result = left.Or(right)
-            Assert.AreEqual("([" + field1 + "]='" + value1 + "' or [" + field2 + "]='" + value2 + "')", result.ToString())
+            Expect(result.ToString()) _
+                .To.Equal("([" + field1 + "]='" + value1 + "' or [" + field2 + "]='" + value2 + "')")
         End Sub
 
         <Test()>
@@ -40,8 +43,10 @@ Namespace TestStatementBuilders
             Dim left = New Condition(field1, Condition.EqualityOperators.Equals, value1)
             Dim right = New Condition(field2, Condition.EqualityOperators.Equals, value2)
             Dim result = left.And(right).Or(right.And(left))
-            Dim expected = "(([" + field1 + "]='" + value1 + "' and [" + field2 + "]='" + value2 + "') or ([" + field2 + "]='" + value2 + "' and [" + field1 + "]='" + value1 + "'))"
-            Assert.AreEqual(expected, result.ToString())
+            Dim expected = "(([" + field1 + "]='" + value1 + "' and [" + field2 + "]='" + value2 + "') or ([" + field2 +
+                           "]='" + value2 + "' and [" + field1 + "]='" + value1 + "'))"
+            Expect(result.ToString()) _
+                .To.Equal(expected)
         End Sub
 
         <Test()>
@@ -57,21 +62,27 @@ Namespace TestStatementBuilders
 
             Dim t1 = left.And(field2, Condition.EqualityOperators.Equals, value2, true, true, true)
             Dim t2 = left.And(field2, value2, true)
-            Dim rightSelectField  = new SelectField(field2)
+            Dim rightSelectField = new SelectField(field2)
             Dim t3 = left.And(rightSelectField, value2, true)
             Dim t4 = left.And(rightSelectField, Condition.EqualityOperators.Equals, value2, true)
 
-            Assert.AreEqual(expected, t1.ToString())
-            Assert.AreEqual(expected, t2.ToString())
-            Assert.AreEqual(expected, t3.ToString())
-            Assert.AreEqual(expected, t4.ToString())
+            Expect(t1.ToString()) _
+                .To.Equal(t2.ToString()) _
+                .And.To.Equal(t3.ToString()) _
+                .And.To.Equal(t4.ToString()) _
+                .And.To.Equal(expected)
 
             Dim twoFields = new Condition(new SelectField(field1), Condition.EqualityOperators.Equals, rightSelectField)
             Dim expected2 = left.And(twoFields)
-            Assert.AreEqual(expected2.ToString(), 
-                            left.And(new SelectField(field1), Condition.EqualityOperators.Equals, rightSelectField).ToString())
+            Dim result = left.And(
+                new SelectField(field1),
+                Condition.EqualityOperators.Equals, rightSelectField
+                ).ToString()
+            Expect(result) _
+                .To.Equal(expected2.ToString()) 
             dim t5 = left.And(New SelectField(field1), New SelectField(field2))
-            Assert.AreEqual(expected2.ToString(), t5.ToString())
+            Expect(t5.ToString()) _
+                .To.Equal(expected2.ToString())
         End Sub
 
         <Test()>
@@ -90,30 +101,29 @@ Namespace TestStatementBuilders
             Dim right = new Condition(f2, Condition.EqualityOperators.Equals, intVal)
             Dim expected = left.And(right).ToString()
             Dim result = left.And(f2, Condition.EqualityOperators.Equals, intVal)
-            Assert.AreEqual(expected, result.ToString())
-        
+            Expect(result.ToString()).To.Equal(expected)
+
             right = New Condition(f2, Condition.EqualityOperators.Equals, decimalVal)
             expected = left.And(right).ToString()
             result = left.And(f2, Condition.EqualityOperators.Equals, decimalVal)
-            Assert.AreEqual(expected, result.ToString())
+            Expect(result.ToString()).To.Equal(expected)
 
             right = New Condition(f2, Condition.EqualityOperators.Equals, nullableDecimalVal)
             expected = left.And(right).ToString()
             result = left.And(f2, Condition.EqualityOperators.Equals, nullableDecimalVal)
-            Assert.AreEqual(expected, result.ToString())
+            Expect(result.ToString()).To.Equal(expected)
 
             right = New Condition(f2, Condition.EqualityOperators.Equals, doubleVal)
             expected = left.And(right).ToString()
             result = left.And(f2, Condition.EqualityOperators.Equals, doubleVal)
-            Assert.AreEqual(expected, result.ToString())
+            Expect(result.ToString()).To.Equal(expected)
 
             right = New Condition(f2, Condition.EqualityOperators.Equals, dateVal)
             expected = left.And(right).ToString()
             result = left.And(f2, Condition.EqualityOperators.Equals, dateVal)
-            Assert.AreEqual(expected, result.ToString())
-
-
+            Expect(result.ToString()).To.Equal(expected)
         End Sub
+
         <Test()>
         Public Sub Or_ShouldSupportExtendedSelectFieldConstructorParameters()
             Dim intVal = RandomValueGen.GetRandomInt(),
@@ -130,29 +140,27 @@ Namespace TestStatementBuilders
             Dim right = new Condition(f2, Condition.EqualityOperators.Equals, intVal)
             Dim expected = left.Or(right).ToString()
             Dim result = left.Or(f2, Condition.EqualityOperators.Equals, intVal)
-            Assert.AreEqual(expected, result.ToString())
-        
+            Expect(result.ToString()).To.Equal(expected)
+
             right = New Condition(f2, Condition.EqualityOperators.Equals, decimalVal)
             expected = left.Or(right).ToString()
             result = left.Or(f2, Condition.EqualityOperators.Equals, decimalVal)
-            Assert.AreEqual(expected, result.ToString())
+            Expect(result.ToString()).To.Equal(expected)
 
             right = New Condition(f2, Condition.EqualityOperators.Equals, nullableDecimalVal)
             expected = left.Or(right).ToString()
             result = left.Or(f2, Condition.EqualityOperators.Equals, nullableDecimalVal)
-            Assert.AreEqual(expected, result.ToString())
+            Expect(result.ToString()).To.Equal(expected)
 
             right = New Condition(f2, Condition.EqualityOperators.Equals, doubleVal)
             expected = left.Or(right).ToString()
             result = left.Or(f2, Condition.EqualityOperators.Equals, doubleVal)
-            Assert.AreEqual(expected, result.ToString())
+            Expect(result.ToString()).To.Equal(expected)
 
             right = New Condition(f2, Condition.EqualityOperators.Equals, dateVal)
             expected = left.Or(right).ToString()
             result = left.Or(f2, Condition.EqualityOperators.Equals, dateVal)
-            Assert.AreEqual(expected, result.ToString())
-
-
+            Expect(result.ToString()).To.Equal(expected)
         End Sub
 
         <Test()>
@@ -170,18 +178,23 @@ Namespace TestStatementBuilders
             Dim t3 = left.Or(new SelectField(field2), value2, true)
             Dim t4 = left.Or(new SelectField(field2), Condition.EqualityOperators.Equals, value2, true)
 
-            Assert.AreEqual(expected, t1.ToString())
-            Assert.AreEqual(expected, t2.ToString())
-            Assert.AreEqual(expected, t3.ToString())
-            Assert.AreEqual(expected, t4.ToString())
+            Expect(t1.ToString()) _
+                .To.Equal(t2.ToString()) _
+                .And.To.Equal(t3.ToString()) _
+                .And.To.Equal(t4.ToString()) _
+                .And.To.Equal(expected)
 
-            Dim twoFields = new Condition(new SelectField(field1), Condition.EqualityOperators.Equals, new SelectField(field2))
+            Dim twoFields = new Condition(new SelectField(field1), Condition.EqualityOperators.Equals,
+                                          new SelectField(field2))
             Dim expected2 = left.Or(twoFields)
-            Dim actual = left.Or(new SelectField(field1), Condition.EqualityOperators.Equals, new SelectField(field2)).ToString()
-            Assert.AreEqual(expected2.ToString(), 
-                            actual)
+            Dim actual =
+                    left.Or(new SelectField(field1), Condition.EqualityOperators.Equals, new SelectField(field2)).
+                    ToString()
+            Expect(actual) _
+                .To.Equal(expected2.ToString())
             dim t5 = left.Or(New SelectField(field1), New SelectField(field2))
-            Assert.AreEqual(expected2.ToString(), t5.ToString())
+            Expect(t5.ToString()) _
+                .To.Equal(expected2.ToString())
         End Sub
     End Class
 End NameSpace

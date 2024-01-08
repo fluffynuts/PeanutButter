@@ -1,6 +1,8 @@
 ﻿Imports NUnit.Framework
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
+Imports NExpect
+Imports NExpect.Expectations
 
 Namespace TestStatementBuilders
 
@@ -12,9 +14,11 @@ Namespace TestStatementBuilders
             Dim fld = RandomValueGen.GetRandomString()
             Dim o = New OrderBy(fld, direction)
             If (direction = OrderBy.Directions.Descending) Then
-                Assert.AreEqual("order by [" + fld + "] desc", o.ToString())
+                Expect(o.ToString()) _
+                .To.Equal("order by [" + fld + "] desc")
             Else
-                Assert.AreEqual("order by [" + fld + "] asc", o.ToString())
+                Expect(o.ToString()) _
+                    .To.Equal("order by [" + fld + "] asc")
             End If
         End Sub
 
@@ -25,9 +29,11 @@ Namespace TestStatementBuilders
             Dim table = RandomValueGen.GetRandomString()
             Dim o = New OrderBy(table, fld, direction)
             If (direction = OrderBy.Directions.Descending) Then
-                Assert.AreEqual("order by [" + table + "].[" + fld + "] desc", o.ToString())
+                Expect(o.ToString()) _
+                    .To.Equal("order by [" + table + "].[" + fld + "] desc")
             Else
-                Assert.AreEqual("order by [" + table + "].[" + fld + "] asc", o.ToString())
+                Expect(o.ToString()) _
+                    .To.Equal("order by [" + table + "].[" + fld + "] asc")
             End If
 
         End Sub

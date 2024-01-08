@@ -6,8 +6,7 @@ using NUnit.Framework;
 using PeanutButter.DuckTyping;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using static NExpect.Expectations;
+
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -27,8 +26,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var obj2 = new {bar = "foo"};
 
             //---------------Assert Precondition----------------
-            Assert.AreNotEqual(obj1, obj2);
-            Assert.AreNotEqual(obj1.GetType(), obj2.GetType());
+            Expect(obj1)
+                .Not.To.Be(obj2);
+            Expect(obj1.GetType())
+                .Not.To.Be(obj2.GetType());
             //---------------Execute Test ----------------------
 
             Expect(() => PropertyAssert.AreEqual(obj1, obj2, "foo", "bar"))
@@ -540,13 +541,16 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var left = new HasCollectionOfStuff {Stuff = collection};
             var right = new HasEnumerableStuff {Stuff = enumerable};
 
-            Assert.IsTrue(left.Stuff.GetType().ImplementsEnumerableGenericType());
-            Assert.IsTrue(right.Stuff.GetType().ImplementsEnumerableGenericType());
+            Expect(left.Stuff.GetType().ImplementsEnumerableGenericType())
+                .To.Be.True();
+            Expect(right.Stuff.GetType().ImplementsEnumerableGenericType())
+                .To.Be.True();
 
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            PropertyAssert.AreIntersectionEqual(left, right);
+            Expect(() => PropertyAssert.AreIntersectionEqual(left, right))
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -577,7 +581,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            PropertyAssert.AreIntersectionEqual(left, right, "IgnoreMe");
+            Expect(() => PropertyAssert.AreIntersectionEqual(left, right, "IgnoreMe"))
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -609,8 +614,6 @@ namespace PeanutButter.TestUtils.Generic.Tests
             string TravelPreferences { get; set; } // seats near emergency exits for more leg-room?
         }
 
-        public interface ITraveller : IActor, ITravellerDetails
-        {
-        }
+        public interface ITraveller : IActor, ITravellerDetails;
     }
 }

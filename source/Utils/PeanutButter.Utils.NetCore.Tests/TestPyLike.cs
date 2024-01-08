@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using static PeanutButter.Utils.PyLike;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using static NExpect.Expectations;
 
 // ReSharper disable ExpressionIsAlwaysNull
 // ReSharper disable RedundantArgumentDefaultValue

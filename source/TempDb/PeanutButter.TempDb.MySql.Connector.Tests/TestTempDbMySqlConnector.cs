@@ -14,6 +14,7 @@ using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using static PeanutButter.Utils.PyLike;
+using TimeoutException = System.TimeoutException;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable AccessToDisposedClosure
@@ -419,7 +420,6 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
             }
 
             [Test]
-            [Timeout(45000)]
             public void AbsoluteLifespanShouldOverrideConnectionActivity()
             {
                 // Arrange
@@ -428,15 +428,21 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                     absoluteLifespan: TimeSpan.FromSeconds(3)
                 );
                 var connections = 0;
+                var timeout = DateTime.Now.AddSeconds(45);
                 // Act
                 Expect(
                         () =>
                         {
-                            while (true)
+                            while (DateTime.Now <= timeout)
                             {
                                 using var conn = db.OpenConnection();
                                 connections++;
                                 Thread.Sleep(300);
+                            }
+
+                            if (DateTime.Now > timeout)
+                            {
+                                throw new TimeoutException();
                             }
 
                             // ReSharper disable once FunctionNeverReturns

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NExpect;
-using NUnit.Framework;
-using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests

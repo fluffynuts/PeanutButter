@@ -1,6 +1,8 @@
 Imports NUnit.Framework
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
+Imports NExpect
+Imports NExpect.Expectations
 
 Namespace TestStatementBuilders
 
@@ -15,7 +17,8 @@ Namespace TestStatementBuilders
             Dim theAlias = RandomValueGen.GetRandomString(2)
             Dim sut = new ComputedField(fieldName, fn, theAlias)
             Dim result = sut.ToString()
-            Assert.AreEqual(str + "([" + fieldName + "]) as [" + theAlias + "]", result)
+            Expect(result) _
+                .To.Equal(str + "([" + fieldName + "]) as [" + theAlias + "]")
         End Sub
     End Class
 End NameSpace

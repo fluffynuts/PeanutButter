@@ -37,7 +37,8 @@ namespace PeanutButter.INI.Tests
                 var sut = Create() as INIFile_EXPOSES_Sections;
 
                 //---------------Test Result -----------------------
-                Assert.IsNotNull(sut.Data);
+                Expect(sut.Data)
+                    .Not.To.Be.Null();
             }
 
             [Test]
@@ -882,8 +883,10 @@ foo=bar
                         sut.Persist(memStream);
                         var lines = memStream.AsString()
                             .Split(new[] {"\r", "\n"}, StringSplitOptions.RemoveEmptyEntries);
-                        Assert.IsTrue(lines.Any(l => l == "; this is the general section"));
-                        Assert.IsTrue(lines.Any(l => l == "; this is the general section again!"));
+                        Expect(lines)
+                            .To.Contain("; this is the general section");
+                        Expect(lines)
+                            .To.Contain("; this is the general section again!");
                     }
                 }
 
@@ -947,7 +950,8 @@ foo=bar
                 var value2 = RandString();
                 var sut = Create() as INIFile_EXPOSES_Sections;
                 //---------------Assert Precondition----------------
-                Assert.IsFalse(sut.Data.Keys.Any(s => s == section));
+                Expect(sut.Data)
+                    .Not.To.Contain.Key(section);
 
                 //---------------Execute Test ----------------------
                 sut.SetValue(section, key, value1);
@@ -993,7 +997,8 @@ foo=bar
                 sut.SetValue(section, key, value);
                 var otherKey = key + RandString();
                 //---------------Assert Precondition----------------
-                Assert.IsFalse(sut[section].Keys.Contains(otherKey));
+                Expect(sut[section])
+                    .Not.To.Contain.Key(otherKey);
                 //---------------Execute Test ----------------------
                 var result = sut.GetValue(section, otherKey, defaultValue);
                 //---------------Test Result -----------------------
@@ -1013,11 +1018,13 @@ foo=bar
                 var otherKey = key + RandString();
                 var otherSection = section + RandString();
                 //---------------Assert Precondition----------------
-                Assert.IsFalse(sut.Data.Keys.Contains(otherSection));
+                Expect(sut.Data)
+                    .Not.To.Contain.Key(otherSection);
                 //---------------Execute Test ----------------------
                 var result = sut.GetValue(otherSection, otherKey, defaultValue);
                 //---------------Test Result -----------------------
-                Expect(result).To.Equal(defaultValue);
+                Expect(result)
+                    .To.Equal(defaultValue);
             }
         }
 

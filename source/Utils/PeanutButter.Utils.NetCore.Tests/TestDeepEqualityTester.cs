@@ -1,10 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using NUnit.Framework;
-using NExpect;
 using PeanutButter.TestUtils.AspNetCore.Builders;
-using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.NetCore.Tests

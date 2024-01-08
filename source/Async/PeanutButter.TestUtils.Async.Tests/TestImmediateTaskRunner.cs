@@ -22,8 +22,10 @@ namespace PeanutButter.TestUtils.Async.Tests
                 .Using(sut).ContinueWith(t => { secondCalled = true; });
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(firstCalled);
-            Assert.IsTrue(secondCalled);
+            Expect(firstCalled)
+                .To.Be.True();
+            Expect(secondCalled)
+                .To.Be.True();
         }
 
         [Test]
@@ -55,9 +57,13 @@ namespace PeanutButter.TestUtils.Async.Tests
             });
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(firstCalled);
-            Assert.IsTrue(secondCalled);
-            Assert.AreEqual(expected, result);
+
+            Expect(firstCalled)
+                .To.Be.True();
+            Expect(secondCalled)
+                .To.Be.True();
+            Expect(result)
+                .To.Equal(expected);
         }
     }
 }

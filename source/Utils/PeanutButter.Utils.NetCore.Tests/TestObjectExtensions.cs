@@ -1,10 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
-using NExpect;
-using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using static NExpect.Expectations;
+// ReSharper disable ConvertConstructorToMemberInitializers
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable PossibleNullReferenceException
@@ -36,7 +35,8 @@ public class TestObjectExtensions
             var result = (new object()).DeepEquals(new object());
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
 
@@ -52,7 +52,8 @@ public class TestObjectExtensions
             var result = (new { prop = randomString }).DeepEquals(new { prop = randomString });
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -67,7 +68,8 @@ public class TestObjectExtensions
                 .DeepEquals(new { prop = propVal + GetRandomString(1, 10) });
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(result);
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -82,7 +84,8 @@ public class TestObjectExtensions
             var result = o1.DeepEquals(o2);
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -90,14 +93,15 @@ public class TestObjectExtensions
         {
             //---------------Set up test pack-------------------
             object o1 = null;
-            object o2 = new object();
+            var o2 = new object();
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
             var result = o1.DeepEquals(o2);
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(result);
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -105,14 +109,15 @@ public class TestObjectExtensions
         {
             //---------------Set up test pack-------------------
             object o2 = null;
-            object o1 = new object();
+            var o1 = new object();
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
             var result = o1.DeepEquals(o2);
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(result);
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -148,7 +153,8 @@ public class TestObjectExtensions
             var result = (new { prop = propVal }).DeepEquals(new { prop = propVal });
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -177,7 +183,8 @@ public class TestObjectExtensions
             var result = o1.DeepEquals(o2);
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -205,7 +212,8 @@ public class TestObjectExtensions
             var result = o1.DeepEquals(o2);
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(result);
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -229,7 +237,8 @@ public class TestObjectExtensions
             var result = o1.DeepEquals(o2, "ignoreMe");
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -255,7 +264,8 @@ public class TestObjectExtensions
             var result = o1.DeepEquals(o2, "ignoreMe1", "ignoreMe2");
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
 
@@ -282,7 +292,8 @@ public class TestObjectExtensions
             var result = o1.DeepEquals(o2, "ignoreMe1", "ignoreMe2");
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -297,8 +308,10 @@ public class TestObjectExtensions
             var result1 = first.DeepEquals(second);
             var result2 = second.DeepEquals(first);
             // Assert
-            Expect(result1).To.Be.False();
-            Expect(result2).To.Be.False();
+            Expect(result1)
+                .To.Be.False();
+            Expect(result2)
+                .To.Be.False();
         }
 
         [Test]
@@ -313,8 +326,10 @@ public class TestObjectExtensions
             var result1 = first.DeepEquals(second);
             var result2 = second.DeepEquals(first);
             // Assert
-            Expect(result1).To.Be.True();
-            Expect(result2).To.Be.True();
+            Expect(result1)
+                .To.Be.True();
+            Expect(result2)
+                .To.Be.True();
         }
 
         public class HasSomethingWithStrings
@@ -340,8 +355,10 @@ public class TestObjectExtensions
             var result1 = first.DeepEquals(second);
             var result2 = second.DeepEquals(first);
             // Assert
-            Expect(result1).To.Be.False();
-            Expect(result2).To.Be.False();
+            Expect(result1)
+                .To.Be.False();
+            Expect(result2)
+                .To.Be.False();
         }
 
         [Test]
@@ -362,8 +379,10 @@ public class TestObjectExtensions
             var result1 = first.DeepEquals(second);
             var result2 = second.DeepEquals(first);
             // Assert
-            Expect(result1).To.Be.True();
-            Expect(result2).To.Be.True();
+            Expect(result1)
+                .To.Be.True();
+            Expect(result2)
+                .To.Be.True();
         }
 
         [Test]
@@ -381,7 +400,8 @@ public class TestObjectExtensions
             var result = item.DeepEquals(item);
 
             //--------------- Assert -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -403,7 +423,8 @@ public class TestObjectExtensions
             var result = item1.DeepEquals(item2);
 
             //--------------- Assert -----------------------
-            Assert.IsFalse(result);
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -425,7 +446,8 @@ public class TestObjectExtensions
             var result = item1.DeepEquals(item2);
 
             //--------------- Assert -----------------------
-            Assert.IsFalse(result);
+            Expect(result)
+                .To.Be.False();
         }
         
         [Test]
@@ -456,7 +478,8 @@ public class TestObjectExtensions
             var result = value.DeepEquals(value);
 
             //--------------- Assert -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
 
@@ -491,7 +514,8 @@ public class TestObjectExtensions
             var result = item1.DeepEquals(item2);
 
             //--------------- Assert -----------------------
-            Assert.IsFalse(result);
+            Expect(result)
+                .To.Be.False();
         }
 
         public class SimpleParent
@@ -539,7 +563,8 @@ public class TestObjectExtensions
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Assert.DoesNotThrow(() => n1.DeepEquals(n1));
+            Expect(() => n1.DeepEquals(n1))
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -558,7 +583,8 @@ public class TestObjectExtensions
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Assert.DoesNotThrow(() => n1.DeepEquals(n2));
+            Expect(() => n1.DeepEquals(n2))
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -581,7 +607,8 @@ public class TestObjectExtensions
                 var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 });
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.True();
+                Expect(result)
+                    .To.Be.True();
             }
 
             [Test]
@@ -599,7 +626,8 @@ public class TestObjectExtensions
                 var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 2 });
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.False();
+                Expect(result)
+                    .To.Be.False();
             }
 
             [Test]
@@ -621,7 +649,8 @@ public class TestObjectExtensions
                 var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 });
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.False();
+                Expect(result)
+                    .To.Be.False();
             }
 
             [Test]
@@ -643,7 +672,8 @@ public class TestObjectExtensions
                 var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 }, "name");
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.True();
+                Expect(result)
+                    .To.Be.True();
             }
 
             [Test]
@@ -671,7 +701,8 @@ public class TestObjectExtensions
                 );
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.False();
+                Expect(result)
+                    .To.Be.False();
             }
 
             [Test]
@@ -699,7 +730,8 @@ public class TestObjectExtensions
                 );
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.True();
+                Expect(result)
+                    .To.Be.True();
             }
 
             [Test]
@@ -730,7 +762,8 @@ public class TestObjectExtensions
                 );
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.True();
+                Expect(result)
+                    .To.Be.True();
             }
 
             [Test]
@@ -763,7 +796,8 @@ public class TestObjectExtensions
                 );
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.False();
+                Expect(result)
+                    .To.Be.False();
             }
 
 
@@ -792,7 +826,8 @@ public class TestObjectExtensions
                 );
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.False();
+                Expect(result)
+                    .To.Be.False();
             }
 
             [Test]
@@ -820,7 +855,8 @@ public class TestObjectExtensions
                 );
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.True();
+                Expect(result)
+                    .To.Be.True();
             }
 
             [Test]
@@ -851,7 +887,8 @@ public class TestObjectExtensions
                 );
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.True();
+                Expect(result)
+                    .To.Be.True();
             }
 
             [Test]
@@ -887,19 +924,6 @@ public class TestObjectExtensions
                 Expect(result).To.Be.False();
             }
         }
-
-        [TestFixture]
-        public class DebugDeepEquals
-        {
-            [Test]
-            public void ShouldWriteOutTheDiffToTheProvidedWriter()
-            {
-                // Arrange
-                
-                // Act
-                // Assert
-            }
-        }
     }
 
     [TestFixture]
@@ -917,7 +941,8 @@ public class TestObjectExtensions
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => src.CopyPropertiesTo(new object()));
+            Expect(() => src.CopyPropertiesTo(new object()))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -964,7 +989,8 @@ public class TestObjectExtensions
             src.CopyPropertiesTo(dst);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(src.prop, dst.prop);
+            Expect(dst.prop)
+                .To.Equal(src.prop);
         }
 
 
@@ -978,15 +1004,20 @@ public class TestObjectExtensions
                 dst.prop.Randomize();
 
             //---------------Assert Precondition----------------
-            Assert.AreNotEqual(src, dst);
-            Assert.AreNotEqual(src.prop, dst.prop);
-            Assert.AreNotEqual(src.prop.prop, dst.prop.prop);
+            Expect(dst)
+                .Not.To.Equal(src);
+            Expect(dst.prop)
+                .Not.To.Equal(src.prop);
+            Expect(dst.prop.prop)
+                .Not.To.Equal(src.prop.prop);
             //---------------Execute Test ----------------------
             src.CopyPropertiesTo(dst);
 
             //---------------Test Result -----------------------
-            Assert.AreNotEqual(src.prop, dst.prop);
-            Assert.AreEqual(src.prop.prop, dst.prop.prop);
+            Expect(dst.prop)
+                .Not.To.Equal(src.prop);
+            Expect(dst.prop.prop)
+                .To.Equal(src.prop.prop);
         }
 
         [Test]
@@ -999,15 +1030,20 @@ public class TestObjectExtensions
                 dst.prop.Randomize();
 
             //---------------Assert Precondition----------------
-            Assert.AreNotEqual(src, dst);
-            Assert.AreNotEqual(src.prop, dst.prop);
-            Assert.AreNotEqual(src.prop.prop, dst.prop.prop);
+            Expect(dst)
+                .Not.To.Equal(src);
+            Expect(dst.prop)
+                .Not.To.Equal(src.prop);
+            Expect(dst.prop.prop)
+                .Not.To.Equal(src.prop.prop);
             //---------------Execute Test ----------------------
             src.CopyPropertiesTo(dst, false);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(src.prop, dst.prop);
-            Assert.AreEqual(src.prop.prop, dst.prop.prop);
+            Expect(dst.prop)
+                .To.Equal(src.prop);
+            Expect(dst.prop.prop)
+                .To.Equal(src.prop.prop);
         }
 
 
@@ -1019,10 +1055,12 @@ public class TestObjectExtensions
             var o2 = new Complex<string> { prop = null };
 
             //---------------Assert Precondition----------------
-            Assert.IsNull(o2.prop);
+            Expect(o2.prop)
+                .To.Be.Null();
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => o1.CopyPropertiesTo(o2));
+            Expect(() => o1.CopyPropertiesTo(o2))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -1036,13 +1074,16 @@ public class TestObjectExtensions
             o1.prop = null;
 
             //---------------Assert Precondition----------------
-            Assert.IsNull(o1.prop);
+            Expect(o1.prop)
+                .To.Be.Null();
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => o1.CopyPropertiesTo(o2));
+            Expect(() => o1.CopyPropertiesTo(o2))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
-            Assert.IsNull(o2.prop);
+            Expect(o2.prop)
+                .To.Be.Null();
         }
 
         [Test]
@@ -1079,8 +1120,10 @@ public class TestObjectExtensions
             src.CopyPropertiesTo(target);
 
             //--------------- Assert -----------------------
-            Assert.IsNotNull(target.Strings);
-            CollectionAssert.IsEmpty(target.Strings);
+            Expect(target.Strings)
+                .Not.To.Be.Null();
+            Expect(target.Strings)
+                .To.Be.Empty();
         }
 
         [Test]
@@ -1096,9 +1139,10 @@ public class TestObjectExtensions
             src.CopyPropertiesTo(target);
 
             //--------------- Assert -----------------------
-            Assert.IsNotNull(target.Strings);
-            CollectionAssert.IsNotEmpty(target.Strings);
-            CollectionAssert.AreEqual(src.Strings, target.Strings);
+            Expect(target.Strings)
+                .Not.To.Be.Null();
+            Expect(target.Strings)
+                .To.Equal(src.Strings);
         }
 
         [Test]
@@ -1114,9 +1158,10 @@ public class TestObjectExtensions
             src.CopyPropertiesTo(target);
 
             //--------------- Assert -----------------------
-            Assert.IsNotNull(target.Stuff);
-            CollectionAssert.IsNotEmpty(target.Stuff);
-            CollectionAssert.AreEqual(src.Stuff, target.Stuff);
+            Expect(target.Stuff)
+                .Not.To.Be.Null();
+            Expect(target.Stuff)
+                .To.Equal(src.Stuff);
         }
 
         [Test]
@@ -1126,12 +1171,15 @@ public class TestObjectExtensions
             var src = new HasAListOfStrings() { Strings = new List<string>() };
             var target = new HasAListOfStrings();
             // Pre-Assert
-            Expect(target.Strings).To.Be.Null();
+            Expect(target.Strings)
+                .To.Be.Null();
             // Act
             src.CopyPropertiesTo(target);
             // Assert
-            Expect(target.Strings).Not.To.Be.Null();
-            Expect(target.Strings).To.Be.Empty();
+            Expect(target.Strings)
+                .Not.To.Be.Null();
+            Expect(target.Strings)
+                .To.Be.Empty();
         }
 
         [Test]
@@ -1144,12 +1192,15 @@ public class TestObjectExtensions
             };
             var target = new HasAListOfDates();
             // Pre-Assert
-            Expect(target.DateTimes).To.Be.Null();
+            Expect(target.DateTimes)
+                .To.Be.Null();
             // Act
             src.CopyPropertiesTo(target);
             // Assert
-            Expect(target.DateTimes).Not.To.Be.Null();
-            Expect(target.DateTimes).Not.To.Be.Empty();
+            Expect(target.DateTimes)
+                .Not.To.Be.Null();
+            Expect(target.DateTimes)
+                .Not.To.Be.Empty();
             Expect(target.DateTimes)
                 .To.Equal(src.DateTimes);
         }
@@ -1175,8 +1226,10 @@ public class TestObjectExtensions
             src.CopyPropertiesTo(target, "Id");
 
             //--------------- Assert -----------------------
-            Expect(target.Name).To.Equal(src.Name);
-            Expect(target.Id).To.Equal(2);
+            Expect(target.Name)
+                .To.Equal(src.Name);
+            Expect(target.Id)
+                .To.Equal(2);
         }
     }
 
@@ -1198,7 +1251,8 @@ public class TestObjectExtensions
                 var result = o.GetOrDefault("prop", 1);
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(1, result);
+                Expect(result)
+                    .To.Equal(1);
             }
         }
 
@@ -1298,7 +1352,8 @@ public class TestObjectExtensions
                 var result = parent.GetOrDefault<int>("child.prop");
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(2, result);
+                Expect(result)
+                    .To.Equal(2);
             }
 
             [Test]
@@ -1375,7 +1430,8 @@ public class TestObjectExtensions
                 var result = obj.GetPropertyValue("id");
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
+                Expect(result)
+                    .To.Equal(expected);
             }
 
             [Test]
@@ -1394,7 +1450,8 @@ public class TestObjectExtensions
                 // Act
                 var result = input.GetPropertyValue("Child.Name");
                 // Assert
-                Expect(result).To.Equal(expected);
+                Expect(result)
+                    .To.Equal(expected);
             }
 
             [Test]
@@ -1468,7 +1525,8 @@ public class TestObjectExtensions
                 var result = obj.GetPropertyValue(propertyName);
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
+                Expect(result)
+                    .To.Equal(expected);
             }
 
             [Test]
@@ -1486,7 +1544,8 @@ public class TestObjectExtensions
                 var result = obj.Get<int>(propertyName);
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
+                Expect(result)
+                    .To.Equal(expected);
             }
 
             [Test]
@@ -1502,7 +1561,8 @@ public class TestObjectExtensions
                 obj.SetPropertyValue("Name", expected);
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(expected, obj.Name);
+                Expect(obj.Name)
+                    .To.Equal(expected);
             }
 
             [Test]
@@ -1524,7 +1584,8 @@ public class TestObjectExtensions
                 obj.SetPropertyValue("Child.Name", expected);
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(expected, obj.Child.Name);
+                Expect(obj.Child.Name)
+                    .To.Equal(expected);
             }
 
 
@@ -1550,7 +1611,8 @@ public class TestObjectExtensions
                 obj.SetPropertyValue("Parent.Child.Name", expected);
 
                 //---------------Test Result -----------------------
-                Assert.AreEqual(expected, obj.Parent.Child.Name);
+                Expect(obj.Parent.Child.Name)
+                    .To.Equal(expected);
             }
 
             [Test]
@@ -1585,9 +1647,7 @@ public class TestObjectExtensions
                     .To.Be.True();
             }
 
-            public class Derivative: HasPrivateField
-            {
-            }
+            public class Derivative: HasPrivateField;
 
             public class HasPrivateField
             {
@@ -1796,9 +1856,7 @@ public class TestObjectExtensions
     [TestFixture]
     public class DeepClone
     {
-        public class EmptyType
-        {
-        }
+        public class EmptyType;
 
         [Test]
         public void GivenEmptyObject_ShouldReturnNewEmptyObject()
@@ -1809,9 +1867,12 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result).Not.To.Be.Null();
-            Expect(result).To.Be.An.Instance.Of<EmptyType>();
-            Expect(result.GetType().GetProperties()).To.Be.Empty();
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result)
+                .To.Be.An.Instance.Of<EmptyType>();
+            Expect(result.GetType().GetProperties())
+                .To.Be.Empty();
         }
 
         public class Node
@@ -1851,8 +1912,10 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result.Child).Not.To.Equal(src.Child);
-            Expect(result).To.Deep.Equal(src);
+            Expect(result.Child)
+                .Not.To.Equal(src.Child);
+            Expect(result)
+                .To.Deep.Equal(src);
         }
 
         public enum Emotions
@@ -1871,7 +1934,8 @@ public class TestObjectExtensions
         public void ShouldCopyEnumProperties()
         {
             // Arrange
-            var src = new Puppy() { Emotion = Emotions.Happy };
+            var src = new Puppy() { 
+                Emotion = Emotions.Happy };
 
             // Pre-Assert
 
@@ -1879,7 +1943,8 @@ public class TestObjectExtensions
             var result = src.DeepClone();
 
             // Assert
-            Expect(result.Emotion).To.Equal(Emotions.Happy);
+            Expect(result.Emotion)
+                .To.Equal(Emotions.Happy);
         }
 
 
@@ -1893,7 +1958,7 @@ public class TestObjectExtensions
         {
             // Arrange
             var src = GetRandom<HasAnArray>();
-            src.Nodes = GetRandomCollection<Node>(2, 4).ToArray();
+            src.Nodes = GetRandomArray<Node>(2, 4);
             // Pre-Assert
             // Act
             var result = src.DeepClone();
@@ -1912,12 +1977,13 @@ public class TestObjectExtensions
         {
             // Arrange
             var src = GetRandom<HasAnIEnumerable>();
-            src.Nodes = GetRandomCollection<Node>(2, 4).ToArray();
+            src.Nodes = GetRandomArray<Node>(2, 4);
             // Pre-Assert
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result.Nodes).Not.To.Be.Empty();
+            Expect(result.Nodes)
+                .Not.To.Be.Empty();
             Expect(result.Nodes)
                 .To.Deep.Equal(src.Nodes);
         }
@@ -1932,7 +1998,7 @@ public class TestObjectExtensions
         {
             // Arrange
             var src = GetRandom<HasAList>();
-            src.Nodes = GetRandomCollection<Node>(2, 4).ToList();
+            src.Nodes = GetRandomList<Node>(2, 4);
             // Pre-Assert
             // Act
             var result = src.DeepClone();
@@ -1962,8 +2028,10 @@ public class TestObjectExtensions
             var result = downCast.DeepClone();
             // Assert
             var upcast = result as HasANameAndLabel;
-            Expect(upcast).Not.To.Be.Null();
-            Expect(upcast.Label).To.Equal(src.Label);
+            Expect(upcast)
+                .Not.To.Be.Null();
+            Expect(upcast.Label)
+                .To.Equal(src.Label);
         }
 
         [Test]
@@ -1975,7 +2043,8 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result).To.Be.Null();
+            Expect(result)
+                .To.Be.Null();
         }
 
         [Test]
@@ -1988,7 +2057,8 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result.Nodes).To.Be.Null();
+            Expect(result.Nodes)
+                .To.Be.Null();
         }
 
         [Test]
@@ -1999,7 +2069,8 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result).To.Deep.Equal(src);
+            Expect(result)
+                .To.Deep.Equal(src);
         }
 
         [Test]
@@ -2010,7 +2081,8 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result).To.Deep.Equal(src);
+            Expect(result)
+                .To.Deep.Equal(src);
         }
 
         [Test]
@@ -2021,7 +2093,8 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result).To.Deep.Equal(src);
+            Expect(result)
+                .To.Deep.Equal(src);
         }
 
         [Test]
@@ -2036,9 +2109,12 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result).Not.To.Be.Null();
-            Expect(result.Settings).Not.To.Be.Null();
-            Expect(result.Settings as IDictionary<string, object>).To.Contain.Key("moo")
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result.Settings)
+                .Not.To.Be.Null();
+            Expect(result.Settings as IDictionary<string, object>)
+                .To.Contain.Key("moo")
                 .With.Value("cow");
         }
 
@@ -2054,9 +2130,12 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result).Not.To.Be.Null();
-            Expect(result.Settings).Not.To.Be.Null();
-            Expect(result.Settings as IDictionary<string, object>).To.Contain.Key("moo")
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result.Settings)
+                .Not.To.Be.Null();
+            Expect(result.Settings as IDictionary<string, object>)
+                .To.Contain.Key("moo")
                 .With.Value("cow");
         }
 
@@ -2082,10 +2161,10 @@ public class TestObjectExtensions
 
             public void ReadXml(System.Xml.XmlReader reader)
             {
-                XmlSerializer keySerializer = new XmlSerializer(typeof(TKey));
-                XmlSerializer valueSerializer = new XmlSerializer(typeof(TValue));
+                var keySerializer = new XmlSerializer(typeof(TKey));
+                var valueSerializer = new XmlSerializer(typeof(TValue));
 
-                bool wasEmpty = reader.IsEmptyElement;
+                var wasEmpty = reader.IsEmptyElement;
                 reader.Read();
                 if (wasEmpty)
                     return;
@@ -2096,13 +2175,14 @@ public class TestObjectExtensions
                     reader.ReadStartElement("item");
 
                     reader.ReadStartElement("key");
-                    TKey key = (TKey) keySerializer.Deserialize(reader);
+                    var key = (TKey) keySerializer.Deserialize(reader);
                     reader.ReadEndElement();
 
                     reader.ReadStartElement("value");
-                    TValue value = (TValue) valueSerializer.Deserialize(reader);
+                    var value = (TValue) valueSerializer.Deserialize(reader);
                     reader.ReadEndElement();
 
+                    // ReSharper disable once AssignNullToNotNullAttribute
                     Add(key, value);
 
                     reader.ReadEndElement();
@@ -2115,10 +2195,10 @@ public class TestObjectExtensions
 
             public void WriteXml(System.Xml.XmlWriter writer)
             {
-                XmlSerializer keySerializer = new XmlSerializer(typeof(TKey));
-                XmlSerializer valueSerializer = new XmlSerializer(typeof(TValue));
+                var keySerializer = new XmlSerializer(typeof(TKey));
+                var valueSerializer = new XmlSerializer(typeof(TValue));
 
-                foreach (TKey key in Keys)
+                foreach (var key in Keys)
                 {
                     writer.WriteStartElement("item");
 
@@ -2127,7 +2207,7 @@ public class TestObjectExtensions
                     writer.WriteEndElement();
 
                     writer.WriteStartElement("value");
-                    TValue value = this[key];
+                    var value = this[key];
                     valueSerializer.Serialize(writer, value);
                     writer.WriteEndElement();
 
@@ -2159,12 +2239,13 @@ public class TestObjectExtensions
         public void ShouldCloneAStandaloneIEnumerable()
         {
             // Arrange
-            IEnumerable<Node> src = CollectionOfNodes();
+            var src = CollectionOfNodes();
             // Act
             Console.WriteLine(src.GetType());
             var result = src.DeepClone();
             // Assert
-            Expect(result).To.Deep.Equal(src);
+            Expect(result)
+                .To.Deep.Equal(src);
         }
 
         [Test]
@@ -2179,7 +2260,8 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result).Not.To.Be.Null();
+            Expect(result)
+                .Not.To.Be.Null();
             Expect(result)
                 .To.Contain.Key("moo")
                 .With.Value("cow");
@@ -2206,9 +2288,12 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result).Not.To.Be.Null();
-            Expect(result.Prop).Not.To.Be.Null();
-            Expect(result.Prop).To.Be.Deep.Equivalent.To(src.Prop);
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result.Prop)
+                .Not.To.Be.Null();
+            Expect(result.Prop)
+                .To.Be.Deep.Equivalent.To(src.Prop);
         }
 
         public class HasWritableIndexer
@@ -2236,8 +2321,10 @@ public class TestObjectExtensions
             // Act
             var result = src.DeepClone();
             // Assert
-            Expect(result).Not.To.Be.Null();
-            Expect(result.NormalProp).To.Equal(src.NormalProp);
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result.NormalProp)
+                .To.Equal(src.NormalProp);
         }
     }
 
@@ -2248,17 +2335,20 @@ public class TestObjectExtensions
         public void ShouldWrapObjectInArray()
         {
             //---------------Set up test pack-------------------
-            var sut = new object();
+            var expected = new object();
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = sut.InArray();
+            var result = expected.InArray();
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            CollectionAssert.IsNotEmpty(result);
-            Assert.AreEqual(sut, result.Single());
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result)
+                .Not.To.Be.Empty();
+            Expect(result.Single())
+                .To.Equal(expected);
         }
     }
 
@@ -2303,7 +2393,8 @@ public class TestObjectExtensions
             var result = left.DeepIntersectionEquals(right);
 
             //--------------- Assert -----------------------
-            Expect(result).To.Be.True();
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -2325,7 +2416,8 @@ public class TestObjectExtensions
             var result = left.DeepIntersectionEquals(right);
 
             //--------------- Assert -----------------------
-            Expect(result).To.Be.False();
+            Expect(result)
+                .To.Be.False();
         }
 
         [TestFixture]
@@ -2350,7 +2442,8 @@ public class TestObjectExtensions
                 var result = collection1.ContainsOneIntersectionEqualTo(new { id = 1 });
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.True();
+                Expect(result)
+                    .To.Be.True();
             }
 
             [Test]
@@ -2372,7 +2465,8 @@ public class TestObjectExtensions
                 var result = collection1.ContainsOneIntersectionEqualTo(new { id = 2 });
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.False();
+                Expect(result)
+                    .To.Be.False();
             }
 
             [Test]
@@ -2402,7 +2496,8 @@ public class TestObjectExtensions
                 );
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.True();
+                Expect(result)
+                    .To.Be.True();
             }
 
             [Test]
@@ -2424,7 +2519,8 @@ public class TestObjectExtensions
                 var result = collection1.ContainsOneIntersectionEqualTo(new { value = 1 });
 
                 //--------------- Assert -----------------------
-                Expect(result).To.Be.False();
+                Expect(result)
+                    .To.Be.False();
             }
         }
     }
@@ -2450,7 +2546,8 @@ public class TestObjectExtensions
             );
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -2465,7 +2562,8 @@ public class TestObjectExtensions
                 .DeepSubEquals(new object());
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(result);
+            Expect(result)
+                .To.Be.False();
         }
 
         [Test]
@@ -2487,7 +2585,8 @@ public class TestObjectExtensions
             var result = left.DeepSubEquals(right);
 
             //--------------- Assert -----------------------
-            Expect(result).To.Be.False();
+            Expect(result)
+                .To.Be.False();
         }
     }
 
@@ -2502,7 +2601,8 @@ public class TestObjectExtensions
             // Act
             var result = data.AsEnumerable<long>().ToArray();
             // Assert
-            Expect(result).To.Equal(data.Select(o => (long) o));
+            Expect(result)
+                .To.Equal(data.Select(o => (long) o));
         }
 
         [Test]
@@ -2514,7 +2614,8 @@ public class TestObjectExtensions
             // Act
             var result = enumerable.AsEnumerable<int>();
             // Assert
-            Expect(result).To.Equal(data);
+            Expect(result)
+                .To.Equal(data);
         }
 
         [Test]
@@ -2840,21 +2941,13 @@ public class TestObjectExtensions
             }
         }
 
-        public interface IService
-        {
-        }
+        public interface IService;
 
-        public class ServiceA : IService
-        {
-        }
+        public class ServiceA : IService;
 
-        public class ServiceB : ServiceA
-        {
-        }
+        public class ServiceB : ServiceA;
 
-        public class NotAService
-        {
-        }
+        public class NotAService;
     }
 
     [TestFixture]
@@ -3112,9 +3205,7 @@ public class TestObjectExtensions
         string TravelPreferences { get; set; }
     }
 
-    public interface ITraveller : IActor, ITravellerDetails
-    {
-    }
+    public interface ITraveller : IActor, ITravellerDetails;
 
     public class ActualTravellerDetails : ITravellerDetails
     {

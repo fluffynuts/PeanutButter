@@ -1,9 +1,6 @@
 using System.Reflection;
 using System.Text;
-using NExpect;
-using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.NetCore.Tests
 {
@@ -36,9 +33,11 @@ namespace PeanutButter.Utils.NetCore.Tests
             var sut = new AutoTempFile();
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(File.Exists(sut.Path));
+            Expect(sut.Path)
+                .To.Be.A.File();
             var fileInfo = new FileInfo(sut.Path);
-            Assert.AreEqual(0, fileInfo.Length);
+            Expect(fileInfo.Length)
+                .To.Equal(0);
 
             try
             {
@@ -59,11 +58,13 @@ namespace PeanutButter.Utils.NetCore.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.IsTrue(File.Exists(sut.Path));
+            Expect(sut.Path)
+                .To.Be.A.File();
             sut.Dispose();
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(File.Exists(sut.Path));
+            Expect(sut.Path)
+                .Not.To.Exist();
         }
 
         [Test]
@@ -71,35 +72,30 @@ namespace PeanutButter.Utils.NetCore.Tests
         {
             //---------------Set up test pack-------------------
             var expected = GetRandomBytes();
-            using (var sut = new AutoTempFile(expected))
-            {
-                //---------------Assert Precondition----------------
+            using var sut = new AutoTempFile(expected);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = File.ReadAllBytes(sut.Path);
+            //---------------Execute Test ----------------------
+            var result = File.ReadAllBytes(sut.Path);
 
-                //---------------Test Result -----------------------
-                CollectionAssert.AreEqual(expected, result);
-            }
+            //---------------Test Result -----------------------
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
         public void Construct_GivenNonExistentBaseFolder_ShouldCreateIt()
         {
             // Arrange
-            using (var folder = new AutoTempFolder())
-            {
-                // Pre-assert
-                // Act
-                var basePath = Path.Combine(folder.Path, "moo", "cow", "duck");
-                var data = GetRandomBytes(64);
-                using (var file = new AutoTempFile(basePath, "stuff.blob", data))
-                {
-                    var onDisk = File.ReadAllBytes(file.Path);
-                    // Assert
-                    Expect(onDisk).To.Equal(data);
-                }
-            }
+            using var folder = new AutoTempFolder();
+            // Pre-assert
+            // Act
+            var basePath = Path.Combine(folder.Path, "moo", "cow", "duck");
+            var data = GetRandomBytes(64);
+            using var file = new AutoTempFile(basePath, "stuff.blob", data);
+            var onDisk = File.ReadAllBytes(file.Path);
+            // Assert
+            Expect(onDisk).To.Equal(data);
         }
 
         [Test]
@@ -109,13 +105,11 @@ namespace PeanutButter.Utils.NetCore.Tests
             var data = GetRandomBytes(64);
             // Pre-assert
             // Act
-            using (var folder = new AutoTempFolder())
-            using (var file = new AutoTempFile(folder.Path, data))
-            {
-                var result = file.BinaryData;
-                // Assert
-                Expect(result).To.Equal(data);
-            }
+            using var folder = new AutoTempFolder();
+            using var file = new AutoTempFile(folder.Path, data);
+            var result = file.BinaryData;
+            // Assert
+            Expect(result).To.Equal(data);
         }
 
         [Test]
@@ -126,14 +120,12 @@ namespace PeanutButter.Utils.NetCore.Tests
             var expected = GetAnother(original, () => GetRandomBytes(64));
             // Pre-assert
             // Act
-            using (var folder = new AutoTempFolder())
-            using (var file = new AutoTempFile(folder.Path, original))
-            {
-                file.BinaryData = expected;
-                var result = File.ReadAllBytes(file.Path);
-                // Assert
-                Expect(result).To.Equal(expected);
-            }
+            using var folder = new AutoTempFolder();
+            using var file = new AutoTempFile(folder.Path, original);
+            file.BinaryData = expected;
+            var result = File.ReadAllBytes(file.Path);
+            // Assert
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -143,12 +135,10 @@ namespace PeanutButter.Utils.NetCore.Tests
             var data = GetRandomString(128);
             // Pre-assert
             // Act
-            using (var file = new AutoTempFile("stuff.blob", data))
-            {
-                var result = file.StringData;
-                // Assert
-                Expect(result).To.Equal(data);
-            }
+            using var file = new AutoTempFile("stuff.blob", data);
+            var result = file.StringData;
+            // Assert
+            Expect(result).To.Equal(data);
         }
 
         [Test]
@@ -159,14 +149,12 @@ namespace PeanutButter.Utils.NetCore.Tests
             var expected = GetAnother(original, () => GetRandomString(128));
             // Pre-assert
             // Act
-            using (var folder = new AutoTempFolder())
-            using (var file = new AutoTempFile(folder.Path, original))
-            {
-                file.StringData = expected;
-                var result = Encoding.UTF8.GetString(File.ReadAllBytes(file.Path));
-                // Assert
-                Expect(result).To.Equal(expected);
-            }
+            using var folder = new AutoTempFolder();
+            using var file = new AutoTempFile(folder.Path, original);
+            file.StringData = expected;
+            var result = Encoding.UTF8.GetString(File.ReadAllBytes(file.Path));
+            // Assert
+            Expect(result).To.Equal(expected);
         }
 
         [Test]
@@ -176,13 +164,11 @@ namespace PeanutButter.Utils.NetCore.Tests
             var expected = GetRandomString(128);
             // Pre-assert
             // Act
-            using (var file = new AutoTempFile(expected))
-            {
-                // Assert
-                Expect(file.StringData).To.Equal(expected);
-                Expect(Encoding.UTF8.GetString(File.ReadAllBytes(file.Path)))
-                    .To.Equal(expected);
-            }
+            using var file = new AutoTempFile(expected);
+            // Assert
+            Expect(file.StringData).To.Equal(expected);
+            Expect(Encoding.UTF8.GetString(File.ReadAllBytes(file.Path)))
+                .To.Equal(expected);
         }
 
         [Test]
@@ -190,16 +176,15 @@ namespace PeanutButter.Utils.NetCore.Tests
         {
             //---------------Set up test pack-------------------
             var expected = GetRandomBytes();
-            using (var sut = new AutoTempFile(expected))
-            {
-                //---------------Assert Precondition----------------
+            using var sut = new AutoTempFile(expected);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = sut.BinaryData;
+            //---------------Execute Test ----------------------
+            var result = sut.BinaryData;
 
-                //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
-            }
+            //---------------Test Result -----------------------
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -208,17 +193,16 @@ namespace PeanutButter.Utils.NetCore.Tests
             //---------------Set up test pack-------------------
             var unexpected = GetRandomBytes();
             var expected = GetRandomBytes();
-            using (var sut = new AutoTempFile(unexpected))
-            {
-                //---------------Assert Precondition----------------
+            using var sut = new AutoTempFile(unexpected);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                sut.BinaryData = expected;
-                var result = File.ReadAllBytes(sut.Path);
+            //---------------Execute Test ----------------------
+            sut.BinaryData = expected;
+            var result = File.ReadAllBytes(sut.Path);
 
-                //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
-            }
+            //---------------Test Result -----------------------
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -226,16 +210,15 @@ namespace PeanutButter.Utils.NetCore.Tests
         {
             //---------------Set up test pack-------------------
             var expected = GetRandomString();
-            using (var sut = new AutoTempFile(expected))
-            {
-                //---------------Assert Precondition----------------
+            using var sut = new AutoTempFile(expected);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = sut.StringData;
+            //---------------Execute Test ----------------------
+            var result = sut.StringData;
 
-                //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
-            }
+            //---------------Test Result -----------------------
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -244,17 +227,16 @@ namespace PeanutButter.Utils.NetCore.Tests
             //---------------Set up test pack-------------------
             var unexpected = GetRandomString();
             var expected = GetRandomString();
-            using (var sut = new AutoTempFile(unexpected))
-            {
-                //---------------Assert Precondition----------------
+            using var sut = new AutoTempFile(unexpected);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                sut.StringData = expected;
-                var result = File.ReadAllBytes(sut.Path);
+            //---------------Execute Test ----------------------
+            sut.StringData = expected;
+            var result = File.ReadAllText(sut.Path);
 
-                //---------------Test Result -----------------------
-                Assert.AreEqual(expected, result);
-            }
+            //---------------Test Result -----------------------
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -262,17 +244,16 @@ namespace PeanutButter.Utils.NetCore.Tests
         {
             //---------------Set up test pack-------------------
             var unexpected = GetRandomString();
-            using (var sut = new AutoTempFile(unexpected))
-            {
-                //---------------Assert Precondition----------------
+            using var sut = new AutoTempFile(unexpected);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                sut.StringData = null;
-                var result = File.ReadAllBytes(sut.Path);
+            //---------------Execute Test ----------------------
+            sut.StringData = null;
+            var result = File.ReadAllBytes(sut.Path);
 
-                //---------------Test Result -----------------------
-                CollectionAssert.IsEmpty(result);
-            }
+            //---------------Test Result -----------------------
+            Expect(result)
+                .To.Be.Empty();
         }
 
         [Test]
@@ -293,7 +274,8 @@ namespace PeanutButter.Utils.NetCore.Tests
                 }
             );
             //---------------Test Result -----------------------
-            Assert.AreEqual(baseFolder, Path.GetDirectoryName(tempFile.Path));
+            Expect(Path.GetDirectoryName(tempFile.Path))
+                .To.Equal(baseFolder);
         }
 
         [Test]
@@ -310,12 +292,12 @@ namespace PeanutButter.Utils.NetCore.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            using (var tempFile = new AutoTempFile(baseFolder, expected))
-            {
-                //---------------Test Result -----------------------
-                Assert.AreEqual(baseFolder, Path.GetDirectoryName(tempFile.Path));
-                CollectionAssert.AreEqual(expected, File.ReadAllBytes(tempFile.Path));
-            }
+            using var tempFile = new AutoTempFile(baseFolder, expected);
+            //---------------Test Result -----------------------
+            Expect(Path.GetDirectoryName(tempFile.Path))
+                .To.Equal(baseFolder);
+            Expect(File.ReadAllBytes(tempFile.Path))
+                .To.Equal(expected);
         }
 
         [Test]
@@ -331,11 +313,10 @@ namespace PeanutButter.Utils.NetCore.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            using (var tempFile = new AutoTempFile(baseFolder, ""))
-            {
-                //---------------Test Result -----------------------
-                Assert.AreEqual(baseFolder, Path.GetDirectoryName(tempFile.Path));
-            }
+            using var tempFile = new AutoTempFile(baseFolder, "");
+            //---------------Test Result -----------------------
+            Expect(Path.GetDirectoryName(tempFile.Path))
+                .To.Equal(baseFolder);
         }
 
         [Test]
@@ -351,12 +332,12 @@ namespace PeanutButter.Utils.NetCore.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            using (var tempFile = new AutoTempFile(baseFolder, (string)null))
-            {
-                //---------------Test Result -----------------------
-                Assert.AreEqual(baseFolder, Path.GetDirectoryName(tempFile.Path));
-                CollectionAssert.IsEmpty(File.ReadAllBytes(tempFile.Path));
-            }
+            using var tempFile = new AutoTempFile(baseFolder, (string)null);
+            //---------------Test Result -----------------------
+            Expect(Path.GetDirectoryName(tempFile.Path))
+                .To.Equal(baseFolder);
+            Expect(File.ReadAllBytes(tempFile.Path))
+                .To.Be.Empty();
         }
 
         [Test]
@@ -369,12 +350,12 @@ namespace PeanutButter.Utils.NetCore.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            using (var tempFile = new AutoTempFile(baseFolder, expected))
-            {
-                //---------------Test Result -----------------------
-                Assert.AreEqual(baseFolder, Path.GetDirectoryName(tempFile.Path));
-                CollectionAssert.AreEqual(expected, File.ReadAllBytes(tempFile.Path));
-            }
+            using var tempFile = new AutoTempFile(baseFolder, expected);
+            //---------------Test Result -----------------------
+            Expect(Path.GetDirectoryName(tempFile.Path))
+                .To.Equal(baseFolder);
+            Expect(File.ReadAllText(tempFile.Path))
+                .To.Equal(expected);
         }
 
         [Test]
@@ -392,8 +373,10 @@ namespace PeanutButter.Utils.NetCore.Tests
             using (new AutoTempFile(baseFolder, fileName, data))
             {
                 //---------------Test Result -----------------------
-                Assert.IsTrue(File.Exists(expectedPath));
-                CollectionAssert.AreEqual(data, File.ReadAllBytes(expectedPath));
+                Expect(expectedPath)
+                    .To.Be.A.File();
+                Expect(File.ReadAllBytes(expectedPath))
+                    .To.Equal(data);
             }
         }
 

@@ -81,7 +81,6 @@ public class TestTempRedis
     }
 
     [Test]
-    [Timeout(60000)]
     public void ShouldSurviveRedisComingUpLate()
     {
         // Arrange
@@ -173,7 +172,6 @@ public class TestTempRedis
     }
 
     [Test]
-    [Timeout(30000)]
     public void ShouldRestartOnAccidentalDeath()
     {
         // Arrange

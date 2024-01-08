@@ -1,7 +1,4 @@
 ﻿using System;
-using NExpect;
-using NUnit.Framework;
-using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
 {

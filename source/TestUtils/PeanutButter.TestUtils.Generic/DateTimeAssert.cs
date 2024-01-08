@@ -71,7 +71,9 @@ namespace PeanutButter.TestUtils.Generic
         private static void DoAssertion(DateTime test, DateTime min, DateTime max, string failMessage)
         {
             if (test > max || test < min)
+            {
                 Assert.Fail(failMessage);
+            }
         }
     }
 }

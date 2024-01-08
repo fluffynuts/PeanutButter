@@ -39,9 +39,10 @@ namespace PeanutButter.MVC.Tests
 
             //---------------Execute Test ----------------------
             var ex = Assert.Throws<ArgumentException>(() => new StyleBundleFacade(name));
-
+            Expect(() => new StyleBundleFacade(name))
+                .To.Throw<ArgumentException>()
+                .For("name");
             //---------------Test Result -----------------------
-            Assert.AreEqual("name", ex.ParamName);
         }
 
         [Test]
@@ -57,11 +58,13 @@ namespace PeanutButter.MVC.Tests
             var result = sut.Include(expected) as StyleBundle;
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
+            Expect(result)
+                .Not.To.Be.Null();
             var items = result.GetPropertyValue<IEnumerable<object>>("Items");
             var item = items.Single();
             var path = item.GetPropertyValue<string>("VirtualPath");
-            Assert.AreEqual(expected, path);
+            Expect(path)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -79,13 +82,17 @@ namespace PeanutButter.MVC.Tests
             var result = sut.Include(expected1, expected2, expected3) as StyleBundle;
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
+            Expect(result)
+                .Not.To.Be.Null();
             var items = result.GetPropertyValue<IEnumerable<object>>("Items");
-            Assert.AreEqual(3, items.Count());
-            Assert.AreEqual(expected1, items.First().GetPropertyValue<string>("VirtualPath"));
-            Assert.AreEqual(expected2, items.Skip(1).First().GetPropertyValue<string>("VirtualPath"));
-            Assert.AreEqual(expected3, items.Skip(2).First().GetPropertyValue<string>("VirtualPath"));
-
+            Expect(items)
+                .To.Contain.Only(3).Items();
+            Expect(items.First().GetPropertyValue<string>("VirtualPath"))
+                .To.Equal(expected1);
+            Expect(items.Second().GetPropertyValue<string>("VirtualPath"))
+                .To.Equal(expected2);
+            Expect(items.Third().GetPropertyValue<string>("VirtualPath"))
+                .To.Equal(expected3);
 
         }
 

@@ -1,6 +1,8 @@
 ﻿Imports NUnit.Framework
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
+Imports NExpect
+Imports NExpect.Expectations
 
 Namespace TestStatementBuilders
 
@@ -9,16 +11,18 @@ Namespace TestStatementBuilders
         <Test()>
         Public Sub Constructor_GivenFieldNameOnly_ToStringIsExpected()
             Dim fld = RandomValueGen.GetRandomString()
-            Dim sf = New SelectField(fld)
-            Assert.AreEqual("[" + fld + "]", sf.ToString())
+            Dim expected = "[" + fld + "]"
+            Dim sut = New SelectField(fld)
+            Expect(sut.ToString()).To.Equal(expected)
         End Sub
 
         <Test()>
         Public Sub Constructor_GivenFieldAndTable_ToStringIsExpected()
             Dim table = RandomValueGen.GetRandomString(),
                 field = RandomValueGen.GetRandomString()
-            Dim selectField = New SelectField(table, field)
-            Assert.AreEqual("[" + table + "].[" + field + "]", selectField.ToString())
+            Dim sut = New SelectField(table, field)
+            Dim expected  = "[" + table + "].[" + field + "]"
+            Expect(sut.ToString()).To.Equal(expected)
         End Sub
 
         <Test()>
@@ -28,7 +32,7 @@ Namespace TestStatementBuilders
             Dim sut = New SelectField(field)
             sut.SetAlias(a)
             dim expected = "[" + field + "] as [" + a + "]"
-            Assert.AreEqual(expected, sut.ToString())
+            Expect(sut.ToString()).To.Equal(expected)
         End Sub
 
         <Test()>
@@ -37,14 +41,14 @@ Namespace TestStatementBuilders
             Dim sut = New SelectField(field)
             sut.SetAlias(Nothing)
             dim expected = "[" + field + "]"
-            Assert.AreEqual(expected, sut.ToString())
+            Expect(sut.ToString()).To.Equal(expected)
         End Sub
 
         <Test()>
         Public Sub WhenFieldIsStar_ShouldNotQuote()
             Dim sut = new SelectField("*")
             Dim expected = "*"
-            Assert.AreEqual(expected, sut.ToString())
+            Expect(sut.ToString()).To.Equal(expected)
         End Sub
 
         <Test()>
@@ -52,7 +56,7 @@ Namespace TestStatementBuilders
             Dim table = RandomValueGen.GetRandomString(2)
             Dim sut = new SelectField(table, "*")
             Dim expected = "[" + table + "].*"
-            Assert.AreEqual(expected, sut.ToString())
+            Expect(sut.ToString()).To.Equal(expected)
         End Sub
     End Class
 End NameSpace

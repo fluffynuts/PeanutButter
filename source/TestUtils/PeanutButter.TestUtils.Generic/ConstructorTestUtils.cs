@@ -36,15 +36,17 @@ namespace PeanutButter.TestUtils.Generic
                 $"Unknown parameter for constructor of {typeof(TCheckingConstructorOf).PrettyName()}: {parameterName}");
             // ReSharper disable once PossibleNullReferenceException
             if (parameter.ParameterType != expectedParameterType)
+            {
                 Assert.Fail(new[]
-                            {
-                                "Parameter ",
-                                parameterName,
-                                " is expected to have type: '",
-                                expectedParameterType.PrettyName(),
-                                "' but actually has type: '",
-                                parameter.ParameterType.PrettyName(), "'"
-                            }.JoinWith(string.Empty));
+                {
+                    "Parameter ",
+                    parameterName,
+                    " is expected to have type: '",
+                    expectedParameterType.PrettyName(),
+                    "' but actually has type: '",
+                    parameter.ParameterType.PrettyName(), "'"
+                }.JoinWith(string.Empty));
+            }
 
             var parameterValues = CreateParameterValues(parameterName, parameters.ToList());
             var thrownException = InvokeConstructor(constructor, parameterValues);
@@ -101,9 +103,15 @@ namespace PeanutButter.TestUtils.Generic
             var parameterType = parameterInfo.ParameterType;
             var underlying = parameterType.GetNullableGenericUnderlyingType();
             if (underlying != parameterType)
+            {
                 return true; // we have Nullable<T>
+            }
+
             if (parameterType.IsPrimitive)
+            {
                 return false;
+            }
+
             return TypeMayBeSubstitutableIfPassesAnyOf.Aggregate(false,
                         (accumulator, currentFunc) => accumulator || currentFunc(parameterType));
         }

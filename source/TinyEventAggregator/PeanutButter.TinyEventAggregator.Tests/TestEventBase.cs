@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using NExpect;
-using PeanutButter.Utils;
 using static NExpect.Expectations;
 
 namespace PeanutButter.TinyEventAggregator.Tests
@@ -70,7 +69,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
 
                 // pre-conditions
                 // execute test
-                ev.Subscribe(o => calls++);
+                ev.Subscribe(_ => calls++);
                 Expect(calls)
                     .To.Equal(0);
                 ev.Publish(null);
@@ -136,7 +135,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
             // pre-conditions
 
             // execute test
-            var token = ev.Subscribe(o => callCount++);
+            var token = ev.Subscribe(_ => callCount++);
             Expect(callCount)
                 .To.Equal(0);
 
@@ -161,7 +160,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            ev.SubscribeOnce(o => callCount++);
+            ev.SubscribeOnce(_ => callCount++);
             ev.Publish(null);
             ev.Publish(null);
 
@@ -180,12 +179,12 @@ namespace PeanutButter.TinyEventAggregator.Tests
             Expect(ev.SubscriptionCount)
                 .To.Equal(0);
             //---------------Execute Test ----------------------
-            var t1 = ev.Subscribe(o =>
+            var t1 = ev.Subscribe(_ =>
             {
             });
             Expect(ev.SubscriptionCount)
                 .To.Equal(1);
-            var t2 = ev.Subscribe(o =>
+            var t2 = ev.Subscribe(_ =>
             {
             });
             Expect(ev.SubscriptionCount)
@@ -219,7 +218,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var token = ev.Subscribe(o =>
+            var token = ev.Subscribe(_ =>
             {
             });
 
@@ -248,7 +247,7 @@ namespace PeanutButter.TinyEventAggregator.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var token = ev.Subscribe(o =>
+            var token = ev.Subscribe(_ =>
             {
             });
 
@@ -323,7 +322,8 @@ namespace PeanutButter.TinyEventAggregator.Tests
             var sut = Create();
             sut.Suspend();
             //---------------Assert Precondition----------------
-            Assert.IsTrue(sut.IsSuspended);
+            Expect(sut.IsSuspended)
+                .To.Be.True();
 
             //---------------Execute Test ----------------------
             var barrier = new Barrier(2);
@@ -338,14 +338,16 @@ namespace PeanutButter.TinyEventAggregator.Tests
             {
                 barrier.SignalAndWait();
                 Thread.Sleep(1000);
-                Assert.IsFalse(called);
+                Expect(called)
+                    .To.Be.False();
                 sut.Unsuspend();
             });
 
 
             //---------------Test Result -----------------------
             Task.WaitAll(task1, task2);
-            Assert.IsTrue(called);
+            Expect(called)
+                .To.Be.False();
         }
 
         public class SomeEvent : EventBase<object>

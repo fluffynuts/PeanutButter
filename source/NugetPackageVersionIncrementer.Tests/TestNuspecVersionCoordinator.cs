@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using NExpect;
 using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
-using static NExpect.Expectations;
 
 // ReSharper disable PossibleMultipleEnumeration
 
@@ -107,7 +105,7 @@ namespace NugetPackageVersionIncrementer.Tests
             var factory = Substitute.For<INuspecUtilFactory>();
             var utils = new List<INuspecUtil>();
             factory.LoadNuspecAt(Arg.Any<string>())
-                .Returns(ci =>
+                .Returns(_ =>
                 {
                     var util = Substitute.For<INuspecUtil>();
                     utils.Add(util);
@@ -144,7 +142,8 @@ namespace NugetPackageVersionIncrementer.Tests
             var sut = Create(finder, factory);
 
             //---------------Assert Precondition----------------
-            Assert.AreNotEqual(util1.PackageId, util2.PackageId);
+            Expect(util1.PackageId)
+                .Not.To.Equal(util2.PackageId);
 
             //---------------Execute Test ----------------------
             sut.IncrementVersionsUnder(RandomValueGen.GetRandomString());

@@ -2,13 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
-using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using NSubstitute;
-using static NExpect.Expectations;
 
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable PossibleMultipleEnumeration
@@ -214,7 +209,10 @@ namespace PeanutButter.FileSystem.Tests
                     var sut = Create();
                     sut.SetCurrentDirectory(folder.Path);
                     //---------------Assert Precondition----------------
-                    Assert.IsTrue(matchFiles.Union(nonMatchFiles).All(f => File.Exists(Path.Combine(folder.Path, f))));
+                    var allFiles = matchFiles.Union(nonMatchFiles);
+                    Expect(allFiles)
+                        .To.Contain.All
+                        .Matched.By(f => File.Exists(folder.ResolvePath(f)));
 
                     //---------------Execute Test ----------------------
                     var result = sut.List("*." + ext);
@@ -328,7 +326,10 @@ namespace PeanutButter.FileSystem.Tests
                     var sut = Create();
                     sut.SetCurrentDirectory(folder.Path);
                     //---------------Assert Precondition----------------
-                    Assert.IsTrue(matchFiles.Union(nonMatchFiles).All(f => File.Exists(Path.Combine(folder.Path, f))));
+                    var allFiles = matchFiles.Union(nonMatchFiles);
+                    Expect(allFiles)
+                        .To.Contain.All
+                        .Matched.By(folder.FileExists);
 
                     //---------------Execute Test ----------------------
                     var result = sut.ListFiles("*." + ext);
@@ -458,50 +459,47 @@ namespace PeanutButter.FileSystem.Tests
                 public void ShouldReturnListOfMatchingFilesInPath()
                 {
                     //---------------Set up test pack-------------------
-                    using (var folder = new AutoTempFolder())
-                    {
-                        var ext = GetRandomString(3, 3);
-                        var otherExt = GetAnother(ext, () => GetRandomString(3, 3));
-                        var matchFiles = GetRandomCollection(() => GetRandomString(2, 4) + "." + ext, 3, 5);
-                        var nonMatchFiles = GetRandomCollection(() => GetRandomString(2, 4) + "." + otherExt, 3, 5);
-                        var subMatchFiles = new List<string>();
-                        matchFiles.ForEach(
-                            f =>
-                            {
-                                var subDirectory = GetRandomString();
-                                Directory.CreateDirectory(Path.Combine(folder.Path, subDirectory));
-                                var subPath = Path.Combine(subDirectory, f);
-                                subMatchFiles.Add(subPath);
-                                File.WriteAllBytes(Path.Combine(folder.Path, subPath), GetRandomBytes());
-                            }
-                        );
-                        var subNonMatchFiles = new List<string>();
-                        nonMatchFiles.ForEach(
-                            f =>
-                            {
-                                var subDirectory = GetRandomString();
-                                Directory.CreateDirectory(Path.Combine(folder.Path, subDirectory));
-                                var subPath = Path.Combine(subDirectory, f);
-                                subNonMatchFiles.Add(subPath);
-                                File.WriteAllBytes(Path.Combine(folder.Path, subPath), GetRandomBytes());
-                            }
-                        );
-                        var unexpected = GetAnother(matchFiles, () => GetRandomString(2, 4) + "." + ext);
-                        Directory.CreateDirectory(Path.Combine(folder.Path, unexpected));
-                        var sut = Create();
-                        sut.SetCurrentDirectory(folder.Path);
-                        //---------------Assert Precondition----------------
-                        var absolutePaths = subMatchFiles.Union(subNonMatchFiles)
-                            .Select(f => File.Exists(Path.Combine(folder.Path, f)))
-                            .ToArray();
+                    using var folder = new AutoTempFolder();
+                    var ext = GetRandomString(3, 3);
+                    var otherExt = GetAnother(ext, () => GetRandomString(3, 3));
+                    var matchFiles = GetRandomCollection(() => GetRandomString(2, 4) + "." + ext, 3, 5);
+                    var nonMatchFiles = GetRandomCollection(() => GetRandomString(2, 4) + "." + otherExt, 3, 5);
+                    var subMatchFiles = new List<string>();
+                    matchFiles.ForEach(
+                        f =>
+                        {
+                            var subDirectory = GetRandomString();
+                            Directory.CreateDirectory(Path.Combine(folder.Path, subDirectory));
+                            var subPath = Path.Combine(subDirectory, f);
+                            subMatchFiles.Add(subPath);
+                            File.WriteAllBytes(Path.Combine(folder.Path, subPath), GetRandomBytes());
+                        }
+                    );
+                    var subNonMatchFiles = new List<string>();
+                    nonMatchFiles.ForEach(
+                        f =>
+                        {
+                            var subDirectory = GetRandomString();
+                            Directory.CreateDirectory(Path.Combine(folder.Path, subDirectory));
+                            var subPath = Path.Combine(subDirectory, f);
+                            subNonMatchFiles.Add(subPath);
+                            File.WriteAllBytes(Path.Combine(folder.Path, subPath), GetRandomBytes());
+                        }
+                    );
+                    var unexpected = GetAnother(matchFiles, () => GetRandomString(2, 4) + "." + ext);
+                    Directory.CreateDirectory(Path.Combine(folder.Path, unexpected));
+                    var sut = Create();
+                    sut.SetCurrentDirectory(folder.Path);
+                    //---------------Assert Precondition----------------
 
-                        //---------------Execute Test ----------------------
-                        var result = sut.ListFilesRecursive("*." + ext);
+                    //---------------Execute Test ----------------------
+                    var result = sut.ListFilesRecursive("*." + ext);
 
 
-                        Expect(result)
-                            .To.Be.Equivalent.To(subMatchFiles);
-                    }
+                    Expect(result)
+                        .To.Be.Equivalent.To(subMatchFiles);
+                    Expect(result)
+                        .To.Contain.None.Of(subNonMatchFiles);
                 }
             }
         }
@@ -520,13 +518,16 @@ namespace PeanutButter.FileSystem.Tests
                 var sut = Create();
                 sut.SetCurrentDirectory(folder.Path);
                 //---------------Assert Precondition----------------
-                Assert.IsTrue(expected.All(f => Directory.Exists(Path.Combine(folder.Path, f))));
+                Expect(expected)
+                    .To.Contain.All
+                    .Matched.By(folder.FolderExists);
 
                 //---------------Execute Test ----------------------
                 var result = sut.ListFoldersRecursive();
 
                 //---------------Test Result -----------------------
-                CollectionAssert.AreEquivalent(expected, result);
+                Expect(result)
+                    .To.Be.Equivalent.To(expected);
             }
         }
 
@@ -547,7 +548,8 @@ namespace PeanutButter.FileSystem.Tests
                     sut.SetCurrentDirectory(folder.Path);
                     //---------------Execute Test ----------------------
 
-                    Assert.DoesNotThrow(() => sut.Delete(fileName));
+                    Expect(() => sut.Delete(fileName))
+                        .Not.To.Throw();
 
                     //---------------Test Result -----------------------
                 }
@@ -565,14 +567,17 @@ namespace PeanutButter.FileSystem.Tests
                     var sut = Create();
                     sut.SetCurrentDirectory(folder.Path);
                     //---------------Assert Precondition----------------
-                    var fullPath = Path.Combine(folder.Path, fileName);
-                    Assert.IsTrue(File.Exists(fullPath));
+                    Expect(folder.ResolvePath(fileName))
+                        .To.Be.A.File();
 
                     //---------------Execute Test ----------------------
                     sut.Delete(fileName);
 
                     //---------------Test Result -----------------------
-                    Assert.IsFalse(File.Exists(fullPath));
+                    Expect(folder.FileExists(fileName))
+                        .To.Be.False();
+                    Expect(folder.ResolvePath(fileName))
+                        .Not.To.Exist("should have failed above if this fails!");
                 }
             }
 
@@ -590,13 +595,15 @@ namespace PeanutButter.FileSystem.Tests
 
                     //---------------Assert Precondition----------------
                     var fullPath = Path.Combine(folder.Path, folderName);
-                    Assert.IsTrue(Directory.Exists(fullPath));
+                    Expect(fullPath)
+                        .To.Be.A.Folder();
 
                     //---------------Execute Test ----------------------
                     sut.Delete(folderName);
 
                     //---------------Test Result -----------------------
-                    Assert.IsFalse(Directory.Exists(fullPath));
+                    Expect(fullPath)
+                        .Not.To.Exist();
                 }
             }
 
@@ -615,15 +622,20 @@ namespace PeanutButter.FileSystem.Tests
                     var fullPath = Path.Combine(folder.Path, folderName);
 
                     //---------------Assert Precondition----------------
-                    Assert.IsTrue(Directory.Exists(fullPath));
-                    Assert.IsTrue(Directory.EnumerateFiles(fullPath).Any());
+                    Expect(fullPath)
+                        .To.Be.A.Folder();
+                    Expect(Directory.EnumerateFiles(fullPath))
+                        .Not.To.Be.Empty();
 
                     //---------------Execute Test ----------------------
-                    Assert.Throws<IOException>(() => sut.Delete(folderName));
+                    Expect(() => sut.Delete(folderName))
+                        .To.Throw<IOException>();
 
                     //---------------Test Result -----------------------
-                    Assert.IsTrue(Directory.Exists(fullPath));
-                    Assert.IsTrue(Directory.EnumerateFiles(fullPath).Any());
+                    Expect(fullPath)
+                        .To.Be.A.Folder();
+                    Expect(Directory.EnumerateFiles(fullPath))
+                        .Not.To.Be.Empty();
                 }
             }
 
@@ -642,15 +654,19 @@ namespace PeanutButter.FileSystem.Tests
                     var fullPath = Path.Combine(folder.Path, folderName);
 
                     //---------------Assert Precondition----------------
-                    Assert.IsTrue(Directory.Exists(fullPath));
-                    Assert.IsTrue(Directory.EnumerateDirectories(fullPath).Any());
+                    Expect(fullPath)
+                        .To.Be.A.Folder();
+                    Expect(Directory.EnumerateDirectories(fullPath))
+                        .Not.To.Be.Empty();
 
                     //---------------Execute Test ----------------------
                     Assert.Throws<IOException>(() => sut.Delete(folderName));
 
                     //---------------Test Result -----------------------
-                    Assert.IsTrue(Directory.Exists(fullPath));
-                    Assert.IsTrue(Directory.EnumerateDirectories(fullPath).Any());
+                    Expect(fullPath)
+                        .To.Be.A.Folder();
+                    Expect(Directory.EnumerateDirectories(fullPath))
+                        .Not.To.Be.Empty();
                 }
             }
         }
@@ -672,11 +688,12 @@ namespace PeanutButter.FileSystem.Tests
 
                     //---------------Assert Precondition----------------
                     var fullPath = Path.Combine(folder.Path, toDelete);
-                    Assert.IsFalse(File.Exists(fullPath));
-                    Assert.IsFalse(Directory.Exists(fullPath));
+                    Expect(fullPath)
+                        .Not.To.Exist();
 
                     //---------------Execute Test ----------------------
-                    Assert.DoesNotThrow(() => sut.DeleteRecursive(toDelete));
+                    Expect(() => sut.DeleteRecursive(toDelete))
+                        .Not.To.Throw();
 
                     //---------------Test Result -----------------------
                 }
@@ -696,13 +713,15 @@ namespace PeanutButter.FileSystem.Tests
 
                     //---------------Assert Precondition----------------
                     var fullPath = Path.Combine(folder.Path, toDelete);
-                    Assert.IsTrue(File.Exists(fullPath));
+                    Expect(fullPath)
+                        .To.Be.A.File();
 
                     //---------------Execute Test ----------------------
                     Assert.DoesNotThrow(() => sut.DeleteRecursive(toDelete));
 
                     //---------------Test Result -----------------------
-                    Assert.IsFalse(File.Exists(fullPath));
+                    Expect(fullPath)
+                        .Not.To.Exist();
                 }
             }
 
@@ -721,13 +740,15 @@ namespace PeanutButter.FileSystem.Tests
 
                     //---------------Assert Precondition----------------
                     var fullPath = Path.Combine(folder.Path, toDelete);
-                    Assert.IsTrue(Directory.Exists(fullPath));
+                    Expect(fullPath)
+                        .To.Be.A.Folder();
 
                     //---------------Execute Test ----------------------
                     Assert.DoesNotThrow(() => sut.DeleteRecursive(toDelete));
 
                     //---------------Test Result -----------------------
-                    Assert.IsFalse(Directory.Exists(fullPath));
+                    Expect(fullPath)
+                        .Not.To.Exist();
                 }
             }
 
@@ -747,13 +768,15 @@ namespace PeanutButter.FileSystem.Tests
 
                     //---------------Assert Precondition----------------
                     var fullPath = Path.Combine(folder.Path, toDelete);
-                    Assert.IsTrue(Directory.Exists(fullPath));
+                    Expect(fullPath)
+                        .To.Be.A.Folder();
 
                     //---------------Execute Test ----------------------
                     Assert.DoesNotThrow(() => sut.DeleteRecursive(toDelete));
 
                     //---------------Test Result -----------------------
-                    Assert.IsFalse(Directory.Exists(fullPath));
+                    Expect(fullPath)
+                        .Not.To.Exist();
                 }
             }
         }
@@ -777,7 +800,6 @@ namespace PeanutButter.FileSystem.Tests
 
                     //---------------Assert Precondition----------------
                     var fullSourcePath = Path.Combine(folder.Path, srcFile);
-                    Assert.IsFalse(File.Exists(fullSourcePath));
                     Expect(fullSourcePath)
                         .Not.To.Exist();
 
@@ -807,13 +829,17 @@ namespace PeanutButter.FileSystem.Tests
                     var fullSourcePath = Path.Combine(folder.Path, srcFolder, srcFile);
 
                     //---------------Assert Precondition----------------
-                    Assert.IsFalse(File.Exists(expected));
+                    Expect(expected)
+                        .Not.To.Exist();
 
                     //---------------Execute Test ----------------------
                     sut.Copy(fullSourcePath);
 
                     //---------------Test Result -----------------------
-                    Assert.IsTrue(File.Exists(expected), "File not found after copy");
+                    Expect(expected)
+                        .To.Be.A.File(
+                            "File not found after copy"
+                        );
                 }
 
                 [TestFixture]
@@ -834,16 +860,19 @@ namespace PeanutButter.FileSystem.Tests
                         var expectedPath = Path.Combine(localFolder, fileName);
 
                         //---------------Assert Precondition----------------
-                        Assert.IsFalse(File.Exists(expectedPath));
+                        Expect(expectedPath)
+                            .Not.To.Exist();
 
                         //---------------Execute Test ----------------------
                         sut.Copy(source);
 
                         //---------------Test Result -----------------------
-                        Assert.IsTrue(File.Exists(expectedPath));
-                        CollectionAssert.AreEqual(
-                            File.ReadAllBytes(Path.Combine(otherFolder, fileName)),
+                        Expect(expectedPath)
+                            .To.Be.A.File();
+                        Expect(
                             File.ReadAllBytes(expectedPath)
+                        ).To.Equal(
+                            File.ReadAllBytes(Path.Combine(otherFolder, fileName))
                         );
                     }
                 }
@@ -873,17 +902,17 @@ namespace PeanutButter.FileSystem.Tests
                             var fullSourcePath = Path.Combine(folder.Path, srcFolder, srcFile);
 
                             //---------------Assert Precondition----------------
-                            Assert.IsFalse(File.Exists(expected));
+                            Expect(expected)
+                                .Not.To.Exist();
 
                             //---------------Execute Test ----------------------
                             sut.Copy(fullSourcePath, Path.Combine(dstFolder, dstFile));
 
                             //---------------Test Result -----------------------
-                            Assert.IsTrue(File.Exists(expected), "File not found after copy");
-                            CollectionAssert.AreEqual(
-                                File.ReadAllBytes(fullSourcePath),
-                                File.ReadAllBytes(expected)
-                            );
+                            Expect(expected)
+                                .To.Be.A.File("File not found after copy");
+                            Expect(File.ReadAllBytes(expected))
+                                .To.Equal(File.ReadAllBytes(fullSourcePath));
                         }
                     }
                 }
@@ -912,31 +941,14 @@ namespace PeanutButter.FileSystem.Tests
                             sut.Copy(sourceFileFullPath, dstPath);
 
                             //---------------Test Result -----------------------
-                            Assert.IsTrue(File.Exists(Path.Combine(folder.Path, dstPath)));
-                            CollectionAssert.AreEqual(
-                                File.ReadAllBytes(sourceFileFullPath),
-                                File.ReadAllBytes(Path.Combine(folder.Path, dstPath))
-                            );
+                            Expect(folder.ResolvePath(dstPath))
+                                .To.Be.A.File();
+                            Expect(folder.ReadFile(dstPath))
+                                .To.Equal(File.ReadAllBytes(sourceFileFullPath));
                         }
                     }
                 }
 
-                [TestFixture]
-                public class WhenSourceIsFolder
-                {
-                    [Test]
-                    public void ShouldCopyRecursively()
-                    {
-                        // Arrange
-                        using var tempFolder = new AutoTempFolder();
-                        tempFolder.CreateFolder("source/level1/level2");
-                        tempFolder.WriteFile("source/readme.md", "# README");
-                        tempFolder.WriteFile("source/level1/index.js", "console.log('foo');");
-                        tempFolder.WriteFile("source/level2/data.json", "{ \"id\": 1, \"name\": \"bob\" }");
-                        // Act
-                        // Assert
-                    }
-                }
             }
 
             [TestFixture]
@@ -958,7 +970,7 @@ namespace PeanutButter.FileSystem.Tests
                         var expectedDirs = srcFs.ListFoldersRecursive();
                         var expectedFiles = srcFs.ListFilesRecursive();
                         var sut = Create(tempFolder.Path);
-                        
+
                         Expect(tempFolder.ResolvePath("target"))
                             .Not.To.Exist();
                         // Act
@@ -1032,13 +1044,15 @@ namespace PeanutButter.FileSystem.Tests
                         sut.SetCurrentDirectory(folder.Path);
 
                         //---------------Assert Precondition----------------
-                        Assert.IsFalse(File.Exists(Path.Combine(folder.Path, fileName)));
+                        Expect(folder.ResolvePath(fileName))
+                            .Not.To.Exist();
 
                         //---------------Execute Test ----------------------
                         var result = sut.OpenReader(fileName);
 
                         //---------------Test Result -----------------------
-                        Assert.IsNull(result);
+                        Expect(result)
+                            .To.Be.Null();
                     }
                 }
 
@@ -1056,14 +1070,18 @@ namespace PeanutButter.FileSystem.Tests
                         var expected = File.ReadAllBytes(Path.Combine(folder.Path, fileName));
 
                         //---------------Assert Precondition----------------
-                        Assert.IsTrue(File.Exists(Path.Combine(folder.Path, fileName)));
+                        Expect(folder.ResolvePath(fileName))
+                            .To.Be.A.File();
 
                         //---------------Execute Test ----------------------
                         using var result = sut.OpenReader(fileName);
                         //---------------Test Result -----------------------
                         var buffer = new byte[result.Length];
-                        result.Read(buffer, 0, buffer.Length);
-                        CollectionAssert.AreEqual(expected, buffer);
+                        var read = result.Read(buffer, 0, buffer.Length);
+                        Expect(read)
+                            .To.Equal(result.Length, "should have read the entire file in one fell swoop");
+                        Expect(buffer)
+                            .To.Equal(expected);
                     }
                 }
             }
@@ -1085,13 +1103,15 @@ namespace PeanutButter.FileSystem.Tests
                         sut.SetCurrentDirectory(folder.Path);
 
                         //---------------Assert Precondition----------------
-                        Assert.IsFalse(File.Exists(Path.Combine(folder.Path, fileName)));
+                        Expect(folder.ResolvePath(fileName))
+                            .Not.To.Exist();
 
                         //---------------Execute Test ----------------------
                         var result = sut.OpenReader(Path.Combine(otherFolder.Path, fileName));
 
                         //---------------Test Result -----------------------
-                        Assert.IsNull(result);
+                        Expect(result)
+                            .To.Be.Null();
                     }
                 }
 
@@ -1110,14 +1130,18 @@ namespace PeanutButter.FileSystem.Tests
                         var expected = File.ReadAllBytes(Path.Combine(folder.Path, fileName));
 
                         //---------------Assert Precondition----------------
-                        Assert.IsTrue(File.Exists(Path.Combine(folder.Path, fileName)));
+                        Expect(folder.ResolvePath(fileName))
+                            .To.Be.A.File();
 
                         //---------------Execute Test ----------------------
                         using var result = sut.OpenReader(Path.Combine(folder.Path, fileName));
                         //---------------Test Result -----------------------
                         var buffer = new byte[result.Length];
-                        result.Read(buffer, 0, buffer.Length);
-                        CollectionAssert.AreEqual(expected, buffer);
+                        var read = result.Read(buffer, 0, buffer.Length);
+                        Expect(read)
+                            .To.Equal(result.Length, "should have read the entire file");
+                        Expect(buffer)
+                            .To.Equal(expected);
                     }
                 }
             }
@@ -1143,7 +1167,8 @@ namespace PeanutButter.FileSystem.Tests
                         var expected = GetRandomBytes();
 
                         //---------------Assert Precondition----------------
-                        Assert.IsFalse(File.Exists(absolutePath));
+                        Expect(absolutePath)
+                            .Not.To.Exist();
 
                         //---------------Execute Test ----------------------
                         using (var stream = sut.OpenWriter(targetPath))
@@ -1153,7 +1178,8 @@ namespace PeanutButter.FileSystem.Tests
 
                         //---------------Test Result -----------------------
                         var persisted = File.ReadAllBytes(absolutePath);
-                        CollectionAssert.AreEqual(expected, persisted);
+                        Expect(persisted)
+                            .To.Equal(expected);
                     }
                 }
             }
@@ -1191,7 +1217,8 @@ namespace PeanutButter.FileSystem.Tests
                 {
                     var expected = original.And(append);
                     var inFile = stream.ReadAllBytes();
-                    CollectionAssert.AreEqual(expected, inFile);
+                    Expect(inFile)
+                        .To.Equal(expected);
                 }
             }
         }
@@ -1222,16 +1249,20 @@ namespace PeanutButter.FileSystem.Tests
                         sut.SetCurrentDirectory(folder.Path);
 
                         //---------------Assert Precondition----------------
-                        Assert.IsFalse(File.Exists(targetAbsolutePath));
+                        Expect(targetAbsolutePath)
+                            .Not.To.Exist();
 
                         //---------------Execute Test ----------------------
                         sut.Move(sourceRelativePath, target);
 
                         //---------------Test Result -----------------------
-                        Assert.IsFalse(File.Exists(sourceAbsolutePath));
-                        Assert.IsTrue(File.Exists(targetAbsolutePath));
+                        Expect(sourceAbsolutePath)
+                            .Not.To.Exist();
+                        Expect(targetAbsolutePath)
+                            .To.Be.A.File();
                         var resultData = File.ReadAllBytes(targetAbsolutePath);
-                        CollectionAssert.AreEqual(sourceData, resultData);
+                        Expect(resultData)
+                            .To.Equal(sourceData);
                     }
                 }
             }
@@ -1261,10 +1292,12 @@ namespace PeanutButter.FileSystem.Tests
                         sut.SetCurrentDirectory(folder.Path);
 
                         //---------------Assert Precondition----------------
-                        Assert.IsTrue(File.Exists(targetAbsolutePath));
+                        Expect(targetAbsolutePath)
+                            .To.Be.A.File();
 
                         //---------------Execute Test ----------------------
-                        Assert.Throws<IOException>(() => sut.Move(sourceRelativePath, target));
+                        Expect(() => sut.Move(sourceRelativePath, target))
+                            .To.Throw<IOException>();
 
                         //---------------Test Result -----------------------
                     }
@@ -1292,16 +1325,21 @@ namespace PeanutButter.FileSystem.Tests
                         sut.SetCurrentDirectory(folder.Path);
 
                         //---------------Assert Precondition----------------
-                        Assert.IsTrue(File.Exists(targetAbsolutePath));
+                        Expect(targetAbsolutePath)
+                            .To.Be.A.File();
 
                         //---------------Execute Test ----------------------
-                        Assert.DoesNotThrow(() => sut.Move(sourceRelativePath, target, true));
+                        Expect(() => sut.Move(sourceRelativePath, target, true))
+                            .Not.To.Throw();
 
                         //---------------Test Result -----------------------
-                        Assert.IsFalse(File.Exists(sourceAbsolutePath));
-                        Assert.IsTrue(File.Exists(targetAbsolutePath));
+                        Expect(sourceAbsolutePath)
+                            .Not.To.Exist();
+                        Expect(targetAbsolutePath)
+                            .To.Be.A.File();
                         var resultData = File.ReadAllBytes(targetAbsolutePath);
-                        CollectionAssert.AreEqual(sourceData, resultData);
+                        Expect(resultData)
+                            .To.Equal(sourceData);
                     }
                 }
             }
@@ -1335,16 +1373,20 @@ namespace PeanutButter.FileSystem.Tests
                             sut.SetCurrentDirectory(folder.Path);
 
                             //---------------Assert Precondition----------------
-                            Assert.IsTrue(File.Exists(targetAbsolutePath));
+                            Expect(targetAbsolutePath)
+                                .To.Be.A.File();
 
                             //---------------Execute Test ----------------------
                             Assert.DoesNotThrow(() => sut.Move(sourceRelativePath, target, true));
 
                             //---------------Test Result -----------------------
-                            Assert.IsFalse(File.Exists(sourceAbsolutePath));
-                            Assert.IsTrue(File.Exists(targetAbsolutePath));
+                            Expect(sourceAbsolutePath)
+                                .Not.To.Exist();
+                            Expect(targetAbsolutePath)
+                                .To.Be.A.File();
                             var resultData = File.ReadAllBytes(targetAbsolutePath);
-                            CollectionAssert.AreEqual(sourceData, resultData);
+                            Expect(resultData)
+                                .To.Equal(sourceData);
                         }
                     }
                 }

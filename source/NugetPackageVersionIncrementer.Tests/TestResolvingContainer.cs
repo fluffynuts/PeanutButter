@@ -2,8 +2,8 @@
 using DryIoc;
 using NSubstitute;
 using NUnit.Framework;
-using PeanutButter.TestUtils.Generic;
 // ReSharper disable ObjectCreationAsStatement
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace NugetPackageVersionIncrementer.Tests
 {
@@ -19,7 +19,8 @@ namespace NugetPackageVersionIncrementer.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            sut.ShouldImplement<IResolvingContainer>();
+            Expect(sut)
+                .To.Implement<IResolvingContainer>();
 
             //---------------Test Result -----------------------
         }
@@ -32,17 +33,14 @@ namespace NugetPackageVersionIncrementer.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<ArgumentNullException>(() => new ResolvingContainer(null));
+            Expect(() => new ResolvingContainer(null))
+                .To.Throw<ArgumentException>();
 
             //---------------Test Result -----------------------
         }
 
-        public interface ITestInterface
-        {
-        }
-        public class TestClass : ITestInterface
-        {
-        }
+        public interface ITestInterface;
+        public class TestClass : ITestInterface;
 
         [Test]
         public void Resolve_ShouldCallIntoProvidedContainer()
@@ -58,8 +56,11 @@ namespace NugetPackageVersionIncrementer.Tests
             var result = sut.Resolve<ITestInterface>();
 
             //---------------Test Result -----------------------
-            container.Received().Resolve<ITestInterface>();
-            Assert.AreEqual(expected, result);
+            Expect(container)
+                .To.Have.Received(1)
+                .Resolve<ITestInterface>();
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -77,8 +78,10 @@ namespace NugetPackageVersionIncrementer.Tests
             var result = sut.Resolve(serviceType);
 
             //---------------Test Result -----------------------
-            container.Received().Resolve(serviceType);
-            Assert.AreEqual(expected, result);
+            Expect(container)
+                .To.Have.Received(1)
+                .Resolve(serviceType);
+            Expect(result).To.Equal(expected);
         }
 
         private static IResolvingContainer Create(IContainer container)

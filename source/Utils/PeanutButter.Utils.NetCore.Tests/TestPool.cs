@@ -1,7 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using NExpect;
-using NUnit.Framework;
-using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.NetCore.Tests
 {
@@ -88,7 +85,6 @@ namespace PeanutButter.Utils.NetCore.Tests
 
         [Test]
         [Parallelizable]
-        [Timeout(5000)]
         public void ShouldOnlyCreateProvidedMaxAndWaitForInstanceOnExceedingMax()
         {
             // Arrange

@@ -64,12 +64,14 @@ namespace PeanutButter.TempDb.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.AreEqual(instanceName, sut.InstanceName);
+            Expect(sut.InstanceName)
+                .To.Equal(instanceName);
             var connectionString = sut.GetMasterConnectionString();
 
 
             //---------------Test Result -----------------------
-            StringAssert.Contains(instanceName, connectionString);
+            Expect(connectionString)
+                .To.Contain(instanceName);
         }
 
 

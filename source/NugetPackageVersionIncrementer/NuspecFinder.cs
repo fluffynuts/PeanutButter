@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace NugetPackageVersionIncrementer
 {
     public interface INuspecFinder
     {
-        IEnumerable<string> NuspecPaths { get; }
+        string[] NuspecPaths { get; }
         void FindNuspecsUnder(string basePath);
     }
 
     public class NuspecFinder : INuspecFinder
     {
-        public IEnumerable<string> NuspecPaths => _foundNuspecPaths ?? new string[] { }.AsEnumerable();
+        public string[] NuspecPaths => _foundNuspecPaths?.ToArray() ?? Array.Empty<string>();
         private readonly List<string> _foundNuspecPaths = new();
 
         public void FindNuspecsUnder(string basePath)

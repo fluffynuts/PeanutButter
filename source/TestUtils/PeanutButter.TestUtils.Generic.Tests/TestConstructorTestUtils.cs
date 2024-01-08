@@ -1,6 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
 using PeanutButter.Utils;
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
+
 // ReSharper disable NotAccessedField.Local
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable UnusedMember.Local
@@ -14,7 +16,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
     public class TestConstructorTestUtils
     {
         [Test]
-        public void CheckForExceptionWhenParameterIsNull_GivenNonSubstitutableParameter_ShouldThrowInvalidOperationException()
+        public void
+            CheckForExceptionWhenParameterIsNull_GivenNonSubstitutableParameter_ShouldThrowInvalidOperationException()
         {
             //---------------Set up test pack-------------------
             const string parameterName = "parameter";
@@ -22,13 +25,16 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 "This utility is designed for constructors that only have parameters that can be substituted with NSubstitute.";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            var exception =
-                Assert.Throws<InvalidOperationException>(
+            Expect(
                     () =>
-                    ConstructorTestUtils.ShouldExpectNonNullParameterFor<ClassWithNonSubstitutableConstructorParameter>(
-                        parameterName, typeof(RandomStruct)));
+                        ConstructorTestUtils
+                            .ShouldExpectNonNullParameterFor<ClassWithNonSubstitutableConstructorParameter>(
+                                parameterName,
+                                typeof(RandomStruct)
+                            )
+                ).To.Throw<InvalidOperationException>()
+                .With.Message.Equal.To(expectedMessage);
             //---------------Test Result -----------------------
-            Assert.AreEqual(expectedMessage, exception.Message);
         }
 
         [Test]
@@ -38,8 +44,13 @@ namespace PeanutButter.TestUtils.Generic.Tests
             const string parameterName = "parameter";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
+            Expect(
+                () =>
                     ConstructorTestUtils.ShouldExpectNonNullParameterFor<ClassWithNonAbstractConstructorParameter>(
-                        parameterName, typeof(int?));
+                        parameterName,
+                        typeof(int?)
+                    )
+            ).Not.To.Throw();
             //---------------Test Result -----------------------
         }
 
@@ -52,17 +63,20 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 "This utility is designed for constructors that only have parameters that can be substituted with NSubstitute.";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            var exception =
-                Assert.Throws<InvalidOperationException>(
+            Expect(
                     () =>
-                    ConstructorTestUtils.ShouldExpectNonNullParameterFor<ClassWithPrimitiveConstructorParameter>(
-                        parameterName, typeof(int)));
+                        ConstructorTestUtils.ShouldExpectNonNullParameterFor<ClassWithPrimitiveConstructorParameter>(
+                            parameterName,
+                            typeof(int)
+                        )
+                ).To.Throw<InvalidOperationException>()
+                .With.Message.Equal.To(expectedMessage);
             //---------------Test Result -----------------------
-            Assert.AreEqual(expectedMessage, exception.Message);
         }
 
         [Test]
-        public void CheckForExceptionWhenParameterIsNull_GivenMultipleConstructors_ShouldThrowInvalidOperationException()
+        public void
+            CheckForExceptionWhenParameterIsNull_GivenMultipleConstructors_ShouldThrowInvalidOperationException()
         {
             //---------------Set up test pack-------------------
             const string parameterName = "parameter";
@@ -70,132 +84,161 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 "This utility is designed to test classes with a single constructor.";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            var exception =
-                Assert.Throws<InvalidOperationException>(
+            Expect(
                     () =>
-                    ConstructorTestUtils.ShouldExpectNonNullParameterFor<ClassWithMultipleConstructors>(
-                        parameterName, typeof(object)));
+                        ConstructorTestUtils.ShouldExpectNonNullParameterFor<ClassWithMultipleConstructors>(
+                            parameterName,
+                            typeof(object)
+                        )
+                ).To.Throw<InvalidOperationException>()
+                .With.Message.Equal.To(expectedMessage);
             //---------------Test Result -----------------------
-            Assert.AreEqual(expectedMessage, exception.Message);
         }
 
         [Test]
-        public void CheckForExceptionWhenParameterIsNull_GivenInvalidParameterName_ShouldThrowInvalidOperationException()
+        public void
+            CheckForExceptionWhenParameterIsNull_GivenInvalidParameterName_ShouldThrowInvalidOperationException()
         {
             //---------------Set up test pack-------------------
             const string parameterName = "Cake";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            var exception =
-                Assert.Throws<InvalidOperationException>(
+            Expect(
                     () =>
-                    ConstructorTestUtils.ShouldExpectNonNullParameterFor<ClassWithConstructorWithSubstitutableParameter>(
-                        parameterName, typeof(IInterface)));
+                        ConstructorTestUtils
+                            .ShouldExpectNonNullParameterFor<ClassWithConstructorWithSubstitutableParameter>(
+                                parameterName,
+                                typeof(IInterface)
+                            )
+                ).To.Throw<InvalidOperationException>()
+                .With.Message.Containing(parameterName);
             //---------------Test Result -----------------------
-            StringAssert.Contains(parameterName, exception.Message);
         }
 
         [Test]
-        public void CheckForExceptionWhenParameterIsNull_GivenNoNullArgumentExceptionThrownForParameter_ShouldThrowAssertionException()
+        public void
+            CheckForExceptionWhenParameterIsNull_GivenNoNullArgumentExceptionThrownForParameter_ShouldThrowAssertionException()
         {
             //---------------Set up test pack-------------------
             const string expectedMessage = "Expected: System.ArgumentNullException but was: Null";
             const string parameterName = "parameter1";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            var exception =
-                Assert.Throws<AssertionException>(
+            Expect(
                     () =>
-                    ConstructorTestUtils.ShouldExpectNonNullParameterFor<ClassWithConstructorWithSubstitutableParameter>(
-                        parameterName, typeof(IInterface)));
+                        ConstructorTestUtils
+                            .ShouldExpectNonNullParameterFor<ClassWithConstructorWithSubstitutableParameter>(
+                                parameterName,
+                                typeof(IInterface)
+                            )
+                ).To.Throw<AssertionException>()
+                .With.Message.Equal.To(expectedMessage);
             //---------------Test Result -----------------------
-            Assert.AreEqual(expectedMessage, exception.Message);
         }
 
         [Test]
-        public void CheckForExceptionWhenParameterIsNull_GivenNullArgumentExceptionThrownForIncorrectParameter_ShouldThrowAssertionException()
+        public void
+            CheckForExceptionWhenParameterIsNull_GivenNullArgumentExceptionThrownForIncorrectParameter_ShouldThrowAssertionException()
         {
             //---------------Set up test pack-------------------
             const string expectedMessage = "Expected parameter1 to equal WrongParameterName";
             const string parameterName = "parameter1";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            var exception =
-                Assert.Throws<AssertionException>(
+            Expect(
                     () =>
-                    ConstructorTestUtils.ShouldExpectNonNullParameterFor<ClassWithConstructorWithSubstitutableParameterThatThrowsIncorrectExceptions>(
-                        parameterName, typeof(SubstitutableAbstractClass)));
+                        ConstructorTestUtils
+                            .ShouldExpectNonNullParameterFor<
+                                ClassWithConstructorWithSubstitutableParameterThatThrowsIncorrectExceptions>(
+                                parameterName,
+                                typeof(SubstitutableAbstractClass)
+                            )
+                ).To.Throw<AssertionException>()
+                .With.Message.Containing(expectedMessage);
             //---------------Test Result -----------------------
-            StringAssert.Contains(expectedMessage, exception.Message);
         }
 
         [Test]
-        public void CheckForExceptionWhenParameterIsNull_GivenNullArgumentExceptionThrownForCorrectParameter_ShouldNotThrowException()
+        public void
+            CheckForExceptionWhenParameterIsNull_GivenNullArgumentExceptionThrownForCorrectParameter_ShouldNotThrowException()
         {
             //---------------Set up test pack-------------------
             const string parameterName = "parameter1";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(
+            Expect(
                 () =>
-                ConstructorTestUtils
-                    .ShouldExpectNonNullParameterFor
-                    <ClassWithConstructorWithSubstitutableParameterThatThrowsCorrectExceptions>(
-                        parameterName, typeof(SubstitutableAbstractClass)));
+                    ConstructorTestUtils
+                        .ShouldExpectNonNullParameterFor
+                            <ClassWithConstructorWithSubstitutableParameterThatThrowsCorrectExceptions>(
+                                parameterName,
+                                typeof(SubstitutableAbstractClass)
+                            )
+            ).Not.To.Throw();
             //---------------Test Result -----------------------
         }
 
         [Test]
-        public void CheckForExceptionWhenParameterIsNull_GivenAbstractParameters_AndNullParameterIsNotTheFirstParameter_ShouldNotThroException()
+        public void
+            CheckForExceptionWhenParameterIsNull_GivenAbstractParameters_AndNullParameterIsNotTheFirstParameter_ShouldNotThroException()
         {
             //---------------Set up test pack-------------------
             const string parameterName = "parameter2";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(
+            Expect(
                 () =>
-                ConstructorTestUtils
-                    .ShouldExpectNonNullParameterFor
-                    <ClassWithConstructorWithMultipleSubstitutableAbstractParametersThatThrowsCorrectExceptions>(
-                        parameterName, typeof(SubstitutableAbstractClass)));
+                    ConstructorTestUtils
+                        .ShouldExpectNonNullParameterFor
+                            <ClassWithConstructorWithMultipleSubstitutableAbstractParametersThatThrowsCorrectExceptions>(
+                                parameterName,
+                                typeof(SubstitutableAbstractClass)
+                            )
+            ).Not.To.Throw();
             //---------------Test Result -----------------------
         }
 
         [Test]
-        public void CheckForExceptionWhenParameterIsNull_GivenInterfaceParameters_AndNullParameterIsNotTheFirstParameter_ShouldNotThroException()
+        public void
+            CheckForExceptionWhenParameterIsNull_GivenInterfaceParameters_AndNullParameterIsNotTheFirstParameter_ShouldNotThroException()
         {
             //---------------Set up test pack-------------------
             const string parameterName = "parameter2";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(
+            Expect(
                 () =>
-                ConstructorTestUtils
-                    .ShouldExpectNonNullParameterFor
-                    <ClassWithConstructorWithMultipleSubstitutableInterfaceParametersThatThrowsCorrectExceptions>(
-                        parameterName, typeof(IInterface)));
+                    ConstructorTestUtils
+                        .ShouldExpectNonNullParameterFor
+                            <ClassWithConstructorWithMultipleSubstitutableInterfaceParametersThatThrowsCorrectExceptions>(
+                                parameterName,
+                                typeof(IInterface)
+                            )
+            ).Not.To.Throw();
             //---------------Test Result -----------------------
         }
 
         [Test]
-        public void CheckForExceptionWhenParameterIsNull_GivenParametersImplementingAnInterface_AndNullParameterIsNotTheFirstParameter_ShouldNotThroException()
+        public void
+            CheckForExceptionWhenParameterIsNull_GivenParametersImplementingAnInterface_AndNullParameterIsNotTheFirstParameter_ShouldNotThroException()
         {
             //---------------Set up test pack-------------------
             const string parameterName = "parameter2";
             //---------------Assert Precondition----------------
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(
+            Expect(
                 () =>
-                ConstructorTestUtils
-                    .ShouldExpectNonNullParameterFor
-                    <ClassWithConstructorWithMultipleSubstitutableParametersImplementingAnInterfaceThatThrowsCorrectExceptions>(
-                        parameterName, typeof(SubstitutableClassImplementingAnInterface)));
+                    ConstructorTestUtils
+                        .ShouldExpectNonNullParameterFor
+                            <ClassWithConstructorWithMultipleSubstitutableParametersImplementingAnInterfaceThatThrowsCorrectExceptions>(
+                                parameterName,
+                                typeof(SubstitutableClassImplementingAnInterface)
+                            )
+            ).Not.To.Throw();
             //---------------Test Result -----------------------
         }
 
-        public interface ISomeOtherInterface
-        {
-        }
+        public interface ISomeOtherInterface;
 
         [Test]
         public void CheckForException_WhenParameterTypeDoesNotMatchExpectedType_ShouldThrowAssertionException()
@@ -205,12 +248,18 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => ConstructorTestUtils
-                .ShouldExpectNonNullParameterFor<ClassWithConstructorWithSubstitutableParameter>("parameter1", typeof(ISomeOtherInterface)));
+            Expect(
+                    () => ConstructorTestUtils
+                        .ShouldExpectNonNullParameterFor<ClassWithConstructorWithSubstitutableParameter>(
+                            "parameter1",
+                            typeof(ISomeOtherInterface)
+                        )
+                ).To.Throw<AssertionException>()
+                .With.Message.Containing(typeof(ISomeOtherInterface).PrettyName())
+                .And
+                .Containing(typeof(IInterface).PrettyName());
 
             //---------------Test Result -----------------------
-            StringAssert.Contains(typeof(ISomeOtherInterface).PrettyName(), ex.Message);
-            StringAssert.Contains(typeof(IInterface).PrettyName(), ex.Message);
         }
 
         public class ClassWithMixedConstructor
@@ -225,6 +274,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 _someDependency = someDependency ?? throw new ArgumentNullException(nameof(someDependency));
             }
         }
+
         [Test]
         public void WorkingWithClassWhereOneConstructorParameterIsNotAClass()
         {
@@ -247,9 +297,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
             private readonly SubstitutableAbstractClass _parameter1;
 #pragma warning restore 169
 
-            public ClassWithConstructorWithSubstitutableParameterThatThrowsCorrectExceptions(SubstitutableAbstractClass parameter1)
+            public ClassWithConstructorWithSubstitutableParameterThatThrowsCorrectExceptions(
+                SubstitutableAbstractClass parameter1
+            )
             {
-                if (parameter1 == null) throw new ArgumentNullException(nameof(parameter1));
+                if (parameter1 == null)
+                {
+                    throw new ArgumentNullException(nameof(parameter1));
+                }
             }
         }
 
@@ -259,10 +314,15 @@ namespace PeanutButter.TestUtils.Generic.Tests
             private readonly SubstitutableAbstractClass _parameter1;
 #pragma warning restore 169
 
-            public ClassWithConstructorWithSubstitutableParameterThatThrowsIncorrectExceptions(SubstitutableAbstractClass parameter1)
+            public ClassWithConstructorWithSubstitutableParameterThatThrowsIncorrectExceptions(
+                SubstitutableAbstractClass parameter1
+            )
             {
                 // ReSharper disable once NotResolvedInText
-                if (parameter1 == null) throw new ArgumentNullException("WrongParameterName");
+                if (parameter1 == null)
+                {
+                    throw new ArgumentNullException("WrongParameterName");
+                }
             }
         }
 
@@ -276,28 +336,60 @@ namespace PeanutButter.TestUtils.Generic.Tests
 
         private class ClassWithConstructorWithMultipleSubstitutableAbstractParametersThatThrowsCorrectExceptions
         {
-            public ClassWithConstructorWithMultipleSubstitutableAbstractParametersThatThrowsCorrectExceptions(SubstitutableAbstractClass parameter1, SubstitutableAbstractClass parameter2)
+            public ClassWithConstructorWithMultipleSubstitutableAbstractParametersThatThrowsCorrectExceptions(
+                SubstitutableAbstractClass parameter1,
+                SubstitutableAbstractClass parameter2
+            )
             {
-                if (parameter1 == null) throw new ArgumentNullException(nameof(parameter1));
-                if (parameter2 == null) throw new ArgumentNullException(nameof(parameter2));
+                if (parameter1 == null)
+                {
+                    throw new ArgumentNullException(nameof(parameter1));
+                }
+
+                if (parameter2 == null)
+                {
+                    throw new ArgumentNullException(nameof(parameter2));
+                }
             }
         }
 
         private class ClassWithConstructorWithMultipleSubstitutableInterfaceParametersThatThrowsCorrectExceptions
         {
-            public ClassWithConstructorWithMultipleSubstitutableInterfaceParametersThatThrowsCorrectExceptions(IInterface parameter1, IInterface parameter2)
+            public ClassWithConstructorWithMultipleSubstitutableInterfaceParametersThatThrowsCorrectExceptions(
+                IInterface parameter1,
+                IInterface parameter2
+            )
             {
-                if (parameter1 == null) throw new ArgumentNullException(nameof(parameter1));
-                if (parameter2 == null) throw new ArgumentNullException(nameof(parameter2));
+                if (parameter1 == null)
+                {
+                    throw new ArgumentNullException(nameof(parameter1));
+                }
+
+                if (parameter2 == null)
+                {
+                    throw new ArgumentNullException(nameof(parameter2));
+                }
             }
         }
 
-        private class ClassWithConstructorWithMultipleSubstitutableParametersImplementingAnInterfaceThatThrowsCorrectExceptions
+        private class
+            ClassWithConstructorWithMultipleSubstitutableParametersImplementingAnInterfaceThatThrowsCorrectExceptions
         {
-            public ClassWithConstructorWithMultipleSubstitutableParametersImplementingAnInterfaceThatThrowsCorrectExceptions(SubstitutableClassImplementingAnInterface parameter1, SubstitutableClassImplementingAnInterface parameter2)
+            public
+                ClassWithConstructorWithMultipleSubstitutableParametersImplementingAnInterfaceThatThrowsCorrectExceptions(
+                    SubstitutableClassImplementingAnInterface parameter1,
+                    SubstitutableClassImplementingAnInterface parameter2
+                )
             {
-                if (parameter1 == null) throw new ArgumentNullException(nameof(parameter1));
-                if (parameter2 == null) throw new ArgumentNullException(nameof(parameter2));
+                if (parameter1 == null)
+                {
+                    throw new ArgumentNullException(nameof(parameter1));
+                }
+
+                if (parameter2 == null)
+                {
+                    throw new ArgumentNullException(nameof(parameter2));
+                }
             }
         }
 
@@ -338,15 +430,11 @@ namespace PeanutButter.TestUtils.Generic.Tests
         }
     }
 
-    public abstract class SubstitutableAbstractClass
-    { }
+    public abstract class SubstitutableAbstractClass;
 
-    public class SubstitutableClassImplementingAnInterface : IInterface
-    { }
+    public class SubstitutableClassImplementingAnInterface : IInterface;
 
-    public interface IInterface
-    { }
+    public interface IInterface;
 
-    public struct RandomStruct
-    { }
+    public struct RandomStruct;
 }

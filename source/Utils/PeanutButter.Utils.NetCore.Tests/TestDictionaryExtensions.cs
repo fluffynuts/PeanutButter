@@ -7,12 +7,9 @@ using System.Threading;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
-using NExpect;
-using NUnit.Framework;
 #if NETSTANDARD
 using PeanutButter.TestUtils.AspNetCore.Builders;
 #endif
-using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests;

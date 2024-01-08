@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using PeanutButter.RandomGenerators;
+﻿using PeanutButter.RandomGenerators;
 
 namespace PeanutButter.Utils.NetCore.Tests
 {
@@ -15,10 +14,11 @@ namespace PeanutButter.Utils.NetCore.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var match = asm.FindTypeByName(search);
+            var result = asm.FindTypeByName(search);
 
             //---------------Test Result -----------------------
-            Assert.IsNull(match);
+            Expect(result)
+                .To.Be.Null();
         }
 
         [Test]
@@ -31,10 +31,11 @@ namespace PeanutButter.Utils.NetCore.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var match = asm.FindTypeByName(search);
+            var result = asm.FindTypeByName(search);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(myType, match);
+            Expect(result)
+                .To.Equal(myType);
         }
     }
 }

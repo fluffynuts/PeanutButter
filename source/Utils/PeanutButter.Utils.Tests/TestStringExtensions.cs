@@ -663,7 +663,8 @@ public class TestStringExtensions
             var result = input.AsBytes(encoding);
 
             //---------------Test Result -----------------------
-            CollectionAssert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
     }
 
@@ -935,7 +936,8 @@ public class TestStringExtensions
                 var result = src.IsNullOrWhiteSpace();
 
                 //---------------Test Result -----------------------
-                Assert.IsTrue(result);
+                Expect(result)
+                    .To.Be.True();
             }
         }
 
@@ -956,7 +958,8 @@ public class TestStringExtensions
                 var result = src.IsNullOrWhiteSpace();
 
                 //---------------Test Result -----------------------
-                Assert.IsFalse(result);
+                Expect(result)
+                    .To.Be.False();
             }
         }
 
@@ -1029,7 +1032,8 @@ public class TestStringExtensions
                 var result = input.IsNullOrEmpty();
 
                 //---------------Test Result -----------------------
-                Assert.IsFalse(result);
+                Expect(result)
+                    .To.Be.False();
             }
         }
     }

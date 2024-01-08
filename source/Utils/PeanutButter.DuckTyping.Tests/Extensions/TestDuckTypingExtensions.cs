@@ -316,7 +316,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = cow.CanFuzzyDuckAs<ICow>();
 
             //--------------- Assert -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
 
@@ -335,7 +336,8 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.FuzzyDuckAs<IHasReadOnlyName>();
 
             //--------------- Assert -----------------------
-            Expect(result).Not.To.Be.Null();
+            Expect(result)
+                .Not.To.Be.Null();
         }
 
 
@@ -582,8 +584,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var ducked = input.FuzzyDuckAs<IWithStringId>();
 
             //--------------- Assert -----------------------
-            Assert.IsNotNull(ducked);
-            Expect(ducked.Id).To.Equal(expected);
+            Expect(ducked)
+                .Not.To.Be.Null();
+            Expect(ducked.Id)
+                .To.Equal(expected);
         }
 
         public interface IWithGuidId

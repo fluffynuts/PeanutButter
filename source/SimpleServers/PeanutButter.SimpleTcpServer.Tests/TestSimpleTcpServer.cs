@@ -2,9 +2,6 @@
 using System.Net;
 using System.Net.Sockets;
 using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using static NExpect.Expectations;
-using NExpect;
 using PeanutButter.Utils;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -33,7 +30,7 @@ namespace PeanutButter.SimpleTcpServer.Tests
                     IPAddress.Loopback,
                     1024,
                     32768,
-                    (min, max, last) => last == 0
+                    (_, _, last) => last == 0
                         ? LastRandomPort
                         : NextRandomPort()
                 );
@@ -58,19 +55,18 @@ namespace PeanutButter.SimpleTcpServer.Tests
         public void FindOpenRandomPort_WhenCannotBindOnCurrentRandomPort_ShouldChooseAnotherPortAndBind()
         {
             //---------------Set up test pack-------------------
-            using (var blocker = new MyTcpServer(2000))
-            {
-                blocker.Start();
+            using var blocker = new MyTcpServer(2000);
+            blocker.Start();
 
-                //---------------Assert Precondition----------------
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var another = new MyTcpServer();
-                var result = another._FindOpenRandomPort();
-                Assert.AreEqual(2001, result);
+            //---------------Execute Test ----------------------
+            var another = new MyTcpServer(2000);
+            var result = another._FindOpenRandomPort();
+            Expect(result)
+                .To.Equal(2001);
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         public class MyServer : TcpServer

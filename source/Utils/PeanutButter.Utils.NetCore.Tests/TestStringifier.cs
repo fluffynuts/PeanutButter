@@ -1,8 +1,5 @@
 ﻿using System;
-using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
-using static NExpect.Expectations;
-using NExpect;
 
 namespace PeanutButter.Utils.NetCore.Tests
 {

@@ -4,9 +4,9 @@ using System.Collections.ObjectModel;
 using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using static NExpect.Expectations;
+// ReSharper disable UnusedVariable
 
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable UnusedMember.Global
@@ -17,9 +17,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
     [TestFixture]
     public class TestTypeExtensions
     {
-        public class HasNoActions
-        {
-        }
+        public class HasNoActions;
 
         public class HasMethodCalledFoo
         {
@@ -127,17 +125,11 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Test Result -----------------------
         }
 
-        public interface IInterface
-        {
-        }
+        public interface IInterface;
 
-        public class DoesNotImplement
-        {
-        };
+        public class DoesNotImplement;
 
-        public class DoesImplement : IInterface
-        {
-        };
+        public class DoesImplement : IInterface;
 
         [Test]
         public void ShouldImplement_WhenTypeDoesNotImplementOtherType_ShouldThrow()
@@ -171,9 +163,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Test Result -----------------------
         }
 
-        public class DoesImplementDerivative : DoesImplement
-        {
-        }
+        public class DoesImplementDerivative : DoesImplement;
 
         [Test]
         public void ShouldImplement_WhenRequestedTypeIsAClass_ShouldThrow()
@@ -204,13 +194,9 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Test Result -----------------------
         }
 
-        public class AncesterClass
-        {
-        }
+        public class AncestorClass;
 
-        public class DescendantClass : AncesterClass
-        {
-        }
+        public class DescendantClass : AncestorClass;
 
         [Test]
         public void ShouldNotInheritFrom_generic_WhenRequestedTypeIsInTheInheritenceHeirachy_ShouldThrow()
@@ -221,7 +207,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Expect(() => sut.ShouldNotInheritFrom<AncesterClass>())
+            Expect(() => sut.ShouldNotInheritFrom<AncestorClass>())
                 .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
@@ -236,7 +222,7 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Expect(() => sut.ShouldNotInheritFrom(typeof(AncesterClass)))
+            Expect(() => sut.ShouldNotInheritFrom(typeof(AncestorClass)))
                 .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
@@ -267,10 +253,11 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => t.ShouldBeAssignableFrom(typeof(IInterface)));
+            Expect(() => t.ShouldBeAssignableFrom(typeof(IInterface)))
+                .To.Throw<AssertionException>()
+                .With.Message.Equal.To("DoesNotImplement should implement IInterface");
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("DoesNotImplement should implement IInterface", ex.Message);
         }
 
         [Test]
@@ -280,7 +267,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => typeof(DoesImplement).ShouldBeAssignableFrom(typeof(IInterface)));
+            Expect(() => typeof(DoesImplement).ShouldBeAssignableFrom(typeof(IInterface)))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -293,7 +281,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => t.ShouldNotImplement<IInterface>());
+            Expect(() => t.ShouldNotImplement<IInterface>())
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -305,10 +294,13 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => typeof(DoesImplement).ShouldNotImplement<IInterface>());
+            Expect(
+                    () => typeof(DoesImplement)
+                        .ShouldNotImplement<IInterface>()
+                ).To.Throw<AssertionException>()
+                .With.Message.Equal.To("DoesImplement should not implement IInterface");
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("DoesImplement should not implement IInterface", ex.Message);
         }
 
         [Test]
@@ -319,7 +311,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => t.ShouldNotBeAssignableFrom(typeof(IInterface)));
+            Expect(() => t.ShouldNotBeAssignableFrom(typeof(IInterface)))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -331,13 +324,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(
-                () =>
-                    typeof(DoesImplement).ShouldNotBeAssignableFrom(typeof(IInterface))
-            );
+            Expect(
+                    () => typeof(DoesImplement)
+                        .ShouldNotBeAssignableFrom(typeof(IInterface))
+                )
+                .To.Throw<AssertionException>()
+                .With.Message.Equal.To("DoesImplement should not implement IInterface");
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("DoesImplement should not implement IInterface", ex.Message);
         }
 
         [Test]
@@ -348,10 +342,11 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(t.ShouldImplement<IInterface>);
+            Expect(() => t.ShouldImplement<IInterface>())
+                .To.Throw<AssertionException>()
+                .With.Message.Equal.To("DoesNotImplement should implement IInterface");
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("DoesNotImplement should implement IInterface", ex.Message);
         }
 
         [Test]
@@ -361,7 +356,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => typeof(DoesImplement).ShouldImplement<IInterface>());
+            Expect(() => typeof(DoesImplement).ShouldImplement<IInterface>())
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -377,13 +373,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result = typeof(DoesImplement).PrettyName();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("DoesImplement", result);
+            Expect(result)
+                .To.Equal("DoesImplement");
         }
 
         // ReSharper disable once UnusedTypeParameter
-        public class GenericType<T>
-        {
-        }
+        public class GenericType<T>;
 
         [Test]
         public void PrettyName_GIvenGenericType_ShouldReturnReadableGenericName()
@@ -396,21 +391,9 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result = t.PrettyName();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("TestTypeExtensions+GenericType<String>", result);
+            Expect(result)
+                .To.Equal("TestTypeExtensions+GenericType<String>");
         }
-
-        [Test]
-        public void Method_WhenCondition_ShouldExpectedBehaviour()
-        {
-            //---------------Set up test pack-------------------
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-
-            //---------------Test Result -----------------------
-        }
-
 
         public class CanHaveNullParameter
         {
@@ -428,7 +411,9 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => t.ShouldThrowWhenConstructorParameterIsNull("arg", typeof(string)));
+            Expect(
+                () => t.ShouldThrowWhenConstructorParameterIsNull("arg", typeof(string))
+            ).To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -438,7 +423,9 @@ namespace PeanutButter.TestUtils.Generic.Tests
             public CannotHaveNullParameter(string arg)
             {
                 if (arg == null)
+                {
                     throw new ArgumentNullException(nameof(arg));
+                }
             }
         }
 
@@ -450,7 +437,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => t.ShouldThrowWhenConstructorParameterIsNull("arg", typeof(string)));
+            Expect(() => t.ShouldThrowWhenConstructorParameterIsNull("arg", typeof(string)))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -464,21 +452,16 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(
-                () =>
-                    t.ShouldThrowWhenConstructorParameterIsNull("arg", typeof(int))
-            );
+            Expect(() => t.ShouldThrowWhenConstructorParameterIsNull("arg", typeof(int)))
+                .To.Throw<AssertionException>()
+                .With.Message.Equal.To(
+                    "Parameter arg is expected to have type: 'Int32' but actually has type: 'String'"
+                );
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(
-                "Parameter arg is expected to have type: 'Int32' but actually has type: 'String'",
-                ex.Message
-            );
         }
 
-        public abstract class AbstractThing
-        {
-        }
+        public abstract class AbstractThing;
 
         [Test]
         public void ShouldBeAbstract_GivenAbstractType_ShouldNotThrow()
@@ -488,14 +471,13 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => sut.ShouldBeAbstract());
+            Expect(() => sut.ShouldBeAbstract())
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
 
-        public class NotAnAbstractThing : AbstractThing
-        {
-        }
+        public class NotAnAbstractThing : AbstractThing;
 
         [Test]
         public void ShouldBeAbstract_GivenNonAbstractType_ShouldThrow()
@@ -506,11 +488,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => sut.ShouldBeAbstract());
+            Expect(() => sut.ShouldBeAbstract())
+                .To.Throw<AssertionException>()
+                .With.Message.Containing(sut.Name)
+                .And.Containing("should be abstract");
 
             //---------------Test Result -----------------------
-            StringAssert.Contains(sut.Name, ex.Message);
-            StringAssert.Contains("should be abstract", ex.Message);
         }
 
         public class ClassWithAProperty
@@ -527,7 +510,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => sut.ShouldHaveProperty("IntProperty"));
+            Expect(() => sut.ShouldHaveProperty("IntProperty"))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -541,7 +525,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => sut.ShouldHaveProperty("IntProperty1"));
+            Expect(() => sut.ShouldHaveProperty("IntProperty1"))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -555,8 +540,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => sut.ShouldHaveProperty("IntProperty", typeof(int)));
-            Assert.DoesNotThrow(() => sut.ShouldHaveProperty<int>("IntProperty"));
+            Expect(() => sut.ShouldHaveProperty("IntProperty", typeof(int)))
+                .Not.To.Throw();
+            Expect(() => sut.ShouldHaveProperty<int>("IntProperty"))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -570,8 +557,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => sut.ShouldHaveProperty("IntProperty", typeof(string)));
-            Assert.Throws<AssertionException>(() => sut.ShouldHaveProperty<string>("IntProperty"));
+            Expect(() => sut.ShouldHaveProperty("IntProperty", typeof(string)))
+                .To.Throw<AssertionException>();
+            Expect(() => sut.ShouldHaveProperty<string>("IntProperty"))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -585,7 +574,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => sut.ShouldNotHaveProperty("StringProperty"));
+            Expect(() => sut.ShouldNotHaveProperty("StringProperty"))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -599,7 +589,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => sut.ShouldNotHaveProperty("IntProperty"));
+            Expect(() => sut.ShouldNotHaveProperty("intProperty"))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -613,8 +604,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => sut.ShouldNotHaveProperty("IntProperty", typeof(int)));
-            Assert.Throws<AssertionException>(() => sut.ShouldNotHaveProperty<int>("IntProperty"));
+            Expect(() => sut.ShouldNotHaveProperty("IntProperty", typeof(int)))
+                .To.Throw<AssertionException>();
+            Expect(() => sut.ShouldNotHaveProperty<int>("IntProperty"))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -628,8 +621,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => sut.ShouldNotHaveProperty("IntProperty", typeof(string)));
-            Assert.DoesNotThrow(() => sut.ShouldNotHaveProperty<string>("IntProperty"));
+            Expect(() => sut.ShouldNotHaveProperty("IntProperty", typeof(string)))
+                .Not.To.Throw();
+            Expect(() => sut.ShouldNotHaveProperty<string>("IntProperty"))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -649,9 +644,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => sut.ShouldHaveReadOnlyProperty("ReadOnlyProperty"));
-            Assert.DoesNotThrow(() => sut.ShouldHaveReadOnlyProperty("ReadOnlyProperty", typeof(int)));
-            Assert.DoesNotThrow(() => sut.ShouldHaveReadOnlyProperty<int>("ReadOnlyProperty"));
+            Expect(() => sut.ShouldHaveReadOnlyProperty("ReadOnlyProperty"))
+                .Not.To.Throw();
+            Expect(() => sut.ShouldHaveReadOnlyProperty("ReadOnlyProperty", typeof(int)))
+                .Not.To.Throw();
+            Expect(() => sut.ShouldHaveReadOnlyProperty<int>("ReadOnlyProperty"))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -665,9 +663,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty("ReadWriteProperty"));
-            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty("ReadWriteProperty", typeof(int)));
-            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty<int>("ReadWriteProperty"));
+            Expect(() => sut.ShouldHaveReadOnlyProperty("ReadWriteProperty"))
+                .To.Throw<AssertionException>();
+            Expect(() => sut.ShouldHaveReadOnlyProperty("ReadWriteProperty", typeof(int)))
+                .To.Throw<AssertionException>();
+            Expect(() => sut.ShouldHaveReadOnlyProperty<int>("ReadWriteProperty"))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -681,9 +682,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty("SomeProperty"));
-            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty("SomeProperty", typeof(int)));
-            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty<int>("SomeProperty"));
+            Expect(() => sut.ShouldHaveReadOnlyProperty("SomeProperty"))
+                .To.Throw<AssertionException>();
+            Expect(() => sut.ShouldHaveReadOnlyProperty("SomeProperty", typeof(int)))
+                .To.Throw<AssertionException>();
+            Expect(() => sut.ShouldHaveReadOnlyProperty<int>("SomeProperty"))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -697,8 +701,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty("ReadOnlyProperty", typeof(string)));
-            Assert.Throws<AssertionException>(() => sut.ShouldHaveReadOnlyProperty<bool>("ReadOnlyProperty"));
+            Expect(() => sut.ShouldHaveReadOnlyProperty("ReadOnlyProperty", typeof(string)))
+                .To.Throw<AssertionException>();
+            Expect(() => sut.ShouldHaveReadOnlyProperty<bool>("ReadOnlyProperty"))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -724,11 +730,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => sut.ShouldHaveNonPublicMethod(search));
+            Expect(() => sut.ShouldHaveNonPublicMethod(search))
+                .To.Throw<AssertionException>()
+                .With.Message.Containing("Method not found")
+                .And.Containing(search);
 
             //---------------Test Result -----------------------
-            StringAssert.Contains("Method not found", ex.Message);
-            StringAssert.Contains(search, ex.Message);
         }
 
         [Test]
@@ -741,10 +748,13 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var ex = Assert.Throws<AssertionException>(() => sut.ShouldHaveNonPublicMethod(search));
+            Expect(() => sut.ShouldHaveNonPublicMethod(search))
+                .To.Throw<AssertionException>()
+                .With.Message.Equal.To(
+                    $"Expected method '{search}' not to be public"
+                );
 
             //---------------Test Result -----------------------
-            Assert.AreEqual($"Expected method '{search}' not to be public", ex.Message);
         }
 
         [Test]
@@ -758,7 +768,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => sut.ShouldHaveNonPublicMethod(search));
+            Expect(() => sut.ShouldHaveNonPublicMethod(search))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -777,14 +788,21 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result = toTest.ImplementsEnumerableGenericType();
 
             //--------------- Assert -----------------------
-            Expect(result).To.Equal(expected);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
         public void Collection_ShouldBeEnumerable()
         {
             //--------------- Arrange -------------------
-            var src = new Collection<string>(new[] { "a", "z" });
+            var src = new Collection<string>(
+                new[]
+                {
+                    "a",
+                    "z"
+                }
+            );
 
             //--------------- Assume ----------------
 
@@ -792,7 +810,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result = src.GetType().ImplementsEnumerableGenericType();
 
             //--------------- Assert -----------------------
-            Expect(result).To.Be.True();
+            Expect(result)
+                .To.Be.True();
         }
 
         [TestCase(typeof(string))]
@@ -847,8 +866,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.ShouldHaveEnumValue("Foo")).Not.To.Throw();
-            Expect(() => sut.ShouldHaveEnumValue("Bar")).Not.To.Throw();
+            Expect(() => sut.ShouldHaveEnumValue("Foo"))
+                .Not.To.Throw();
+            Expect(() => sut.ShouldHaveEnumValue("Bar"))
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -889,8 +910,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            Expect(() => sut.ShouldHaveEnumValue("Foo", 13)).Not.To.Throw();
-            Expect(() => sut.ShouldHaveEnumValue("Bar", 36)).Not.To.Throw();
+            Expect(() => sut.ShouldHaveEnumValue("Foo", 13))
+                .Not.To.Throw();
+            Expect(() => sut.ShouldHaveEnumValue("Bar", 36))
+                .Not.To.Throw();
 
             //--------------- Assert -----------------------
         }
@@ -1016,7 +1039,12 @@ namespace PeanutButter.TestUtils.Generic.Tests
             public void ShouldReturnTrueForArray()
             {
                 // Arrange
-                var a = new[] { 1, 2, 3 };
+                var a = new[]
+                {
+                    1,
+                    2,
+                    3
+                };
                 foreach (var item in a)
                 {
                     // do nothing - just prove that
@@ -1034,13 +1062,19 @@ namespace PeanutButter.TestUtils.Generic.Tests
             public void ShouldReturnTrueForIEnumerable()
             {
                 // Arrange
-                var a = new[] { 1, 2, 3 }.AsEnumerable<int>();
+                var a = new[]
+                {
+                    1,
+                    2,
+                    3
+                }.AsEnumerable<int>();
                 var type = a.GetType();
                 foreach (var item in a)
                 {
                     // do nothing - just prove that
                     // this compiles as enumerable
                 }
+
                 // Act
                 var result = a.GetType().IsEnumerable();
                 // Assert
@@ -1063,7 +1097,14 @@ namespace PeanutButter.TestUtils.Generic.Tests
                 }
 
                 Expect(expected)
-                    .To.Equal(new[] { 1, 2, 3 });
+                    .To.Equal(
+                        new[]
+                        {
+                            1,
+                            2,
+                            3
+                        }
+                    );
                 // Act
                 var result = bag.GetType().IsEnumerable();
                 // Assert

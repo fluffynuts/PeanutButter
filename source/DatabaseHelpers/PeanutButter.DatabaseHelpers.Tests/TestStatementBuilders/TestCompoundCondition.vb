@@ -1,6 +1,8 @@
 ﻿Imports NUnit.Framework
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
+Imports NExpect
+Imports NExpect.Expectations
 
 Namespace TestStatementBuilders
 
@@ -15,9 +17,9 @@ Namespace TestStatementBuilders
             Dim left = New Condition(RandomValueGen.GetRandomString(), leftOp, RandomValueGen.GetRandomString())
             Dim right = New Condition(RandomValueGen.GetRandomString(), rightOp, RandomValueGen.GetRandomString())
             Dim cc = New CompoundCondition(left, boolOp, right)
-            Assert.AreEqual(cc.LeftCondition, left)
-            Assert.AreEqual(cc.RightCondition, right)
-            Assert.AreEqual(cc.LogicalOperator, boolOp)
+            Expect(cc.LeftCondition).To.Equal(left)
+            Expect(cc.RightCondition).To.equal(right)
+            Expect(cc.LogicalOperator).To.Equal(boolOp)
         End Sub
         <TestCase(Condition.EqualityOperators.Equals, Condition.EqualityOperators.Equals, CompoundCondition.BooleanOperators.OperatorAnd)>
         <TestCase(Condition.EqualityOperators.LessThanOrEqualTo, Condition.EqualityOperators.GreaterThanOrEqualTo, CompoundCondition.BooleanOperators.OperatorOr)>
@@ -27,7 +29,8 @@ Namespace TestStatementBuilders
             Dim left = New Condition(RandomValueGen.GetRandomString(), leftOp, RandomValueGen.GetRandomString())
             Dim right = New Condition(RandomValueGen.GetRandomString(), rightOp, RandomValueGen.GetRandomString())
             Dim cc = New CompoundCondition(left, boolOp, right)
-            Assert.AreEqual("(" + left.ToString() + " " + CompoundCondition.OperatorResolutions(boolOp) + " " + right.ToString() + ")", cc.ToString())
+            Expect(cc.ToString()) _
+            .To.Equal("(" + left.ToString() + " " + CompoundCondition.OperatorResolutions(boolOp) + " " + right.ToString() + ")")
         End Sub
 
         Private Function RS() As String
@@ -44,7 +47,8 @@ Namespace TestStatementBuilders
                                               CompoundCondition.BooleanOperators.OperatorAnd, _
                                               New Condition(RS(), Condition.EqualityOperators.GreaterThanOrEqualTo, RS()))
             Dim cc = New CompoundCondition(left, logicalOp, right)
-            Assert.AreEqual("(" + left.ToString() + " " + CompoundCondition.OperatorResolutions(logicalOp) + " " + right.ToString() + ")", cc.ToString())
+            Expect(cc.ToString()) _
+            .To.Equal("(" + left.ToString() + " " + CompoundCondition.OperatorResolutions(logicalOp) + " " + right.ToString() + ")")
         End Sub
 
         <TestCase(CompoundCondition.BooleanOperators.OperatorOr)>
@@ -58,7 +62,8 @@ Namespace TestStatementBuilders
                                               New Condition("col4", Condition.EqualityOperators.Equals, "val4"))
             Dim cc = New CompoundCondition(left, op, right)
             Dim interOp = CStr(IIf(op = CompoundCondition.BooleanOperators.OperatorAnd, " and ", " or "))
-            Assert.AreEqual("(([col1]='val1' and [col2]='val2')" + interOp + "([col3]='val3' and [col4]='val4'))", cc.ToString())
+            Expect(cc.ToString()) _
+                .To.Equal("(([col1]='val1' and [col2]='val2')" + interOp + "([col3]='val3' and [col4]='val4'))")
         End Sub
 
 

@@ -3,6 +3,8 @@ using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.WindowsServiceManagement.Exceptions;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+using static NExpect.Expectations;
+using NExpect;
 
 namespace PeanutButter.WindowsServiceManagement.Tests
 {
@@ -38,7 +40,8 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             var sut = Create(serviceName, operation, info);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, sut.Message);
+            Expect(sut.Message)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -55,7 +58,8 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             var sut = Create(null, operation, info);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, sut.Message);
+            Expect(sut.Message)
+                .To.Equal(expected);
         }
         [Test]
         public void Construct_GivenNullOperation_ShouldSetExpectedMessage()
@@ -71,7 +75,8 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             var sut = Create(serviceName, null, info);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, sut.Message);
+            Expect(sut.Message)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -88,7 +93,8 @@ namespace PeanutButter.WindowsServiceManagement.Tests
             var sut = Create(serviceName, operation, null);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, sut.Message);
+            Expect(sut.Message)
+                .To.Equal(expected);
         }
 
         private ServiceOperationException Create(string serviceName, string operation, string info)

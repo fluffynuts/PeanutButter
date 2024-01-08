@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable AccessToDisposedClosure
+
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace PeanutButter.SimpleHTTPServer.Testability.Tests
@@ -16,73 +17,69 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
         public void GetRequestLogsMatching_OperatingOnHttpServer_WhenHaveNotEnabledLogging_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            using (var server = Create(false))
-            {
-                //---------------Assert Precondition----------------
+            using var server = Create(false);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.Throws<Exception>(() => server.GetRequestLogsMatching(l => true));
+            //---------------Execute Test ----------------------
+            Expect(() => server.GetRequestLogsMatching(_ => true))
+                .To.Throw();
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [Test]
-        public void GetRequestLogsMatching_OperatingOnHttpServer_GivenMatchingFunc_WhenHaveEnabledLogging_WhenNoLogs_ShouldReturnEmptyCollection()
+        public void
+            GetRequestLogsMatching_OperatingOnHttpServer_GivenMatchingFunc_WhenHaveEnabledLogging_WhenNoLogs_ShouldReturnEmptyCollection()
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
-            {
-                //---------------Assert Precondition----------------
+            using var server = Create();
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = server.GetRequestLogsMatching(l => true);
+            //---------------Execute Test ----------------------
+            var result = server.GetRequestLogsMatching(_ => true);
 
-                //---------------Test Result -----------------------
-                CollectionAssert.IsEmpty(result);
-            }
+            //---------------Test Result -----------------------
+            Expect(result)
+                .To.Be.Empty();
         }
 
         [Test]
         public void GetRequestLogsMatching_OperatingOnHttpServer_ShouldReturnMatchingLogs()
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
-            {
-                var requests = GetRandomArray<string>(3,3);
-                var skip = requests.Skip(1).First();
-                RequestSuppressed(server, requests.First());
-                RequestSuppressed(server, requests.Skip(1).First());
-                RequestSuppressed(server, requests.Skip(2).First());
+            using var server = Create();
+            var requests = GetRandomArray<string>(3, 3);
+            var skip = requests.Skip(1).First();
+            RequestSuppressed(server, requests.First());
+            RequestSuppressed(server, requests.Skip(1).First());
+            RequestSuppressed(server, requests.Skip(2).First());
 
-                //---------------Assert Precondition----------------
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = server.GetRequestLogsMatching(l => l.Path != "/" + skip);
+            //---------------Execute Test ----------------------
+            var result = server.GetRequestLogsMatching(l => l.Path != "/" + skip);
 
-                //---------------Test Result -----------------------
-                Assert.IsNotNull(result);
-                CollectionAssert.IsNotEmpty(result);
-                Assert.AreEqual(2, result.Count());
-                Assert.IsTrue(result.Any(r => r.Path == "/" + requests.First()));
-                Assert.IsTrue(result.Any(r => r.Path == "/" + requests.Last()));
-            }
+            //---------------Test Result -----------------------
+            Expect(result)
+                .To.Contain.Only(2)
+                .Matched.By(
+                    req => req.Path == $"/{requests.First()}" ||
+                        req.Path == $"/{requests.Last()}"
+                );
         }
 
         [Test]
         public void ShouldHaveReceivedRequestFor_GivenPath_WhenHaveNotReceivedRequest_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
-            {
+            using var server = Create();
+            //---------------Assert Precondition----------------
 
-                //---------------Assert Precondition----------------
+            //---------------Execute Test ----------------------
+            Expect(() => server.ShouldHaveReceivedRequestFor(GetRandomString()))
+                .To.Throw<HttpServerAssertionException>();
 
-                //---------------Execute Test ----------------------
-                Assert.Throws<HttpServerAssertionException>(() => server.ShouldHaveReceivedRequestFor(GetRandomString()));
-
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [TestCase("GET")]
@@ -90,127 +87,138 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
         public void ShouldHaveReceivedRequestFor_GivenPath_WhenHaveNotReceivedMatchingRequest_ShouldThrow(string method)
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
-            {
-                var path = "/" + GetRandomString();
-                var expected = $"{method} {path}";
-                RequestSuppressed(server, path, method);
-                //---------------Assert Precondition----------------
+            using var server = Create();
+            var path = "/" + GetRandomString();
+            var expected = $"{method} {path}";
+            RequestSuppressed(server, path, method);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var ex = Assert.Throws<HttpServerAssertionException>(() => server.ShouldHaveReceivedRequestFor(GetRandomString()));
+            //---------------Execute Test ----------------------
+            Expect(() => server.ShouldHaveReceivedRequestFor(GetRandomString()))
+                .To.Throw<HttpServerAssertionException>()
+                .With.Message.Containing(expected);
 
-                //---------------Test Result -----------------------
-                StringAssert.Contains(expected, ex.Message, ex.Message);
-            }
+            //---------------Test Result -----------------------
         }
 
         [TestCase("GET")]
         [TestCase("POST")]
-        public void ShouldHaveReceivedRequestFor_GivenPath_ShouldNotThrowWhenHaveReceivedRequestWithMethod_(string method)
+        public void ShouldHaveReceivedRequestFor_GivenPath_ShouldNotThrowWhenHaveReceivedRequestWithMethod_(
+            string method
+        )
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
-            {
-                var path = "/" + GetRandomString();
-                RequestSuppressed(server, path, method);
-                //---------------Assert Precondition----------------
+            using var server = Create();
+            var path = "/" + GetRandomString();
+            RequestSuppressed(server, path, method);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.DoesNotThrow(() => server.ShouldHaveReceivedRequestFor(path));
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => server.ShouldHaveReceivedRequestFor(path));
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [TestCase("GET", HttpMethods.Get)]
         [TestCase("POST", HttpMethods.Post)]
-        public void ShouldHaveReceivedRequestFor_GivenPathAndMethod_ShouldNotThrowWhenHaveReceivedMatchingRequest_(string method, HttpMethods httpMethod)
+        public void ShouldHaveReceivedRequestFor_GivenPathAndMethod_ShouldNotThrowWhenHaveReceivedMatchingRequest_(
+            string method,
+            HttpMethods httpMethod
+        )
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
-            {
-                var path = "/" + GetRandomString();
-                RequestSuppressed(server, path, method);
-                //---------------Assert Precondition----------------
+            using var server = Create();
+            var path = "/" + GetRandomString();
+            RequestSuppressed(server, path, method);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.DoesNotThrow(() => server.ShouldHaveReceivedRequestFor(path, httpMethod));
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => server.ShouldHaveReceivedRequestFor(path, httpMethod));
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [TestCase("GET", HttpMethods.Get)]
         [TestCase("POST", HttpMethods.Post)]
-        public void ShouldHaveReceivedRequestFor_GivenPathAndMethod_ShouldNotThrowWhenHaveReceivedMatchingRequestWithParameters_(string method, HttpMethods httpMethod)
+        public void
+            ShouldHaveReceivedRequestFor_GivenPathAndMethod_ShouldNotThrowWhenHaveReceivedMatchingRequestWithParameters_(
+                string method,
+                HttpMethods httpMethod
+            )
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
-            {
-                var path = "/" + GetRandomString() + "?" + GetRandomString() + "=" + GetRandomString();
-                RequestSuppressed(server, path, method);
-                //---------------Assert Precondition----------------
+            using var server = Create();
+            var path = "/" + GetRandomString() + "?" + GetRandomString() + "=" + GetRandomString();
+            RequestSuppressed(server, path, method);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.DoesNotThrow(() => server.ShouldHaveReceivedRequestFor(path, httpMethod));
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => server.ShouldHaveReceivedRequestFor(path, httpMethod));
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [TestCase("GET", HttpMethods.Post)]
         [TestCase("POST", HttpMethods.Get)]
-        public void ShouldHaveReceivedRequestFor_GivenPathAndMethod_ShouldThrowWhenHaveNotReceivedMatchingRequest_(string method, HttpMethods httpMethod)
+        public void ShouldHaveReceivedRequestFor_GivenPathAndMethod_ShouldThrowWhenHaveNotReceivedMatchingRequest_(
+            string method,
+            HttpMethods httpMethod
+        )
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
-            {
-                var path = "/" + GetRandomString();
-                RequestSuppressed(server, path, method);
-                //---------------Assert Precondition----------------
+            using var server = Create();
+            var path = "/" + GetRandomString();
+            RequestSuppressed(server, path, method);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.Throws<HttpServerAssertionException>(() => server.ShouldHaveReceivedRequestFor(path, httpMethod));
+            //---------------Execute Test ----------------------
+            Assert.Throws<HttpServerAssertionException>(
+                () => server.ShouldHaveReceivedRequestFor(path, httpMethod)
+            );
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [TestCase("GET", HttpMethods.Post)]
         [TestCase("POST", HttpMethods.Get)]
-        public void ShouldNotHaveReceivedRequestFor_GivenPathAndMethod_ShouldNotThrowWhenHaveNotReceivedMatchingRequest_(string method, HttpMethods httpMethod)
+        public void
+            ShouldNotHaveReceivedRequestFor_GivenPathAndMethod_ShouldNotThrowWhenHaveNotReceivedMatchingRequest_(
+                string method,
+                HttpMethods httpMethod
+            )
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
-            {
-                var path = "/" + GetRandomString();
-                RequestSuppressed(server, path, method);
-                //---------------Assert Precondition----------------
+            using var server = Create();
+            var path = "/" + GetRandomString();
+            RequestSuppressed(server, path, method);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.DoesNotThrow(() => server.ShouldNotHaveReceivedRequestFor(path, httpMethod));
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(() => server.ShouldNotHaveReceivedRequestFor(path, httpMethod));
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [TestCase("GET", HttpMethods.Get)]
         [TestCase("POST", HttpMethods.Post)]
-        public void ShouldNotHaveReceivedRequestFor_GivenPathAndMethod_ShouldThrowWhenHaveReceivedMatchingRequestWithParameters_(string method, HttpMethods httpMethod)
+        public void
+            ShouldNotHaveReceivedRequestFor_GivenPathAndMethod_ShouldThrowWhenHaveReceivedMatchingRequestWithParameters_(
+                string method,
+                HttpMethods httpMethod
+            )
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
-            {
-                var path = "/" + GetRandomString() + "?" + GetRandomString() + "=" + GetRandomString();
-                RequestSuppressed(server, path, method);
-                //---------------Assert Precondition----------------
+            using var server = Create();
+            var path = "/" + GetRandomString() + "?" + GetRandomString() + "=" + GetRandomString();
+            RequestSuppressed(server, path, method);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.Throws<HttpServerAssertionException>(() => server.ShouldNotHaveReceivedRequestFor(path, httpMethod));
+            //---------------Execute Test ----------------------
+            Assert.Throws<HttpServerAssertionException>(
+                () => server.ShouldNotHaveReceivedRequestFor(path, httpMethod)
+            );
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
 
@@ -218,138 +226,150 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
         public void ShouldHaveHeaderFor_GivenHeaderAndValue_WhenHaveMatch_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
+            using var server = Create();
+            var path = "/" + GetRandomString();
+            var expectedHeader1 = "X-" + GetRandomString();
+            var expectedValue1 = GetRandomString();
+            var headers = new Dictionary<string, string>()
             {
-                var path = "/" + GetRandomString();
-                var expectedHeader1 = "X-" + GetRandomString();
-                var expectedValue1 = GetRandomString();
-                var headers = new Dictionary<string, string>()
                 {
-                    { expectedHeader1, expectedValue1 }
-                };
-                RequestSuppressed(server, path, "GET", headers);
-                //---------------Assert Precondition----------------
+                    expectedHeader1, expectedValue1
+                }
+            };
+            RequestSuppressed(server, path, "GET", headers);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.DoesNotThrow(() => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(
+                () => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            );
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [Test]
         public void ShouldHaveHeaderFor_GivenHeaderAndValue_WhenNoHeaderMatch_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
+            using var server = Create();
+            var path = "/" + GetRandomString();
+            var expectedHeader1 = "X-" + GetRandomString();
+            var expectedValue1 = GetRandomString();
+            var headers = new Dictionary<string, string>()
             {
-                var path = "/" + GetRandomString();
-                var expectedHeader1 = "X-" + GetRandomString();
-                var expectedValue1 = GetRandomString();
-                var headers = new Dictionary<string, string>()
                 {
-                    { "X-" + GetAnother(expectedHeader1), expectedValue1 }
-                };
-                RequestSuppressed(server, path, "GET", headers);
-                //---------------Assert Precondition----------------
+                    "X-" + GetAnother(expectedHeader1), expectedValue1
+                }
+            };
+            RequestSuppressed(server, path, "GET", headers);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.Throws<HttpServerAssertionException>(() => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+            //---------------Execute Test ----------------------
+            Assert.Throws<HttpServerAssertionException>(
+                () => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            );
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [Test]
         public void ShouldHaveHeaderFor_GivenHeaderAndValue_WhenNoValueMatch_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
+            using var server = Create();
+            var path = "/" + GetRandomString();
+            var expectedHeader1 = "X-" + GetRandomString();
+            var expectedValue1 = GetRandomString();
+            var headers = new Dictionary<string, string>()
             {
-                var path = "/" + GetRandomString();
-                var expectedHeader1 = "X-" + GetRandomString();
-                var expectedValue1 = GetRandomString();
-                var headers = new Dictionary<string, string>()
                 {
-                    { expectedHeader1, GetAnother(expectedValue1) }
-                };
-                RequestSuppressed(server, path, "GET", headers);
-                //---------------Assert Precondition----------------
+                    expectedHeader1, GetAnother(expectedValue1)
+                }
+            };
+            RequestSuppressed(server, path, "GET", headers);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.Throws<HttpServerAssertionException>(() => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+            //---------------Execute Test ----------------------
+            Assert.Throws<HttpServerAssertionException>(
+                () => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            );
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [Test]
         public void ShouldNotHaveHeaderFor_GivenHeaderAndValue_WhenDontHaveThatHeaderAndValue_ShouldNotThrow()
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
+            using var server = Create();
+            var path = "/" + GetRandomString();
+            var expectedHeader1 = "X-" + GetRandomString();
+            var expectedValue1 = GetRandomString();
+            var headers = new Dictionary<string, string>()
             {
-                var path = "/" + GetRandomString();
-                var expectedHeader1 = "X-" + GetRandomString();
-                var expectedValue1 = GetRandomString();
-                var headers = new Dictionary<string, string>()
                 {
-                    { expectedHeader1 + GetRandomString(), GetAnother(expectedValue1) + GetRandomString() }
-                };
-                RequestSuppressed(server, path, "GET", headers);
-                //---------------Assert Precondition----------------
+                    expectedHeader1 + GetRandomString(), GetAnother(expectedValue1) + GetRandomString()
+                }
+            };
+            RequestSuppressed(server, path, "GET", headers);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.DoesNotThrow(() => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(
+                () => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            );
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [Test]
         public void ShouldNotHaveHeaderFor_GivenHeaderAndValue_WhenDontHaveThatHeader_ShouldNotThrow()
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
+            using var server = Create();
+            var path = "/" + GetRandomString();
+            var expectedHeader1 = "X-" + GetRandomString();
+            var expectedValue1 = GetRandomString();
+            var headers = new Dictionary<string, string>()
             {
-                var path = "/" + GetRandomString();
-                var expectedHeader1 = "X-" + GetRandomString();
-                var expectedValue1 = GetRandomString();
-                var headers = new Dictionary<string, string>()
                 {
-                    { expectedHeader1 + GetRandomString(), GetAnother(expectedValue1) }
-                };
-                RequestSuppressed(server, path, "GET", headers);
-                //---------------Assert Precondition----------------
+                    expectedHeader1 + GetRandomString(), GetAnother(expectedValue1)
+                }
+            };
+            RequestSuppressed(server, path, "GET", headers);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.DoesNotThrow(() => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(
+                () => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            );
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [Test]
         public void ShouldNotHaveHeaderFor_GivenHeaderAndValue_WhenDontHaveThatHeaderValue_ShouldNotThrow()
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
+            using var server = Create();
+            var path = "/" + GetRandomString();
+            var expectedHeader1 = "X-" + GetRandomString();
+            var expectedValue1 = GetRandomString();
+            var headers = new Dictionary<string, string>()
             {
-                var path = "/" + GetRandomString();
-                var expectedHeader1 = "X-" + GetRandomString();
-                var expectedValue1 = GetRandomString();
-                var headers = new Dictionary<string, string>()
                 {
-                    { expectedHeader1, GetAnother(expectedValue1) + GetRandomString() }
-                };
-                RequestSuppressed(server, path, "GET", headers);
-                //---------------Assert Precondition----------------
+                    expectedHeader1, GetAnother(expectedValue1) + GetRandomString()
+                }
+            };
+            RequestSuppressed(server, path, "GET", headers);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.DoesNotThrow(() => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+            //---------------Execute Test ----------------------
+            Assert.DoesNotThrow(
+                () => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            );
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
 
@@ -357,28 +377,34 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
         public void ShouldNotHaveHeaderFor_GivenHeaderAndValue_WhenHaveHeaderAndValue_ShouldThrow()
         {
             //---------------Set up test pack-------------------
-            using (var server = Create())
+            using var server = Create();
+            var path = "/" + GetRandomString();
+            var expectedHeader1 = "X-" + GetRandomString();
+            var expectedValue1 = GetRandomString();
+            var headers = new Dictionary<string, string>()
             {
-                var path = "/" + GetRandomString();
-                var expectedHeader1 = "X-" + GetRandomString();
-                var expectedValue1 = GetRandomString();
-                var headers = new Dictionary<string, string>()
                 {
-                    { expectedHeader1, expectedValue1 }
-                };
-                RequestSuppressed(server, path, "GET", headers);
-                //---------------Assert Precondition----------------
+                    expectedHeader1, expectedValue1
+                }
+            };
+            RequestSuppressed(server, path, "GET", headers);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                Assert.Throws<HttpServerAssertionException>(() => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1));
+            //---------------Execute Test ----------------------
+            Assert.Throws<HttpServerAssertionException>(
+                () => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            );
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
 
-
-        private void RequestSuppressed(HttpServer server, string path, string method = "GET", Dictionary<string, string> headers = null)
+        private void RequestSuppressed(
+            HttpServer server,
+            string path,
+            string method = "GET",
+            Dictionary<string, string> headers = null
+        )
         {
             try
             {
@@ -390,7 +416,7 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             }
         }
 
-        private void PerformRequest(string url, string method, Dictionary<string, string> headers )
+        private void PerformRequest(string url, string method, Dictionary<string, string> headers)
         {
 #pragma warning disable SYSLIB0014
             var request = WebRequest.CreateHttp(url);

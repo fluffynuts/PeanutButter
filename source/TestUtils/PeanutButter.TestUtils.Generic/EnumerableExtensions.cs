@@ -82,7 +82,9 @@ namespace PeanutButter.TestUtils.Generic
         public static void ShouldHaveUnique<T>(this IEnumerable<T> src, Func<T, bool> matcher)
         {
             if (!src.HasUnique(matcher))
+            {
                 Assert.Fail("Expected single unique result");
+            }
         }
 
         /// <summary>
@@ -98,7 +100,10 @@ namespace PeanutButter.TestUtils.Generic
         {
             var srcArray = src as T[] ?? src.ToArray();
             if (srcArray.ContainsOneDeepEqualTo(seek, ignoreProperties))
+            {
                 return;
+            }
+
             var message = srcArray.ContainsAtLeastOneDeepEqualTo(seek, ignoreProperties)
                 ? "more than one match"
                 : "no matches";
@@ -119,9 +124,14 @@ namespace PeanutButter.TestUtils.Generic
         {
             var localArray = src as T[] ?? src.ToArray();
             if (localArray.IsEmpty())
+            {
                 Assertions.Throw($"Expected to find {seek.Stringify()} in empty collection");
+            }
+
             if (!localArray.ContainsAtLeastOneDeepEqualTo(seek, ignoreProperties))
+            {
                 Assertions.Throw($"Expected to find {seek.Stringify()} in {localArray.Stringify()}");
+            }
         }
     }
 }

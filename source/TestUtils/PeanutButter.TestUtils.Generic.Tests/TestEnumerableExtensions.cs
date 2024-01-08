@@ -208,7 +208,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result = left.IsEquivalentTo(right);
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -225,8 +226,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result2 = right.IsEquivalentTo(left);
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(result1);
-            Assert.IsFalse(result2);
+            Expect(result1)
+                .To.Be.False();
+            Expect(result2)
+                .To.Be.False();
         }
 
         [Test]
@@ -242,7 +245,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result = left.IsEquivalentTo(right);
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result);
+            Expect(result)
+                .To.Be.True();
         }
 
         [Test]
@@ -259,8 +263,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result2 = right.IsEquivalentTo(left);
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(result1);
-            Assert.IsFalse(result2);
+            Expect(result1)
+                .To.Be.False();
+            Expect(result2)
+                .To.Be.False();
         }
 
         [Test]
@@ -277,8 +283,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result2 = right.IsEquivalentTo(left);
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(result1);
-            Assert.IsFalse(result2);
+            Expect(result1)
+                .To.Be.False();
+            Expect(result2)
+                .To.Be.False();
         }
 
         [Test]
@@ -295,8 +303,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result2 = right.IsEquivalentTo(left);
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(result1);
-            Assert.IsFalse(result2);
+            Expect(result1)
+                .To.Be.False();
+            Expect(result2)
+                .To.Be.False();
         }
 
         [Test]
@@ -313,8 +323,10 @@ namespace PeanutButter.TestUtils.Generic.Tests
             var result2 = right.IsEquivalentTo(left);
 
             //---------------Test Result -----------------------
-            Assert.IsTrue(result1);
-            Assert.IsTrue(result2);
+            Expect(result1)
+                .To.Be.True();
+            Expect(result2)
+                .To.Be.True();
         }
 
         [Test]
@@ -326,7 +338,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => input.ShouldHaveUnique(v => v == false));
+            Expect(() => input.ShouldHaveUnique(v => v == false))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -340,7 +353,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<AssertionException>(() => input.ShouldHaveUnique(v => v == 1.2m));
+            Expect(() => input.ShouldHaveUnique(v => v == 1.2m))
+                .To.Throw<AssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -356,7 +370,8 @@ namespace PeanutButter.TestUtils.Generic.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => input.ShouldHaveUnique(s => s == singular));
+            Expect(() => input.ShouldHaveUnique(s => s == singular))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }

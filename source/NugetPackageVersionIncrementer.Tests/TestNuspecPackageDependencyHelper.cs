@@ -36,6 +36,8 @@ namespace NugetPackageVersionIncrementer.Tests
             //---------------Set up test pack-------------------
             var sut = Create(TestResources.package1.AsBytes());
             var expected = XDocument.Parse(Encoding.UTF8.GetString(TestResources.package1.AsBytes())).ToString();
+            Expect(expected)
+                .Not.To.Be.Null();
 
             //---------------Assert Precondition----------------
 
@@ -43,8 +45,8 @@ namespace NugetPackageVersionIncrementer.Tests
             var result = sut.NuspecXml;
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(result);
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
 
@@ -61,7 +63,8 @@ namespace NugetPackageVersionIncrementer.Tests
             sut.SetExistingPackageDependencyVersion(RandomValueGen.GetRandomString(10, 20), RandomValueGen.GetRandomString());
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(before, sut.NuspecXml);
+            Expect(sut.NuspecXml)
+                .To.Equal(before);
         }
 
         [Test]
@@ -74,21 +77,25 @@ namespace NugetPackageVersionIncrementer.Tests
 
             //---------------Assert Precondition----------------
             var deps = docBefore.XPathSelectElements("/package/metadata/dependencies/group/dependency[@id='EntityFramework']");
-            Assert.IsNotNull(deps);
-            CollectionAssert.IsNotEmpty(deps);
+            Expect(deps)
+                .Not.To.Be.Empty();
             var entityDep = deps.First();
             var entityVersion = entityDep.Attribute("version").Value;
-            Assert.AreEqual("[6.1.3,]", entityVersion);
-            Assert.AreEqual(entityVersion, docBefore.GetDependencyVersionFor("EntityFramework"));
+            Expect(entityVersion)
+                .To.Equal("[6.1.3,]");
+            Expect(entityVersion)
+                .To.Equal(docBefore.GetDependencyVersionFor("EntityFramework"));
             var expected = "7.0.1";
 
             //---------------Execute Test ----------------------
             sut.SetExistingPackageDependencyVersion("EntityFramework", "7.0.1");
 
             //---------------Test Result -----------------------
-            Assert.AreNotEqual(before, sut.NuspecXml);
+            Expect(sut.NuspecXml)
+                .Not.To.Equal(before);
             var afterDoc = XDocument.Parse(sut.NuspecXml);
-            Assert.AreEqual(expected, afterDoc.GetDependencyVersionFor("EntityFramework"));
+            Expect(afterDoc.GetDependencyVersionFor("EntityFramework"))
+                .To.Equal(expected);
         }
 
 

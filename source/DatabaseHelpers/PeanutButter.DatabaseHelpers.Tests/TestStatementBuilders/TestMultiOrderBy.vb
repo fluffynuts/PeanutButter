@@ -1,6 +1,8 @@
 ﻿Imports NUnit.Framework
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
+Imports NExpect
+Imports NExpect.Expectations
 
 Namespace TestStatementBuilders
 
@@ -11,7 +13,8 @@ Namespace TestStatementBuilders
             Dim field = RandomValueGen.GetRandomString()
             Dim ob = New MultiOrderBy(OrderBy.Directions.Descending, field)
             Dim expected = "order by [" + field + "] desc"
-            Assert.AreEqual(expected, ob.ToString())
+            Expect(ob.ToString()) _
+                .To.Equal(expected)
         End Sub
 
         <Test()>
@@ -20,7 +23,8 @@ Namespace TestStatementBuilders
                 f2 = RandomValueGen.GetRandomString()
             Dim ob = New MultiOrderBy(OrderBy.Directions.Ascending, f1, f2)
             Dim expected = "order by [" + f1 + "] asc, [" + f2 + "] asc"
-            Assert.AreEqual(expected, ob.ToString())
+            Expect(ob.ToString()) _
+                .To.Equal(expected)
         End Sub
     End Class
 End NameSpace

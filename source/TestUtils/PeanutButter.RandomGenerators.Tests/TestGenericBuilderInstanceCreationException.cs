@@ -42,10 +42,14 @@ namespace PeanutButter.RandomGenerators.Tests
             var sut = new GenericBuilderInstanceCreationException(builderType, entityType);
 
             //---------------Test Result -----------------------
-            StringAssert.Contains(builderType.Name, sut.Message);
-            StringAssert.Contains(entityType.Name, sut.Message);
-            StringAssert.Contains("parameterless constructor", sut.Message);
-            StringAssert.Contains("override CreateInstance", sut.Message);
+            Expect(sut.Message)
+                .To.Contain(builderType.Name)
+                .And
+                .To.Contain(entityType.Name)
+                .And
+                .To.Contain("parameterless constructor")
+                .And
+                .To.Contain("override CreateInstance");
         }
 
 

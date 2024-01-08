@@ -29,13 +29,15 @@ namespace PeanutButter.MVC.Tests
             var bundleResolver = Substitute.For<IBundleResolver>();
 
             //---------------Assert Precondition----------------
-            Assert.AreEqual(0, bundleResolver.GetBundleContents(AutoInclude.BundleBase + controllerName).Count());
+            Expect(bundleResolver.GetBundleContents($"{AutoInclude.BundleBase}{controllerName}"))
+                .To.Be.Empty();
 
             //---------------Execute Test ----------------------
             var result = AutoInclude.AutoIncludeScriptsFor(ctx, bundleResolver);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("", result.ToHtmlString());
+            Expect(result.ToHtmlString())
+                .To.Equal("");
         }
 
         [Test]
@@ -63,8 +65,9 @@ namespace PeanutButter.MVC.Tests
 
             //---------------Test Result -----------------------
             var parts = result.ToHtmlString().Split('\n');
-            Assert.AreEqual(1, parts.Length);
-            StringAssert.Contains(script, parts[0]);
+            Expect(parts)
+                .To.Contain.Only(1)
+                .Matched.By(s => s.Contains(script));
         }
 
         [Test]
@@ -92,8 +95,9 @@ namespace PeanutButter.MVC.Tests
 
             //---------------Test Result -----------------------
             var parts = result.ToHtmlString().Split('\n');
-            Assert.AreEqual(1, parts.Length);
-            StringAssert.Contains(script, parts[0]);
+            Expect(parts)
+                .To.Contain.Only(1)
+                .Matched.By(s => s.Contains(script));
         }
 
         [Test]
@@ -129,8 +133,10 @@ namespace PeanutButter.MVC.Tests
 
             //---------------Test Result -----------------------
             var parts = result.ToHtmlString().Split('\n');
-            Assert.AreEqual(4, parts.Length);
-            Assert.IsTrue(new[] { c1, c2, a1, a2}.All(script => parts.Any(p => p.Contains(script))));
+            Expect(parts)
+                .To.Contain.Only(4).Items();
+            Expect(new[] { c1, c2, a1, a2}.All(script => parts.Any(p => p.Contains(script))))
+                .To.Be.True();
         }
     }
 }

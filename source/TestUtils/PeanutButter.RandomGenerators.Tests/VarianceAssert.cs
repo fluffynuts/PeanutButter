@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using PeanutButter.Utils;
-
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Global
 
@@ -45,7 +43,7 @@ namespace PeanutButter.RandomGenerators.Tests
 
             if (collection.Distinct(comparer).Count() == 1)
             {
-                Assert.Fail(failMessage, collection.Count());
+                Assert.Fail(string.Format(failMessage, collection.Count()));
             }
         }
     }

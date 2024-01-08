@@ -1,7 +1,3 @@
-using NUnit.Framework;
-using static NExpect.Expectations;
-using NExpect;
-
 namespace PeanutButter.Utils.Tests
 {
     [TestFixture]

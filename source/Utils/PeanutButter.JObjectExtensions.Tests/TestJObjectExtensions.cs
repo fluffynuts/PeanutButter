@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+
 // ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.JObjectExtensions.Tests
@@ -28,10 +28,14 @@ namespace PeanutButter.JObjectExtensions.Tests
 
             // Assert
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result["int"]);
-            Assert.AreEqual("moo", result["string"]);
-            Assert.AreEqual(true, result["bool"]);
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result["int"])
+                .To.Equal(1);
+            Expect(result["string"])
+                .To.Equal("moo");
+            Expect(result["bool"])
+                .To.Equal(true);
         }
 
         [Test]
@@ -57,14 +61,22 @@ namespace PeanutButter.JObjectExtensions.Tests
 
             // Assert
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result["int"]);
-            Assert.AreEqual("moo", result["string"]);
-            Assert.AreEqual(true, result["bool"]);
-            Assert.IsNotNull(result["sub"]);
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result["int"])
+                .To.Equal(1);
+            Expect(result["string"])
+                .To.Equal("moo");
+            Expect(result["bool"])
+                .To.Equal(true);
+            Expect(result["sub"])
+                .Not.To.Be.Null();
             var sub = result["sub"] as Dictionary<string, object>;
-            Assert.AreEqual("http://www.google.com", sub["uri"]);
-            Assert.IsNull(sub["nullValue"]);
+            Expect(sub["uri"])
+                .To.Equal("http://www.google.com");
+            Expect(sub["nullValue"])
+                .To.Be.Null();
+            
         }
 
         [Test]
@@ -96,11 +108,10 @@ namespace PeanutButter.JObjectExtensions.Tests
             // Assert
 
             var collection = result["collection"] as string[];
-            Assert.IsNotNull(collection);
-            CollectionAssert.AreEqual(
-                new[] { "cow", "beef", "bovine" },
-                collection
-            );
+            Expect(collection)
+                .Not.To.Be.Null();
+            Expect(collection)
+                .To.Equal(new[] { "cow", "beef", "bovine" });
         }
 
         [Test]
@@ -132,11 +143,10 @@ namespace PeanutButter.JObjectExtensions.Tests
             // Assert
 
             var collection = result["collection"] as object[];
-            Assert.IsNotNull(collection);
-            CollectionAssert.AreEqual(
-                new object[] { "cow", 43, true },
-                collection
-            );
+            Expect(collection)
+                .Not.To.Be.Null();
+            Expect(collection)
+                .To.Equal(new object[] { "cow", 43, true } );
         }
     }
 }

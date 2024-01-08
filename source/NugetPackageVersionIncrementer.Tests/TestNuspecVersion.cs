@@ -17,8 +17,10 @@ namespace NugetPackageVersionIncrementer.Tests
             var sut = Create("");
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("", sut.Minimum);
-            Assert.AreEqual("", sut.Maximum);
+            Expect(sut.Minimum)
+                .To.Equal("");
+            Expect(sut.Maximum)
+                .To.Equal("");
         }
 
         [Test]
@@ -33,8 +35,8 @@ namespace NugetPackageVersionIncrementer.Tests
             var sut = Create(versionString);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(versionString, sut.Minimum);
-            Assert.AreEqual(versionString, sut.Maximum);
+            Expect(sut.Minimum).To.Equal(versionString);
+            Expect(sut.Maximum).To.Equal(versionString);
         }
 
         [Test]
@@ -51,8 +53,8 @@ namespace NugetPackageVersionIncrementer.Tests
             var sut = Create(version);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(min, sut.Minimum);
-            Assert.AreEqual(max, sut.Maximum);
+            Expect(sut.Minimum).To.Equal(min);
+            Expect(sut.Maximum).To.Equal(max);
 
         }
 
@@ -71,8 +73,8 @@ namespace NugetPackageVersionIncrementer.Tests
             var sut = Create(version);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(min, sut.Minimum);
-            Assert.AreEqual(max, sut.Maximum);
+            Expect(sut.Minimum).To.Equal(min);
+            Expect(sut.Maximum).To.Equal(max);
 
         }
 
@@ -91,8 +93,8 @@ namespace NugetPackageVersionIncrementer.Tests
             var sut = Create(version);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(min, sut.Minimum);
-            Assert.AreEqual(max, sut.Maximum);
+            Expect(sut.Minimum).To.Equal(min);
+            Expect(sut.Maximum).To.Equal(max);
 
         }
 
@@ -112,7 +114,7 @@ namespace NugetPackageVersionIncrementer.Tests
             var result = sut.ToString();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
 
         }
 
@@ -131,7 +133,7 @@ namespace NugetPackageVersionIncrementer.Tests
             var result = sut.ToString();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
 
         }
 
@@ -154,7 +156,7 @@ namespace NugetPackageVersionIncrementer.Tests
             var result = sut.ToString();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
 
         }
 
@@ -174,7 +176,7 @@ namespace NugetPackageVersionIncrementer.Tests
             var result = sut.ToString();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result).To.Equal(expected);
 
         }
 

@@ -24,10 +24,14 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             var sut = new RequestLogItem(path, code, method, message, headers);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(path, sut.Path);
-            Assert.AreEqual(code, sut.StatusCode);
-            Assert.AreEqual(method, sut.Method);
-            Assert.AreEqual(message, sut.Message);
+            Expect(sut.Path)
+                .To.Equal(path);
+            Expect(sut.StatusCode)
+                .To.Equal(code);
+            Expect(sut.Method)
+                .To.Equal(method);
+            Expect(sut.Message)
+                .To.Equal(message);
         }
 
         [Test]
@@ -44,11 +48,16 @@ namespace PeanutButter.SimpleHTTPServer.Tests
             var sut = new RequestLogItem(path, code, method, null, null);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(path, sut.Path);
-            Assert.AreEqual(code, sut.StatusCode);
-            Assert.AreEqual(method, sut.Method);
-            Assert.AreEqual(code.ToString(), sut.Message);
-            Assert.IsNotNull(sut.Headers);
+            Expect(sut.Path)
+                .To.Equal(path);
+            Expect(sut.StatusCode)
+                .To.Equal(code);
+            Expect(sut.Method)
+                .To.Equal(method);
+            Expect(sut.Message)
+                .To.Equal(code.ToString());
+            Expect(sut.Headers)
+                .Not.To.Be.Null();
         }
 
     }

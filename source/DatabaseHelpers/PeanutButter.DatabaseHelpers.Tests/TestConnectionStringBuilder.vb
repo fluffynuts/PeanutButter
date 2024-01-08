@@ -1,12 +1,15 @@
 ﻿Imports NUnit.Framework
 Imports PeanutButter.RandomGenerators
+Imports NExpect
+Imports NExpect.Expectations
 
 <TestFixture()>
 Public Class TestConnectionStringBuilder
     <Test()>
     Public Sub Create_ShouldReturnNewBuilder()
         Dim result = ConnectionStringBuilder.Create()
-        Assert.IsInstanceOf(Of ConnectionStringBuilder)(result)
+        Expect(result) _
+            .To.Be.An.Instance.Of (Of ConnectionStringBuilder)
     End Sub
 
     <Test()>
@@ -16,9 +19,10 @@ Public Class TestConnectionStringBuilder
         Dim expected = "Provider=" & provider & ";Data Source=" & source
 
         Dim result = ConnectionStringBuilder.Create() _
-                        .WithProvider(provider) _
-                        .WithSource(source) _
-                        .Build()
-        Assert.AreEqual(result, expected)
+                .WithProvider(provider) _
+                .WithSource(source) _
+                .Build()
+        Expect(result) _
+            .To.Equal(expected)
     End Sub
 End Class

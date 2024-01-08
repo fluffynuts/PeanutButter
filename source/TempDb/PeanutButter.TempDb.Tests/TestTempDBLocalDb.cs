@@ -36,7 +36,8 @@ namespace PeanutButter.TempDb.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            typeof(TempDBLocalDb).ShouldImplement<IDisposable>();
+            Expect(typeof(TempDBLocalDb))
+                .To.Implement<IDisposable>();
 
             //---------------Test Result -----------------------
         }
@@ -45,19 +46,17 @@ namespace PeanutButter.TempDb.Tests
         public void Construct_ShouldCreateTemporaryLocalDbDatabase()
         {
             //---------------Set up test pack-------------------
-            using (var db = new TempDBLocalDb())
-            {
-                //---------------Assert Precondition----------------
+            using var db = new TempDBLocalDb();
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
+            //---------------Execute Test ----------------------
 
-                //---------------Test Result -----------------------
-                Assert.IsTrue(File.Exists(db.DatabasePath));
-                using (var conn = new SqlConnection(db.ConnectionString))
-                {
-                    Assert.DoesNotThrow(conn.Open);
-                }
-            }
+            //---------------Test Result -----------------------
+            Expect(db.DatabasePath)
+                .To.Be.A.File();
+            using var conn = new SqlConnection(db.ConnectionString);
+            Expect(conn.Open)
+                .Not.To.Throw();
         }
 
         [Test]
@@ -65,19 +64,17 @@ namespace PeanutButter.TempDb.Tests
         {
             //---------------Set up test pack-------------------
             var dbName = RandomValueGen.GetRandomAlphaString(5, 10);
-            using (var db = new TempDBLocalDb(dbName, null))
-            {
-                //---------------Assert Precondition----------------
+            using var db = new TempDBLocalDb(dbName, null);
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
+            //---------------Execute Test ----------------------
 
-                //---------------Test Result -----------------------
-                Assert.IsTrue(File.Exists(db.DatabasePath));
-                using (var conn = new SqlConnection(db.ConnectionString))
-                {
-                    Assert.DoesNotThrow(conn.Open);
-                }
-            }
+            //---------------Test Result -----------------------
+            Expect(db.DatabasePath)
+                .To.Be.A.File();
+            using var conn = new SqlConnection(db.ConnectionString);
+            Expect(conn.Open)
+                .Not.To.Throw();
         }
 
         [Test]
@@ -99,13 +96,15 @@ namespace PeanutButter.TempDb.Tests
                 cmd.CommandText = "select * from [test];";
                 cmd.ExecuteReader();
                 file = db.DatabasePath;
-                Assert.IsTrue(File.Exists(file));
+                Expect(file)
+                    .To.Be.A.File();
 
                 //---------------Execute Test ----------------------
 
                 //---------------Test Result -----------------------
             }
-            Assert.IsFalse(File.Exists(file));
+            Expect(file)
+                .Not.To.Exist();
         }
 
         [Test]
@@ -114,29 +113,23 @@ namespace PeanutButter.TempDb.Tests
             var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
             var insertData = "insert into TheTable(id, name) values (1, 'one');";
             var selectData = "select name from TheTable where id = 1;";
-            using (var db = new TempDBLocalDb(new[] { createTable, insertData }))
-            {
-                //---------------Set up test pack-------------------
+            using var db = new TempDBLocalDb(new[] { createTable, insertData });
+            //---------------Set up test pack-------------------
 
-                //---------------Assert Precondition----------------
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                using (var conn = new SqlConnection(db.ConnectionString))
-                {
-                    conn.Open();
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        cmd.CommandText = selectData;
-                        using (var rdr = cmd.ExecuteReader())
-                        {
-                            Assert.IsTrue(rdr.Read());
-                            Assert.AreEqual("one", rdr["name"].ToString());
-                        }
-                    }
-                }
+            //---------------Execute Test ----------------------
+            using var conn = new SqlConnection(db.ConnectionString);
+            conn.Open();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = selectData;
+            using var rdr = cmd.ExecuteReader();
+            Expect(rdr.Read())
+                .To.Be.True();
+            Expect(rdr["name"].ToString())
+                .To.Equal("one");
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [Test]
@@ -145,28 +138,22 @@ namespace PeanutButter.TempDb.Tests
             var createTable = "create table TheTable(id int primary key, name nvarchar(128));";
             var insertData = "insert into TheTable(id, name) values (1, 'one');";
             var selectData = "select name from TheTable where id = 1;";
-            using (var db = new TempDBLocalDb(new[] { createTable, insertData }))
-            {
-                //---------------Set up test pack-------------------
+            using var db = new TempDBLocalDb(new[] { createTable, insertData });
+            //---------------Set up test pack-------------------
 
-                //---------------Assert Precondition----------------
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                using (var conn = db.OpenConnection())
-                {
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        cmd.CommandText = selectData;
-                        using (var rdr = cmd.ExecuteReader())
-                        {
-                            Assert.IsTrue(rdr.Read());
-                            Assert.AreEqual("one", rdr["name"].ToString());
-                        }
-                    }
-                }
+            //---------------Execute Test ----------------------
+            using var conn = db.OpenConnection();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = selectData;
+            using var rdr = cmd.ExecuteReader();
+            Expect(rdr.Read())
+                .To.Be.True();
+            Expect(rdr["name"].ToString())
+                .To.Equal("one");
 
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
 
         [Test]
@@ -179,7 +166,8 @@ namespace PeanutButter.TempDb.Tests
             using (var db = new TempDBLocalDb(new[] { createTable, insertData }))
             {
                 theFile = db.DatabasePath;
-                Assert.IsTrue(File.Exists(theFile));
+                Expect(db.DatabasePath)
+                    .To.Be.A.File();
                 //---------------Set up test pack-------------------
 
                 //---------------Assert Precondition----------------
@@ -190,35 +178,36 @@ namespace PeanutButter.TempDb.Tests
                     cmd.CommandText = selectData;
                     using (var rdr = cmd.ExecuteReader())
                     {
-                        Assert.IsTrue(rdr.Read());
-                        Assert.AreEqual("one", rdr["name"].ToString());
+                        Expect(rdr.Read())
+                            .To.Be.True();
+                        Expect(rdr["name"].ToString())
+                            .To.Equal("one");
                     }
                 }
                 //---------------Execute Test ----------------------
             }
             //---------------Test Result -----------------------
-            Assert.IsFalse(File.Exists(theFile));
+            Expect(theFile)
+                .Not.To.Exist();
         }
 
         [Test]
         public void ShouldPlayNicelyInParallel()
         {
             //---------------Set up test pack-------------------
-            using (var disposer = new AutoDisposer())
+            using var disposer = new AutoDisposer();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            // localDb seems to take a little longer to spin up; reduced the parallel count to 10 to make
+            //  running all tests viable
+            Parallel.For(0, 10, i =>
             {
-                //---------------Assert Precondition----------------
+                // ReSharper disable once AccessToDisposedClosure
+                disposer.Add(new TempDBLocalDb());
+            });
 
-                //---------------Execute Test ----------------------
-                // localDb seems to take a little longer to spin up; reduced the parallel count to 10 to make
-                //  running all tests viable
-                Parallel.For(0, 10, i =>
-                {
-                    // ReSharper disable once AccessToDisposedClosure
-                    disposer.Add(new TempDBLocalDb());
-                });
-
-                //---------------Test Result -----------------------
-            }
+            //---------------Test Result -----------------------
         }
     }
 }

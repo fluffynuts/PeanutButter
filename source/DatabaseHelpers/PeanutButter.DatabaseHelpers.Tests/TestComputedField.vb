@@ -2,39 +2,46 @@
 Imports NUnit.Framework
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
+Imports NExpect
+Imports NExpect.Expectations
 
 <TestFixture()>
 Public Class TestComputedField
     <Test()>
     Public Sub Construct_GivenFieldAndFunction_ShouldConstructWithEmptyAlias()
-        Dim sut = new ComputedField(Substitute.For(Of IField), ComputedField.ComputeFunctions.Coalesce)
-        Assert.AreEqual("", sut.FieldAlias)
+        Dim sut = new ComputedField(Substitute.For (Of IField), ComputedField.ComputeFunctions.Coalesce)
+        Expect(sut.FieldAlias) _
+            .To.Be.Empty()
     End Sub
 
     <Test()>
     Public Sub Construct_GivenFieldNameAndFunction_ShouldConstructWithEmptyAlias()
         Dim fieldName = RandomValueGen.GetRandomString(4)
-        Dim computedFunction = RandomValueGen.GetRandomEnum(Of ComputedField.ComputeFunctions)()
+        Dim computedFunction = RandomValueGen.GetRandomEnum (Of ComputedField.ComputeFunctions)()
         Dim sut = new ComputedField(fieldName, computedFunction)
-        Assert.AreEqual("", sut.FieldAlias)
-        Assert.AreEqual(sut.FieldName, fieldName)
-        Assert.AreEqual(sut.ComputeFunction, computedFunction)
+        Expect(sut.FieldAlias) _
+            .To.Be.Empty()
+        Expect(sut.FieldName) _
+            .To.Equal(fieldName)
+        Expect(sut.ComputeFunction) _
+            .To.Equal(computedFunction)
     End Sub
 
     <Test()>
     Public Sub Construct_Given_FieldAndComputeFunctionAndAlias_ShouldConstructWithFieldNameInAlias()
         Dim fieldName = RandomValueGen.GetRandomString(4)
         Dim fieldAlias = RandomValueGen.GetRandomString(4)
-        Dim computeFunction = RandomValueGen.GetRandomEnum(Of ComputedField.ComputeFunctions)()
-        Dim field = Substitute.For(Of IField)()
+        Dim computeFunction = RandomValueGen.GetRandomEnum (Of ComputedField.ComputeFunctions)()
+        Dim field = Substitute.For (Of IField)()
         field.ToString.Returns(fieldName)
 
         Dim sut = new ComputedField(field, computeFunction, fieldAlias)
 
-        Assert.AreEqual(sut.FieldAlias, fieldAlias)
-        Assert.AreEqual(sut.ComputeFunction, computeFunction)
-        Assert.AreEqual(sut.FieldName, fieldName)
-
+        Expect(sut.FieldAlias) _
+            .To.Equal(fieldAlias)
+        Expect(sut.ComputeFunction) _
+            .To.Equal(computeFunction)
+        Expect(sut.FieldName) _
+            .To.Equal(fieldName)
     End Sub
-
 End Class

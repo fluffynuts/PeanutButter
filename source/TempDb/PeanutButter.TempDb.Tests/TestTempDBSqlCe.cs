@@ -112,7 +112,8 @@ namespace PeanutButter.TempDb.Tests
                     cmd.CommandText = "select * from [test];";
                     cmd.ExecuteReader();
                     file = db.DatabasePath;
-                    Assert.IsTrue(File.Exists(file));
+                    Expect(file)
+                        .To.Be.A.File();
 
                     //---------------Execute Test ----------------------
 
@@ -133,7 +134,8 @@ namespace PeanutButter.TempDb.Tests
                 using (var db = new TempDBSqlCe(createTable, insertData))
                 {
                     theFile = db.DatabasePath;
-                    Assert.IsTrue(File.Exists(theFile));
+                    Expect(theFile)
+                        .To.Be.A.File();
                     //---------------Set up test pack-------------------
 
                     //---------------Assert Precondition----------------
@@ -200,7 +202,7 @@ namespace PeanutButter.TempDb.Tests
                 Parallel.For(
                     0,
                     100,
-                    i =>
+                    _ =>
                     {
                         // ReSharper disable once AccessToDisposedClosure
                         disposer.Add(new TempDBSqlCe());

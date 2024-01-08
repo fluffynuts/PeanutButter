@@ -2,6 +2,8 @@
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
+using static NExpect.Expectations;
+using NExpect;
 
 namespace PeanutButter.ServiceShell.Tests
 {
@@ -35,7 +37,8 @@ namespace PeanutButter.ServiceShell.Tests
             var sut = new ServiceUnconfiguredException(property);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, sut.Message);
+            Expect(sut.Message)
+                .To.Equal(expected);
         }
 
 

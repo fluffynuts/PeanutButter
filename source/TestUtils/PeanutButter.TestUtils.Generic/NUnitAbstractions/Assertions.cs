@@ -27,7 +27,10 @@ namespace PeanutButter.TestUtils.Generic.NUnitAbstractions
             try
             {
                 if (t.FullName != fullName)
+                {
                     return null;
+                }
+
                 return t.GetConstructors()
                     .Any(c => c.GetParameters()
                         .Select(p => p.ParameterType)

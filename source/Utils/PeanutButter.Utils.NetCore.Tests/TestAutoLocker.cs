@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-
-// ReSharper disable ObjectCreationAsStatement
+﻿// ReSharper disable ObjectCreationAsStatement
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils.NetCore.Tests;
@@ -16,10 +14,11 @@ public class TestAutoLockerFat
         //---------------Assert Precondition----------------
 
         //---------------Execute Test ----------------------
-        var ex = Assert.Throws<ArgumentNullException>(() => new AutoLocker((Semaphore) null));
+        Expect(() => new AutoLocker(null as Semaphore))
+            .To.Throw<ArgumentNullException>()
+            .For("semaphore");
 
         //---------------Test Result -----------------------
-        Assert.AreEqual("semaphore", ex.ParamName);
     }
 
     [Test]
@@ -30,10 +29,11 @@ public class TestAutoLockerFat
         //---------------Assert Precondition----------------
 
         //---------------Execute Test ----------------------
-        var ex = Assert.Throws<ArgumentNullException>(() => new AutoLocker((Mutex) null));
+        Expect(() => new AutoLocker(null as Mutex))
+            .To.Throw<ArgumentNullException>()
+            .For("mutex");
 
         //---------------Test Result -----------------------
-        Assert.AreEqual("mutex", ex.ParamName);
     }
 
     [Test]
@@ -44,7 +44,8 @@ public class TestAutoLockerFat
         //---------------Assert Precondition----------------
 
         //---------------Execute Test ----------------------
-        Assert.DoesNotThrow(() => new AutoLocker(new Semaphore(1, 1)));
+        Expect(() => new AutoLocker(new Semaphore(1, 1)))
+            .Not.To.Throw();
 
         //---------------Test Result -----------------------
     }
@@ -57,7 +58,8 @@ public class TestAutoLockerFat
         //---------------Assert Precondition----------------
 
         //---------------Execute Test ----------------------
-        Assert.DoesNotThrow(() => new AutoLocker(new Mutex()));
+        Expect(() => new AutoLocker(new Mutex()))
+            .Not.To.Throw();
 
         //---------------Test Result -----------------------
     }
@@ -74,12 +76,14 @@ public class TestAutoLockerFat
         using (new AutoLocker(theLock))
         {
             var gotLockAgain = theLock.WaitOne(1);
-            Assert.IsFalse(gotLockAgain);
+            Expect(gotLockAgain)
+                .To.Be.False();
         }
 
         var gotLockAfter = theLock.WaitOne(1);
         //---------------Test Result -----------------------
-        Assert.IsTrue(gotLockAfter);
+        Expect(gotLockAfter)
+            .To.Be.True();
         theLock.Release();
     }
 
@@ -114,131 +118,96 @@ public class TestAutoLockerFat
             var t = new Thread(test.RunInThread);
             t.Start();
             t.Join();
-            Assert.IsFalse(test.GotLock);
+            Expect(test.GotLock)
+                .To.Be.False();
         }
 
         var gotLockAfter = theLock.WaitOne(1);
         //---------------Test Result -----------------------
-        Assert.IsTrue(gotLockAfter);
+        Expect(gotLockAfter)
+            .To.Be.True();
         theLock.ReleaseMutex();
     }
-}
 
-[TestFixture]
-public class TestAutoLockerSlim
-{
-    [Test]
-    public void Construct_WhenGivenNullSemaphore_ShouldThrow()
+    [TestFixture]
+    public class OperatingOnSemaphoreSlim
     {
-        //---------------Set up test pack-------------------
-
-        //---------------Assert Precondition----------------
-
-        //---------------Execute Test ----------------------
-        var ex = Assert.Throws<ArgumentNullException>(() => new AutoLocker((SemaphoreSlim) null));
-
-        //---------------Test Result -----------------------
-        Assert.AreEqual("semaphore", ex.ParamName);
-    }
-
-    [Test]
-    public void Construct_WhenGivenNullMutex_ShouldThrow()
-    {
-        //---------------Set up test pack-------------------
-
-        //---------------Assert Precondition----------------
-
-        //---------------Execute Test ----------------------
-        var ex = Assert.Throws<ArgumentNullException>(() => new AutoLocker((Mutex) null));
-
-        //---------------Test Result -----------------------
-        Assert.AreEqual("mutex", ex.ParamName);
-    }
-
-    [Test]
-    public void Construct_WhenGivenSemaphore_ShouldNotThrow()
-    {
-        //---------------Set up test pack-------------------
-
-        //---------------Assert Precondition----------------
-
-        //---------------Execute Test ----------------------
-        Assert.DoesNotThrow(() => new AutoLocker(new SemaphoreSlim(1, 1)));
-
-        //---------------Test Result -----------------------
-    }
-
-    [Test]
-    public void Construct_WhenGivenMutex_ShouldNotThrow()
-    {
-        //---------------Set up test pack-------------------
-
-        //---------------Assert Precondition----------------
-
-        //---------------Execute Test ----------------------
-        Assert.DoesNotThrow(() => new AutoLocker(new Mutex()));
-
-        //---------------Test Result -----------------------
-    }
-
-    [Test]
-    public void Construct_WhenGivenSemaphore_ShouldLockSemaphore()
-    {
-        //---------------Set up test pack-------------------
-        var theLock = new SemaphoreSlim(1, 1);
-
-        //---------------Assert Precondition----------------
-
-        //---------------Execute Test ----------------------
-        using (new AutoLocker(theLock))
+        [Test]
+        public void Construct_WhenGivenNullSemaphore_ShouldThrow()
         {
-            var gotLockAgain = theLock.Wait(1);
-            Assert.IsFalse(gotLockAgain);
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Expect(() => new AutoLocker(null as SemaphoreSlim))
+                .To.Throw<ArgumentNullException>()
+                .For("semaphore");
+
+            //---------------Test Result -----------------------
         }
 
-        var gotLockAfter = theLock.Wait(1);
-        //---------------Test Result -----------------------
-        Assert.IsTrue(gotLockAfter);
-        theLock.Release();
-    }
-
-    public class MutexLockTest
-    {
-        public bool GotLock { get; private set; }
-        private readonly Mutex _mutex;
-
-        public MutexLockTest(Mutex mutex)
+        [Test]
+        public void Construct_WhenGivenSemaphore_ShouldNotThrow()
         {
-            _mutex = mutex;
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            Expect(() => new AutoLocker(new SemaphoreSlim(1, 1)))
+                .Not.To.Throw();
+
+            //---------------Test Result -----------------------
         }
 
-        public void RunInThread()
+        [Test]
+        public void Construct_WhenGivenSemaphore_ShouldLockSemaphore()
         {
-            GotLock = _mutex.WaitOne(1);
+            //---------------Set up test pack-------------------
+            var theLock = new SemaphoreSlim(1, 1);
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            using (new AutoLocker(theLock))
+            {
+                var gotLockAgain = theLock.Wait(1);
+                Expect(gotLockAgain)
+                    .To.Be.False();
+            }
+
+            var gotLockAfter = theLock.Wait(1);
+            //---------------Test Result -----------------------
+            Expect(gotLockAfter)
+                .To.Be.True();
+            theLock.Release();
         }
-    }
 
-    [Test]
-    public void Construct_WhenGivenMutex_ShouldLockSemaphore()
-    {
-        //---------------Set up test pack-------------------
-        var theLock = new Mutex();
-
-        //---------------Assert Precondition----------------
-
-        //---------------Execute Test ----------------------
-        using (new AutoLocker(theLock))
+        [Test]
+        public void Construct_WhenGivenMutex_ShouldLockSemaphore()
         {
-            var test = new MutexLockTest(theLock);
-            var t = new Thread(test.RunInThread);
-            t.Start();
-            t.Join();
-            Assert.IsFalse(test.GotLock);
-        }
+            //---------------Set up test pack-------------------
+            var theLock = new Mutex();
 
-        var gotLockAfter = theLock.WaitOne(1);
-        //---------------Test Result -----------------------
-        Assert.IsTrue(gotLockAfter);
-        theLock.ReleaseMutex();
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            using (new AutoLocker(theLock))
+            {
+                var test = new MutexLockTest(theLock);
+                var t = new Thread(test.RunInThread);
+                t.Start();
+                t.Join();
+                Expect(test.GotLock)
+                    .To.Be.False();
+            }
+
+            var gotLockAfter = theLock.WaitOne(1);
+            //---------------Test Result -----------------------
+            Expect(gotLockAfter)
+                .To.Be.True();
+            theLock.ReleaseMutex();
+        }
     }
 }

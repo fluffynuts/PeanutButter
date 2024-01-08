@@ -5,12 +5,11 @@ using GenericBuilderTestArtifactEntities;
 using GenericBuilderTestArtifactEntities.Sub1;
 using GenericBuilderTestLoadLoadedAssemblyObject;
 using GenericBuilderTestNotLoadedAssembly;
-using NExpect;
 using NUnit.Framework;
-using static NExpect.Expectations;
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedMember.Local
 // ReSharper disable PossibleNullReferenceException
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.RandomGenerators.Tests
 {
@@ -86,7 +85,8 @@ namespace PeanutButter.RandomGenerators.Tests
             var result2 = GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(type);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(result1, result2);
+            Expect(result2)
+                .To.Be(result1);
         }
 
         [Test]
@@ -108,8 +108,10 @@ namespace PeanutButter.RandomGenerators.Tests
         {
             var someEntityType = typeof (SomeEntityWithBuilder);
             var someEntityBuilderType = typeof (SomeEntityWithBuilderBuilder);
-            Assert.IsNotNull(someEntityType);
-            Assert.IsNotNull(someEntityBuilderType);
+            Expect(someEntityType)
+                .Not.To.Be.Null();
+            Expect(someEntityBuilderType)
+                .Not.To.Be.Null();
             var otherBuilder = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(
                     a =>
@@ -125,7 +127,8 @@ namespace PeanutButter.RandomGenerators.Tests
                     }
                 ).ToArray();
             var builders = otherBuilder.Where(t => t.IsBuilderFor(typeof (SomeEntityWithBuilder)));
-            CollectionAssert.IsNotEmpty(builders);
+            Expect(builders)
+                .To.Be.Empty();
         }
 
         [Test]

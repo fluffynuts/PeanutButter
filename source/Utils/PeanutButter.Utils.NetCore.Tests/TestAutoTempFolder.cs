@@ -1,8 +1,5 @@
 using System.Reflection;
-using NExpect;
-using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using static NExpect.Expectations;
 
 // ReSharper disable AssignNullToNotNullAttribute
 
@@ -608,8 +605,8 @@ namespace PeanutButter.Utils.NetCore.Tests
                 using (var folder = Create())
                 {
                     folderPath = folder.Path;
-                    Assert.IsNotNull(folderPath);
-
+                    Expect(folderPath)
+                        .Not.To.Be.Null();
 
                     //---------------Assert Precondition----------------
                     Expect(folderPath)

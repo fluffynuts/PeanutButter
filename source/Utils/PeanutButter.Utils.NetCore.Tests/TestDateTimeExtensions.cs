@@ -1,9 +1,6 @@
 ﻿using System.Globalization;
-using NExpect;
-using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.NetCore.Tests
 {
@@ -541,14 +538,16 @@ namespace PeanutButter.Utils.NetCore.Tests
                 var lastThree = decimalPart.Substring(3);
 
                 //---------------Assert Precondition----------------
-                Assert.AreEqual(3, lastThree.Length);
+                Expect(lastThree.Length)
+                    .To.Equal(3);
                 var expected = int.Parse(lastThree);
 
                 //---------------Execute Test ----------------------
                 var result = d.Microseconds();
 
                 //---------------Test Result -----------------------
-                Expect(result).To.Equal(expected);
+                Expect(result)
+                    .To.Equal(expected);
             }
         }
 

@@ -3,7 +3,7 @@
     <id>PeanutButter.TempDb.LocalDb</id>
     <version>3.0.244</version>
     <title>PeanutButter.TempDb.LocalDb</title>
-    <authors>Davyd</authors>
+    <authors>Davyd McColl</authors>
     <owners></owners>
     <description>
 	The LocalDb TempDb implementation

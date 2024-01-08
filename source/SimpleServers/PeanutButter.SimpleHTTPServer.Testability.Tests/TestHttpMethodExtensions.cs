@@ -23,7 +23,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             var result = method.Matches(match);
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
     }

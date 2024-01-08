@@ -1,14 +1,9 @@
-using NExpect;
-using NUnit.Framework;
-using static NExpect.Expectations;
-
 namespace PeanutButter.Utils.NetCore.Tests;
 
 [TestFixture]
 public class TestAutoBarrier
 {
     [Test]
-    [Timeout(1000)]
     public void ShouldNotSignalAndWaitOnConstruction()
     {
         // Arrange
@@ -22,7 +17,6 @@ public class TestAutoBarrier
     }
 
     [Test]
-    [Timeout(1000)]
     public async Task ShouldSignalAndWaitOnDisposal()
     {
         // Arrange

@@ -7,6 +7,7 @@ using NUnit.Framework;
 using PeanutButter.Async.Interfaces;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
+
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable RedundantArgumentDefaultValue
 
@@ -29,7 +30,8 @@ namespace PeanutButter.Async.Tests
             var method = sut.GetMethods().FirstOrDefault(mi => mi.Name == "Run" && mi.ReturnType == typeof(Task));
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(method, "Unable to find suitable Run method on interface");
+            Expect(method)
+                .Not.To.Be.Null("Unable to find suitable Run method on interface");
         }
 
         [Test]
@@ -41,12 +43,15 @@ namespace PeanutButter.Async.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var method = sut.GetMethods().FirstOrDefault(mi => mi.Name == "Run" &&
-                                                               mi.ReturnType.IsGenericType &&
-                                                               mi.ReturnType.BaseType == typeof(Task));
+            var method = sut.GetMethods().FirstOrDefault(
+                mi => mi.Name == "Run" &&
+                    mi.ReturnType.IsGenericType &&
+                    mi.ReturnType.BaseType == typeof(Task)
+            );
 
             //---------------Test Result -----------------------
-            Assert.IsNotNull(method, "Unable to find suitable Run method on interface");
+            Expect(method)
+                .Not.To.Be.Null("Unable to find suitable Run method on interface");
         }
 
         [Test]
@@ -74,18 +79,22 @@ namespace PeanutButter.Async.Tests
             //---------------Assert Precondition----------------
             var called = false;
             //---------------Execute Test ----------------------
-            sut.Run(() =>
-            {
-                barrier1.SignalAndWait();
-                called = true;
-                barrier2.SignalAndWait();
-            });
+            sut.Run(
+                () =>
+                {
+                    barrier1.SignalAndWait();
+                    called = true;
+                    barrier2.SignalAndWait();
+                }
+            );
 
             //---------------Test Result -----------------------
-            Assert.IsFalse(called);
+            Expect(called)
+                .To.Be.False();
             barrier1.SignalAndWait(TWO_MINUTES);
             barrier2.SignalAndWait(TWO_MINUTES);
-            Assert.IsTrue(called);
+            Expect(called)
+                .To.Be.True();
         }
 
         [Test]
@@ -99,18 +108,22 @@ namespace PeanutButter.Async.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var task = sut.Run(() =>
-            {
-                barrier.SignalAndWait();
-                Thread.Sleep(1000);
-                called = true;
-            });
+            var task = sut.Run(
+                () =>
+                {
+                    barrier.SignalAndWait();
+                    Thread.Sleep(1000);
+                    called = true;
+                }
+            );
 
             //---------------Test Result -----------------------
             barrier.SignalAndWait();
-            Assert.IsFalse(called);
+            Expect(called)
+                .To.Be.False();
             task.Wait();
-            Assert.IsTrue(called);
+            Expect(called)
+                .To.Be.True();
         }
 
         [Test]
@@ -126,8 +139,10 @@ namespace PeanutButter.Async.Tests
             var result = sut.Run(() => expected);
 
             //---------------Test Result -----------------------
-            Assert.IsInstanceOf<Task<string>>(result);
-            Assert.AreEqual(expected, result.Result);
+            Expect(result)
+                .To.Be.An.Instance.Of<Task<string>>();
+            Expect(result.Result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -141,9 +156,12 @@ namespace PeanutButter.Async.Tests
             var task = sut.RunLong(() => { });
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(task.CreationOptions,
-                TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach);
-            Assert.IsFalse(task.IsCanceled);
+            Expect(task.CreationOptions)
+                .To.Equal(
+                    TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach
+                );
+            Expect(task.IsCanceled)
+                .To.Be.False();
         }
 
         [Test]
@@ -157,13 +175,18 @@ namespace PeanutButter.Async.Tests
             //---------------Execute Test ----------------------
             var task = sut.RunLong(() => { Thread.Sleep(1000); }, cancellationTokenSource.Token);
             //---------------Test Result -----------------------
-            Assert.AreEqual(task.CreationOptions,
-                TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach);
-            var propInfo = task.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic)
+            Expect(task.CreationOptions)
+                .To.Equal(
+                    TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach
+                );
+            var propInfo = task.GetType()
+                .GetProperties(BindingFlags.Instance | BindingFlags.NonPublic)
                 .FirstOrDefault(pi => pi.Name == "CancellationToken");
-            Assert.IsNotNull(propInfo, "Can't delve into the bowels of the task to get its CancellationToken ):");
+            Expect(propInfo)
+                .Not.To.Be.Null("Can't delve into the bowels of the task to get its CancellationToken ):");
             var token = propInfo.GetValue(task);
-            Assert.AreEqual(cancellationTokenSource.Token, token);
+            Expect(token)
+                .To.Equal(cancellationTokenSource.Token);
         }
 
         [Test]
@@ -176,13 +199,18 @@ namespace PeanutButter.Async.Tests
             //---------------Execute Test ----------------------
             var task = sut.RunLong(() => { Thread.Sleep(1000); });
             //---------------Test Result -----------------------
-            Assert.AreEqual(task.CreationOptions,
-                TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach);
-            var propInfo = task.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic)
+            Expect(task.CreationOptions)
+                .To.Equal(
+                    TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach
+                );
+            var propInfo = task.GetType()
+                .GetProperties(BindingFlags.Instance | BindingFlags.NonPublic)
                 .FirstOrDefault(pi => pi.Name == "CancellationToken");
-            Assert.IsNotNull(propInfo, "Can't delve into the bowels of the task to get its CancellationToken ):");
+            Expect(propInfo)
+                .Not.To.Be.Null("Can't delve into the bowels of the task to get its CancellationToken ):");
             var token = propInfo.GetValue(task);
-            Assert.AreEqual(CancellationToken.None, token);
+            Expect(token)
+                .To.Equal(CancellationToken.None);
         }
 
         [Test]
@@ -198,10 +226,12 @@ namespace PeanutButter.Async.Tests
             var task = sut.CreateNotStartedFor(() => expected);
 
             //---------------Test Result -----------------------
-            Assert.IsInstanceOf<Task<int>>(task);
+            Expect(task)
+                .To.Be.An.Instance.Of<Task<int>>();
             task.Start();
             var result = task.Result;
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -218,10 +248,12 @@ namespace PeanutButter.Async.Tests
             var task = sut.CreateNotStartedFor(() => { result = expected; });
 
             //---------------Test Result -----------------------
-            Assert.IsInstanceOf<Task>(task);
+            Expect(task)
+                .To.Be.An.Instance.Of<Task>();
             task.Start();
             task.Wait();
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -235,24 +267,30 @@ namespace PeanutButter.Async.Tests
             var secondCalled = false;
 
             //---------------Assert Precondition----------------
-            var task1 = sut.Run(() =>
-            {
-                firstCalled = true;
-                barrier1.SignalAndWait();
-            });
+            var task1 = sut.Run(
+                () =>
+                {
+                    firstCalled = true;
+                    barrier1.SignalAndWait();
+                }
+            );
             //---------------Execute Test ----------------------
-            sut.Continue(task1).With(t =>
-            {
-                secondCalled = true;
-                barrier2.SignalAndWait();
-            });
+            sut.Continue(task1).With(
+                t =>
+                {
+                    secondCalled = true;
+                    barrier2.SignalAndWait();
+                }
+            );
             barrier1.SignalAndWait();
             barrier2.SignalAndWait();
 
             //---------------Test Result -----------------------
             // technically, just getting here is a positive result because of the barriers
-            Assert.IsTrue(firstCalled);
-            Assert.IsTrue(secondCalled);
+            Expect(firstCalled)
+                .To.Be.True();
+            Expect(secondCalled)
+                .To.Be.True();
         }
 
         [Test]
@@ -264,25 +302,30 @@ namespace PeanutButter.Async.Tests
             var barrier2 = new Barrier(2);
             var expected = RandomValueGen.GetRandomInt(1, 10);
             var result = -1;
-            var task1 = sut.Run(() =>
-            {
-                barrier1.SignalAndWait();
-                return expected;
-            });
+            var task1 = sut.Run(
+                () =>
+                {
+                    barrier1.SignalAndWait();
+                    return expected;
+                }
+            );
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            sut.Continue(task1).With(t =>
-            {
-                result = t.Result;
-                barrier2.SignalAndWait();
-            });
+            sut.Continue(task1).With(
+                t =>
+                {
+                    result = t.Result;
+                    barrier2.SignalAndWait();
+                }
+            );
 
             //---------------Test Result -----------------------
             barrier1.SignalAndWait();
             barrier2.SignalAndWait();
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -293,26 +336,31 @@ namespace PeanutButter.Async.Tests
             var barrier1 = new Barrier(2);
             var barrier2 = new Barrier(2);
             var expected = RandomValueGen.GetRandomInt(1, 10);
-            var task1 = sut.Run(() =>
-            {
-                barrier1.SignalAndWait();
-                return expected;
-            });
+            var task1 = sut.Run(
+                () =>
+                {
+                    barrier1.SignalAndWait();
+                    return expected;
+                }
+            );
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var resultTask = sut.Continue(task1).With(t =>
-            {
-                barrier2.SignalAndWait();
-                return t.Result;
-            });
+            var resultTask = sut.Continue(task1).With(
+                t =>
+                {
+                    barrier2.SignalAndWait();
+                    return t.Result;
+                }
+            );
 
             //---------------Test Result -----------------------
             barrier1.SignalAndWait();
             barrier2.SignalAndWait();
 
-            Assert.AreEqual(expected, resultTask.Result);
+            Expect(resultTask.Result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -326,23 +374,26 @@ namespace PeanutButter.Async.Tests
 
             //---------------Execute Test ----------------------
             var resultTask = sut.Run(() => { Thread.Sleep(150); })
-                .Using(sut).ContinueWith(t =>
-                {
-                    Thread.Sleep(100);
-                    return expected;
-                })
+                .Using(sut).ContinueWith(
+                    t =>
+                    {
+                        Thread.Sleep(100);
+                        return expected;
+                    }
+                )
                 .Using(sut).ContinueWith(t => t.Result)
-                .Using(sut).ContinueWith(t =>
-                {
-                    Thread.Sleep(250);
-                    Console.WriteLine("last task");
-                    return t.Result;
-                });
+                .Using(sut).ContinueWith(
+                    t =>
+                    {
+                        Thread.Sleep(250);
+                        return t.Result;
+                    }
+                );
 
             //---------------Test Result -----------------------
-            Console.WriteLine("About to wait on result");
 
-            Assert.AreEqual(expected, resultTask.Result);
+            Expect(resultTask.Result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -358,10 +409,13 @@ namespace PeanutButter.Async.Tests
                 () =>
                 {
                     value1 = 1;
-                }).Using(sut).ContinueWith(lastTask =>
-                                               {
-                                                   value2 = 2;
-                                               }).Wait();
+                }
+            ).Using(sut).ContinueWith(
+                lastTask =>
+                {
+                    value2 = 2;
+                }
+            ).Wait();
 
             // Assert
             Assert.That(value1, Is.EqualTo(1));
@@ -374,5 +428,4 @@ namespace PeanutButter.Async.Tests
             return new TaskRunner();
         }
     }
-
 }

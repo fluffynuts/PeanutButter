@@ -29,7 +29,9 @@ namespace PeanutButter.TestUtils.Generic
             };
             // this is PropertyAssert!
             if (!tester.AreDeepEqual())
+            {
                 Assertions.Throw(string.Join("\n", tester.Errors));
+            }
         }
 
         /// <summary>
@@ -54,7 +56,10 @@ namespace PeanutButter.TestUtils.Generic
                 .ToArray();
             var tester = new DeepEqualityTester(obj1, obj2, ignoreProps) {RecordErrors = true};
             if (tester.AreDeepEqual())
+            {
                 return;
+            }
+
             Assertions.Throw(string.Join("\n", tester.Errors));
         }
 

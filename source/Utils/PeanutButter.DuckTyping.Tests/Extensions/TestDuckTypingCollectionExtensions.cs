@@ -39,8 +39,10 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.DuckAsArrayOf<IHasOnlyAnId>();
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result[0].Id);
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result[0].Id)
+                .To.Equal(1);
         }
 
         [Test]
@@ -62,9 +64,14 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
             var result = src.DuckAsArrayOf<IHasOnlyAnId>();
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result[0].Id);
-            Assert.AreEqual(2, result[1].Id);
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result)
+                .To.Contain.Only(2).Items();
+            Expect(result[0].Id)
+                .To.Equal(1);
+            Expect(result[1].Id)
+                .To.Equal(2);
         }
     }
 

@@ -1,18 +1,24 @@
 ﻿Imports NUnit.Framework
 Imports PeanutButter.DatabaseHelpers.StatementBuilders
 Imports PeanutButter.RandomGenerators
+Imports NExpect
+Imports NExpect.Expectations
+Imports NSubstitute.ExceptionExtensions
+Imports PeanutButter.RandomGenerators.RandomValueGen
 
 Namespace TestStatementBuilders
-
     <TestFixture()>
     Public Class TestDataCopyStatementBuilder
         <Test()>
         Public Sub Create_ShouldReturnNewInstanceOfBuilder()
             Dim builder1 = DataCopyStatementBuilder.Create(),
                 builder2 = DataCopyStatementBuilder.Create()
-            Assert.AreNotEqual(builder1, builder2)
-            Assert.IsInstanceOf(Of IDataCopyStatementBuilder)(builder1)
-            Assert.IsInstanceOf(Of IDataCopyStatementBuilder)(builder2)
+            Expect(builder1) _
+                .Not.To.Equal(builder2)
+            Expect(builder1) _
+                .To.Be.An.Instance.Of (Of IDataCopyStatementBuilder)
+            Expect(builder2) _
+                .To.Be.An.Instance.Of (Of IDataCopyStatementBuilder)
         End Sub
 
         Private Function Create() as IDataCopyStatementBuilder
@@ -21,82 +27,97 @@ Namespace TestStatementBuilders
 
         <Test()>
         Public Sub Build_GivenNoSourceTable_ShouldThrow()
-            Dim ex = Assert.Throws(Of ArgumentException)(Function() as String
-                Return Create().Build()
-                                                            End Function)
-            StringAssert.Contains("source table not set", ex.Message)
+            Assert.That(
+                (Function() as String
+                    Return Create().Build()
+                End Function),
+                NUnit.Framework.Throws.Exception.InstanceOf(Of ArgumentException).With.Message.Contains("source table not set")
+                )
         End Sub
 
         <Test()>
         Public Sub Build_GivenSourceTableAndNoTargetTable_ShouldThrow()
-            Dim ex = Assert.Throws(Of ArgumentException)(Function() as String
-                Return Create() _
-                                                            .WithSourceTable(RandomValueGen.GetRandomString(1)) _
-                                                            .Build()
-                                                            End Function)
-            StringAssert.Contains("target table not set", ex.Message)
+            Assert.That(
+                (Function() as string
+                    return Create() _
+                           .WithSourceTable(GetRandomString(1)) _
+                           .Build()
+                End Function),
+                NUnit.Framework.Throws.Exception.InstanceOf (Of ArgumentException).With.Message.Contains("target table not set")
+                )
         End Sub
 
         <Test()>
         Public Sub Build_GivenSourceAndTargetTableButNoFieldMappings_ShouldThrow()
-            Dim ex = Assert.Throws(Of ArgumentException)(Function() As String
-                Return Create() _
-                                                            .WithSourceTable(RandomValueGen.GetRandomString(1)) _
-                                                            .WithTargetTable(RandomValueGen.GetRandomString(1)) _
-                                                            .Build()
-                                                            End Function)
-            StringAssert.Contains("no fields set", ex.Message)
+            Assert.That(
+                (Function() as String
+                    return Create() _
+                           .WithSourceTable(GetRandomString(1)) _
+                           .WithTargetTable(GetRandomString(1)) _
+                           .Build()
+                End Function),
+                NUnit.Framework.Throws.Exception.InstanceOf (Of ArgumentException).With.Message.Contains("no fields set")
+                )
         End Sub
 
         <Test()>
         Public Sub Build_GivenSourceTargetAndOneFieldMapping_ShouldReturnExpectedString()
-            Dim src = RandomValueGen.GetRandomString(1, 5),
-                target = RandomValueGen.GetRandomString(1, 5),
-                srcField = RandomValueGen.GetRandomString(1, 5),
-                targetField = RandomValueGen.GetRandomString(1, 5)
-            Dim sql = Create() _
+            Dim src = GetRandomString(1, 5),
+                target = GetRandomString(1, 5),
+                srcField = GetRandomString(1, 5),
+                targetField = GetRandomString(1, 5)
+            Dim result = Create() _
                     .WithSourceTable(src) _
                     .WithTargetTable(target) _
                     .WithFieldMapping(srcField, targetField) _
                     .Build()
-            Assert.AreEqual(String.Join("", New String() { _
-                                                             "insert into [", target, "] ([", targetField, "]) select [", srcField, "] from [", src, "]" _
-                                                         }), sql)
+            Dim expected = String.Join("", New String() { _
+                                                            "insert into [", target, "] ([", targetField, "]) select [",
+                                                            srcField, "] from [", src, "]"
+                                                        })
+            Expect(result) _
+                .To.Equal(expected)
         End Sub
 
         <Test()>
         Public Sub Build_GivenSOurceTargetAndTwoFieldMappings_ShouldReturnExpectedString()
-            Dim src = RandomValueGen.GetRandomString(1, 5),
-                target = RandomValueGen.GetRandomString(1, 5),
-                srcField1 = RandomValueGen.GetRandomString(1, 5),
-                targetField1 = RandomValueGen.GetRandomString(1, 5),
-                srcField2 = RandomValueGen.GetRandomString(1, 5),
-                targetField2 = RandomValueGen.GetRandomString(1, 5)
+            Dim src = GetRandomString(1, 5),
+                target = GetRandomString(1, 5),
+                srcField1 = GetRandomString(1, 5),
+                targetField1 = GetRandomString(1, 5),
+                srcField2 = GetRandomString(1, 5),
+                targetField2 = GetRandomString(1, 5)
 
-            Dim sql = Create() _
+            Dim result = Create() _
                     .WithSourceTable(src) _
                     .WithTargetTable(target) _
                     .WithFieldMapping(srcField1, targetField1) _
                     .WithFieldMapping(srcField2, targetField2) _
                     .Build()
-            Assert.AreEqual(String.Join("", New String() { _
-                                                             "insert into [", target, "] ([", targetField1, "],[", targetField2, "]) select [", srcField1, "],[", srcField2, "] from [", src, "]" _
-                                                         }), sql)
+            Dim expected = String.Join("", New String() { _
+                                                            "insert into [", target, "] ([", targetField1, "],[",
+                                                            targetField2, "]) select [", srcField1, "],[", srcField2,
+                                                            "] from [", src, "]"
+                                                        })
+            Expect(result) _
+                .To.Equal(expected)
         End Sub
 
         <TestCase(DatabaseProviders.Access)>
         <TestCase(DatabaseProviders.SQLServer)>
         <TestCase(DatabaseProviders.SQLite)>
-        Public Sub Build_GivenSourceTargetAndTwoFieldMappingsAndCriteria_ShouldReturnExpectedString(provider As DatabaseProviders)
-            Dim src = RandomValueGen.GetRandomString(1, 5),
-                target = RandomValueGen.GetRandomString(1, 5),
-                srcField1 = RandomValueGen.GetRandomString(1, 5),
-                targetField1 = RandomValueGen.GetRandomString(1, 5),
-                srcField2 = RandomValueGen.GetRandomString(1, 5),
-                targetField2 = RandomValueGen.GetRandomString(1, 5),
-                criteria = RandomValueGen.GetRandomString(1, 5)
+        Public Sub Build_GivenSourceTargetAndTwoFieldMappingsAndCriteria_ShouldReturnExpectedString(
+                                                                                                    provider As _
+                                                                                                       DatabaseProviders)
+            Dim src = GetRandomString(1, 5),
+                target = GetRandomString(1, 5),
+                srcField1 = GetRandomString(1, 5),
+                targetField1 = GetRandomString(1, 5),
+                srcField2 = GetRandomString(1, 5),
+                targetField2 = GetRandomString(1, 5),
+                criteria = GetRandomString(1, 5)
 
-            Dim sql = Create() _
+            Dim result = Create() _
                     .WithDatabaseProvider(provider) _
                     .WithSourceTable(src) _
                     .WithTargetTable(target) _
@@ -104,25 +125,29 @@ Namespace TestStatementBuilders
                     .WithFieldMapping(srcField2, targetField2) _
                     .WithCriteria(criteria) _
                     .Build()
-            Assert.AreEqual(String.Join("", New String() { _
-                                                             "insert into [", target, "] ([", targetField1, "],[", targetField2, _
-                                                             "]) select [", srcField1, "],[", srcField2, "] from [", src, "]", _
-                                                             " where ", criteria
-                                                         }), sql)
+            Dim expected = String.Join("", New String() { _
+                                                            "insert into [", target, "] ([", targetField1, "],[",
+                                                            targetField2,
+                                                            "]) select [", srcField1, "],[", srcField2, "] from [", src,
+                                                            "]",
+                                                            " where ", criteria
+                                                        })
+            Expect(result) _
+                .To.Equal(expected)
         End Sub
 
-    
+
         <Test()>
         Public Sub Build_GivenFirebirdProvider_ShouldBuildAppropriateSQLString()
-            Dim src = RandomValueGen.GetRandomString(1, 5),
-                target = RandomValueGen.GetRandomString(1, 5),
-                srcField1 = RandomValueGen.GetRandomString(1, 5),
-                targetField1 = RandomValueGen.GetRandomString(1, 5),
-                srcField2 = RandomValueGen.GetRandomString(1, 5),
-                targetField2 = RandomValueGen.GetRandomString(1, 5),
-                criteria = RandomValueGen.GetRandomString(1, 5)
+            Dim src = GetRandomString(1, 5),
+                target = GetRandomString(1, 5),
+                srcField1 = GetRandomString(1, 5),
+                targetField1 = GetRandomString(1, 5),
+                srcField2 = GetRandomString(1, 5),
+                targetField2 = GetRandomString(1, 5),
+                criteria = GetRandomString(1, 5)
 
-            Dim sql = Create() _
+            Dim result = Create() _
                     .WithDatabaseProvider(DatabaseProviders.Firebird) _
                     .WithSourceTable(src) _
                     .WithTargetTable(target) _
@@ -130,12 +155,15 @@ Namespace TestStatementBuilders
                     .WithFieldMapping(srcField2, targetField2) _
                     .WithCriteria(criteria) _
                     .Build()
-            Assert.AreEqual(String.Join("", New String() { _
-                                                             "insert into """, target, """ (""", targetField1, """,""", targetField2, _
-                                                             """) select """, srcField1, """,""", srcField2, """ from """, src, """", _
-                                                             " where ", criteria
-                                                         }), sql)
+            Dim expected = String.Join("", New String() { _
+                                                            "insert into """, target, """ (""", targetField1, """,""",
+                                                            targetField2,
+                                                            """) select """, srcField1, """,""", srcField2,
+                                                            """ from """, src, """",
+                                                            " where ", criteria
+                                                        })
+            Expect(result) _
+                .To.Equal(expected)
         End Sub
-
     End Class
 End NameSpace

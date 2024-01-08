@@ -28,7 +28,6 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.TempDb.MySql.Data.Tests
 {
     [TestFixture]
-    [Timeout(DEFAULT_TIMEOUT)]
     public class TestTempDbMySqlData
     {
         public const int DEFAULT_TIMEOUT = 90000;
@@ -95,7 +94,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Timeout(LONG_TIMEOUT)]
         public class SnapshottingAndReusing : AutoDestroyTempDbOnTimeout
         {
             [Test]
@@ -204,7 +202,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Timeout(LONG_TIMEOUT)]
         public class WhenProvidedPathToMySqlD : AutoDestroyTempDbOnTimeout
         {
             [TestCaseSource(nameof(MySqlPathFinders))]
@@ -388,7 +385,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Timeout(DEFAULT_TIMEOUT)]
         public class WhenInstalledAsWindowsService : AutoDestroyTempDbOnTimeout
         {
             [Test]
@@ -487,7 +483,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Timeout(DEFAULT_TIMEOUT)]
         public class Cleanup : AutoDestroyTempDbOnTimeout
         {
             [Test]
@@ -603,7 +598,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Timeout(DEFAULT_TIMEOUT)]
         public class LoggingProcessStartup : AutoDestroyTempDbOnTimeout
         {
             [Test]
@@ -677,7 +671,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Timeout(DEFAULT_TIMEOUT)]
         public class Reset : AutoDestroyTempDbOnTimeout
         {
             [Test]
@@ -706,7 +699,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Timeout(DEFAULT_TIMEOUT)]
         public class StayingAlive : AutoDestroyTempDbOnTimeout
         {
             [Test]
@@ -797,11 +789,9 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Timeout(DEFAULT_TIMEOUT)]
         public class PortHint : AutoDestroyTempDbOnTimeout
         {
             [TestFixture]
-            [Timeout(DEFAULT_TIMEOUT)]
             public class ConfiguredFromApi : AutoDestroyTempDbOnTimeout
             {
                 [Test]
@@ -868,7 +858,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             }
 
             [TestFixture]
-            [Timeout(DEFAULT_TIMEOUT)]
             public class ConfiguredFromEnvironment : AutoDestroyTempDbOnTimeout
             {
                 [Test]
@@ -962,7 +951,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Timeout(DEFAULT_TIMEOUT)]
         public class SharingSchemaBetweenNamedInstances : AutoDestroyTempDbOnTimeout
         {
             [Test]
@@ -1021,7 +1009,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Timeout(LONG_TIMEOUT)]
         public class HandlingPortConflicts : AutoDestroyTempDbOnTimeout
         {
             [Test]
@@ -1196,7 +1183,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Timeout(DEFAULT_TIMEOUT)]
         public class AutomaticDisposal : AutoDestroyTempDbOnTimeout
         {
             // perhaps the creator forgets to dispose
@@ -1346,7 +1332,6 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         }
 
         [TestFixture]
-        [Timeout(DEFAULT_TIMEOUT)]
         public class CreatingUsers : AutoDestroyTempDbOnTimeout
         {
             [Test]

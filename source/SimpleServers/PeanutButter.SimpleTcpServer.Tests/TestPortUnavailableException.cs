@@ -27,7 +27,7 @@ namespace PeanutButter.SimpleTcpServer.Tests
         {
             //---------------Set up test pack-------------------
             var port = RandomValueGen.GetRandomInt();
-            var expected = "Can't listen on specified port '" + port + "': probably already in use?";
+            var expected = $"Can't listen on specified port '{port}': probably already in use?";
 
             //---------------Assert Precondition----------------
 
@@ -36,7 +36,8 @@ namespace PeanutButter.SimpleTcpServer.Tests
             var result = sut.Message;
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
     }
 }

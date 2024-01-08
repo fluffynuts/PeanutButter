@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
-using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
 namespace PeanutButter.Utils.NetCore.Tests
 {
@@ -22,22 +22,24 @@ namespace PeanutButter.Utils.NetCore.Tests
             var decorated = new DecimalDecorator(input);
             var result = decorated.ToString();
             //---------------Test Result -----------------------
-            Assert.AreEqual(result, expected);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
         public void Construct_GivenDecimalValue_ToDecimalAlwaysReturnsThatValue()
         {
             //---------------Set up test pack-------------------
-            var input = RandomValueGen.GetRandomDecimal();
+            var expected = RandomValueGen.GetRandomDecimal();
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var decorated = new DecimalDecorator(input);
+            var decorated = new DecimalDecorator(expected);
             var result = decorated.ToDecimal();
             //---------------Test Result -----------------------
-            Assert.AreEqual(input, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [TestCase("1.23", 1.23)]
@@ -59,7 +61,8 @@ namespace PeanutButter.Utils.NetCore.Tests
             var result = decorated.ToDecimal();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(expected, result);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -75,15 +78,16 @@ namespace PeanutButter.Utils.NetCore.Tests
                 NumberGroupSeparator = "",
                 PercentGroupSeparator = ""
             };
-            var input = RandomValueGen.GetRandomDecimal().ToString(nfi);
+            var expected = RandomValueGen.GetRandomDecimal().ToString(nfi);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var decorated = new DecimalDecorator(input);
+            var decorated = new DecimalDecorator(expected);
             var result = decorated.ToString();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(result, input);
+            Expect(result)
+                .To.Equal(expected);
         }
 
         [Test]
@@ -95,10 +99,12 @@ namespace PeanutButter.Utils.NetCore.Tests
 
             //---------------Execute Test ----------------------
             DecimalDecorator dd = null;
-            Assert.DoesNotThrow(() => dd = new DecimalDecorator(null));
+            Expect(() => dd = new DecimalDecorator(null))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual(0m, dd.ToDecimal());
+            Expect(dd.ToDecimal())
+                .To.Equal(0);
         }
 
         [Test]
@@ -115,7 +121,8 @@ namespace PeanutButter.Utils.NetCore.Tests
             var result = decorator.ToString();
 
             //---------------Test Result -----------------------
-            Assert.AreEqual("1.2", result);
+            Expect(result)
+                .To.Equal("1.2");
         }
 
         [Test]
@@ -126,6 +133,7 @@ namespace PeanutButter.Utils.NetCore.Tests
             var input = expected.ToString(CultureInfo.CurrentCulture); // get the local representation
             var stopwatch = new Stopwatch();
             var runs = 100000;
+            // ReSharper disable once UnusedVariable
             var warmup = new DecimalDecorator(input).ToDecimal();
             // Act
             var parseTime = Time(runs, stopwatch, () => decimal.Parse(input));
