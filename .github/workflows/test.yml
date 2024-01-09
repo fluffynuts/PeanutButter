@@ -34,7 +34,7 @@ jobs:
           SUPPRESS_DOWNLOAD_PROGRESS: 1
         run: |
           npm i
-          npm run test-windows
+          npm run test-ci-windows
           
       - name: Upload build reports    
         uses: actions/upload-artifact@v2
@@ -85,7 +85,7 @@ jobs:
         DOTNET_CLI_TELEMETRY_OPTOUT: 1
         SUPPRESS_DOWNLOAD_PROGRESS: 1
       run: |
-        npm run test-tempdb
+        npm run test-ci-tempdb
 
     - name: 📃 Upload build report
       uses: actions/upload-artifact@v2
