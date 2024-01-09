@@ -13,13 +13,13 @@ namespace PeanutButter.SimpleTcpServer.Tests
     {
         public class MyTcpServer : TcpServer
         {
-            public int LastRandomPort { get; private set; }
+            public static int LastRandomPort { get; private set; }
 
             public MyTcpServer(int port) : base(port)
             {
             }
 
-            public MyTcpServer()
+            public MyTcpServer(): base(2000)
             {
                 LastRandomPort = 2000;
             }
@@ -55,7 +55,7 @@ namespace PeanutButter.SimpleTcpServer.Tests
         public void FindOpenRandomPort_WhenCannotBindOnCurrentRandomPort_ShouldChooseAnotherPortAndBind()
         {
             //---------------Set up test pack-------------------
-            using var blocker = new MyTcpServer(2000);
+            using var blocker = new MyTcpServer();
             blocker.Start();
 
             //---------------Assert Precondition----------------

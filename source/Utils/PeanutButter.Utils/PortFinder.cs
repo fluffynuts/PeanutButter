@@ -302,7 +302,11 @@ namespace PeanutButter.Utils
         {
             return IPGlobalProperties.GetIPGlobalProperties()
                 .GetActiveTcpListeners()
-                .Any(o => o.Port == port && o.Address.Equals(forAddress));
+                .Any(
+                    o =>
+                        o.Port == port &&
+                        (o.Address.Equals(forAddress) || o.Address.Equals(WildcardIpAddress))
+                );
         }
 
         private static bool UdpPortIsActivelyInUse(
@@ -312,8 +316,14 @@ namespace PeanutButter.Utils
         {
             return IPGlobalProperties.GetIPGlobalProperties()
                 .GetActiveUdpListeners()
-                .Any(o => o.Port == port && o.Address.Equals(forAddress));
+                .Any(
+                    o =>
+                        o.Port == port &&
+                        (o.Address.Equals(forAddress) || o.Address.Equals(WildcardIpAddress))
+                );
         }
+
+        private static readonly IPAddress WildcardIpAddress = IPAddress.Parse("0.0.0.0");
 
         private static int Next(
             int min,
