@@ -90,6 +90,7 @@ public class TestProcessIO
                 $"console.log(process.env['{envVar}']);"
             );
         // Assert
+        io.WaitForExit();
         var lines = io.StandardOutput.ToArray().Trim();
         Expect(lines.Last() /* sometimes, pwsh has to break this test by outputting an upgrade nag :| */)
             .To.Equal(expected, () => lines.Stringify());
