@@ -114,6 +114,7 @@ public class TestProcessIO
                 $"console.log(process.cwd()); console.log(process.env['{envVar}']);"
             );
         // Assert
+        io.WaitForExit();
         var lines = io.StandardOutput.ToArray().Trim();
         Expect(lines)
             .To.Equal(
@@ -147,6 +148,7 @@ public class TestProcessIO
                 $"console.log(process.cwd()); console.log(process.env['{envVar}']);"
             );
         // Assert
+        io.WaitForExit();
         var lines = io.StandardOutput.ToArray().Trim();
         Expect(lines)
             .To.Equal(
@@ -270,6 +272,7 @@ rl.on(""line"", function(line) {
         }
 
         io.StandardInput.WriteLine("quit");
+        io.WaitForExit();
         var collected = io.StandardOutput.ToArray();
         // Assert
         Expect(collected)
