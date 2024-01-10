@@ -129,9 +129,10 @@ namespace PeanutButter.Utils.NetCore.Tests
         public void ShouldAllowParallelDisposalOnRequest()
         {
             // Arrange
+            var howMany = GetRandomInt(20, 30);
             var sut = Create();
             sut.ThreadedDisposal = true;
-            var howMany = GetRandomInt(20, 30);
+            sut.MaxDegreeOfParallelism = howMany;
             var start = new Barrier(2);
             var done = new Barrier(howMany + 1);
             // Act
@@ -144,6 +145,7 @@ namespace PeanutButter.Utils.NetCore.Tests
                 {
                     start.SignalAndWait();
                     sut.Dispose();
+                    done.SignalAndWait();
                 }
             );
             start.SignalAndWait();

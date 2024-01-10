@@ -21,7 +21,7 @@ namespace PeanutButter.Utils
 #else
     public
 #endif
-        class AutoDisposer: IDisposable
+        class AutoDisposer : IDisposable
     {
         private readonly Action<IDisposable> _beforeDisposing;
         private readonly List<IDisposable> _toDispose = new();
@@ -30,6 +30,12 @@ namespace PeanutButter.Utils
         /// When enabled, will background &amp; parallelize disposal
         /// </summary>
         public bool ThreadedDisposal { get; set; } = false;
+
+        /// <summary>
+        /// When ThreadedDisposal is enabled, this determines how
+        /// many threads to run in parallel for disposing.
+        /// </summary>
+        public int MaxDegreeOfParallelism { get; set; } = Environment.ProcessorCount;
 
         /// <summary>
         /// When enabled, disposal happens in the background instead
@@ -99,36 +105,51 @@ namespace PeanutButter.Utils
 
         private void CleanupInSerial(IDisposable[] toDispose)
         {
-            var t = new Thread(() =>
-            {
-                foreach (var disposable in toDispose)
+            var t = new Thread(
+                () =>
                 {
-                    SafelyDispose(disposable);
+                    foreach (var disposable in toDispose)
+                    {
+                        SafelyDispose(disposable);
+                    }
                 }
-            });
+            );
             t.Start();
             if (BackgroundDisposal)
             {
                 return;
             }
+
             t.Join();
         }
 
         private void CleanupInParallel(IDisposable[] toDispose)
         {
-            var t = new Thread(() =>
-            {
-                Parallel.ForEach(toDispose, d =>
+            Run.InParallel(
+                int.MaxValue,
+                toDispose
+                    .Select(d => new Action(() => d.Dispose()))
+                    .ToArray()
+            );
+            var t = new Thread(
+                () =>
                 {
-                    TryDo(() => _beforeDisposing?.Invoke(d));
-                    TryDo(d.Dispose);
-                });
-            });
+                    Parallel.ForEach(
+                        toDispose,
+                        d =>
+                        {
+                            TryDo(() => _beforeDisposing?.Invoke(d));
+                            TryDo(d.Dispose);
+                        }
+                    );
+                }
+            );
             t.Start();
             if (BackgroundDisposal)
             {
                 return;
             }
+
             t.Join();
         }
 
@@ -155,7 +176,7 @@ namespace PeanutButter.Utils
                 // ignored
             }
         }
-        
+
         /// <summary>
         /// Dispose of the item right now, rather than later
         /// </summary>
