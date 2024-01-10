@@ -21,6 +21,7 @@ public class TestProcessIO
             .To.Be.Null();
         var lines = io.StandardOutput.ToArray().Select(l => l.Trim());
         // Assert
+        io.WaitForExit();
         Expect(lines).To.Equal(
             new[]
             {
@@ -42,6 +43,7 @@ public class TestProcessIO
         );
         Expect(io.StartException)
             .To.Be.Null();
+        io.WaitForExit();
         var lines = io.StandardError.ToArray().Select(l => l.Trim());
         // Assert
         Expect(lines).To.Equal(
@@ -63,6 +65,7 @@ public class TestProcessIO
         // Act
         using var io = ProcessIO.In(tempFolder.Path).Start("cat", "data.txt");
         // Assert
+        io.WaitForExit();
         var lines = io.StandardOutput.ToArray().Select(l => l.Trim());
 
         Expect(lines)
@@ -179,6 +182,7 @@ public class TestProcessIO
                 $"console.log(process.cwd()); console.log(process.env['{envVar}']);"
             );
         // Assert
+        io.WaitForExit();
         var lines = io.StandardOutput.ToArray().Trim();
         Expect(lines)
             .To.Equal(
@@ -224,6 +228,7 @@ done < /dev/stdin
         }
 
         io.StandardInput.WriteLine("quit");
+        io.WaitForExit();
         var collected = io.StandardOutput.ToArray();
         // Assert
         Expect(collected)
