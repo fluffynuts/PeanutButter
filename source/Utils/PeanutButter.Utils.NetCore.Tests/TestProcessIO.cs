@@ -19,9 +19,9 @@ public class TestProcessIO
         );
         Expect(io.StartException)
             .To.Be.Null();
-        var lines = io.StandardOutput.ToArray().Select(l => l.Trim());
         // Assert
         io.WaitForExit();
+        var lines = io.StandardOutput.ToArray().Select(l => l.Trim());
         Expect(lines).To.Equal(
             new[]
             {
