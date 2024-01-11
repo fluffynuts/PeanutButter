@@ -1,6 +1,5 @@
 /// <reference path="../node_modules/zarro/types.d.ts" />
 import { Stream } from "stream";
-import { ExecStepConfiguration } from "exec-step";
 
 (function () {
   const
@@ -13,7 +12,7 @@ import { ExecStepConfiguration } from "exec-step";
     exec = requireModule<Exec>("exec"),
     system = requireModule<System>("system"),
     path = require("path"),
-    findTool = requireModule<TestUtilFinder>("testutil-finder").findTool,
+    { findTool } = requireModule<TestUtilFinder>("test-util-finder"),
     PQueue = require("p-queue").default,
     env = requireModule<Env>("env"),
     gutil = requireModule<GulpUtil>("gulp-util"),
@@ -60,7 +59,7 @@ import { ExecStepConfiguration } from "exec-step";
           fail: "💥",
           wait: "⏱️"
         }
-      } as ExecStepConfiguration,
+      },
       ctx = new ExecStepContext(config),
       es = require("event-stream") as any; // fixme: type es.through
     const files = [] as string[];
