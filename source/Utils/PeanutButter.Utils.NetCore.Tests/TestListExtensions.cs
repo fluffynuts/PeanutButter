@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests
@@ -16,7 +13,12 @@ namespace PeanutButter.Utils.Tests
             public void ShouldReturnFirstValueFromList()
             {
                 // Arrange
-                var list = new List<int>() { 1, 2, 3 };
+                var list = new List<int>()
+                {
+                    1,
+                    2,
+                    3
+                };
                 // Act
                 var result = list.Shift();
                 // Assert
@@ -28,14 +30,25 @@ namespace PeanutButter.Utils.Tests
             public void ShouldRemoveTheItemFromTheList()
             {
                 // Arrange
-                var list = new List<int>() { 1, 1, 1 };
+                var list = new List<int>()
+                {
+                    1,
+                    1,
+                    1
+                };
                 // Act
                 var result = list.Shift();
                 // Assert
                 Expect(result)
                     .To.Equal(1);
                 Expect(list)
-                    .To.Equal(new[] { 1, 1 });
+                    .To.Equal(
+                        new[]
+                        {
+                            1,
+                            1
+                        }
+                    );
             }
 
             [Test]
@@ -136,7 +149,12 @@ namespace PeanutButter.Utils.Tests
             public void ShouldReturnLastValueFromList()
             {
                 // Arrange
-                var list = new List<string>() { "a", "b", "c" };
+                var list = new List<string>()
+                {
+                    "a",
+                    "b",
+                    "c"
+                };
                 // Act
                 var result = list.Pop();
                 // Assert
@@ -148,14 +166,25 @@ namespace PeanutButter.Utils.Tests
             public void ShouldRemoveValueFromList()
             {
                 // Arrange
-                var list = new List<string>() { "a", "b", "c" };
+                var list = new List<string>()
+                {
+                    "a",
+                    "b",
+                    "c"
+                };
                 // Act
                 var result = list.Pop();
                 // Assert
                 Expect(result)
                     .To.Equal("c");
                 Expect(list)
-                    .To.Equal(new[] { "a", "b" });
+                    .To.Equal(
+                        new[]
+                        {
+                            "a",
+                            "b"
+                        }
+                    );
             }
 
             [Test]
@@ -178,12 +207,25 @@ namespace PeanutButter.Utils.Tests
             public void ShouldAddElementToStartOfList()
             {
                 // Arrange
-                var list = new List<int>() { 1, 2, 3 };
+                var list = new List<int>()
+                {
+                    1,
+                    2,
+                    3
+                };
                 // Act
                 list.Unshift(4);
                 // Assert
                 Expect(list)
-                    .To.Equal(new[] { 4, 1, 2, 3 });
+                    .To.Equal(
+                        new[]
+                        {
+                            4,
+                            1,
+                            2,
+                            3
+                        }
+                    );
             }
         }
 
@@ -194,12 +236,23 @@ namespace PeanutButter.Utils.Tests
             public void ShadowsAddForCompleteness()
             {
                 // Arrange
-                var list = new List<bool>() { true, false };
+                var list = new List<bool>()
+                {
+                    true,
+                    false
+                };
                 // Act
                 list.Push(true);
                 // Assert
                 Expect(list)
-                    .To.Equal(new[] { true, false, true });
+                    .To.Equal(
+                        new[]
+                        {
+                            true,
+                            false,
+                            true
+                        }
+                    );
             }
         }
 
@@ -215,7 +268,14 @@ namespace PeanutButter.Utils.Tests
                 var result = list.AddAll(1, 2, 3);
                 // Assert
                 Expect(list)
-                    .To.Equal(new[] { 1, 2, 3 });
+                    .To.Equal(
+                        new[]
+                        {
+                            1,
+                            2,
+                            3
+                        }
+                    );
                 Expect(result)
                     .To.Be(list);
             }
@@ -229,7 +289,14 @@ namespace PeanutButter.Utils.Tests
                 var result = list.AddAll(1, 2, 3);
                 // Assert
                 Expect(list as IEnumerable<int>)
-                    .To.Equal(new[] { 1, 2, 3 });
+                    .To.Equal(
+                        new[]
+                        {
+                            1,
+                            2,
+                            3
+                        }
+                    );
                 Expect(result)
                     .To.Be(list);
             }
@@ -281,6 +348,7 @@ namespace PeanutButter.Utils.Tests
 
                 public int Count => _actual.Count;
                 public bool IsReadOnly => false;
+
                 public int IndexOf(T item)
                 {
                     return _actual.IndexOf(item);
@@ -300,6 +368,505 @@ namespace PeanutButter.Utils.Tests
                 {
                     get => _actual[index];
                     set => _actual[index] = value;
+                }
+            }
+        }
+
+        [TestFixture]
+        public class TryEjectFirst
+        {
+            [TestFixture]
+            public class WhenEmpty
+            {
+                [Test]
+                public void ShouldReturnFalseAndSetResultDefault()
+                {
+                    // Arrange
+                    var ints = new List<int>();
+                    var strings = new List<string>();
+                    // Act
+                    var intEjected = ints.TryEjectFirst(o => o == 1, out var intResult);
+                    var stringEjected = strings.TryEjectFirst(o => o == "foo", out var stringResult);
+                    // Assert
+                    Expect(intEjected)
+                        .To.Be.False();
+                    Expect(intResult)
+                        .To.Equal(default(int));
+                    Expect(stringEjected)
+                        .To.Be.False();
+                    Expect(stringResult)
+                        .To.Equal(default(string));
+                }
+            }
+
+            [TestFixture]
+            public class WhenContainsOneItem
+            {
+                [Test]
+                public void ShouldReturnDefaultForNoMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1
+                    };
+                    // Act
+                    var ejected = data.TryEjectFirst(i => i % 2 == 0, out var result);
+                    // Assert
+                    Expect(data)
+                        .Not.To.Be.Empty();
+                    Expect(ejected)
+                        .To.Be.False();
+                    Expect(result)
+                        .To.Equal(default(int));
+                }
+
+                [Test]
+                public void ShouldReturnFirstMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        3
+                    };
+                    // Act
+                    var ejected = data.TryEjectFirst(i => i % 2 == 1, out var result);
+                    // Assert
+                    Expect(ejected)
+                        .To.Be.True();
+                    Expect(data)
+                        .To.Be.Empty();
+                    Expect(result)
+                        .To.Equal(3);
+                }
+            }
+
+            [TestFixture]
+            public class WhenContainsManyItems
+            {
+                [Test]
+                public void ShouldReturnDefaultForNoMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1,
+                        3,
+                        5
+                    };
+                    // Act
+                    var ejected = data.TryEjectFirst(i => i % 2 == 0, out var result);
+                    // Assert
+                    Expect(ejected)
+                        .To.Be.False();
+                    Expect(data)
+                        .To.Equal(
+                            new[]
+                            {
+                                1,
+                                3,
+                                5
+                            }
+                        );
+                    Expect(result)
+                        .To.Equal(default(int));
+                }
+
+                [Test]
+                public void ShouldReturnFirstMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1,
+                        3,
+                        5
+                    };
+                    // Act
+                    var ejected = data.TryEjectFirst(i => i % 2 == 1 && i > 2, out var result);
+                    // Assert
+                    Expect(ejected)
+                        .To.Be.True();
+                    Expect(data)
+                        .Not.To.Contain(3);
+                    Expect(data)
+                        .To.Equal(
+                            new[]
+                            {
+                                1,
+                                5
+                            }
+                        );
+                    Expect(result)
+                        .To.Equal(3);
+                }
+            }
+        }
+
+        [TestFixture]
+        public class EjectFirst
+        {
+            [TestFixture]
+            public class WhenEmpty
+            {
+                [Test]
+                public void ShouldThrow()
+                {
+                    // Arrange
+                    var ints = new List<int>();
+                    // Act
+                    Expect(() => ints.EjectFirst(i => i > 1))
+                        .To.Throw<InvalidOperationException>()
+                        .With.Message.Containing(
+                            "contains no elements"
+                        );
+                    // Assert
+                }
+            }
+
+            [TestFixture]
+            public class WhenContainsOneItem
+            {
+                [Test]
+                public void ShouldThrowOnNoMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1
+                    };
+                    // Act
+                    Expect(() => data.EjectFirst(i => i % 2 == 0))
+                        .To.Throw<NotFoundException>();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldReturnFirstMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        3
+                    };
+                    // Act
+                    var result = data.EjectFirst(i => i % 2 == 1);
+                    // Assert
+                    Expect(data)
+                        .To.Be.Empty();
+                    Expect(result)
+                        .To.Equal(3);
+                }
+            }
+
+            [TestFixture]
+            public class WhenContainsManyItems
+            {
+                [Test]
+                public void ShouldThrowForNoMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1,
+                        3,
+                        5
+                    };
+                    // Act
+                    Expect(() => data.EjectFirst(i => i % 2 == 0))
+                        .To.Throw<NotFoundException>();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldReturnFirstMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1,
+                        3,
+                        5
+                    };
+                    // Act
+                    var result = data.EjectFirst(i => i % 2 == 1 && i > 2);
+                    // Assert
+                    Expect(data)
+                        .Not.To.Contain(3);
+                    Expect(data)
+                        .To.Equal(
+                            new[]
+                            {
+                                1,
+                                5
+                            }
+                        );
+                    Expect(result)
+                        .To.Equal(3);
+                }
+            }
+        }
+        [TestFixture]
+        public class TryEjectLast
+        {
+            [TestFixture]
+            public class WhenEmpty
+            {
+                [Test]
+                public void ShouldReturnFalseAndSetResultDefault()
+                {
+                    // Arrange
+                    var ints = new List<int>();
+                    var strings = new List<string>();
+                    // Act
+                    var intEjected = ints.TryEjectLast(o => o == 1, out var intResult);
+                    var stringEjected = strings.TryEjectLast(o => o == "foo", out var stringResult);
+                    // Assert
+                    Expect(intEjected)
+                        .To.Be.False();
+                    Expect(intResult)
+                        .To.Equal(default(int));
+                    Expect(stringEjected)
+                        .To.Be.False();
+                    Expect(stringResult)
+                        .To.Equal(default(string));
+                }
+            }
+
+            [TestFixture]
+            public class WhenContainsOneItem
+            {
+                [Test]
+                public void ShouldReturnDefaultForNoMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1
+                    };
+                    // Act
+                    var ejected = data.TryEjectLast(i => i % 2 == 0, out var result);
+                    // Assert
+                    Expect(data)
+                        .Not.To.Be.Empty();
+                    Expect(ejected)
+                        .To.Be.False();
+                    Expect(result)
+                        .To.Equal(default(int));
+                }
+
+                [Test]
+                public void ShouldReturnOnlyMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        3
+                    };
+                    // Act
+                    var ejected = data.TryEjectLast(i => i % 2 == 1, out var result);
+                    // Assert
+                    Expect(ejected)
+                        .To.Be.True();
+                    Expect(data)
+                        .To.Be.Empty();
+                    Expect(result)
+                        .To.Equal(3);
+                }
+            }
+
+            [TestFixture]
+            public class WhenContainsManyItems
+            {
+                [Test]
+                public void ShouldReturnDefaultForNoMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1,
+                        3,
+                        5
+                    };
+                    // Act
+                    var ejected = data.TryEjectLast(i => i % 2 == 0, out var result);
+                    // Assert
+                    Expect(ejected)
+                        .To.Be.False();
+                    Expect(data)
+                        .To.Equal(
+                            new[]
+                            {
+                                1,
+                                3,
+                                5
+                            }
+                        );
+                    Expect(result)
+                        .To.Equal(default(int));
+                }
+
+                [Test]
+                public void ShouldReturnOnlyMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1,
+                        3,
+                        6
+                    };
+                    // Act
+                    var ejected = data.TryEjectLast(i => i % 2 == 1 && i > 2, out var result);
+                    // Assert
+                    Expect(ejected)
+                        .To.Be.True();
+                    Expect(data)
+                        .Not.To.Contain(3);
+                    Expect(data)
+                        .To.Equal(
+                            new[]
+                            {
+                                1,
+                                6
+                            }
+                        );
+                    Expect(result)
+                        .To.Equal(3);
+                }
+                [Test]
+                public void ShouldReturnFirstMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1,
+                        3,
+                        6,
+                        8
+                    };
+                    // Act
+                    var ejected = data.TryEjectLast(i => i % 2 == 1, out var result);
+                    // Assert
+                    Expect(ejected)
+                        .To.Be.True();
+                    Expect(data)
+                        .Not.To.Contain(3);
+                    Expect(data)
+                        .To.Equal(
+                            new[]
+                            {
+                                1,
+                                6,
+                                8
+                            }
+                        );
+                    Expect(result)
+                        .To.Equal(3);
+                }
+            }
+        }
+
+        [TestFixture]
+        public class EjectLast
+        {
+            [TestFixture]
+            public class WhenEmpty
+            {
+                [Test]
+                public void ShouldThrow()
+                {
+                    // Arrange
+                    var ints = new List<int>();
+                    // Act
+                    Expect(() => ints.EjectLast(i => i > 1))
+                        .To.Throw<InvalidOperationException>()
+                        .With.Message.Containing(
+                            "contains no elements"
+                        );
+                    // Assert
+                }
+            }
+
+            [TestFixture]
+            public class WhenContainsOneItem
+            {
+                [Test]
+                public void ShouldThrowOnNoMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1
+                    };
+                    // Act
+                    Expect(() => data.EjectLast(i => i % 2 == 0))
+                        .To.Throw<NotFoundException>();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldReturnLastMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        3
+                    };
+                    // Act
+                    var result = data.EjectLast(i => i % 2 == 1);
+                    // Assert
+                    Expect(data)
+                        .To.Be.Empty();
+                    Expect(result)
+                        .To.Equal(3);
+                }
+            }
+
+            [TestFixture]
+            public class WhenContainsManyItems
+            {
+                [Test]
+                public void ShouldThrowForNoMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1,
+                        3,
+                        5
+                    };
+                    // Act
+                    Expect(() => data.EjectLast(i => i % 2 == 0))
+                        .To.Throw<NotFoundException>();
+                    // Assert
+                }
+
+                [Test]
+                public void ShouldReturnLastMatch()
+                {
+                    // Arrange
+                    var data = new List<int>()
+                    {
+                        1,
+                        3,
+                        6
+                    };
+                    // Act
+                    var result = data.EjectLast(i => i % 2 == 1 && i > 2);
+                    // Assert
+                    Expect(data)
+                        .Not.To.Contain(3);
+                    Expect(data)
+                        .To.Equal(
+                            new[]
+                            {
+                                1,
+                                6
+                            }
+                        );
+                    Expect(result)
+                        .To.Equal(3);
                 }
             }
         }
