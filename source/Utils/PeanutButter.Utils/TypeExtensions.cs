@@ -992,7 +992,7 @@ namespace PeanutButter.Utils
             var interfaces = type.GetInterfaces();
             var nonGenericInterfaces = interfaces.Where(
                 i => !i.IsGenericType
-            ).ToHashSet();
+            ).AsHashSet();
             if (nonGenericInterfaces.Contains(interfaceType))
             {
                 return true;

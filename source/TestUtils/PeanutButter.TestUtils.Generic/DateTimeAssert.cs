@@ -14,7 +14,7 @@ namespace PeanutButter.TestUtils.Generic
         /// </summary>
         /// <param name="test">Value to test</param>
         /// <param name="min">Minimum value required</param>
-        /// <param name="max">Maxmimum value required</param>
+        /// <param name="max">Maximum value required</param>
         public static void IsInRange(DateTime test, DateTime min, DateTime max)
         {
             DoAssertion(test, min, max, IsInDateRangeFailMessageFor(test, min, max));

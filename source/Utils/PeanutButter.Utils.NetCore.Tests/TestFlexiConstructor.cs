@@ -4,9 +4,50 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests;
 
+public static class SubstituteExtensions
+{
+    public static object[] MostRecentCall(
+        this object substitute,
+        string method
+    )
+    {
+        var call = substitute.ReceivedCalls()
+            .Where(c => c.GetMethodInfo().Name == method)
+            .ToList()
+            .Reversed()
+            .FirstOrDefault();
+        return call?.GetArguments();
+    }
+}
+
 [TestFixture]
 public class TestFlexiConstructor
 {
+    [Test]
+    [Explicit("Discovery: proves the use of .MostRecentCall(), but I don't have a good home for this yet")]
+    public void FindingTheLastArgsToACall()
+    {
+        // Arrange
+        var calculator = Substitute.For<ICalculator>();
+        var expected = new object[]
+        {
+            3,
+            5
+        };
+        // Act
+        calculator.Add((int)expected[0], (int)expected[1]);
+        // Assert
+        var args = calculator.MostRecentCall(nameof(calculator.Add));
+        Expect(args)
+            .To.Equal(expected);
+    }
+
+    public interface ICalculator
+    {
+        int Add(int a, int b);
+    }
+
+
     [TestFixture]
     public class WhenNoConstructorArgs
     {
@@ -193,10 +234,10 @@ public class TestFlexiConstructor
             var router = Substitute.For<IRouter>();
             var caller = Substitute.For<ICaller>();
             var wibbles = Substitute.For<IWibbles>();
-            
+
             // Act
             var result = CreateLocal(caller, router, wibbles);
-            
+
             // Assert
             Expect(result.Router)
                 .To.Be(router);
@@ -204,8 +245,8 @@ public class TestFlexiConstructor
                 .To.Be(caller);
             Expect(result.Wibbles)
                 .To.Be(wibbles);
-            
-            
+
+
             HairyService CreateLocal(params object[] parameters)
             {
                 return Construct<HairyService>(parameters);
@@ -235,7 +276,9 @@ public class TestFlexiConstructor
         public class WhenProvidedConvertableParameters
         {
             [Test]
-            [Ignore("this may be outside of scope or cause more issues than it solves, so I'm shelving for now to think about it")]
+            [Ignore(
+                "this may be outside of scope or cause more issues than it solves, so I'm shelving for now to think about it"
+            )]
             public void ShouldUseThem()
             {
                 // Arrange

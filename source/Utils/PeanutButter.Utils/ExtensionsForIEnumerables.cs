@@ -1374,9 +1374,24 @@ namespace PeanutButter.Utils
         /// <param name="collection"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> collection)
+        public static HashSet<T> AsHashSet<T>(this IEnumerable<T> collection)
         {
             return new HashSet<T>(collection);
+        }
+
+        /// <summary>
+        /// OBSOLETE - please use AsHashSet as ToHashSet is now implemented
+        /// in the latest System.Linq
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        [Obsolete("Conflicts with latest System.Linq - use AsHashArray instead")]
+        public static HashSet<T> ToHashSet<T>(
+            this IEnumerable<T> collection
+        )
+        {
+            return collection.AsHashSet();
         }
 
         private static void IncrementCount<T>(

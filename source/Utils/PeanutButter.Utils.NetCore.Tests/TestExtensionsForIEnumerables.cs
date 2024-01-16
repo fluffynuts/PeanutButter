@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+﻿using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable ExpressionIsAlwaysNull
 // ReSharper disable CollectionNeverUpdated.Local
@@ -15,6 +12,24 @@ namespace PeanutButter.Utils.Tests
     [TestFixture]
     public class TestExtensionsForIEnumerables
     {
+        [TestFixture]
+        public class AsHashSet
+        {
+            [Test]
+            public void ShouldProduceAnHashSet()
+            {
+                // Arrange
+                var ints = GetRandomArray<int>(10, 20);
+                
+                // Act
+                var result = ints.AsHashSet();
+                // Assert
+                Expect(result)
+                    .To.Be.An.Instance.Of<HashSet<int>>();
+                Expect(result)
+                    .To.Contain.All.Of(ints);
+            }
+        }
         [TestFixture]
         public class ForEach
         {
