@@ -376,6 +376,36 @@ public
     {
         return list.Reverse().ToList();
     }
+
+    /// <summary>
+    /// Reverses the list IN-PLACE (modifies the original
+    /// list) and returns it for fluent syntax.
+    /// </summary>
+    /// <param name="list"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static List<T> ReversedInPlace<T>(
+        this List<T> list
+    )
+    {
+        list.Reverse();
+        return list;
+    }
+
+    /// <summary>
+    /// Reverses the array IN-PLACE (modifies the original
+    /// list) and returns it for fluent syntax.
+    /// </summary>
+    /// <param name="array"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T[] ReversedInPlace<T>(
+        this T[] array
+    )
+    {
+        Array.Reverse(array);
+        return array;
+    }
 }
 
 /// <summary>

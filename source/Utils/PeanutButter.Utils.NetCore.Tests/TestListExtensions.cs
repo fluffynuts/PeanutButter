@@ -906,4 +906,62 @@ public class TestListExtensions
                 );
         }
     }
+    [TestFixture]
+    public class ReversedInPlace
+    {
+        [Test]
+        public void ShouldReverseTheOriginalList()
+        {
+            // Arrange
+            var input = new List<int>()
+            {
+                1,
+                2,
+                3
+            };
+            // Act
+            var result = input.ReversedInPlace();
+            // Assert
+            Expect(result)
+                .To.Be(input);
+            Expect(result)
+                .To.Equal(
+                    new[]
+                    {
+                        3,
+                        2,
+                        1
+                    }
+                );
+            Expect(() => result.Add(123))
+                .Not.To.Throw(
+                    "should return a List<T> for easier consumer access"
+                );
+        }
+        [Test]
+        public void ShouldReverseTheOriginalArray()
+        {
+            // Arrange
+            var input = new int[]
+            {
+                1,
+                2,
+                3
+            };
+            // Act
+            var result = input.ReversedInPlace();
+            // Assert
+            Expect(result)
+                .To.Be(input);
+            Expect(result)
+                .To.Equal(
+                    new[]
+                    {
+                        3,
+                        2,
+                        1
+                    }
+                );
+        }
+    }
 }
