@@ -56,16 +56,6 @@ public class TestFlexiConstructor
             Expect(result.Value)
                 .To.Equal(expected);
         }
-
-        public class Container<T>
-        {
-            public T Value { get; }
-
-            public Container(T value)
-            {
-                Value = value;
-            }
-        }
     }
 
     [TestFixture]
@@ -196,6 +186,71 @@ public class TestFlexiConstructor
             }
         }
 
+        [Test]
+        public void ShouldSpreadSingleObjectArrayArgument()
+        {
+            // Arrange
+            var router = Substitute.For<IRouter>();
+            var caller = Substitute.For<ICaller>();
+            var wibbles = Substitute.For<IWibbles>();
+            
+            // Act
+            var result = CreateLocal(caller, router, wibbles);
+            
+            // Assert
+            Expect(result.Router)
+                .To.Be(router);
+            Expect(result.Caller)
+                .To.Be(caller);
+            Expect(result.Wibbles)
+                .To.Be(wibbles);
+            
+            
+            HairyService CreateLocal(params object[] parameters)
+            {
+                return Construct<HairyService>(parameters);
+            }
+        }
+
+        [TestFixture]
+        public class WhenProvidedFallbackFactory
+        {
+            [Test]
+            public void ShouldUseIt()
+            {
+                // Arrange
+                // Act
+                var result = Construct<HairyService>(t => Substitute.For([t], Array.Empty<object>()));
+                // Assert
+                Expect(result.Caller)
+                    .Not.To.Be.Null();
+                Expect(result.Router)
+                    .Not.To.Be.Null();
+                Expect(result.Wibbles)
+                    .Not.To.Be.Null();
+            }
+        }
+
+        [TestFixture]
+        public class WhenProvidedConvertableParameters
+        {
+            [Test]
+            [Ignore("this may be outside of scope or cause more issues than it solves, so I'm shelving for now to think about it")]
+            public void ShouldUseThem()
+            {
+                // Arrange
+                var expected = GetRandomInt(1, 100);
+                var input = $"{expected}";
+                // Act
+                var result = Construct<Container<int>>(input);
+                // Assert
+                Expect(result.Value1)
+                    .To.Equal(expected);
+                Expect(result.Value2)
+                    .To.Equal(0);
+            }
+        }
+
         public class DerivedRouter : IDerivedRouter;
 
         public interface IRouter;
@@ -222,6 +277,16 @@ public class TestFlexiConstructor
         )
         {
             public IRouter Router { get; } = router;
+        }
+    }
+
+    public class Container<T>
+    {
+        public T Value { get; }
+
+        public Container(T value)
+        {
+            Value = value;
         }
     }
 }

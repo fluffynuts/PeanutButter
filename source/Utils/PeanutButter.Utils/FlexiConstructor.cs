@@ -74,12 +74,58 @@ public class FlexiConstructor
         params object[] args
     )
     {
+        return Construct<T>(
+            t => t.DefaultValue(),
+            flags,
+            args
+        );
+    }
+
+    /// <summary>
+    /// Attempts to construct the type T with the provided
+    /// constructor parameters, re-ordering as necessary. The
+    /// provided fallbackFactory is used for missing dependencies
+    /// instead of simply providing the default value.
+    /// </summary>
+    /// <param name="fallbackFactory"></param>
+    /// <param name="args"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T Construct<T>(
+        Func<Type, object> fallbackFactory,
+        params object[] args
+    )
+    {
+        return Construct<T>(
+            fallbackFactory,
+            ConstructFlags.None,
+            args
+        );
+    }
+
+    /// <summary>
+    /// Attempts to construct the type T with the provided
+    /// constructor parameters, re-ordering as necessary. The
+    /// provided fallbackFactory is used for missing dependencies
+    /// instead of simply providing the default value.
+    /// </summary>
+    /// <param name="fallbackFactory"></param>
+    /// <param name="flags"></param>
+    /// <param name="args"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T Construct<T>(
+        Func<Type, object> fallbackFactory,
+        ConstructFlags flags,
+        params object[] args
+    )
+    {
         var constructors = ConstructorCache
             .FindOrAdd(
                 typeof(T),
                 () => typeof(T).GetConstructors()
             );
-        var selectedParameters = FindBestMatch(flags, constructors, args);
+        var selectedParameters = FindBestMatch(fallbackFactory, flags, constructors, args);
         if (selectedParameters is null)
         {
             throw new InvalidOperationException(
@@ -91,6 +137,7 @@ public class FlexiConstructor
     }
 
     private static object[] FindBestMatch(
+        Func<Type, object> fallbackFactory,
         ConstructFlags flags,
         ConstructorInfo[] constructorInfos,
         object[] args
@@ -131,10 +178,11 @@ public class FlexiConstructor
                         }
                         // TODO: clever casting?
 
+                        var val = fallbackFactory(pi.ParameterType);
                         return new ConstructorParameter(
                             pi.ParameterType,
-                            null,
-                            pi.ParameterType.DefaultValue(),
+                            val,
+                            val,
                             ParameterFlags.None
                         );
                     }
@@ -153,7 +201,7 @@ public class FlexiConstructor
         bestMatch.Validate(flags);
 
         return bestMatch
-            ?.Parameters
+            .Parameters
             ?.Select(o => o.Value)
             .ToArray();
     }
@@ -312,9 +360,59 @@ public class FlexiConstructor
         {
             ParameterType = parameterType;
             MappedFrom = mappedFrom;
-            Value = value;
+            Value = value; // ConvertIfRequired(parameterType, value);
             Flags = flags;
         }
+
+        // private object ConvertIfRequired(
+        //     Type requiredType,
+        //     object value
+        // )
+        // {
+        //     if (value is null)
+        //     {
+        //         return requiredType.DefaultValue();
+        //     }
+        //     var vt = value.GetType();
+        //     if (requiredType.IsAssignableFrom(vt))
+        //     {
+        //         return value;
+        //     }
+        //
+        //     var convert = Converters.TryGetValue(requiredType, out var c)
+        //         ? c
+        //         : ChangeType;
+        //
+        //     try
+        //     {
+        //         return convert(value, requiredType);
+        //     }
+        //     catch
+        //     {
+        //         return value;
+        //     }
+        // }
+        //
+        // private static object ChangeType(object value, Type required)
+        // {
+        //     return Convert.ChangeType(value, required);
+        // }
+        //
+        // private static readonly Dictionary<Type, Func<object, Type, object>> Converters = new()
+        //     {
+        //         [typeof(decimal)] = ConvertViaDecimalDecorator,
+        //         [typeof(double)] = ConvertViaDecimalDecorator,
+        //         [typeof(float)] = ConvertViaDecimalDecorator
+        //     };
+        //
+        // private static object ConvertViaDecimalDecorator(
+        //     object value,
+        //     Type t
+        // )
+        // {
+        //     var dd = new DecimalDecorator($"{value}");
+        //     return Convert.ChangeType(dd.ToDecimal(), t);
+        // }
     }
 
     private static readonly ConcurrentDictionary<Type, ConstructorInfo[]>
