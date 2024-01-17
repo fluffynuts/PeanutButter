@@ -19,8 +19,8 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 using static PeanutButter.Utils.PyLike;
 using TimeSpan = System.TimeSpan;
 using static PeanutButter.RandomGenerators.Tests.RandomTestCycles;
-// ReSharper disable RedundantArgumentDefaultValue
 
+// ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable InconsistentNaming
@@ -1840,6 +1840,19 @@ namespace PeanutButter.RandomGenerators.Tests
                 );
 
                 //---------------Test Result -----------------------
+            }
+
+            [Test]
+            public void ShouldBeAbleToCreateNullableDateTimes()
+            {
+                // Arrange
+                // Act
+                var result = GetRandom<DateTime?>();
+                // Assert
+                Expect(result)
+                    .To.Be.An.Instance.Of<DateTime?>();
+                Expect(result)
+                    .Not.To.Be.Null();
             }
         }
 

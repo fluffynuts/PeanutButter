@@ -3142,6 +3142,59 @@ public class TestObjectExtensions
         }
     }
 
+    [TestFixture]
+    public class Is
+    {
+        [TestFixture]
+        public class WhenHaveTheSameObjectReference
+        {
+            [Test]
+            public void ShouldReturnTrue()
+            {
+                // Arrange
+                var person = GetRandom<Person>();
+                var ref2 = person;
+                var ref3 = (IPerson) person;
+                // Act
+                var result1 = person.Is(ref2);
+                var result2 = person.Is(ref3);
+                // Assert
+                Expect(result1)
+                    .To.Be.True();
+                Expect(result2)
+                    .To.Be.True();
+            }
+        }
+
+        [TestFixture]
+        public class WhenHaveDifferentObjectReferences
+        {
+            [Test]
+            public void ShouldReturnFalse()
+            {
+                // Arrange
+                var person = GetRandom<Person>();
+                var copy = person.DeepClone();
+                // Act
+                var result = person.Is(copy);
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+        }
+
+        public interface IPerson
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class Person : IPerson
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+    }
 
     public class Simple<T>
     {

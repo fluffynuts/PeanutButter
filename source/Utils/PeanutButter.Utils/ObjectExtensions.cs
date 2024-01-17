@@ -1712,5 +1712,20 @@ namespace PeanutButter.Utils
                 return false;
             }
         }
+
+        /// <summary>
+        /// Tests if two objects are the same reference in memory
+        /// (ie, short-hand for object.ReferenceEquals(original, test);
+        /// </summary>
+        /// <param name="original"></param>
+        /// <param name="test"></param>
+        /// <returns></returns>
+        public static bool Is(
+            this object original,
+            object test
+        )
+        {
+            return ReferenceEquals(original, test);
+        }
     }
 }
