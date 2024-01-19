@@ -1,54 +1,63 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
-    <RuntimeIdentifiers>win</RuntimeIdentifiers>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
-    <LangVersion>latest</LangVersion>
-    <Configurations>Debug;Release;Debug-X</Configurations>
-    <Platforms>AnyCPU</Platforms>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
-    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
-    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System.ServiceProcess" Condition=" '$(TargetFramework)' != 'netstandard2.0'" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Management" Version="8.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\..\Utils\PeanutButter.Utils\Commandline.cs">
-      <Link>Imported\Commandline.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Utils\PeanutButter.Utils\ProcessIO.cs" Link="Imported\ProcessIO.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\PropertyOrField.cs" Link="Imported\PropertyOrField.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\StringExtensions.cs" Link="Imported\StringExtensions.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\RandomNumber.cs" Link="Imported\RandomNumber.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\ByteArrayExtensions.cs" Link="Imported\ByteArrayExtensions.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\ExtensionsForIEnumerables.cs" Link="Imported\ExtensionsForIEnumerables.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\ObjectExtensions.cs" Link="Imported\ObjectExtensions.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\DeepEqualityTester.cs" Link="Imported\DeepEqualityTester.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\PyLike.cs" Link="Imported\PyLike.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\MemberNotFoundException.cs" Link="Imported\MemberNotFoundException.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\ArrayExtensions.cs" Link="Imported\ArrayExtensions.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\EnumerableWrapper.cs" Link="Imported\EnumerableWrapper.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\Stringifier.cs" Link="Imported\Stringifier.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\Platform.cs" Link="Imported\Platform.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\TypeExtensions.cs" Link="Imported\TypeExtensions.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\CannotZipNullException.cs" Link="Imported\CannotZipNullException.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\UnevenZipException.cs" Link="Imported\UnevenZipException.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\FlagExtensions.cs" Link="Imported\FlagExtensions.cs" />
-    <Compile Include="..\..\Utils\PeanutButter.Utils\DictionaryExtensions.cs" Link="Imported\DictionaryExtensions.cs" />
-  </ItemGroup>
-  <Import Project="..\..\MonoForFramework.targets" />
+    <PropertyGroup>
+        <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
+        <RuntimeIdentifiers>win</RuntimeIdentifiers>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
+        <LangVersion>latest</LangVersion>
+        <Configurations>Debug;Release;Debug-X</Configurations>
+        <Platforms>AnyCPU</Platforms>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+        <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+        <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="System.ServiceProcess" Condition=" '$(TargetFramework)' != 'netstandard2.0'"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="System.Management" Version="8.0.0"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\Commandline.cs">
+            <Link>Imported\Commandline.cs</Link>
+        </Compile>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\ProcessIO.cs" Link="Imported\ProcessIO.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\PropertyOrField.cs" Link="Imported\PropertyOrField.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\StringExtensions.cs" Link="Imported\StringExtensions.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\RandomNumber.cs" Link="Imported\RandomNumber.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\ByteArrayExtensions.cs" Link="Imported\ByteArrayExtensions.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\ExtensionsForIEnumerables.cs" Link="Imported\ExtensionsForIEnumerables.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\ObjectExtensions.cs" Link="Imported\ObjectExtensions.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\DeepEqualityTester.cs" Link="Imported\DeepEqualityTester.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\PyLike.cs" Link="Imported\PyLike.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\MemberNotFoundException.cs" Link="Imported\MemberNotFoundException.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\ArrayExtensions.cs" Link="Imported\ArrayExtensions.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\EnumerableWrapper.cs" Link="Imported\EnumerableWrapper.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\Stringifier.cs" Link="Imported\Stringifier.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\Platform.cs" Link="Imported\Platform.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\TypeExtensions.cs" Link="Imported\TypeExtensions.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\CannotZipNullException.cs" Link="Imported\CannotZipNullException.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\UnevenZipException.cs" Link="Imported\UnevenZipException.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\FlagExtensions.cs" Link="Imported\FlagExtensions.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\DictionaryExtensions.cs" Link="Imported\DictionaryExtensions.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\Dictionaries\DictionaryWrappingObject.cs" Link="Imported\Dictionaries\DictionaryWrappingObject.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\Dictionaries\DictionaryWrappingNameValueCollection.cs" Link="Imported\Dictionaries\DictionaryWrappingNameValueCollection.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\Dictionaries\DictionaryWrappingConnectionStringSettingCollection.cs" Link="Imported\Dictionaries\DictionaryWrappingConnectionStringSettingCollection.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="System.Configuration" Condition="'$(TargetFramework)' == 'net462'"/>
+    </ItemGroup>
+    <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

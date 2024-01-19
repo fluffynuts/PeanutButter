@@ -2,6 +2,7 @@
 using System.Xml.Serialization;
 using PeanutButter.DuckTyping.Extensions;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+
 // ReSharper disable ConvertConstructorToMemberInitializers
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
@@ -49,7 +50,15 @@ public class TestObjectExtensions
 
             //---------------Execute Test ----------------------
             var randomString = GetRandomString();
-            var result = (new { prop = randomString }).DeepEquals(new { prop = randomString });
+            var result = (new
+            {
+                prop = randomString
+            }).DeepEquals(
+                new
+                {
+                    prop = randomString
+                }
+            );
 
             //---------------Test Result -----------------------
             Expect(result)
@@ -64,8 +73,16 @@ public class TestObjectExtensions
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = propVal })
-                .DeepEquals(new { prop = propVal + GetRandomString(1, 10) });
+            var result = (new
+                {
+                    prop = propVal
+                })
+                .DeepEquals(
+                    new
+                    {
+                        prop = propVal + GetRandomString(1, 10)
+                    }
+                );
 
             //---------------Test Result -----------------------
             Expect(result)
@@ -150,7 +167,15 @@ public class TestObjectExtensions
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = propVal }).DeepEquals(new { prop = propVal });
+            var result = (new
+            {
+                prop = propVal
+            }).DeepEquals(
+                new
+                {
+                    prop = propVal
+                }
+            );
 
             //---------------Test Result -----------------------
             Expect(result)
@@ -301,8 +326,19 @@ public class TestObjectExtensions
         {
             // Arrange
             var val = GetRandomString();
-            var first = new HasAnArrayOfStrings() { Strings = new[] { val } };
-            var second = new HasAnArrayOfStrings() { Strings = new string[] { } };
+            var first = new HasAnArrayOfStrings()
+            {
+                Strings = new[]
+                {
+                    val
+                }
+            };
+            var second = new HasAnArrayOfStrings()
+            {
+                Strings = new string[]
+                {
+                }
+            };
             // Pre-Assert
             // Act
             var result1 = first.DeepEquals(second);
@@ -319,8 +355,20 @@ public class TestObjectExtensions
         {
             // Arrange
             var val = GetRandomString();
-            var first = new HasAnArrayOfStrings() { Strings = new[] { val } };
-            var second = new HasAnArrayOfStrings() { Strings = new[] { val } };
+            var first = new HasAnArrayOfStrings()
+            {
+                Strings = new[]
+                {
+                    val
+                }
+            };
+            var second = new HasAnArrayOfStrings()
+            {
+                Strings = new[]
+                {
+                    val
+                }
+            };
             // Pre-Assert
             // Act
             var result1 = first.DeepEquals(second);
@@ -344,11 +392,22 @@ public class TestObjectExtensions
             var val = GetRandomString();
             var first = new HasSomethingWithStrings()
             {
-                Something = new HasAnArrayOfStrings() { Strings = new[] { val } }
+                Something = new HasAnArrayOfStrings()
+                {
+                    Strings = new[]
+                    {
+                        val
+                    }
+                }
             };
             var second = new HasSomethingWithStrings()
             {
-                Something = new HasAnArrayOfStrings() { Strings = new string[] { } }
+                Something = new HasAnArrayOfStrings()
+                {
+                    Strings = new string[]
+                    {
+                    }
+                }
             };
             // Pre-Assert
             // Act
@@ -368,11 +427,23 @@ public class TestObjectExtensions
             var val = GetRandomString();
             var first = new HasSomethingWithStrings()
             {
-                Something = new HasAnArrayOfStrings() { Strings = new[] { val } }
+                Something = new HasAnArrayOfStrings()
+                {
+                    Strings = new[]
+                    {
+                        val
+                    }
+                }
             };
             var second = new HasSomethingWithStrings()
             {
-                Something = new HasAnArrayOfStrings() { Strings = new[] { val } }
+                Something = new HasAnArrayOfStrings()
+                {
+                    Strings = new[]
+                    {
+                        val
+                    }
+                }
             };
             // Pre-Assert
             // Act
@@ -391,7 +462,11 @@ public class TestObjectExtensions
             //--------------- Arrange -------------------
             var item = new ThingWithCollection<int>()
             {
-                Collection = new[] { 1, 2 }
+                Collection = new[]
+                {
+                    1,
+                    2
+                }
             };
 
             //--------------- Assume ----------------
@@ -410,11 +485,20 @@ public class TestObjectExtensions
             //--------------- Arrange -------------------
             var item1 = new ThingWithCollection<int>()
             {
-                Collection = new[] { 1, 2 }
+                Collection = new[]
+                {
+                    1,
+                    2
+                }
             };
             var item2 = new ThingWithCollection<int>()
             {
-                Collection = new[] { 1, 2, 3 }
+                Collection = new[]
+                {
+                    1,
+                    2,
+                    3
+                }
             };
 
             //--------------- Assume ----------------
@@ -433,11 +517,19 @@ public class TestObjectExtensions
             //--------------- Arrange -------------------
             var item1 = new ThingWithCollection<int>()
             {
-                Collection = new[] { 1, 2 }
+                Collection = new[]
+                {
+                    1,
+                    2
+                }
             };
             var item2 = new ThingWithCollection<int>()
             {
-                Collection = new[] { 1, 1 }
+                Collection = new[]
+                {
+                    1,
+                    1
+                }
             };
 
             //--------------- Assume ----------------
@@ -449,7 +541,7 @@ public class TestObjectExtensions
             Expect(result)
                 .To.Be.False();
         }
-        
+
         [Test]
         public void ShouldNotStackOverflowLikeInTheWild()
         {
@@ -533,8 +625,14 @@ public class TestObjectExtensions
         {
             //--------------- Arrange -------------------
             var parent = new SimpleParent();
-            var child = new Child() { Parent = parent };
-            parent.Children = new[] { child };
+            var child = new Child()
+            {
+                Parent = parent
+            };
+            parent.Children = new[]
+            {
+                child
+            };
 
             //--------------- Assume ----------------
 
@@ -554,9 +652,24 @@ public class TestObjectExtensions
         {
             //--------------- Arrange -------------------
             var n2 = new NodeWithChildren();
-            var n1 = new NodeWithChildren() { Children = new[] { n2 } };
-            var n3 = new NodeWithChildren() { Children = new[] { n1 } };
-            n2.Children = new[] { n3 };
+            var n1 = new NodeWithChildren()
+            {
+                Children = new[]
+                {
+                    n2
+                }
+            };
+            var n3 = new NodeWithChildren()
+            {
+                Children = new[]
+                {
+                    n1
+                }
+            };
+            n2.Children = new[]
+            {
+                n3
+            };
 
             // n1 => n2 =>  n3 => n1 ....
 
@@ -574,9 +687,24 @@ public class TestObjectExtensions
         {
             //--------------- Arrange -------------------
             var n2 = new NodeWithChildren();
-            var n1 = new NodeWithChildren() { Children = new[] { n2 } };
-            var n3 = new NodeWithChildren() { Children = new[] { n1 } };
-            n2.Children = new[] { n3 };
+            var n1 = new NodeWithChildren()
+            {
+                Children = new[]
+                {
+                    n2
+                }
+            };
+            var n3 = new NodeWithChildren()
+            {
+                Children = new[]
+                {
+                    n1
+                }
+            };
+            n2.Children = new[]
+            {
+                n3
+            };
 
             // n1 => n2 =>  n3 => n1 ....
 
@@ -598,13 +726,21 @@ public class TestObjectExtensions
                 //--------------- Arrange -------------------
                 var collection1 = new[]
                 {
-                    new { id = 1 }
+                    new
+                    {
+                        id = 1
+                    }
                 };
 
                 //--------------- Assume ----------------
 
                 //--------------- Act ----------------------
-                var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 });
+                var result = collection1.ContainsAtLeastOneDeepEqualTo(
+                    new
+                    {
+                        id = 1
+                    }
+                );
 
                 //--------------- Assert -----------------------
                 Expect(result)
@@ -617,13 +753,21 @@ public class TestObjectExtensions
                 //--------------- Arrange -------------------
                 var collection1 = new[]
                 {
-                    new { id = 1 }
+                    new
+                    {
+                        id = 1
+                    }
                 };
 
                 //--------------- Assume ----------------
 
                 //--------------- Act ----------------------
-                var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 2 });
+                var result = collection1.ContainsAtLeastOneDeepEqualTo(
+                    new
+                    {
+                        id = 2
+                    }
+                );
 
                 //--------------- Assert -----------------------
                 Expect(result)
@@ -646,7 +790,12 @@ public class TestObjectExtensions
                 //--------------- Assume ----------------
 
                 //--------------- Act ----------------------
-                var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 });
+                var result = collection1.ContainsAtLeastOneDeepEqualTo(
+                    new
+                    {
+                        id = 1
+                    }
+                );
 
                 //--------------- Assert -----------------------
                 Expect(result)
@@ -669,7 +818,13 @@ public class TestObjectExtensions
                 //--------------- Assume ----------------
 
                 //--------------- Act ----------------------
-                var result = collection1.ContainsAtLeastOneDeepEqualTo(new { id = 1 }, "name");
+                var result = collection1.ContainsAtLeastOneDeepEqualTo(
+                    new
+                    {
+                        id = 1
+                    },
+                    "name"
+                );
 
                 //--------------- Assert -----------------------
                 Expect(result)
@@ -1052,7 +1207,10 @@ public class TestObjectExtensions
         {
             //---------------Set up test pack-------------------
             var o1 = new Complex<string>();
-            var o2 = new Complex<string> { prop = null };
+            var o2 = new Complex<string>
+            {
+                prop = null
+            };
 
             //---------------Assert Precondition----------------
             Expect(o2.prop)
@@ -1111,7 +1269,10 @@ public class TestObjectExtensions
         public void ShouldCopyEmptyArrayProperty()
         {
             //--------------- Arrange -------------------
-            var src = new HasAnArrayOfStrings() { Strings = new string[0] };
+            var src = new HasAnArrayOfStrings()
+            {
+                Strings = new string[0]
+            };
             var target = new HasAnArrayOfStrings();
 
             //--------------- Assume ----------------
@@ -1130,7 +1291,14 @@ public class TestObjectExtensions
         public void ShouldCopyNonEmptyArrayProperty()
         {
             //--------------- Arrange -------------------
-            var src = new HasAnArrayOfStrings() { Strings = new[] { "123", "456" } };
+            var src = new HasAnArrayOfStrings()
+            {
+                Strings = new[]
+                {
+                    "123",
+                    "456"
+                }
+            };
             var target = new HasAnArrayOfStrings();
 
             //--------------- Assume ----------------
@@ -1149,7 +1317,14 @@ public class TestObjectExtensions
         public void ShouldCopyNonEmptyEnumerableProperty()
         {
             //--------------- Arrange -------------------
-            var src = new HasAnEnumerable() { Stuff = new[] { "123", "456" } };
+            var src = new HasAnEnumerable()
+            {
+                Stuff = new[]
+                {
+                    "123",
+                    "456"
+                }
+            };
             var target = new HasAnEnumerable();
 
             //--------------- Assume ----------------
@@ -1168,7 +1343,10 @@ public class TestObjectExtensions
         public void ShouldCopyAnEmptyList()
         {
             // Arrange
-            var src = new HasAListOfStrings() { Strings = new List<string>() };
+            var src = new HasAListOfStrings()
+            {
+                Strings = new List<string>()
+            };
             var target = new HasAListOfStrings();
             // Pre-Assert
             Expect(target.Strings)
@@ -1243,7 +1421,9 @@ public class TestObjectExtensions
             public void WhenGivenNameOfPropertyWhichDoesNotExist_ShouldReturnDefaultValue()
             {
                 //---------------Set up test pack-------------------
-                var o = new { };
+                var o = new
+                {
+                };
 
                 //---------------Assert Precondition----------------
 
@@ -1263,7 +1443,9 @@ public class TestObjectExtensions
             public void WhenGivenNameOfPropertyWhichDoesNotExist_ShouldThrow_PropertyNotFoundException()
             {
                 //---------------Set up test pack-------------------
-                var o = new { };
+                var o = new
+                {
+                };
 
                 //---------------Assert Precondition----------------
 
@@ -1279,7 +1461,10 @@ public class TestObjectExtensions
             public void WhenGivenNameOfPropertyWhichDoesExist_ShouldReturnThatValue()
             {
                 //---------------Set up test pack-------------------
-                var o = new { prop = 2 };
+                var o = new
+                {
+                    prop = 2
+                };
 
                 //---------------Assert Precondition----------------
 
@@ -1295,7 +1480,10 @@ public class TestObjectExtensions
             public void WhenGivenNameOfPropertyWhichDoesExistAndUnconvertableType_ShouldThrow()
             {
                 //---------------Set up test pack-------------------
-                var o = new { prop = "abcd" };
+                var o = new
+                {
+                    prop = "abcd"
+                };
 
                 //---------------Assert Precondition----------------
 
@@ -1323,7 +1511,10 @@ public class TestObjectExtensions
             {
                 // Arrange
                 var person = GetRandom<Person>();
-                var o = new { Person = person };
+                var o = new
+                {
+                    Person = person
+                };
 
                 Expect(typeof(Person).IsAssignableTo<IPerson>())
                     .To.Be.True();
@@ -1360,7 +1551,10 @@ public class TestObjectExtensions
             public void ShouldBeAbleToRetrieveNullValue()
             {
                 // Arrange
-                var data = new { name = null as string };
+                var data = new
+                {
+                    name = null as string
+                };
 
                 // Act
                 var result = data.Get<string>("name");
@@ -1373,7 +1567,13 @@ public class TestObjectExtensions
             public void ShouldResolveAssignableType()
             {
                 // Arrange
-                var foo = new { bar = new { id = 1 } };
+                var foo = new
+                {
+                    bar = new
+                    {
+                        id = 1
+                    }
+                };
                 // Act
                 var result = foo.Get<object>("bar");
                 // Assert
@@ -1385,7 +1585,10 @@ public class TestObjectExtensions
             public void ShouldResolveStringValue()
             {
                 // Arrange
-                var foo = new { id = 1 };
+                var foo = new
+                {
+                    id = 1
+                };
                 // Act
                 var result = foo.Get<string>("id");
                 // Assert
@@ -1403,7 +1606,10 @@ public class TestObjectExtensions
             )
             {
                 // Arrange
-                var data = new { prop = value };
+                var data = new
+                {
+                    prop = value
+                };
                 // Act
                 var result = data.Get("prop", expected);
                 // Assert
@@ -1421,7 +1627,10 @@ public class TestObjectExtensions
             public void ShouldReturnValueOfNamedProperty()
             {
                 //---------------Set up test pack-------------------
-                var obj = new { id = GetRandomInt() };
+                var obj = new
+                {
+                    id = GetRandomInt()
+                };
                 var expected = obj.id;
 
                 //---------------Assert Precondition----------------
@@ -1461,7 +1670,10 @@ public class TestObjectExtensions
                 var expected = GetRandomString();
                 var input = new
                 {
-                    Names = new[] { expected }
+                    Names = new[]
+                    {
+                        expected
+                    }
                 };
                 // Act
                 var result = input.GetPropertyValue("Names[0]");
@@ -1495,7 +1707,10 @@ public class TestObjectExtensions
                 {
                     Items = new[]
                     {
-                        new { Name = expected }
+                        new
+                        {
+                            Name = expected
+                        }
                     }
                 };
                 // Act
@@ -1514,7 +1729,10 @@ public class TestObjectExtensions
             public void ShouldSetThePropertyValue()
             {
                 //---------------Set up test pack-------------------
-                var obj = new SomeSimpleType() { Id = GetRandomInt(2, 5) };
+                var obj = new SomeSimpleType()
+                {
+                    Id = GetRandomInt(2, 5)
+                };
                 var expected = GetRandomInt(10, 20);
                 const string propertyName = "Id";
 
@@ -1533,7 +1751,10 @@ public class TestObjectExtensions
             public void ShouldSetThePropertyValueGeneric()
             {
                 //---------------Set up test pack-------------------
-                var obj = new SomeSimpleType() { Id = GetRandomInt(2, 5) };
+                var obj = new SomeSimpleType()
+                {
+                    Id = GetRandomInt(2, 5)
+                };
                 var expected = GetRandomInt(10, 20);
                 const string propertyName = "Id";
 
@@ -1552,7 +1773,10 @@ public class TestObjectExtensions
             public void ShouldBeAbleToSetImmediateProperty()
             {
                 //---------------Set up test pack-------------------
-                var obj = new SimpleDto() { Name = GetRandomString() };
+                var obj = new SimpleDto()
+                {
+                    Name = GetRandomString()
+                };
                 var expected = GetAnother(obj.Name);
 
                 //---------------Assert Precondition----------------
@@ -1647,7 +1871,7 @@ public class TestObjectExtensions
                     .To.Be.True();
             }
 
-            public class Derivative: HasPrivateField;
+            public class Derivative : HasPrivateField;
 
             public class HasPrivateField
             {
@@ -1662,7 +1886,10 @@ public class TestObjectExtensions
             public void ShouldAttemptCastToString()
             {
                 // Arrange
-                var foo = new { id = 123 };
+                var foo = new
+                {
+                    id = 123
+                };
                 // Act
                 var result = foo.Get<string>("id");
                 // Assert
@@ -1674,7 +1901,10 @@ public class TestObjectExtensions
             public void ShouldUpCastNumeric()
             {
                 // Arrange
-                var foo = new { id = 123 };
+                var foo = new
+                {
+                    id = 123
+                };
                 // Act
                 var result = foo.Get<long>("id");
                 // Assert
@@ -1686,7 +1916,10 @@ public class TestObjectExtensions
             public void ShouldDownCastNumericWherePossible()
             {
                 // Arrange
-                var foo = new { id = 123M };
+                var foo = new
+                {
+                    id = 123M
+                };
                 // Act
                 var result = foo.Get<int>("id");
                 // Assert
@@ -1699,7 +1932,10 @@ public class TestObjectExtensions
             {
                 // Arrange
                 var dt = GetRandomDate().TruncateMilliseconds();
-                var obj = new { dt = dt.ToString() };
+                var obj = new
+                {
+                    dt = dt.ToString()
+                };
 
                 // Act
                 var result = obj.Get<DateTime>("dt");
@@ -1934,8 +2170,10 @@ public class TestObjectExtensions
         public void ShouldCopyEnumProperties()
         {
             // Arrange
-            var src = new Puppy() { 
-                Emotion = Emotions.Happy };
+            var src = new Puppy()
+            {
+                Emotion = Emotions.Happy
+            };
 
             // Pre-Assert
 
@@ -2022,7 +2260,7 @@ public class TestObjectExtensions
         {
             // Arrange
             var src = GetRandom<HasANameAndLabel>();
-            var downCast = (HasAName) src;
+            var downCast = (HasAName)src;
             // Pre-Assert
             // Act
             var result = downCast.DeepClone();
@@ -2103,7 +2341,10 @@ public class TestObjectExtensions
             // Arrange
             var src = new HasCustomDictionary
             {
-                Settings = new SerializableDictionary<string, object> { ["moo"] = "cow" }
+                Settings = new SerializableDictionary<string, object>
+                {
+                    ["moo"] = "cow"
+                }
             };
             // Pre-Assert
             // Act
@@ -2124,7 +2365,10 @@ public class TestObjectExtensions
             // Arrange
             var src = new HasVanillaDictionary
             {
-                Settings = new SerializableDictionary<string, object> { ["moo"] = "cow" }
+                Settings = new SerializableDictionary<string, object>
+                {
+                    ["moo"] = "cow"
+                }
             };
             // Pre-Assert
             // Act
@@ -2175,11 +2419,11 @@ public class TestObjectExtensions
                     reader.ReadStartElement("item");
 
                     reader.ReadStartElement("key");
-                    var key = (TKey) keySerializer.Deserialize(reader);
+                    var key = (TKey)keySerializer.Deserialize(reader);
                     reader.ReadEndElement();
 
                     reader.ReadStartElement("value");
-                    var value = (TValue) valueSerializer.Deserialize(reader);
+                    var value = (TValue)valueSerializer.Deserialize(reader);
                     reader.ReadEndElement();
 
                     // ReSharper disable once AssignNullToNotNullAttribute
@@ -2439,7 +2683,12 @@ public class TestObjectExtensions
                 //--------------- Assume ----------------
 
                 //--------------- Act ----------------------
-                var result = collection1.ContainsOneIntersectionEqualTo(new { id = 1 });
+                var result = collection1.ContainsOneIntersectionEqualTo(
+                    new
+                    {
+                        id = 1
+                    }
+                );
 
                 //--------------- Assert -----------------------
                 Expect(result)
@@ -2462,7 +2711,12 @@ public class TestObjectExtensions
                 //--------------- Assume ----------------
 
                 //--------------- Act ----------------------
-                var result = collection1.ContainsOneIntersectionEqualTo(new { id = 2 });
+                var result = collection1.ContainsOneIntersectionEqualTo(
+                    new
+                    {
+                        id = 2
+                    }
+                );
 
                 //--------------- Assert -----------------------
                 Expect(result)
@@ -2516,7 +2770,12 @@ public class TestObjectExtensions
                 //--------------- Assume ----------------
 
                 //--------------- Act ----------------------
-                var result = collection1.ContainsOneIntersectionEqualTo(new { value = 1 });
+                var result = collection1.ContainsOneIntersectionEqualTo(
+                    new
+                    {
+                        value = 1
+                    }
+                );
 
                 //--------------- Assert -----------------------
                 Expect(result)
@@ -2537,7 +2796,10 @@ public class TestObjectExtensions
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = rs }).DeepSubEquals(
+            var result = (new
+            {
+                prop = rs
+            }).DeepSubEquals(
                 new
                 {
                     prop = rs,
@@ -2558,7 +2820,10 @@ public class TestObjectExtensions
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = (new { prop = GetRandomString() })
+            var result = (new
+                {
+                    prop = GetRandomString()
+                })
                 .DeepSubEquals(new object());
 
             //---------------Test Result -----------------------
@@ -2597,19 +2862,29 @@ public class TestObjectExtensions
         public void ShouldBeAbleToEnumerateIEnumerable()
         {
             // Arrange
-            var data = new[] { 1, 2, 3 };
+            var data = new[]
+            {
+                1,
+                2,
+                3
+            };
             // Act
             var result = data.AsEnumerable<long>().ToArray();
             // Assert
             Expect(result)
-                .To.Equal(data.Select(o => (long) o));
+                .To.Equal(data.Select(o => (long)o));
         }
 
         [Test]
         public void ShouldBeAbleToEnumerateDuckable()
         {
             // Arrange
-            var data = new[] { 4, 5, 6 };
+            var data = new[]
+            {
+                4,
+                5,
+                6
+            };
             var enumerable = new MyEnumerable<int>(data);
             // Act
             var result = enumerable.AsEnumerable<int>();
@@ -2622,11 +2897,23 @@ public class TestObjectExtensions
         public void ShouldBeAbleToEnumerateParseable()
         {
             // Arrange
-            var data = new[] { "7", "8", "9" };
+            var data = new[]
+            {
+                "7",
+                "8",
+                "9"
+            };
             // Act
             var result = data.AsEnumerable<int>();
             // Assert
-            Expect(result).To.Equal(new[] { 7, 8, 9 });
+            Expect(result).To.Equal(
+                new[]
+                {
+                    7,
+                    8,
+                    9
+                }
+            );
         }
     }
 
@@ -2957,7 +3244,10 @@ public class TestObjectExtensions
         public void ShouldReturnTrueForAnObjectsGetTypeResult()
         {
             // Arrange
-            var obj = new { foo = 1 };
+            var obj = new
+            {
+                foo = 1
+            };
             // Act
             var result = obj.GetType().IsRuntimeType();
             // Assert
@@ -2969,7 +3259,10 @@ public class TestObjectExtensions
         public void ShouldReturnFalseForAnObject()
         {
             // Arrange
-            var obj = new { foo = 1 };
+            var obj = new
+            {
+                foo = 1
+            };
             // Act
             var result = obj.IsRuntimeType();
             // Assert
@@ -2998,12 +3291,35 @@ public class TestObjectExtensions
         {
             public static IEnumerable<(string, object)> PositiveTestCases()
             {
-                yield return ("prop", new { prop = 1 });
-                yield return ("prop", new { prop = "123" });
-                yield return ("prop", new { prop = true });
-                yield return ("prop", new { prop = new DateTime() });
-                yield return ("prop", new { prop = new { } });
-                yield return ("prop.id", new { prop = new { id = 1 } });
+                yield return ("prop", new
+                {
+                    prop = 1
+                });
+                yield return ("prop", new
+                {
+                    prop = "123"
+                });
+                yield return ("prop", new
+                {
+                    prop = true
+                });
+                yield return ("prop", new
+                {
+                    prop = new DateTime()
+                });
+                yield return ("prop", new
+                {
+                    prop = new
+                    {
+                    }
+                });
+                yield return ("prop.id", new
+                {
+                    prop = new
+                    {
+                        id = 1
+                    }
+                });
             }
 
             [TestCaseSource(nameof(PositiveTestCases))]
@@ -3020,9 +3336,20 @@ public class TestObjectExtensions
 
             public static IEnumerable<(string, object)> NegativeTestCases()
             {
-                yield return ("prop", new { });
-                yield return ("prop", new { id = 1 });
-                yield return ("prop.name", new { prop = new { id = 2 } });
+                yield return ("prop", new
+                {
+                });
+                yield return ("prop", new
+                {
+                    id = 1
+                });
+                yield return ("prop.name", new
+                {
+                    prop = new
+                    {
+                        id = 2
+                    }
+                });
             }
 
             [TestCaseSource(nameof(NegativeTestCases))]
@@ -3057,7 +3384,10 @@ public class TestObjectExtensions
             public void ShouldOnlyReturnTrueWhenPropFoundAndTypeMatches()
             {
                 // Arrange
-                var data = new { id = 1 };
+                var data = new
+                {
+                    id = 1
+                };
                 // Act
                 Expect(data.HasProperty<int>("id"))
                     .To.Be.True();
@@ -3078,7 +3408,9 @@ public class TestObjectExtensions
             public void ShouldReturnFalse()
             {
                 // Arrange
-                var obj = new { };
+                var obj = new
+                {
+                };
                 // Act
                 var result = obj.TryGet<int>("id", out _);
                 // Assert
@@ -3094,7 +3426,10 @@ public class TestObjectExtensions
             public void ShouldReturnFalse()
             {
                 // Arrange
-                var obj = new { id = "abcde" };
+                var obj = new
+                {
+                    id = "abcde"
+                };
                 // Act
                 var result = obj.TryGet<int>("id", out _);
                 // Assert
@@ -3111,7 +3446,10 @@ public class TestObjectExtensions
             {
                 // Arrange
                 var expected = GetRandomInt();
-                var obj = new { id = expected };
+                var obj = new
+                {
+                    id = expected
+                };
                 // Act
                 var result = obj.TryGet<int>("id", out var value);
                 // Assert
@@ -3130,7 +3468,10 @@ public class TestObjectExtensions
             {
                 // Arrange
                 var expected = GetRandomInt();
-                var obj = new { id = expected };
+                var obj = new
+                {
+                    id = expected
+                };
                 // Act
                 var result = obj.TryGet<long>("id", out var value);
                 // Assert
@@ -3154,7 +3495,7 @@ public class TestObjectExtensions
                 // Arrange
                 var person = GetRandom<Person>();
                 var ref2 = person;
-                var ref3 = (IPerson) person;
+                var ref3 = (IPerson)person;
                 // Act
                 var result1 = person.Is(ref2);
                 var result2 = person.Is(ref3);
@@ -3397,6 +3738,87 @@ public class TestObjectExtensions
             Quotes = new List<ITravelQuote>();
             Comments = new List<IComment>();
             Details = new TravelRequestDetails();
+        }
+    }
+
+    [TestFixture]
+    public class AsDictionary
+    {
+        [Test]
+        public void ShouldProduceOriginalRefForDictionary()
+        {
+            // Arrange
+            var dict = GetRandom<Dictionary<string, string>>();
+            Expect(dict as IDictionary<string, string>)
+                .Not.To.Be.Null();
+
+            // Act
+            var result = dict.AsDictionary<string, string>();
+            // Assert
+            Expect(result)
+                .To.Be(dict);
+        }
+
+        [Test]
+        public void ShouldProduceOriginalRefForIDictionary()
+        {
+            // Arrange
+            var dict = GetRandom<Dictionary<string, string>>();
+
+            // Act
+            var result = (dict as IDictionary<string, string>).AsDictionary<string, string>();
+            // Assert
+            Expect(result)
+                .To.Be(dict);
+        }
+
+        [Test]
+        public void ShouldProduceOriginalRefForDictionaryUntypedFromStringObject()
+        {
+            // Arrange
+            var dict = GetRandom<Dictionary<string, object>>();
+
+            // Act
+            var result = dict.AsDictionary();
+            // Assert
+            Expect(result)
+                .To.Be(dict);
+        }
+
+        [Test]
+        public void ShouldProduceOriginalRefForIDictionaryUntypedFromStringObject()
+        {
+            // Arrange
+            var dict = GetRandom<Dictionary<string, object>>();
+
+            // Act
+            var result = (dict as IDictionary<string, object>).AsDictionary();
+            // Assert
+            Expect(result)
+                .To.Be(dict);
+        }
+
+        [Test]
+        public void ShouldWrapObject()
+        {
+            // Arrange
+            var obj = new
+            {
+                Id = 1,
+                Name = "Bob",
+                DateOfBirth = new DateTime(1972, 3, 4)
+            };
+            // Act
+            var result = obj.AsDictionary();
+            // Assert
+            Expect(result)
+                .To.Be.An.Instance.Of<IDictionary<string, object>>();
+            Expect(result["Id"])
+                .To.Equal(obj.Id);
+            Expect(result["Name"])
+                .To.Equal(obj.Name);
+            Expect(result["DateOfBirth"])
+                .To.Equal(obj.DateOfBirth);
         }
     }
 }
