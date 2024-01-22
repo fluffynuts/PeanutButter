@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
