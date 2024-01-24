@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TempDb.Runner</id>
-    <version>3.0.252</version>
+    <version>3.0.253</version>
     <title>PeanutButter.TempDb</title>
     <authors>Davyd McColl</authors>
     <owners />
@@ -78,6 +78,7 @@
     <file src="bin\Release\net462\System.Memory.dll" target="lib/net462" />
     <file src="bin\Release\net462\System.Numerics.Vectors.dll" target="lib/net462" />
     <file src="bin\Release\net462\System.Runtime.CompilerServices.Unsafe.dll" target="lib/net462" />
+    <file src="bin\Release\net462\System.Runtime.InteropServices.RuntimeInformation.dll" target="lib/net462" />
     <file src="bin\Release\net462\ZstdNet.dll" target="lib/net462" />
     <file src="bin\Release\net462\start-tempdb.bat" target="lib/net462" />
     <file src="bin\Release\net462\start-tempdb.sh" target="lib/net462" />
