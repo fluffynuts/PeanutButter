@@ -3792,7 +3792,7 @@ public class TestRandomValueGen
         public void WhenOperatingOnInternalTypeNotShared()
         {
             //---------------Set up test pack-------------------
-            if (Type.GetType("Mono.Runtime") != null)
+            if (Runtime.IsMono)
             {
                 Assert.Ignore("Mono (erroneously) allows access to internal types, so this test is skipped");
                 return;
