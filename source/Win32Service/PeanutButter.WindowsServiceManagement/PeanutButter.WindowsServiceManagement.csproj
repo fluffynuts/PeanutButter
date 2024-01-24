@@ -18,6 +18,9 @@
         <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="System.Runtime.InteropServices.RuntimeInformation">
+          <HintPath>..\..\..\..\..\..\Program Files\dotnet\sdk\8.0.100\Microsoft\Microsoft.NET.Build.Extensions\net462\lib\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+        </Reference>
         <Reference Include="System.ServiceProcess" Condition=" '$(TargetFramework)' != 'netstandard2.0'"/>
     </ItemGroup>
     <ItemGroup>

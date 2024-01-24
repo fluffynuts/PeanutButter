@@ -18,7 +18,9 @@
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright  2014</copyright>
     <dependencies>
-      <group targetFramework="net462"></group>
+      <group targetFramework="net462">
+        <dependency id="System.Runtime.InteropServices.RuntimeInformation" version="4.3.0" />
+      </group>
       <group targetFramework="netstandard2.0"></group>
     </dependencies>
     <references></references>

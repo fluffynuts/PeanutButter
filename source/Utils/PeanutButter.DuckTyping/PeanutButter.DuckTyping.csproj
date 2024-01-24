@@ -1,71 +1,72 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
-    <Configurations>Debug;Release;Debug-X</Configurations>
-    <Platforms>AnyCPU</Platforms>
-    <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
-    <LangVersion>latest</LangVersion>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+        <Configurations>Debug;Release;Debug-X</Configurations>
+        <Platforms>AnyCPU</Platforms>
+        <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
+        <LangVersion>latest</LangVersion>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    </ItemGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DebugType>Full</DebugType>
-    <DebugSymbols>True</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
-    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="..\PeanutButter.Utils\ArrayExtensions.cs" Link="Imported\ArrayExtensions.cs" />
-    <Compile Include="..\PeanutButter.Utils\DecimalDecorator.cs" Link="Imported\DecimalDecorator.cs" />
-    <Compile Include="..\PeanutButter.Utils\DeepEqualityTester.cs" Link="Imported\DeepEqualityTester.cs" />
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs" Link="Imported\CaseWarpingDictionaryWrapper.cs" />
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\DefaultDictionary.cs" Link="Imported\DefaultDictionary.cs" />
-    <Compile Include="..\PeanutButter.Utils\DictionaryExtensions.cs" Link="Imported\DictionaryExtensions.cs" />
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingObject.cs" Link="Imported\DictionaryWrappingObject.cs" />
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\GenericDictionaryEnumerator.cs" Link="Imported\GenericDictionaryEnumerator.cs" />
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\MergeDictionary.cs" Link="Imported\MergeDictionary.cs" />
-    <Compile Include="..\PeanutButter.Utils\EnumerableWrapper.cs" Link="Imported\EnumerableWrapper.cs" />
-    <Compile Include="..\PeanutButter.Utils\ExtensionsForIEnumerables.cs" Link="Imported\ExtensionsForIEnumerables.cs" />
-    <Compile Include="..\PeanutButter.Utils\MemberNotFoundException.cs" Link="Imported\MemberNotFoundException.cs" />
-    <Compile Include="..\PeanutButter.Utils\ObjectExtensions.cs" Link="Imported\ObjectExtensions.cs" />
-    <Compile Include="..\PeanutButter.Utils\PropertyOrField.cs" Link="Imported\PropertyOrField.cs" />
-    <Compile Include="..\PeanutButter.Utils\PropertyOrFieldExtensions.cs" Link="Imported\PropertyOrFieldExtensions.cs" />
-    <Compile Include="..\PeanutButter.Utils\PyLike.cs" Link="Imported\PyLike.cs" />
-    <Compile Include="..\PeanutButter.Utils\StrictComparer.cs" Link="Imported\StrictComparer.cs" />
-    <Compile Include="..\PeanutButter.Utils\StringExtensions.cs" Link="Imported\StringExtensions.cs" />
-    <Compile Include="..\PeanutButter.Utils\ByteArrayExtensions.cs" Link="Imported\ByteArrayExtensions.cs" />
-    <Compile Include="..\PeanutButter.Utils\RandomNumber.cs" Link="Imported\RandomNumber.cs" />
-    <Compile Include="..\PeanutButter.Utils\Stringifier.cs" Link="Imported\Stringifier.cs" />
-    <Compile Include="..\PeanutButter.Utils\TypeExtensions.cs" Link="Imported\TypeExtensions.cs" />
-    <Compile Include="..\PeanutButter.Utils\CannotZipNullException.cs" Link="Imported\CannotZipNullException.cs" />
-    <Compile Include="..\PeanutButter.Utils\UnevenZipException.cs" Link="Imported\UnevenZipException.cs" />
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingNameValueCollection.cs" Link="Imported\DictionaryWrappingNameValueCollection.cs" />
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\RedirectingDictionary.cs" Link="Imported\RedirectingDictionary.cs" />
-    <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingConnectionStringSettingCollection.cs" Link="Imported\DictionaryWrappingConnectionStringSettingCollection.cs" />
-    <Compile Include="..\PeanutButter.Utils\Platform.cs" Link="Imported\Platform.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="system.reflection.emit" Version="4.7.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Configuration" Condition="'$(TargetFramework)' == 'net462'" />
-  </ItemGroup>
-  <Import Project="..\..\MonoForFramework.targets" />
+    <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+        <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup>
+        <DebugType>Full</DebugType>
+        <DebugSymbols>True</DebugSymbols>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+        <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="..\PeanutButter.Utils\ArrayExtensions.cs" Link="Imported\ArrayExtensions.cs"/>
+        <Compile Include="..\PeanutButter.Utils\DecimalDecorator.cs" Link="Imported\DecimalDecorator.cs"/>
+        <Compile Include="..\PeanutButter.Utils\DeepEqualityTester.cs" Link="Imported\DeepEqualityTester.cs"/>
+        <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs" Link="Imported\CaseWarpingDictionaryWrapper.cs"/>
+        <Compile Include="..\PeanutButter.Utils\Dictionaries\DefaultDictionary.cs" Link="Imported\DefaultDictionary.cs"/>
+        <Compile Include="..\PeanutButter.Utils\DictionaryExtensions.cs" Link="Imported\DictionaryExtensions.cs"/>
+        <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingObject.cs" Link="Imported\DictionaryWrappingObject.cs"/>
+        <Compile Include="..\PeanutButter.Utils\Dictionaries\GenericDictionaryEnumerator.cs" Link="Imported\GenericDictionaryEnumerator.cs"/>
+        <Compile Include="..\PeanutButter.Utils\Dictionaries\MergeDictionary.cs" Link="Imported\MergeDictionary.cs"/>
+        <Compile Include="..\PeanutButter.Utils\EnumerableWrapper.cs" Link="Imported\EnumerableWrapper.cs"/>
+        <Compile Include="..\PeanutButter.Utils\ExtensionsForIEnumerables.cs" Link="Imported\ExtensionsForIEnumerables.cs"/>
+        <Compile Include="..\PeanutButter.Utils\MemberNotFoundException.cs" Link="Imported\MemberNotFoundException.cs"/>
+        <Compile Include="..\PeanutButter.Utils\ObjectExtensions.cs" Link="Imported\ObjectExtensions.cs"/>
+        <Compile Include="..\PeanutButter.Utils\PropertyOrField.cs" Link="Imported\PropertyOrField.cs"/>
+        <Compile Include="..\PeanutButter.Utils\PropertyOrFieldExtensions.cs" Link="Imported\PropertyOrFieldExtensions.cs"/>
+        <Compile Include="..\PeanutButter.Utils\PyLike.cs" Link="Imported\PyLike.cs"/>
+        <Compile Include="..\PeanutButter.Utils\StrictComparer.cs" Link="Imported\StrictComparer.cs"/>
+        <Compile Include="..\PeanutButter.Utils\StringExtensions.cs" Link="Imported\StringExtensions.cs"/>
+        <Compile Include="..\PeanutButter.Utils\ByteArrayExtensions.cs" Link="Imported\ByteArrayExtensions.cs"/>
+        <Compile Include="..\PeanutButter.Utils\RandomNumber.cs" Link="Imported\RandomNumber.cs"/>
+        <Compile Include="..\PeanutButter.Utils\Stringifier.cs" Link="Imported\Stringifier.cs"/>
+        <Compile Include="..\PeanutButter.Utils\TypeExtensions.cs" Link="Imported\TypeExtensions.cs"/>
+        <Compile Include="..\PeanutButter.Utils\CannotZipNullException.cs" Link="Imported\CannotZipNullException.cs"/>
+        <Compile Include="..\PeanutButter.Utils\UnevenZipException.cs" Link="Imported\UnevenZipException.cs"/>
+        <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingNameValueCollection.cs" Link="Imported\DictionaryWrappingNameValueCollection.cs"/>
+        <Compile Include="..\PeanutButter.Utils\Dictionaries\RedirectingDictionary.cs" Link="Imported\RedirectingDictionary.cs"/>
+        <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingConnectionStringSettingCollection.cs" Link="Imported\DictionaryWrappingConnectionStringSettingCollection.cs"/>
+        <Compile Include="..\PeanutButter.Utils\Platform.cs" Link="Imported\Platform.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="system.reflection.emit" Version="4.7.0"/>
+        <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" Condition="'$(TargetFramework)' == 'net462'"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="System.Configuration" Condition="'$(TargetFramework)' == 'net462'"/>
+    </ItemGroup>
+    <Import Project="..\..\MonoForFramework.targets"/>
 </Project>
