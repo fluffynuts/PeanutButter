@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 #endif
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using NUnit.Framework;
-using NExpect;
-using static NExpect.Expectations;
+using static PeanutButter.Utils.PyLike;
 
 namespace PeanutButter.Utils.NetCore.Tests
 {
@@ -24,11 +25,25 @@ namespace PeanutButter.Utils.NetCore.Tests
             sut.Add(2);
             sut.Add(3);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 1, 2, 3 });
+                .To.Equal(
+                    new[]
+                    {
+                        1,
+                        2,
+                        3
+                    }
+                );
             sut.Add(4);
             // Assert
             Expect(sut.ToArray())
-                .To.Equal(new[] { 2, 3, 4 });
+                .To.Equal(
+                    new[]
+                    {
+                        2,
+                        3,
+                        4
+                    }
+                );
         }
 
         [Test]
@@ -42,7 +57,7 @@ namespace PeanutButter.Utils.NetCore.Tests
             sut.Add(10);
             sut.Clear();
             // Assert
-            Expect((IList<int>) sut)
+            Expect((IList<int>)sut)
                 .To.Be.Empty();
         }
 
@@ -60,7 +75,15 @@ namespace PeanutButter.Utils.NetCore.Tests
             sut.CopyTo(target, 1);
             // Assert
             Expect(target)
-                .To.Equal(new[] { 0, 3, 4, 5 });
+                .To.Equal(
+                    new[]
+                    {
+                        0,
+                        3,
+                        4,
+                        5
+                    }
+                );
         }
 
         [Test]
@@ -77,8 +100,14 @@ namespace PeanutButter.Utils.NetCore.Tests
             // Assert
             Expect(result)
                 .To.Be.True();
-            Expect((IList<int>) sut)
-                .To.Equal(new[] { 2, 1 });
+            Expect((IList<int>)sut)
+                .To.Equal(
+                    new[]
+                    {
+                        2,
+                        1
+                    }
+                );
         }
 
         [Test]
@@ -101,8 +130,13 @@ namespace PeanutButter.Utils.NetCore.Tests
                 .To.Be.True();
             Expect(result3)
                 .To.Be.False();
-            Expect((IList<int>) sut)
-                .To.Equal(new[] { 2 });
+            Expect((IList<int>)sut)
+                .To.Equal(
+                    new[]
+                    {
+                        2
+                    }
+                );
         }
 
         [Test]
@@ -143,9 +177,14 @@ namespace PeanutButter.Utils.NetCore.Tests
                 sut.Add(3);
                 sut.Insert(1, 10);
                 // Assert
-                Expect((IList<int>) sut)
+                Expect((IList<int>)sut)
                     .To.Equal(
-                        new[] { 10, 2, 3 },
+                        new[]
+                        {
+                            10,
+                            2,
+                            3
+                        },
                         () => "Trimming after insertion should have chucked out the 1"
                     );
             }
@@ -165,8 +204,15 @@ namespace PeanutButter.Utils.NetCore.Tests
                 Thread.Sleep(50);
                 sut.Insert(2, 2);
                 // Assert
-                Expect((IList<int>) sut)
-                    .To.Equal(new[] { 1, 2, 1 });
+                Expect((IList<int>)sut)
+                    .To.Equal(
+                        new[]
+                        {
+                            1,
+                            2,
+                            1
+                        }
+                    );
                 var before = sut.ItemAt(0);
                 var inserted = sut.ItemAt(1);
                 var after = sut.ItemAt(2);
@@ -189,8 +235,15 @@ namespace PeanutButter.Utils.NetCore.Tests
                 Thread.Sleep(50);
                 sut.Insert(0, 2);
                 // Assert
-                Expect((IList<int>) sut)
-                    .To.Equal(new[] { 2, 1, 1 });
+                Expect((IList<int>)sut)
+                    .To.Equal(
+                        new[]
+                        {
+                            2,
+                            1,
+                            1
+                        }
+                    );
                 var inserted = sut.ItemAt(0);
                 var after = sut.ItemAt(1);
                 Expect(inserted.Created)
@@ -214,8 +267,15 @@ namespace PeanutButter.Utils.NetCore.Tests
                 Thread.Sleep(50);
                 var after = DateTime.Now;
                 // Assert
-                Expect((IList<int>) sut)
-                    .To.Equal(new[] { 1, 1, 2 });
+                Expect((IList<int>)sut)
+                    .To.Equal(
+                        new[]
+                        {
+                            1,
+                            1,
+                            2
+                        }
+                    );
                 var inserted = sut.ItemAt(2);
                 Expect(inserted.Created)
                     .To.Be.Greater.Than(before)
@@ -237,8 +297,14 @@ namespace PeanutButter.Utils.NetCore.Tests
             Thread.Sleep(550);
             sut.Add(3);
             // Assert
-            Expect((IList<int>) sut)
-                .To.Equal(new[] { 2, 3 });
+            Expect((IList<int>)sut)
+                .To.Equal(
+                    new[]
+                    {
+                        2,
+                        3
+                    }
+                );
         }
 
         [Test]
@@ -253,8 +319,14 @@ namespace PeanutButter.Utils.NetCore.Tests
             sut.Add(3);
             sut.RemoveAt(1);
             // Assert
-            Expect((IList<int>) sut)
-                .To.Equal(new[] { 1, 3 });
+            Expect((IList<int>)sut)
+                .To.Equal(
+                    new[]
+                    {
+                        1,
+                        3
+                    }
+                );
         }
 
         [Test]
@@ -510,6 +582,73 @@ namespace PeanutButter.Utils.NetCore.Tests
                 // Assert
                 Expect(result)
                     .To.Equal(TimeSpan.MaxValue);
+            }
+        }
+
+        [TestFixture]
+        public class LiveIssues
+        {
+            [Test]
+            public void ShouldBeAbleToStoreNullAndTestForIt()
+            {
+                // Arrange
+                var sut = Create<string>(10);
+                // Act
+                sut.Add(null);
+                var result = sut.Contains(null);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldHandleConcurrency()
+            {
+                // Arrange
+                var threadCount = 100;
+                var sut = Create<string>(10);
+                var collected = new ConcurrentBag<bool>();
+                var errors = new ConcurrentBag<Exception>();
+                var startBarrier = new Barrier(threadCount);
+                var endBarrier = new Barrier(threadCount + 1);
+                // Act
+
+                var threads = Range(0, threadCount)
+                    .Select(
+                        _ =>
+                        {
+                            var result = new Thread(
+                                () =>
+                                {
+                                    try
+                                    {
+                                        startBarrier.SignalAndWait();
+                                        var value = GetRandomString();
+                                        sut.Add(value);
+                                        collected.Add(sut.Contains(value));
+                                        endBarrier.SignalAndWait();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        errors.Add(ex);
+                                    }
+                                }
+                            );
+                            result.Start();
+                            return result;
+                        }
+                    );
+                foreach (var t in threads)
+                {
+                    Task.Run(() => t.Join());
+                }
+
+                endBarrier.SignalAndWait();
+                // Assert
+                Expect(collected)
+                    .To.Contain.Only(threadCount).Items();
+                Expect(errors)
+                    .To.Be.Empty();
             }
         }
 

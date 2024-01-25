@@ -79,7 +79,7 @@ public
 
     private TimeSpan _timeToLive;
 
-    private readonly List<SlidingWindowItem<T>> _items;
+    private readonly List<SlidingWindowItem<T>> _items = new();
     private bool _livesForEver;
 
     /// <summary>
@@ -112,17 +112,20 @@ public
     {
         TimeToLive = timeToLive;
         MaxItems = maxItems;
-        _items = new List<SlidingWindowItem<T>>();
     }
 
     /// <inheritdoc />
     public IEnumerator<T> GetEnumerator()
     {
-        return TrimThen(
-            () => _items
-                .Select(o => o.Value)
-                .GetEnumerator()
-        );
+        lock (_items)
+        {
+            return TrimThenRunLocked(
+                () => _items
+                    .Select(o => o.Value)
+                    // ReSharper disable once NotDisposedResourceIsReturned
+                    .GetEnumerator()
+            );
+        }
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -133,7 +136,11 @@ public
     /// <inheritdoc />
     public void Add(T item)
     {
-        _items.Add(new SlidingWindowItem<T>(item));
+        lock (_items)
+        {
+            _items.Add(new SlidingWindowItem<T>(item));
+        }
+
         Trim();
     }
 
@@ -150,57 +157,76 @@ public
     /// <inheritdoc />
     public void Trim()
     {
-        if (_items.Count > MaxItems)
+        lock (_items)
         {
-            _items.Shift();
-        }
+            if (_items.Count > MaxItems)
+            {
+                _items.Shift();
+            }
 
-        if (_livesForEver)
-        {
-            return;
-        }
+            if (_livesForEver)
+            {
+                return;
+            }
 
-        var staleTime = DateTime.Now - TimeToLive;
-        while (_items.Count > 0 && _items[0].Created < staleTime)
-        {
-            _items.Shift();
+            var staleTime = DateTime.Now - TimeToLive;
+            while (_items.Count > 0 && _items[0].Created < staleTime)
+            {
+                _items.Shift();
+            }
         }
     }
 
     /// <inheritdoc />
     public void Clear()
     {
-        _items.Clear();
+        lock (_items)
+        {
+            _items.Clear();
+        }
     }
 
     /// <inheritdoc />
     public bool Contains(T item)
     {
-        return TrimThen(() => _items.Any(v => v.Value.Equals(item)));
+        return TrimThenRunLocked(() => _items.Any(v => v.HasValue(item)));
     }
 
     /// <inheritdoc />
     public void CopyTo(T[] array, int arrayIndex)
     {
-        _items.Select(o => o.Value)
-            .ToArray()
-            .CopyTo(array, arrayIndex);
+        T[] items;
+        lock (_items)
+        {
+            items = _items.Select(o => o.Value)
+                .ToArray();
+        }
+
+        items.CopyTo(array, arrayIndex);
     }
 
     /// <inheritdoc />
     public bool Remove(T item)
     {
-        var first = _items.FirstOrDefault(o => o.Value.Equals(item));
-        if (first is null)
+        lock (_items)
         {
-            return false;
+            var first = _items.FirstOrDefault(o => o.Value.Equals(item));
+            return first is not null && 
+                _items.Remove(first);
         }
-
-        return _items.Remove(first);
     }
 
     /// <inheritdoc />
-    public int Count => _items.Count;
+    public int Count
+    {
+        get
+        {
+            lock (_items)
+            {
+                return _items.Count;
+            }
+        }
+    }
 
     /// <inheritdoc />
     public bool IsReadOnly => false;
@@ -209,9 +235,15 @@ public
     public int IndexOf(T item)
     {
         var result = 0;
-        foreach (var o in _items)
+        SlidingWindowItem<T>[] snapshot;
+        lock (_items)
         {
-            if (o.Value.Equals(item))
+            snapshot = _items.ToArray();
+        }
+
+        foreach (var o in snapshot)
+        {
+            if (o.HasValue(item))
             {
                 return result;
             }
@@ -227,65 +259,95 @@ public
     {
         var slidingWindowItem = new SlidingWindowItem<T>(item);
 
-        if (index == 0)
+        lock (_items)
         {
-            slidingWindowItem.Created = _items[0].Created;
-        }
-        else if (index < _items.Count)
-        {
-            var before = _items[index - 1].Created.Ticks;
-            var after = _items[index].Created.Ticks;
-            var average = (before + after) / 2;
-            slidingWindowItem.Created = new DateTime(average);
+            if (index == 0)
+            {
+                slidingWindowItem.Created = _items[0].Created;
+            }
+            else if (index < _items.Count)
+            {
+                var before = _items[index - 1].Created.Ticks;
+                var after = _items[index].Created.Ticks;
+                var average = (before + after) / 2;
+                slidingWindowItem.Created = new DateTime(average);
+            }
+
+            _items.Insert(index, slidingWindowItem);
         }
 
-        _items.Insert(index, slidingWindowItem);
         Trim();
     }
 
     /// <inheritdoc />
     public ISlidingWindowItem<T> ItemAt(int index)
     {
-        return _items[index];
+        lock (_items)
+        {
+            return _items[index];
+        }
     }
 
     /// <inheritdoc />
-    public ISlidingWindowItem<T> First => TrimThen(() => _items.FirstOrDefault());
+    public ISlidingWindowItem<T> First => TrimThenRunLocked(() => _items.FirstOrDefault());
 
-    private ISlidingWindowItem<T> TrimThen(
+    private ISlidingWindowItem<T> TrimThenRunLocked(
         Func<SlidingWindowItem<T>> func
     )
     {
         Trim();
-        return func();
+        lock (_items)
+        {
+            return func();
+        }
     }
 
-    private TOut TrimThen<TOut>(
+    private TOut TrimThenRunLocked<TOut>(
         Func<TOut> func
     )
     {
         Trim();
-        return func();
+        lock (_items)
+        {
+            return func();
+        }
     }
 
     /// <inheritdoc />
-    public ISlidingWindowItem<T> Last => TrimThen(() => _items.LastOrDefault());
+    public ISlidingWindowItem<T> Last => TrimThenRunLocked(() => _items.LastOrDefault());
 
     /// <inheritdoc />
     public void RemoveAt(int index)
     {
-        _items.RemoveAt(index);
+        lock (_items)
+        {
+            _items.RemoveAt(index);
+        }
     }
 
     /// <inheritdoc />
     public T this[int index]
     {
-        get => _items[index].Value;
+        get
+        {
+            lock (_items)
+            {
+                return _items[index].Value;
+            }
+        }
 
         set
         {
-            var item = _items[index];
-            item.Value = value;
+            SlidingWindowItem<T> item;
+            lock (_items)
+            {
+                item = _items[index];
+            }
+
+            lock (item)
+            {
+                item.Value = value;
+            }
         }
     }
 }

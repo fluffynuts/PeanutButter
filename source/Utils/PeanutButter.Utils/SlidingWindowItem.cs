@@ -34,6 +34,20 @@ internal class SlidingWindowItem<T> : ISlidingWindowItem<T>
     public T Value { get; internal set; }
     public DateTime Created { get; internal set; }
 
+    public bool HasValue(T other)
+    {
+        if (Value is null && other is null)
+        {
+            return true;
+        }
+
+        if (Value is null || other is null)
+        {
+            return false;
+        }
+        return Value.Equals(other);
+    }
+
     internal SlidingWindowItem(T value)
     {
         Created = DateTime.Now;
