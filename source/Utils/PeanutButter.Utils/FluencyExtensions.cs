@@ -47,14 +47,40 @@ namespace PeanutButter.Utils
             Action<T> mutator
         )
         {
+            return WithAllInternal(subject, mutator);
+        }
+
+        /// <summary>
+        /// Apply a transform to every object in an array
+        /// </summary>
+        /// <param name="subject"></param>
+        /// <param name="mutator"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T[] WithAll<T>(
+            this T[] subject,
+            Action<T> mutator
+        )
+        {
+            return WithAllInternal(
+                subject,
+                mutator
+            );
+        }
+
+        private static TCollection WithAllInternal<TCollection, TItem>(
+            TCollection subject,
+            Action<TItem> mutator
+        ) where TCollection : IList<TItem>
+        {
             Validate.That(subject, nameof(subject)).IsNotNull()
                 .And.That(mutator, nameof(mutator)).IsNotNull();
             foreach (var t in subject)
             {
                 mutator(t);
             }
+
             return subject;
         }
     }
-
 }
