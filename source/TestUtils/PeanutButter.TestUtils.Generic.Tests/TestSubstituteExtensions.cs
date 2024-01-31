@@ -81,7 +81,6 @@ public class TestSubstituteExtensions
             .To.Equal(new[] { c1 });
     }
 
-
     public interface ICalculator
     {
         int Add(int a, int b);
