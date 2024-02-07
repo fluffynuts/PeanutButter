@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
@@ -1286,6 +1287,21 @@ public class TestHttpRequestBuilder
                 }
             }
         }
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetRemoteAddress()
+    {
+        // Arrange
+        var expected = GetRandomIPv4Address();
+        var req = HttpRequestBuilder.Create()
+            .WithRemoteAddress(expected)
+            .Build();
+        // Act
+        var result = req.HttpContext.Connection.RemoteIpAddress;
+        // Assert
+        Expect(result)
+            .To.Equal(IPAddress.Parse(expected));
     }
 
     private static HttpRequestBuilder Create()

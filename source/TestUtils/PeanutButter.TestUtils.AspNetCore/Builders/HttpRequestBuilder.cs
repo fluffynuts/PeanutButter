@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using Microsoft.AspNetCore.Http;
@@ -123,6 +124,28 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
             .WithRandomPort()
             .WithRandomHeaders()
             .WithRandomCookies();
+    }
+
+    /// <summary>
+    /// Sets the HttpContext.Connection.RemoteIpAddress value
+    /// </summary>
+    /// <param name="ipAddress"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithRemoteAddress(string ipAddress)
+    {
+        return WithRemoteAddress(IPAddress.Parse(ipAddress));
+    }
+
+    /// <summary>
+    /// Sets the HttpContext.Connection.RemoteIpAddress value
+    /// </summary>
+    /// <param name="address"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithRemoteAddress(IPAddress address)
+    {
+        return With(
+            o => o.HttpContext.Connection.RemoteIpAddress = address
+        );
     }
 
     /// <summary>

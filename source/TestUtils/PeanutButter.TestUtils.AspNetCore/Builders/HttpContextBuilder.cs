@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -543,4 +544,27 @@ via builder methods. If you're providing your own RequestServices, you'll have t
     {
         return WithResponseMutator(res => res.Headers[key] = value);
     }
+    
+    /// <summary>
+    /// Sets the HttpContext.Connection.RemoteIpAddress value
+    /// </summary>
+    /// <param name="ipAddress"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithRemoteAddress(string ipAddress)
+    {
+        return WithRemoteAddress(IPAddress.Parse(ipAddress));
+    }
+
+    /// <summary>
+    /// Sets the HttpContext.Connection.RemoteIpAddress value
+    /// </summary>
+    /// <param name="address"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithRemoteAddress(IPAddress address)
+    {
+        return With(
+            o => o.Connection.RemoteIpAddress = address
+        );
+    }
+
 }

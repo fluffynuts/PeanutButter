@@ -1048,6 +1048,21 @@ public class TestHttpContextBuilder
             }
         }
     }
+    
+    [Test]
+    public void ShouldBeAbleToSetRemoteAddress()
+    {
+        // Arrange
+        var expected = GetRandomIPv4Address();
+        var ctx = HttpContextBuilder.Create()
+            .WithRemoteAddress(expected)
+            .Build();
+        // Act
+        var result = ctx.Connection.RemoteIpAddress;
+        // Assert
+        Expect(result)
+            .To.Equal(IPAddress.Parse(expected));
+    }
 
     public class AService
     {
