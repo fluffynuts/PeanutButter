@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using NExpect;
@@ -416,15 +417,17 @@ public class TestHttpRequestBuilder
         var headers = result.Headers as IDictionary<string, StringValues>;
         Expect(headers)
             .To.Contain.Exactly(1)
-            .Matched.By(o =>
-                o.Key == "X-HeaderA" &&
-                o.Value == "foo"
+            .Matched.By(
+                o =>
+                    o.Key == "X-HeaderA" &&
+                    o.Value == "foo"
             );
         Expect(headers)
             .To.Contain.Exactly(1)
-            .Matched.By(o =>
-                o.Key == "X-HeaderB" &&
-                o.Value == "bar"
+            .Matched.By(
+                o =>
+                    o.Key == "X-HeaderB" &&
+                    o.Value == "bar"
             );
     }
 
@@ -463,15 +466,17 @@ public class TestHttpRequestBuilder
             .To.Contain.Only(2).Items();
         Expect(headers)
             .To.Contain.Exactly(1)
-            .Matched.By(o =>
-                o.Key == "X-HeaderA" &&
-                o.Value == "foo"
+            .Matched.By(
+                o =>
+                    o.Key == "X-HeaderA" &&
+                    o.Value == "foo"
             );
         Expect(headers)
             .To.Contain.Exactly(1)
-            .Matched.By(o =>
-                o.Key == "X-HeaderB" &&
-                o.Value == "bar"
+            .Matched.By(
+                o =>
+                    o.Key == "X-HeaderB" &&
+                    o.Value == "bar"
             );
     }
 
@@ -487,15 +492,17 @@ public class TestHttpRequestBuilder
         // Assert
         Expect(result.Cookies as IEnumerable<KeyValuePair<string, string>>)
             .To.Contain.Exactly(1)
-            .Matched.By(o =>
-                o.Key == "foo" &&
-                o.Value == "bar"
+            .Matched.By(
+                o =>
+                    o.Key == "foo" &&
+                    o.Value == "bar"
             )
             .And
             .To.Contain.Exactly(1)
-            .Matched.By(o =>
-                o.Key == "one" &&
-                o.Value == "1"
+            .Matched.By(
+                o =>
+                    o.Key == "one" &&
+                    o.Value == "1"
             );
     }
 
@@ -711,6 +718,7 @@ public class TestHttpRequestBuilder
             Expect(result1.Headers)
                 .Not.To.Be.Null();
         }
+
         [Test]
         public void ShouldBeAbleToGenerateRandomForm()
         {
@@ -827,7 +835,7 @@ public class TestHttpRequestBuilder
                 .WithRandomUrl()
                 .WithSelfOrigin()
                 .Build();
-            var expected = sut.FullUrl().ToString().UriRoot(); 
+            var expected = sut.FullUrl().ToString().UriRoot();
             // Act
             var result = sut.Headers["Origin"];
             // Assert
@@ -946,6 +954,197 @@ public class TestHttpRequestBuilder
         Expect(async () => await ctx.Response.CompleteAsync())
             .Not.To.Throw();
         // Assert
+    }
+
+    [TestFixture]
+    public class ContentType
+    {
+        [TestFixture]
+        public class WhenNotSupplied
+        {
+            [TestFixture]
+            public class AndHaveForm
+            {
+                [Test]
+                public void ShouldSelectFormType()
+                {
+                    // Arrange
+                    var req = HttpRequestBuilder.Create()
+                        .WithFormField("foo", "bar")
+                        .Build();
+                    // Act
+                    var result = req.ContentType;
+                    // Assert
+                    Expect(result)
+                        .To.Equal("application/x-www-form-urlencoded");
+                }
+
+                [TestFixture]
+                public class WithFile
+                {
+                    [Test]
+                    public void ShouldSelectMultiPartFormType()
+                    {
+                        // Arrange
+                        var req = HttpRequestBuilder.Create()
+                            .WithFormField("a", "b")
+                            .WithFormFile("content", "imported-data", "the-file.txt")
+                            .Build();
+                        Expect(req.Form.Files)
+                            .Not.To.Be.Empty();
+                        // Act
+                        var result = req.ContentType;
+                        // Assert
+                        Expect(result)
+                            .To.Equal("multipart/form-data");
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class AndHaveBody
+            {
+                [Test]
+                public void ShouldAssumeJson1()
+                {
+                    // Arrange
+                    var req = HttpRequestBuilder.Create()
+                        .WithBody(
+                            JsonSerializer.Serialize(
+                                new
+                                {
+                                    Id = 1,
+                                    Name = "Bob"
+                                }
+                            )
+                        )
+                        .Build();
+                    // Act
+                    var result = req.ContentType;
+                    // Assert
+                    Expect(result)
+                        .To.Equal("application/json");
+                }
+
+                [Test]
+                public void ShouldAssumeJson2()
+                {
+                    // Arrange
+                    var req = HttpRequestBuilder.Create()
+                        .WithJsonBody(
+                            new
+                            {
+                                Id = 1,
+                                Name = "Bob"
+                            }
+                        )
+                        .Build();
+                    // Act
+                    var result = req.ContentType;
+                    // Assert
+                    Expect(result)
+                        .To.Equal("application/json");
+                }
+            }
+        }
+
+        [TestFixture]
+        public class WhenSet
+        {
+            [TestFixture]
+            public class AfterSettingBody
+            {
+                [Test]
+                public void ShouldUseSetValue()
+                {
+                    // Arrange
+                    var expected = GetRandomString();
+                    var req = HttpRequestBuilder.Create()
+                        .WithBody(
+                            JsonSerializer.Serialize(
+                                new
+                                {
+                                    id = 1
+                                }
+                            )
+                        )
+                        .WithContentType(expected)
+                        .Build();
+                    // Act
+                    var result = req.ContentType;
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class BeforeSettingBody
+            {
+                [Test]
+                public void ShouldUseSetValue()
+                {
+                    // Arrange
+                    var expected = GetRandomString();
+                    var req = HttpRequestBuilder.Create()
+                        .WithContentType(expected)
+                        .WithBody(
+                            JsonSerializer.Serialize(
+                                new
+                                {
+                                    id = 1
+                                }
+                            )
+                        )
+                        .Build();
+                    // Act
+                    var result = req.ContentType;
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenSetAfterFormField
+            {
+                [Test]
+                public void ShouldReflectSetValue()
+                {
+                    // Arrange
+                    var expected = GetRandomString();
+                    var req = HttpRequestBuilder.Create()
+                        .WithFormField(GetRandomString(), GetRandomString())
+                        .WithContentType(expected)
+                        .Build();
+                    // Act
+                    var result = req.ContentType;
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+
+            [TestFixture]
+            public class WhenSetBeforeFormField
+            {
+                [Test]
+                public void ShouldReflectSetValue()
+                {
+                    // Arrange
+                    var expected = GetRandomString();
+                    var req = HttpRequestBuilder.Create()
+                        .WithContentType(expected)
+                        .WithFormField(GetRandomString(), GetRandomString())
+                        .Build();
+                    // Act
+                    var result = req.ContentType;
+                    // Assert
+                    Expect(result)
+                        .To.Equal(expected);
+                }
+            }
+        }
     }
 
     private static HttpRequestBuilder Create()

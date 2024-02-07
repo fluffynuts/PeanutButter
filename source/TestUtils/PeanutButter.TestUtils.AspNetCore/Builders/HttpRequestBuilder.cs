@@ -28,6 +28,45 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
     }
 
     /// <summary>
+    /// Unless otherwise specified, this will be used when
+    /// encoding json, eg when creating a JSON request from
+    /// an object. Under the hood, it uses System.Text.Json.JsonSerializer
+    /// with default options, which may or may not suit your workload.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static string DefaultJsonEncoder<T>(T value)
+    {
+        return System.Text.Json.JsonSerializer.Serialize(value);
+    }
+
+    /// <summary>
+    /// Allows setting the default JSON encoder for all HttpRequestBuilder
+    /// instances
+    /// </summary>
+    /// <param name="encoder"></param>
+    public static void SetDefaultJsonEncoder(Func<object, string> encoder)
+    {
+        _defaultJsonEncoder = encoder;
+    }
+
+    private static Func<object, string> _defaultJsonEncoder;
+
+    /// <summary>
+    /// Sets up a JSON encoder to use on this instance of
+    /// HttpRequestBuilder only, to be used when generating
+    /// a request body as JSON from an object
+    /// </summary>
+    /// <param name="encoder"></param>
+    public void WithJsonEncoder(Func<object, string> encoder)
+    {
+        _customJsonEncoder = encoder;
+    }
+
+    private Func<object, string> _customJsonEncoder;
+
+    /// <summary>
     /// Default constructor: creates the builder with basics set up
     /// </summary>
     internal HttpRequestBuilder(bool noContext) : base(Actualize)
@@ -191,6 +230,24 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
     public HttpRequestBuilder WithBody(string body)
     {
         return WithBody(Encoding.UTF8.GetBytes(body));
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="data"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public HttpRequestBuilder WithJsonBody<T>(T data)
+    {
+        var stringContent = EncodeJson(data);
+        return WithBody(stringContent);
+    }
+
+    private string EncodeJson<T>(T data)
+    {
+        var encoder = _customJsonEncoder ?? _defaultJsonEncoder ?? DefaultJsonEncoder;
+        return encoder(data);
     }
 
     /// <summary>
@@ -666,6 +723,22 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
         );
     }
 
+    /// <summary>
+    /// Sets the Content-Type header for the request.
+    /// Note that this shouldn't be necessary most of
+    /// the time - automatic content type detection
+    /// is provided for requests with forms or JSON bodies
+    /// </summary>
+    /// <param name="contentType"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithContentType(
+        string contentType
+    )
+    {
+        return With(
+            o => o.ContentType = contentType
+        );
+    }
 
     /// <summary>
     /// Sets the origin header to be the root of the request's uri

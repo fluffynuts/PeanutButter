@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using PeanutButter.TestUtils.AspNetCore.Utils;
+using PeanutButter.Utils;
+// ReSharper disable ConstantNullCoalescingCondition
+
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
@@ -150,7 +155,13 @@ public class FakeHttpRequest : HttpRequest, IFake
     }
 
     /// <inheritdoc />
-    public override string ContentType { get; set; } = "";
+    public override string ContentType
+    {
+        get => _enforcedContentType ?? SelectContentTypeForFormOrBody();
+        set => _enforcedContentType = value;
+    }
+
+    private string _enforcedContentType;
 
     /// <inheritdoc />
     public override Stream Body
@@ -175,6 +186,7 @@ public class FakeHttpRequest : HttpRequest, IFake
         get => _form;
         set
         {
+            // ReSharper disable once ConstantNullCoalescingCondition
             _form = value ?? new FakeFormCollection();
             UpdateBodyForForm();
         }
@@ -182,13 +194,13 @@ public class FakeHttpRequest : HttpRequest, IFake
 
     private void UpdateFormFromBody()
     {
-        _form = new FormDecoder().Decode(_body);
-        ContentType = SelectContentTypeForFormOrBody();
+        _form = ContentIsJson
+            ? new FakeFormCollection()
+            : new FormDecoder().Decode(_body);
     }
 
     private void UpdateBodyForForm()
     {
-        ContentType = SelectContentTypeForFormOrBody();
         var encoder = ContentType switch
         {
             MULTIPART_FORM => new MultiPartBodyEncoder() as IFormEncoder,
@@ -200,6 +212,7 @@ public class FakeHttpRequest : HttpRequest, IFake
 
     private const string MULTIPART_FORM = "multipart/form-data";
     private const string URLENCODED_FORM = "application/x-www-form-urlencoded";
+    private const string DEFAULT_CONTENT_TYPE = "text/plain";
 
     private string SelectContentTypeForFormOrBody()
     {
@@ -210,16 +223,36 @@ public class FakeHttpRequest : HttpRequest, IFake
 
         if (_form.Keys.Any())
         {
-            return "application/x-www-form-urlencoded";
+            return URLENCODED_FORM;
         }
 
         if ((_body?.Length ?? 0) == 0)
         {
-            return "text/plain";
+            return DEFAULT_CONTENT_TYPE;
         }
 
         // assume json (if not set), for now
-        return ContentType ?? "application/json";
+        return ContentIsJson
+            ? "application/json"
+            : DEFAULT_CONTENT_TYPE;
+    }
+
+    /// <summary>
+    /// Flag: returns true if the body can be deserialized as json
+    /// </summary>
+    public bool ContentIsJson => CanDeserializeBodyAsJson();
+
+    private bool CanDeserializeBodyAsJson()
+    {
+        try
+        {
+            JsonSerializer.Deserialize<object>(_body.AsString());
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private IFormCollection _form = new FakeFormCollection();

@@ -45,7 +45,7 @@ namespace PeanutButter.Utils
         /// </summary>
         public byte[] BinaryData
         {
-            get => Retry.Max(RetryOperations).Times(() =>File.ReadAllBytes(_tempFile));
+            get => Retry.Max(RetryOperations).Times(() => File.ReadAllBytes(_tempFile));
             set => Retry.Max(RetryOperations).Times(() => File.WriteAllBytes(_tempFile, value));
         }
 
@@ -55,7 +55,9 @@ namespace PeanutButter.Utils
         public string StringData
         {
             get => Retry.Max(RetryOperations).Times(() => Encoding.UTF8.GetString(File.ReadAllBytes(_tempFile)));
-            set => Retry.Max(RetryOperations).Times(() => File.WriteAllBytes(_tempFile, Encoding.UTF8.GetBytes(value ?? string.Empty)));
+            set => Retry.Max(RetryOperations).Times(
+                () => File.WriteAllBytes(_tempFile, Encoding.UTF8.GetBytes(value ?? string.Empty))
+            );
         }
 
         private string _tempFile;
@@ -178,7 +180,7 @@ namespace PeanutButter.Utils
         private static string GetFileNameOfNewTempFile()
         {
             var tempFileName = _Path.GetTempFileName();
-            Retry.Max(50).Times(() =>File.Delete(tempFileName));
+            Retry.Max(50).Times(() => File.Delete(tempFileName));
             return _Path.GetFileName(tempFileName);
         }
 
@@ -194,6 +196,30 @@ namespace PeanutButter.Utils
             _tempFile = _fileNameStrategies
                 .Select(strategy => strategy(baseFolder, fileName))
                 .First(path => path != null);
+        }
+
+        /// <summary>
+        /// Deletes the temp file, if found, otherwise
+        /// does nothing
+        /// </summary>
+        public void Delete()
+        {
+            if (!File.Exists(_tempFile))
+            {
+                return;
+            }
+
+            try
+            {
+                File.Delete(_tempFile);
+            }
+            catch (Exception)
+            {
+                if (File.Exists(_tempFile))
+                {
+                    throw;
+                }
+            }
         }
 
         /// <inheritdoc />
