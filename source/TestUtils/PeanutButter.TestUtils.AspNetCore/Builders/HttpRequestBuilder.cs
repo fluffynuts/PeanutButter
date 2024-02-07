@@ -465,6 +465,25 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
     }
 
     /// <summary>
+    /// Set multiple query parameters from a dictionary
+    /// </summary>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
+    public HttpRequestBuilder WithQueryParameters(
+        IDictionary<string, string> parameters
+    )
+    {
+        return With(o =>
+        {
+            var query = o.Query.As<FakeQueryCollection>();
+            foreach (var kvp in parameters)
+            {
+                query[kvp.Key] = kvp.Value;
+            }
+        });
+    }
+
+    /// <summary>
     /// 
     /// </summary>
     /// <param name="path"></param>
@@ -645,6 +664,27 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
         return With(
             o => o.Form.As<FakeFormCollection>()[key] = value
         );
+    }
+
+    /// <summary>
+    /// Sets a collection of fields on the form of the request
+    /// </summary>
+    /// <param name="fields"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public HttpRequestBuilder WithFormFields(
+        IDictionary<string, string> fields
+    )
+    {
+        var dict = fields ?? throw new ArgumentNullException(nameof(fields));
+        return With(o =>
+        {
+            var form = o.Form.As<FakeFormCollection>();
+            foreach (var kvp in dict)
+            {
+                form[kvp.Key] = kvp.Value;
+            }
+        });
     }
 
     /// <summary>

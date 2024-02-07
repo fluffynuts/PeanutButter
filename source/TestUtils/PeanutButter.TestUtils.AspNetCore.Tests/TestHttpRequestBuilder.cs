@@ -1289,6 +1289,91 @@ public class TestHttpRequestBuilder
         }
     }
 
+    [TestFixture]
+    public class SettingParametersFromCollections
+    {
+        [Test]
+        public void ShouldBeAbleToSetQueryParametersFromDictionary()
+        {
+            // Arrange
+            var key1 = GetRandomString(10);
+            var value1 = GetRandomString();
+            var key2 = GetRandomString(10);
+            var value2 = GetRandomString();
+            var dict = new Dictionary<string, string>()
+            {
+                [key1] = value1,
+                [key2] = value2
+            };
+            // Act
+            var req = HttpRequestBuilder.Create()
+                .WithQueryParameters(dict)
+                .Build();
+
+            // Assert
+            Expect(req.Query)
+                .To.Contain.Key(key1)
+                .With.Value(value1);
+            Expect(req.Query)
+                .To.Contain.Key(key2)
+                .With.Value(value2);
+        }
+
+        [Test]
+        public void ShouldBeAbleToSetFormFieldsFromDictionary()
+        {
+            // Arrange
+            var key1 = GetRandomString(10);
+            var value1 = GetRandomString();
+            var key2 = GetRandomString(10);
+            var value2 = GetRandomString();
+            var dict = new Dictionary<string, string>()
+            {
+                [key1] = value1,
+                [key2] = value2
+            };
+
+            // Act
+            var req = HttpRequestBuilder.Create()
+                .WithFormFields(dict)
+                .Build();
+            // Assert
+            Expect(req.Form)
+                .To.Contain.Key(key1)
+                .With.Value(value1);
+            Expect(req.Form)
+                .To.Contain.Key(key2)
+                .With.Value(value2);
+        }
+
+        [Test]
+        public void ShouldBeAbleToSetCookiesFromACollection()
+        {
+            // Arrange
+            var key1 = GetRandomString(10);
+            var value1 = GetRandomString();
+            var key2 = GetRandomString(10);
+            var value2 = GetRandomString();
+            var dict = new Dictionary<string, string>()
+            {
+                [key1] = value1,
+                [key2] = value2
+            };
+
+            // Act
+            var req = HttpRequestBuilder.Create()
+                .WithCookies(dict)
+                .Build();
+            // Assert
+            Expect(req.Cookies)
+                .To.Contain.Key(key1)
+                .With.Value(value1);
+            Expect(req.Cookies)
+                .To.Contain.Key(key2)
+                .With.Value(value2);
+        }
+    }
+
     [Test]
     public void ShouldBeAbleToSetRemoteAddress()
     {
