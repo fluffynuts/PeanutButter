@@ -30,8 +30,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="NExpect" Version="2.0.58" />
-    <PackageReference Include="NExpect.Matchers.NSubstitute" Version="2.0.58" />
+    <PackageReference Include="NExpect" Version="2.0.69" />
+    <PackageReference Include="NExpect.Matchers.NSubstitute" Version="2.0.69" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
     <PackageReference Include="NUnit" Version="4.0.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
