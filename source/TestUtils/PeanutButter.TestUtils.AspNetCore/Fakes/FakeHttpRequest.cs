@@ -7,9 +7,9 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using PeanutButter.TestUtils.AspNetCore.Utils;
 using PeanutButter.Utils;
+
 // ReSharper disable ConstantNullCoalescingCondition
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -35,10 +35,12 @@ public class FakeHttpRequest : HttpRequest, IFake
     public FakeHttpRequest()
     {
         _query = CreateFakeQueryCollection();
+        _headers = CreateHeaders();
     }
 
     /// <inheritdoc />
     public override HttpContext HttpContext =>
+        // ReSharper disable once AssignNullToNotNullAttribute
         _httpContext ??= _httpContextAccessor?.Invoke();
 
     private HttpContext _httpContext;
@@ -53,6 +55,7 @@ public class FakeHttpRequest : HttpRequest, IFake
     /// <inheritdoc />
     public override bool IsHttps
     {
+        // ReSharper disable once ConstantConditionalAccessQualifier
         get => Scheme?.ToLower() == "https";
         set
         {
@@ -134,14 +137,41 @@ public class FakeHttpRequest : HttpRequest, IFake
     }
 
     private IQueryCollection _query;
-    private IHeaderDictionary _headers = new FakeHeaderDictionary();
+    private IHeaderDictionary _headers;
+
+    private FakeHeaderDictionary CreateHeaders()
+    {
+        var result = new FakeHeaderDictionary();
+        result.OnChanged += OnHeadersChanged;
+        return result;
+    }
+
+    private void OnHeadersChanged(
+        object sender,
+        StringValueMapChangedEventArgs args
+    )
+    {
+        if (!args.NewValues.TryGetValue("Content-Type", out var current))
+        {
+            return;
+        }
+        
+        var autoType = SelectContentTypeForFormOrBody();
+        if (autoType == current)
+        {
+            _enforcedContentType = null;
+            return;
+        }
+
+        _enforcedContentType = current;
+    }
 
     /// <inheritdoc />
     public override string Protocol { get; set; }
 
     /// <inheritdoc />
     public override IHeaderDictionary Headers
-        => _headers ??= new FakeHeaderDictionary();
+        => EnsureContentTypeHeader(_headers ??= CreateHeaders());
 
     /// <inheritdoc />
     public override IRequestCookieCollection Cookies { get; set; }
@@ -157,8 +187,13 @@ public class FakeHttpRequest : HttpRequest, IFake
     /// <inheritdoc />
     public override string ContentType
     {
-        get => _enforcedContentType ?? SelectContentTypeForFormOrBody();
-        set => _enforcedContentType = value;
+        get => EnsureContentTypeHeaderFor(
+            _enforcedContentType ??
+            SelectContentTypeForFormOrBody()
+        );
+        set => EnsureContentTypeHeaderFor(
+            _enforcedContentType = value
+        );
     }
 
     private string _enforcedContentType;
@@ -237,6 +272,26 @@ public class FakeHttpRequest : HttpRequest, IFake
             : DEFAULT_CONTENT_TYPE;
     }
 
+    private IHeaderDictionary EnsureContentTypeHeader(IHeaderDictionary dict)
+    {
+        return EnsureContentTypeHeaderFor(
+            _enforcedContentType ?? SelectContentTypeForFormOrBody(),
+            dict
+        );
+    }
+
+    private string EnsureContentTypeHeaderFor(string contentType)
+    {
+        EnsureContentTypeHeaderFor(contentType, Headers);
+        return contentType;
+    }
+
+    private IHeaderDictionary EnsureContentTypeHeaderFor(string contentType, IHeaderDictionary dict)
+    {
+        dict["Content-Type"] = contentType;
+        return dict;
+    }
+
     /// <summary>
     /// Flag: returns true if the body can be deserialized as json
     /// </summary>
@@ -296,6 +351,13 @@ public class FakeHttpRequest : HttpRequest, IFake
     public void SetHeaders(IHeaderDictionary headers)
     {
         _headers = headers;
+        var fake = headers as FakeHeaderDictionary;
+        if (fake is null)
+        {
+            return;
+        }
+
+        fake.OnChanged += OnHeadersChanged;
     }
 
     /// <summary>

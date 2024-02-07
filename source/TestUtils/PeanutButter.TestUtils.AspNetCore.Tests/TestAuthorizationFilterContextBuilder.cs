@@ -9,6 +9,7 @@ using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static NExpect.Expectations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using PeanutButter.Utils;
 using static NExpect.AspNetCoreExpectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -32,9 +33,8 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
             Expect(result.HttpContext)
                 .To.Be.An.Instance.Of<FakeHttpContext>();
             Expect(result.HttpContext.Request.Headers)
-                .To.Be.Empty();
-            Expect(result.HttpContext.Request.Form)
-                .To.Be.Empty();
+                .To.Contain.Only(1)
+                .Equal.To(DefaultContentTypeHeader);
         }
 
         [Test]
@@ -78,7 +78,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
         public void ShouldBeAbleToSetRequestJsonBodyFromString()
         {
             // Arrange
-            var o = new Poco { Id = 1, Value = "moo" };
+            var o = new Poco
+            {
+                Id = 1,
+                Value = "moo"
+            };
             var json = JsonSerializer.Serialize(o);
             // Act
             var result = AuthorizationFilterContextBuilder
@@ -97,7 +101,11 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
         public void ShouldBeAbleToSetRequestJsonBodyFromObject()
         {
             // Arrange
-            var o = new Poco { Id = 1, Value = "moo" };
+            var o = new Poco
+            {
+                Id = 1,
+                Value = "moo"
+            };
             // Act
             var result = AuthorizationFilterContextBuilder
                 .ForController<MyController>()
@@ -166,9 +174,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
             Expect(result.HttpContext.Request.FullUrl())
                 .To.Equal(new Uri(expected));
         }
-        
-        
-        
+
 
         public class Poco
         {
@@ -182,5 +188,8 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
             {
             }
         }
+
+        private static readonly KeyValuePair<string, StringValues> DefaultContentTypeHeader =
+            new("Content-Type", "text/plain");
     }
 }

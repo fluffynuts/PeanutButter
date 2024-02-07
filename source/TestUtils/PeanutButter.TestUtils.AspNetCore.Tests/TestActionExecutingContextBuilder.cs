@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
+using Microsoft.Extensions.Primitives;
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
@@ -28,7 +31,10 @@ public class TestActionExecutingContextBuilder
             Expect(result.HttpContext.Request)
                 .Not.To.Be.Null();
             Expect(result.HttpContext.Request.Headers)
-                .To.Be.Empty();
+                .To.Contain.Only(1)
+                .Equal.To(
+                    DefaultContentTypeHeader
+                );
         }
 
         [Test]
@@ -86,13 +92,16 @@ public class TestActionExecutingContextBuilder
         // Assert
         var headers = result.HttpContext.Request.Headers;
         Expect(headers)
-            .To.Contain.Only(2).Items();
+            .To.Contain.Only(3).Items();
         Expect(headers)
             .To.Contain.Key(header1)
             .With.Value(value1);
         Expect(headers)
             .To.Contain.Key(header2)
             .With.Value(value2);
+        Expect(headers)
+            .To.Contain.Key("Content-Type")
+            .With.Value("text/plain");
     }
 
     [Test]
@@ -174,4 +183,7 @@ public class TestActionExecutingContextBuilder
     public class SomeMeta : IFilterMetadata
     {
     }
+
+    private static readonly KeyValuePair<string, StringValues> DefaultContentTypeHeader =
+        new("Content-Type", "text/plain");
 }
