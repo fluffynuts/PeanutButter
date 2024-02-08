@@ -6,8 +6,14 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedType.Global
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+
+/// <summary>
+/// Alias to FormBuilder, to keep naming in line with QueryCollectionBuilder
+/// </summary>
+public class FormCollectionBuilder : FormBuilder;
 
 /// <summary>
 /// Builds a form for an asp.net request

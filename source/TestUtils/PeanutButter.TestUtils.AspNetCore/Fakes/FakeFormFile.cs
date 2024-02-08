@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using PeanutButter.Utils;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ConstantNullCoalescingCondition
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 
@@ -109,6 +110,7 @@ public class FakeFormFile : IFormFile, IFake
         Name = name;
         FileName = fileName ?? name;
         ContentType = mimeType ?? MIMEType.GuessForFileName(FileName);
+        ContentDisposition = $"attachment; filename=${FileName}";
     }
 
 
@@ -150,7 +152,7 @@ public class FakeFormFile : IFormFile, IFake
         CancellationToken cancellationToken = new()
     )
     {
-        return _content.CopyToAsync(target);
+        return _content.CopyToAsync(target, cancellationToken);
     }
 
     /// <inheritdoc />

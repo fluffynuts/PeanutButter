@@ -1,25 +1,26 @@
 ﻿using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable UnusedType.Global
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 
 /// <summary>
+/// Alias to QueryCollectionBuilder
+/// </summary>
+public class QueryBuilder : QueryCollectionBuilder;
+
+/// <summary>
 /// Builds query collections
 /// </summary>
-public class QueryCollectionBuilder : RandomizableBuilder<QueryCollectionBuilder, IQueryCollection>
+public class QueryCollectionBuilder
+    : StringMapDerivativeBuilder<QueryCollectionBuilder, IQueryCollection, FakeQueryCollection>
 {
-    /// <inheritdoc />
-    protected override IQueryCollection ConstructEntity()
-    {
-        return new FakeQueryCollection();
-    }
-
     /// <inheritdoc />
     public override QueryCollectionBuilder Randomize()
     {
-        return WithRandomParameters();
+        return WithRandomItems();
     }
 
     /// <summary>
@@ -28,18 +29,7 @@ public class QueryCollectionBuilder : RandomizableBuilder<QueryCollectionBuilder
     /// <returns></returns>
     public QueryCollectionBuilder WithRandomParameters()
     {
-        return With(
-            o =>
-            {
-                var target = o.As<FakeQueryCollection>();
-
-                var howMany = GetRandomInt(2);
-                for (var i = 0; i < howMany; i++)
-                {
-                    target[GetRandomString(5)] = GetRandomString();
-                }
-            }
-        );
+        return WithRandomItems();
     }
 
     /// <summary>
@@ -58,9 +48,6 @@ public class QueryCollectionBuilder : RandomizableBuilder<QueryCollectionBuilder
         T value
     )
     {
-        return With(o =>
-        {
-            o.As<FakeQueryCollection>()[key] = $"{value}";
-        });
+        return SetItem(key, value);
     }
 }

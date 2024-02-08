@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
 using PeanutButter.Utils.Dictionaries;
-
 // ReSharper disable PublicConstructorInAbstractClass
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
@@ -12,7 +11,7 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 /// Provides a string-to-stringvalue map
 /// </summary>
 public abstract class StringValueMap
-    : IEnumerable
+    : IEnumerable, ICanBeIndexedBy<string>
 {
     /// <summary>
     /// delegate raised when this collection changes

@@ -16,7 +16,7 @@ public class TestQueryCollectionBuilder
             // Arrange
             // Act
             var result = QueryCollectionBuilder.BuildDefault();
-            
+
             // Assert
             Expect(result)
                 .Not.To.Be.Null();
@@ -53,7 +53,7 @@ public class TestQueryCollectionBuilder
             var k2 = GetRandomString();
             var v1 = GetRandomString();
             var v2 = GetRandomInt();
-            
+
             // Act
             var result = QueryCollectionBuilder.Create()
                 .WithParameter(k1, v1)
