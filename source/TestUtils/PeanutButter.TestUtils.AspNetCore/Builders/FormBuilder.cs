@@ -50,13 +50,13 @@ public class FormBuilder : RandomizableBuilder<FormBuilder, IFormCollection>
     /// <param name="name"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public FormBuilder WithField(
+    public FormBuilder WithField<T>(
         string name,
-        string value
+        T value
     )
     {
         return With<FakeFormCollection>(
-            o => o.FormValues[name] = value
+            o => o.FormValues[name] = value as string ?? $"{value}"
         );
     }
 

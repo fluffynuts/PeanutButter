@@ -52,7 +52,7 @@ public abstract class StringMapDerivativeBuilder<TBuilder, TInterface, TConcrete
         return With(
             o =>
             {
-                o.As<TConcrete>()[key] = $"{value}";
+                o.As<TConcrete>()[key] = value as string ?? $"{value}";
             }
         );
     }

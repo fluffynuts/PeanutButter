@@ -1,13 +1,9 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using NExpect;
-using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
-using static NExpect.Expectations;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
@@ -38,11 +34,11 @@ public class TestFormBuilder
         var field1 = GetRandomString(10);
         var value1 = GetRandomString();
         var field2 = GetRandomString(10);
-        var value2 = GetRandomString();
+        var value2 = GetRandomInt();
         var expected = new Dictionary<string, StringValues>()
         {
             [field1] = value1,
-            [field2] = value2
+            [field2] = $"{value2}"
         };
         // Act
         var result = FormBuilder.Create()

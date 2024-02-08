@@ -4,14 +4,9 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using NExpect;
-using NUnit.Framework;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
-using static NExpect.Expectations;
-using static NExpect.AspNetCoreExpectations;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 

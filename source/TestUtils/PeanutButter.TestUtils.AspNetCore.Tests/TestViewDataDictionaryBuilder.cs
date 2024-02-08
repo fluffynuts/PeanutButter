@@ -1,7 +1,4 @@
-﻿using NUnit.Framework;
-using NExpect;
-using PeanutButter.TestUtils.AspNetCore.Builders;
-using static NExpect.Expectations;
+﻿using PeanutButter.TestUtils.AspNetCore.Builders;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests
 {

@@ -3,12 +3,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Primitives;
-using NExpect;
-using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.AspNetCore.Builders;
-using static NExpect.AspNetCoreExpectations;
-using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 

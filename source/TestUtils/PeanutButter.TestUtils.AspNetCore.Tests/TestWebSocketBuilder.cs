@@ -2,12 +2,8 @@ using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.Utils;
-using static NExpect.Expectations;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
