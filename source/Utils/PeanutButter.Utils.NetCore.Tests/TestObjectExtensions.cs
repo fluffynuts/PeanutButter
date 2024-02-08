@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 using PeanutButter.DuckTyping.Extensions;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable ConvertConstructorToMemberInitializers
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
@@ -3819,6 +3818,39 @@ public class TestObjectExtensions
                 .To.Equal(obj.Name);
             Expect(result["DateOfBirth"])
                 .To.Equal(obj.DateOfBirth);
+        }
+
+        [Test]
+        public void OverloadShouldUseProvidedFuncsToBuildDictionary()
+        {
+            // Arrange
+            var source = new List<string[]>()
+            {
+                new[]
+                {
+                    "a",
+                    "b"
+                },
+                new[]
+                {
+                    "c",
+                    "d"
+                }
+            };
+            // Act
+            var result = source.AsDictionary(
+                d => d.Select(a => a[0]),
+                (d, k) => d.FirstOrDefault(a => a[0] == k)[1]
+            );
+            // Assert
+            Expect(result)
+                .To.Contain.Only(2).Items();
+            Expect(result)
+                .To.Contain.Key("a")
+                .With.Value("b");
+            Expect(result)
+                .To.Contain.Key("c")
+                .With.Value("d");
         }
     }
 }

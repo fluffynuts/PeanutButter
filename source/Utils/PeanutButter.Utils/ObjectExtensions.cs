@@ -1070,6 +1070,7 @@ namespace PeanutButter.Utils
                         .ImplicitCast<PropertyOrField>()
                 );
             }
+
             return fields.ToArray();
         }
 
@@ -1754,7 +1755,7 @@ namespace PeanutButter.Utils
                 _ => TryMakeDictionaryOutOf<TKey, TValue>(obj)
             };
         }
-        
+
         private static IDictionary<TKey, TValue> TryMakeDictionaryOutOf<TKey, TValue>(
             object obj
         )
@@ -1777,6 +1778,28 @@ namespace PeanutButter.Utils
             throw new NotSupportedException(
                 "Arbitrary objects may only be represented by Dictionary<string, object>"
             );
+        }
+
+        /// <summary>
+        /// Produces a string-string dictionary from any value,
+        /// given that value and two funcs:
+        /// - one to retrieve all keys on the object
+        /// - one to resolve a key to a value for the object
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="keyFetcher"></param>
+        /// <param name="valueFetcher"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IDictionary<string, string> AsDictionary<T>(
+            this T value,
+            Func<T, IEnumerable<string>> keyFetcher,
+            Func<T, string, string> valueFetcher
+        )
+        {
+            return keyFetcher(value).Select(
+                k => new KeyValuePair<string, string>(k, valueFetcher(value, k))
+            ).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
     }
 }
