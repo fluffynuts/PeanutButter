@@ -530,7 +530,49 @@ via builder methods. If you're providing your own RequestServices, you'll have t
     /// <returns></returns>
     public HttpContextBuilder WithRequestCookie(string key, string value)
     {
-        return WithRequestMutator(req => req.Cookies.As<FakeRequestCookieCollection>()[key] = value);
+        return WithRequestMutator(
+            req => req.Cookies.As<FakeRequestCookieCollection>()[key] = value
+        );
+    }
+
+    /// <summary>
+    /// Sets the path on the request
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithRequestPath(
+        string path
+    )
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            throw new ArgumentException("Path may not be blank", nameof(path));
+        }
+
+        // rather than erroring if someone forgets the leading
+        // slash, just add it - the intent should be "this is the
+        // path"
+        var finalPath = path.StartsWith("/")
+            ? path
+            : $"/{path}";
+        return WithRequestMutator(
+            req => req.Path = finalPath
+        );
+    }
+
+    /// <summary>
+    /// Sets the ContentType (and related Content-Type header)
+    /// on the request
+    /// </summary>
+    /// <param name="contentType"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithRequestContentType(
+        string contentType
+    )
+    {
+        return WithRequestMutator(
+            req => req.ContentType = contentType
+        );
     }
 
     /// <summary>
@@ -544,7 +586,7 @@ via builder methods. If you're providing your own RequestServices, you'll have t
     {
         return WithResponseMutator(res => res.Headers[key] = value);
     }
-    
+
     /// <summary>
     /// Sets the HttpContext.Connection.RemoteIpAddress value
     /// </summary>
@@ -566,5 +608,4 @@ via builder methods. If you're providing your own RequestServices, you'll have t
             o => o.Connection.RemoteIpAddress = address
         );
     }
-
 }

@@ -14,7 +14,7 @@
     <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="nexpect" Version="2.0.69" />
+    <PackageReference Include="nexpect" Version="2.0.70" />
     <PackageReference Include="nunit" Version="4.0.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Quackers.TestLogger" Version="1.0.24" />

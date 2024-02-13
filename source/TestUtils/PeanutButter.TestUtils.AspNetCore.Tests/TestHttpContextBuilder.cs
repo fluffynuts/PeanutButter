@@ -550,6 +550,57 @@ public class TestHttpContextBuilder
     }
 
     [TestFixture]
+    public class DirectRequestManipulation
+    {
+        [Test]
+        public void ShouldBeAbleToSetPathDirectly()
+        {
+            // Arrange
+            var expected = GetRandomAbsolutePath();
+            var ctx = HttpContextBuilder.Create()
+                .WithRequestPath(expected)
+                .Build();
+            // Act
+            var result = ctx.Request.Path;
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
+
+        [Test]
+        public void ShouldBeAbleToSetContentTypeDirectly()
+        {
+            // Arrange
+            var expected = GetRandomString();
+            var ctx = HttpContextBuilder.Create()
+                .WithRequestContentType(expected)
+                .Build();
+            // Act
+            var result = ctx.Request.ContentType;
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+            Expect(ctx.Request.Headers["Content-Type"])
+                .To.Equal(expected);
+        }
+
+        [Test]
+        public void ShouldBeAbleToSetContentTypeIndirectlyViaHeader()
+        {
+            // Arrange
+            var expected = GetRandomString();
+            var ctx = HttpContextBuilder.Create()
+                .WithRequestHeader("Content-Type", expected)
+                .Build();
+            // Act
+            var result = ctx.Request.ContentType;
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
+    }
+
+    [TestFixture]
     public class CustomisingAvailableServices
     {
         [Test]
