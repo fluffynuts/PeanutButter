@@ -837,7 +837,13 @@ namespace PeanutButter.Utils
             foreach (var item in collection)
             {
                 var op = ResolveImplicitOperator(item.GetType());
-                yield return (TOther) op.Invoke(null, new[] { item });
+                yield return (TOther)op.Invoke(
+                    null,
+                    new[]
+                    {
+                        item
+                    }
+                );
             }
 
             MethodInfo ResolveImplicitOperator(Type inputType)
@@ -1793,24 +1799,6 @@ namespace PeanutButter.Utils
             return needle.IsIn(haystack, new BasicEqualityComparer<T>());
         }
 
-        /// <summary>
-        /// tests if the needle is in the haystack, using the provided
-        /// equality comparer
-        /// </summary>
-        /// <param name="needle"></param>
-        /// <param name="haystack"></param>
-        /// <param name="equalityComparer"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static bool IsIn<T>(
-            this T needle,
-            IEnumerable<T> haystack,
-            IEqualityComparer<T> equalityComparer
-        )
-        {
-            return haystack.Contains(needle, equalityComparer);
-        }
-
         private class BasicEqualityComparer<T> : IEqualityComparer<T>
         {
             public bool Equals(T x, T y)
@@ -1832,6 +1820,227 @@ namespace PeanutButter.Utils
             {
                 return obj?.GetHashCode() ?? 0;
             }
+        }
+
+        /// <summary>
+        /// tests if the needle is in the haystack, using the provided
+        /// equality comparer
+        /// </summary>
+        /// <param name="needle"></param>
+        /// <param name="haystack"></param>
+        /// <param name="equalityComparer"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool IsIn<T>(
+            this T needle,
+            IEnumerable<T> haystack,
+            IEqualityComparer<T> equalityComparer
+        )
+        {
+            return haystack.Contains(needle, equalityComparer);
+        }
+
+        /// <summary>
+        /// Find the first item of the specified type in the collection
+        /// </summary>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T Find<T>(
+            this IEnumerable data
+        )
+        {
+            return data.Find<T>(0);
+        }
+
+        /// <summary>
+        /// Find the first item of the specified type in the
+        /// collection, skipping the first N elements of that type
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="skip"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T Find<T>(
+            this IEnumerable data,
+            int skip
+        )
+        {
+            return data.Find<T>(skip, _ => true);
+        }
+
+        /// <summary>
+        /// Find the first element of the specified type, which
+        /// matches the predicate, after skipping the provided number
+        /// of matches. This would allow you to find subsequent matches, eg:
+        /// var result1 = collection.Find&lt;MyType&gt;>();
+        /// var result2 = collection.Find&lt;MyType&gt;>(1); // etc
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="skip"></param>
+        /// <param name="predicate"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="ElementNotFoundException"></exception>
+        public static T Find<T>(
+            this IEnumerable data,
+            int skip,
+            Func<T, bool> predicate
+        )
+        {
+            return data.FindOrDefault<T>(
+                skip,
+                predicate
+            ) ?? throw new ElementNotFoundException(data, skip, typeof(T), predicate);
+        }
+
+        /// <summary>
+        /// Finds the first element of the specified
+        /// type, matching the provided predicate,
+        /// or throws an exception
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="predicate"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T Find<T>(
+            this IEnumerable data,
+            Func<T, bool> predicate
+        )
+        {
+            return data.Find(0, predicate);
+        }
+
+        /// <summary>
+        /// Finds the first item of the specified type
+        /// or returns the default value for T
+        /// </summary>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T FindOrDefault<T>(
+            this IEnumerable data
+        )
+        {
+            return data.FindOrDefault<T>(0);
+        }
+
+        /// <summary>
+        /// Finds the first item of the specified type
+        /// or returns the default value for T, after
+        /// skipping N matches.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="skip"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T FindOrDefault<T>(
+            this IEnumerable data,
+            int skip
+        )
+        {
+            return data.FindOrDefault<T>(
+                skip,
+                _ => true
+            );
+        }
+
+        /// <summary>
+        /// Finds the first matching item of the specified type
+        /// or returns the default value for T, after
+        /// skipping N matches.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="predicate"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T FindOrDefault<T>(
+            this IEnumerable data,
+            Func<T, bool> predicate
+        )
+        {
+            return data.FindOrDefault<T>(
+                0,
+                predicate
+            );
+        }
+
+        /// <summary>
+        /// Finds the first match of the specified type
+        /// or returns the default value for T, after
+        /// skipping N matches.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="skip"></param>
+        /// <param name="predicate"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T FindOrDefault<T>(
+            this IEnumerable data,
+            int skip,
+            Func<T, bool> predicate
+        )
+        {
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            if (skip < 0)
+            {
+                throw new ArgumentException(
+                    "skip must be greater than or equal to zero",
+                    nameof(skip)
+                );
+            }
+
+            predicate ??= _ => true;
+
+            var seen = 0;
+            foreach (var item in data)
+            {
+                if (item is not T typed)
+                {
+                    continue;
+                }
+
+                if (!predicate(typed))
+                {
+                    continue;
+                }
+
+                if (seen++ < skip)
+                {
+                    continue;
+                }
+
+                return typed;
+            }
+
+            return default;
+        }
+    }
+
+    /// <summary>
+    /// thrown when a Find&lt;T&gt;() call finds no elements
+    /// - if you don't want this, use FindOrDefault&lt;T&gt;
+    /// </summary>
+    public class ElementNotFoundException : Exception
+    {
+        /// <summary>
+        /// Constructs the exception
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="skip"></param>
+        /// <param name="seeking"></param>
+        /// <param name="predicate"></param>
+        public ElementNotFoundException(
+            IEnumerable source,
+            int skip,
+            Type seeking,
+            object predicate
+        ) : base($"Element not found in collection (type: {seeking}, offset: {skip}")
+        {
         }
     }
 }
