@@ -1846,11 +1846,11 @@ namespace PeanutButter.Utils
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T Find<T>(
+        public static T Seek<T>(
             this IEnumerable data
         )
         {
-            return data.Find<T>(0);
+            return data.Seek<T>(0);
         }
 
         /// <summary>
@@ -1861,12 +1861,12 @@ namespace PeanutButter.Utils
         /// <param name="skip"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T Find<T>(
+        public static T Seek<T>(
             this IEnumerable data,
             int skip
         )
         {
-            return data.Find<T>(skip, _ => true);
+            return data.Seek<T>(skip, _ => true);
         }
 
         /// <summary>
@@ -1882,13 +1882,13 @@ namespace PeanutButter.Utils
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         /// <exception cref="ElementNotFoundException"></exception>
-        public static T Find<T>(
+        public static T Seek<T>(
             this IEnumerable data,
             int skip,
             Func<T, bool> predicate
         )
         {
-            return data.FindOrDefault<T>(
+            return data.SeekOrDefault<T>(
                 skip,
                 predicate
             ) ?? throw new ElementNotFoundException(data, skip, typeof(T), predicate);
@@ -1903,12 +1903,12 @@ namespace PeanutButter.Utils
         /// <param name="predicate"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T Find<T>(
+        public static T Seek<T>(
             this IEnumerable data,
             Func<T, bool> predicate
         )
         {
-            return data.Find(0, predicate);
+            return data.Seek(0, predicate);
         }
 
         /// <summary>
@@ -1918,11 +1918,11 @@ namespace PeanutButter.Utils
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T FindOrDefault<T>(
+        public static T SeekOrDefault<T>(
             this IEnumerable data
         )
         {
-            return data.FindOrDefault<T>(0);
+            return data.SeekOrDefault<T>(0);
         }
 
         /// <summary>
@@ -1934,12 +1934,12 @@ namespace PeanutButter.Utils
         /// <param name="skip"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T FindOrDefault<T>(
+        public static T SeekOrDefault<T>(
             this IEnumerable data,
             int skip
         )
         {
-            return data.FindOrDefault<T>(
+            return data.SeekOrDefault<T>(
                 skip,
                 _ => true
             );
@@ -1954,12 +1954,12 @@ namespace PeanutButter.Utils
         /// <param name="predicate"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T FindOrDefault<T>(
+        public static T SeekOrDefault<T>(
             this IEnumerable data,
             Func<T, bool> predicate
         )
         {
-            return data.FindOrDefault<T>(
+            return data.SeekOrDefault<T>(
                 0,
                 predicate
             );
@@ -1975,7 +1975,7 @@ namespace PeanutButter.Utils
         /// <param name="predicate"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T FindOrDefault<T>(
+        public static T SeekOrDefault<T>(
             this IEnumerable data,
             int skip,
             Func<T, bool> predicate

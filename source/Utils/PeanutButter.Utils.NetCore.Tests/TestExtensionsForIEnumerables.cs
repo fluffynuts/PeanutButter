@@ -3814,7 +3814,7 @@ public class TestExtensionsForIEnumerables
     }
 
     [TestFixture]
-    public class Find
+    public class Seek
     {
         [Test]
         public void ShouldFindTheFirstItemOfThatType()
@@ -3829,9 +3829,9 @@ public class TestExtensionsForIEnumerables
                 false
             );
             // Act
-            var result1 = items.Find<bool>();
-            var result2 = items.Find<string>();
-            var result3 = items.Find<int>();
+            var result1 = items.Seek<bool>();
+            var result2 = items.Seek<string>();
+            var result3 = items.Seek<int>();
             // Assert
             Expect(result1)
                 .To.Be.True();
@@ -3854,9 +3854,9 @@ public class TestExtensionsForIEnumerables
                 false
             );
             // Act
-            var result1 = items.Find<bool>(1);
-            var result2 = items.Find<string>(1);
-            var result3 = items.Find<int>(1);
+            var result1 = items.Seek<bool>(1);
+            var result2 = items.Seek<string>(1);
+            var result3 = items.Seek<int>(1);
             // Assert
             Expect(result1)
                 .To.Be.False();
@@ -3874,7 +3874,7 @@ public class TestExtensionsForIEnumerables
             var skip = 2;
             var expected = "aaa3";
             // Act
-            var result = items.Find<string>(
+            var result = items.Seek<string>(
                 skip,
                 s => s.StartsWith("aaa")
             );
@@ -3896,7 +3896,7 @@ public class TestExtensionsForIEnumerables
                 "three"
             );
             // Act
-            var result = items.Find<string>(s => s.Contains("ee"));
+            var result = items.Seek<string>(s => s.Contains("ee"));
             // Assert
             Expect(result)
                 .To.Equal("three");
@@ -3908,7 +3908,7 @@ public class TestExtensionsForIEnumerables
             // Arrange
             var items = ObjectArray(1, true, 2, DateTime.Now);
             // Act
-            Expect(() => items.Find<string>())
+            Expect(() => items.Seek<string>())
                 .To.Throw<ElementNotFoundException>();
             // Assert
         }
@@ -3922,7 +3922,7 @@ public class TestExtensionsForIEnumerables
                 // Arrange
                 var items = ObjectArray(1, true, 2, DateTime.Now);
                 // Act
-                var result = items.FindOrDefault<string>();
+                var result = items.SeekOrDefault<string>();
                 // Assert
                 Expect(result)
                     .To.Be.Null();
@@ -3934,7 +3934,7 @@ public class TestExtensionsForIEnumerables
                 // Arrange
                 var items = ObjectArray("1", true, "2", DateTime.Now);
                 // Act
-                var result = items.FindOrDefault<int>();
+                var result = items.SeekOrDefault<int>();
                 // Assert
                 Expect(result)
                     .To.Equal(0);
