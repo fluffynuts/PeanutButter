@@ -412,7 +412,12 @@ public
 /// Thrown when the caller expects to eject a message from
 /// a non-empty collection but no match was found
 /// </summary>
-public class NotFoundException : Exception
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+public
+#endif
+    class NotFoundException : Exception
 {
     /// <summary>
     /// 
