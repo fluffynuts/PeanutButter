@@ -5,6 +5,7 @@
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
+
 namespace PeanutButter.Utils.Tests;
 
 [TestFixture]
@@ -3938,6 +3939,40 @@ public class TestExtensionsForIEnumerables
                 // Assert
                 Expect(result)
                     .To.Equal(0);
+            }
+        }
+
+        [TestFixture]
+        public class AddRange
+        {
+            [Test]
+            public void ShouldBeAbleToAddRangeOnHashSet()
+            {
+                // Arrange
+                var hashset = GetRandomArray(() => GetRandomString(20, 30), 5)
+                    .AsHashSet();
+                var toAdd = GetRandomArray(() => GetRandomString(20, 30), 5);
+
+                // Act
+                hashset.AddRange(toAdd);
+                // Assert
+                Expect(hashset)
+                    .To.Contain.All.Of(toAdd);
+            }
+
+            [Test]
+            public void ShouldBeAbleToAddRangeOnHashSetWithParams()
+            {
+                // Arrange
+                var hashset = GetRandomArray(() => GetRandomString(20, 30), 5)
+                    .AsHashSet();
+                var toAdd = GetRandomArray(() => GetRandomString(20, 30), 3, 3);
+
+                // Act
+                hashset.AddRange(toAdd[0], toAdd[1], toAdd[2]);
+                // Assert
+                Expect(hashset)
+                    .To.Contain.All.Of(toAdd);
             }
         }
 

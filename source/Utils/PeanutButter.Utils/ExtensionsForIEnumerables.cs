@@ -1841,6 +1841,53 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Augments collections which don't have an AddRange method
+        /// with one that does the trick.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="toAdd"></param>
+        /// <typeparam name="TCollection"></typeparam>
+        /// <typeparam name="TItem"></typeparam>
+        /// <returns></returns>
+        public static TCollection AddRange<TCollection, TItem>(
+            this TCollection collection,
+            IEnumerable<TItem> toAdd
+        ) where TCollection: ICollection<TItem>
+        {
+            AddAllItems(collection, toAdd);
+            return collection;
+        }
+
+        /// <summary>
+        /// Augments collections with an AddRange(...) that
+        /// takes params items
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="items"></param>
+        /// <typeparam name="TCollection"></typeparam>
+        /// <typeparam name="TItem"></typeparam>
+        /// <returns></returns>
+        public static TCollection AddRange<TCollection, TItem>(
+            this TCollection collection,
+            params TItem[] items
+        ) where TCollection : ICollection<TItem>
+        {
+            AddAllItems(collection, items);
+            return collection;
+        }
+
+        private static void AddAllItems<TCollection, TItem>(
+            TCollection collection,
+            IEnumerable<TItem> items
+        ) where TCollection: ICollection<TItem>
+        {
+            foreach (var item in items)
+            {
+                collection.Add(item);
+            }
+        }
+
+        /// <summary>
         /// Find the first item of the specified type in the collection
         /// </summary>
         /// <param name="data"></param>
