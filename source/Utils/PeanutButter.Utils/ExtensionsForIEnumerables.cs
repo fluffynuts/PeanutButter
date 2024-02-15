@@ -2025,7 +2025,12 @@ namespace PeanutButter.Utils
     /// thrown when a Find&lt;T&gt;() call finds no elements
     /// - if you don't want this, use FindOrDefault&lt;T&gt;
     /// </summary>
-    public class ElementNotFoundException : Exception
+#if BUILD_PEANUTBUTTER_INTERNAL
+    internal
+#else
+    public
+#endif
+    class ElementNotFoundException : Exception
     {
         /// <summary>
         /// Constructs the exception
