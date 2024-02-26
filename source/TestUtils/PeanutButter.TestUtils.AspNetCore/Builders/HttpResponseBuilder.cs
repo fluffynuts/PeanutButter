@@ -241,4 +241,31 @@ public class HttpResponseBuilder : RandomizableBuilder<HttpResponseBuilder, Http
     {
         return With(o => o.Body.Write(body));
     }
+
+    /// <summary>
+    /// Adds a cookie to the response, with default cookie options
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public HttpResponseBuilder WithCookie(string key, string value)
+    {
+        return WithCookie(key, value, new CookieOptions());
+    }
+
+    /// <summary>
+    /// Adds a cookie to the response with the provided cookie options
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public HttpResponseBuilder WithCookie(
+        string key,
+        string value,
+        CookieOptions options
+    )
+    {
+        return With(o => o.Cookies.Append(key, value, options));
+    }
 }

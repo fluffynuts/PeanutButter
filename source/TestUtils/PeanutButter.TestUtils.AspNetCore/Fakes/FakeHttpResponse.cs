@@ -36,8 +36,8 @@ public class FakeHttpResponse : HttpResponse, IFake
     /// <inheritdoc />
     public override void Redirect(string location, bool permanent)
     {
-        StatusCode = permanent 
-            ? (int)HttpStatusCode.PermanentRedirect 
+        StatusCode = permanent
+            ? (int)HttpStatusCode.PermanentRedirect
             : (int)HttpStatusCode.Redirect;
         Headers.Location = location;
         _onRedirect.ForEach(func => func?.Invoke(location, permanent));
@@ -69,7 +69,7 @@ public class FakeHttpResponse : HttpResponse, IFake
             {
                 return;
             }
-            
+
             _body = value;
             _pipeWriter = new FakeResponsePipeWriter(this);
         }
@@ -113,7 +113,6 @@ public class FakeHttpResponse : HttpResponse, IFake
     {
         _httpContext = null;
         _httpContextAccessor = accessor;
-        _cookies = FakeResponseCookies.CreateSubstitutedIfPossible(this);
     }
 
     /// <summary>
@@ -132,6 +131,17 @@ public class FakeHttpResponse : HttpResponse, IFake
     public void SetCookies(IResponseCookies cookies)
     {
         _cookies = cookies;
+        if (cookies is not FakeResponseCookies fake)
+        {
+            return;
+        }
+
+        if (ReferenceEquals(fake.HttpResponse, this))
+        {
+            return;
+        }
+
+        fake.HttpResponse = this;
     }
 
     private readonly List<Action<Func<object, Task>, object>> _onStarting = new();

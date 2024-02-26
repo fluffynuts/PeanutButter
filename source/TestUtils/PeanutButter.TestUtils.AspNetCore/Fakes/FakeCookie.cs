@@ -27,6 +27,19 @@ public class FakeCookie : IFake
     public CookieOptions Options { get; }
 
     /// <summary>
+    /// Constructs a fake response cookie with the
+    /// default options
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="value"></param>
+    public FakeCookie(
+        string name,
+        string value
+    ) : this(name, value, new CookieOptions())
+    {
+    }
+
+    /// <summary>
     /// Constructs the cookie container
     /// </summary>
     /// <param name="name"></param>

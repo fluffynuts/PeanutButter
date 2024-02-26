@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -125,12 +126,14 @@ public class TestHttpResponseBuilder
         var inputState = new object();
         // Act
         var result = HttpResponseBuilder.Create()
-            .WithOnStartingHandler((func, state) =>
-            {
-                capturedFunc = func;
-                capturedState = state;
-                called = true;
-            })
+            .WithOnStartingHandler(
+                (func, state) =>
+                {
+                    capturedFunc = func;
+                    capturedState = state;
+                    called = true;
+                }
+            )
             .Build();
         // Assert
         result.OnStarting(inputFunc, inputState);
@@ -153,12 +156,14 @@ public class TestHttpResponseBuilder
         var inputState = new object();
         // Act
         var result = HttpResponseBuilder.Create()
-            .WithOnCompletedHandler((func, state) =>
-            {
-                capturedFunc = func;
-                capturedState = state;
-                called = true;
-            })
+            .WithOnCompletedHandler(
+                (func, state) =>
+                {
+                    capturedFunc = func;
+                    capturedState = state;
+                    called = true;
+                }
+            )
             .Build();
         // Assert
         result.OnCompleted(inputFunc, inputState);
@@ -181,12 +186,14 @@ public class TestHttpResponseBuilder
         var called = false;
         // Act
         var result = HttpResponseBuilder.Create()
-            .WithRedirectHandler((location, permanent) =>
-            {
-                capturedLocation = location;
-                capturedPermanent = permanent;
-                called = true;
-            }).Build();
+            .WithRedirectHandler(
+                (location, permanent) =>
+                {
+                    capturedLocation = location;
+                    capturedPermanent = permanent;
+                    called = true;
+                }
+            ).Build();
         // Assert
         result.Redirect(expectedLocation, expectedPermanent);
         Expect(called)
@@ -236,14 +243,14 @@ public class TestHttpResponseBuilder
             .Build();
         // Assert
         Expect(result.StatusCode)
-            .To.Equal((int) expected);
+            .To.Equal((int)expected);
     }
 
     [Test]
     public void ShouldBeAbleToSetStatusCodeFromInt()
     {
         // Arrange
-        var expected = (int) GetRandom<HttpStatusCode>();
+        var expected = (int)GetRandom<HttpStatusCode>();
         // Act
         var result = HttpResponseBuilder.Create()
             .WithStatusCode(expected)
@@ -369,13 +376,76 @@ public class TestHttpResponseBuilder
 
         // Act
         await sut.Body.WriteAsync(GetRandomBytes());
-        sut.StatusCode = (int) HttpStatusCode.Found;
+        sut.StatusCode = (int)HttpStatusCode.Found;
         sut.Clear();
         // Assert
         Expect(sut.StatusCode)
-            .To.Equal((int) HttpStatusCode.OK);
+            .To.Equal((int)HttpStatusCode.OK);
         Expect(await sut.Body.ReadAllBytesAsync())
             .To.Be.Empty();
+    }
+
+    [Test]
+    public void ShouldHaveCaseInsensitiveHeaderAccess()
+    {
+        // Arrange
+        var res = HttpResponseBuilder.BuildDefault();
+        // Act
+        res.Headers["set-cookie"] = "foo=bar";
+        // Assert
+        Expect(res.Headers["Set-Cookie"])
+            .To.Equal("foo=bar");
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetCookieJar()
+    {
+        // Arrange
+        var cookies = new FakeResponseCookies();
+        var key = GetRandomString();
+        var value = GetRandom<FakeCookie>();
+        cookies[key] = value;
+        Expect(cookies.ContainsKey(key))
+            .To.Be.True();
+        // Act
+        var sut = HttpResponseBuilder.Create()
+            .WithCookies(cookies)
+            .Build();
+        // Assert
+        Expect(sut.Cookies)
+            .To.Be(cookies);
+        Expect(cookies.ContainsKey(key))
+            .To.Be.True();
+        Expect(sut.Headers)
+            .To.Contain.Key("Set-Cookie")
+            .With.Value.Matched.By(o => $"{o}".Contains(value.Value));
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetCookieValues()
+    {
+        // Arrange
+        var key1 = GetRandomString();
+        var value1 = GetRandomString();
+        var key2 = GetRandomString();
+        var value2 = GetRandomString();
+        // Act
+        var sut = HttpResponseBuilder.Create()
+            .WithCookie(key1, value1)
+            .WithCookie(key2, value2)
+            .Build();
+        // Assert
+        Expect(sut.Cookies)
+            .To.Be.An.Instance.Of<FakeResponseCookies>();
+        var cookies = (FakeResponseCookies)sut.Cookies;
+        Expect(cookies.ContainsKey(key1))
+            .To.Be.True();
+        Expect(cookies[key1].Value)
+            .To.Equal(value1);
+        Expect(cookies.ContainsKey(key2))
+            .To.Be.True();
+        Expect(cookies[key2].Value)
+            .To.Equal(value2);
     }
 
     public class Data

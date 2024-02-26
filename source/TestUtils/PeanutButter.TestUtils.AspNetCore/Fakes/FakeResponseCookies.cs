@@ -23,13 +23,23 @@ public class FakeResponseCookies : IResponseCookies, IFake
     /// </summary>
     /// <returns></returns>
     public IDictionary<string, FakeCookie> Snapshot
-        => Cache.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        => Cache.ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
 
     private IDictionary<string, FakeCookie> Cache
         => ProvideStore();
+    
+    private readonly Dictionary<string, FakeCookie> _tempStore = new(StringComparer.OrdinalIgnoreCase);
 
     private IDictionary<string, FakeCookie> ProvideStore()
     {
+        if (HttpResponse is null)
+        {
+            return _tempStore;
+        }
+        
+        Import(_tempStore);
+        _tempStore.Clear();
+
         var currentHash = HttpResponse.Headers.GetHashCode();
         if (currentHash == _responseHeadersHash)
         {
@@ -98,10 +108,25 @@ public class FakeResponseCookies : IResponseCookies, IFake
         get => _response;
         set
         {
+            var existingValues = Dump();
             _response = value ?? HttpResponseBuilder.Create()
                 .WithCookies(this)
                 .Build();
             _responseHeadersHash = null;
+            Import(existingValues);
+        }
+    }
+
+    private void Import(IDictionary<string, FakeCookie> existingValues)
+    {
+        if (existingValues is null)
+        {
+            return;
+        }
+
+        foreach (var item in existingValues)
+        {
+            this[item.Key] = item.Value;
         }
     }
 
@@ -130,6 +155,7 @@ public class FakeResponseCookies : IResponseCookies, IFake
             Cache[key] = value;
         }
 
+        UpdateResponseCookieHeaders(_response, this);
         var strings = Cache.Select(
             kvp => GenerateSetCookieHeaderFor(kvp.Value)
         ).ToArray();
@@ -139,7 +165,38 @@ public class FakeResponseCookies : IResponseCookies, IFake
             );
     }
 
-    private string GenerateSetCookieHeaderFor(FakeCookie value)
+    private static void UpdateResponseCookieHeaders(
+        HttpResponse response,
+        FakeResponseCookies cookies
+    )
+    {
+        if (response is null)
+        {
+            throw new Exception("no response provided");
+        }
+
+        var cookieValues = cookies?.Dump() ?? new Dictionary<string, FakeCookie>();
+        var strings = cookieValues.Select(
+            kvp => GenerateSetCookieHeaderFor(kvp.Value)
+        ).ToArray();
+        response.Headers[SET_COOKIE] =
+            new StringValues(
+                strings
+            );
+    }
+
+    private IDictionary<string, FakeCookie> Dump()
+    {
+        var result = new Dictionary<string, FakeCookie>();
+        foreach (var key in Keys)
+        {
+            result[key] = this[key];
+        }
+
+        return result;
+    }
+
+    private static string GenerateSetCookieHeaderFor(FakeCookie value)
     {
         var parts = new List<string>()
         {
@@ -217,7 +274,10 @@ public class FakeResponseCookies : IResponseCookies, IFake
         // -> then assertions against setting cookies is easier
         return GenericBuilderBase.TryCreateSubstituteFor<FakeResponseCookies>(
             callThrough: true,
-            new object[] { attachedTo },
+            new object[]
+            {
+                attachedTo
+            },
             out var result
         )
             ? result
