@@ -199,7 +199,7 @@ namespace PeanutButter.DuckTyping.Extensions
             return !errors.Any();
         }
 
-        private static List<string> DictionaryDuckErrorsFor(
+        private static string[] DictionaryDuckErrorsFor(
             IDictionary<string, object> src,
             Type type,
             bool allowFuzzy
@@ -216,7 +216,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 FindDictionaryDuckErrorFor(prop, src, allowFuzzy, errors);
             }
 
-            return errors;
+            return errors.ToArray();
         }
 
         internal static IDictionary<string, object> TryConvertToDictionary(this object src)
@@ -436,7 +436,7 @@ namespace PeanutButter.DuckTyping.Extensions
         }
 
 
-        internal static List<string> GetDuckErrorsFor(
+        internal static string[] GetDuckErrorsFor(
             this Type toType,
             Type fromType,
             bool allowFuzzy
@@ -487,7 +487,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 errors.Add("One or more methods could not be ducked");
             }
 
-            return errors;
+            return errors.ToArray();
         }
 
         private static void AddPrimitivePropertyMismatchErrorsFor(

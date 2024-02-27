@@ -27,8 +27,8 @@ namespace PeanutButter.DuckTyping.Exceptions
         /// Constructs an instance of the exception
         /// </summary>
         /// <param name="errors">Errors to store about the duck failure</param>
-        public UnDuckableException(IEnumerable<string> errors)
-            : base("Unable to perform duck operation. Examine errors for more information")
+        public UnDuckableException(params string[] errors)
+            : base($"Unable to perform duck operation. Examine errors for more information\n\nErrors:\n- {string.Join("\n- ", errors)}")
         {
             Errors = errors;
         }
