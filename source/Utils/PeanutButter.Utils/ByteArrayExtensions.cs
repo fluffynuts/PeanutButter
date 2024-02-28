@@ -27,7 +27,20 @@ namespace PeanutButter.Utils
         /// <returns>hex-encoded md5sum for the provided data</returns>
         // ReSharper disable once InconsistentNaming
         // ReSharper disable once UnusedMember.Global
-        public static string ToMD5String(this byte[] data)
+        [Obsolete($"renamed to {nameof(ToMd5String)}")]
+        public static string ToMD5String(
+            this byte[] data
+        )
+        {
+            return data.ToMd5String();
+        }
+
+        /// <summary>
+        /// Calculates the md5sum for the provided binary data
+        /// </summary>
+        /// <param name="data">Binary data to hash</param>
+        /// <returns>hex-encoded md5sum for the provided data</returns>
+        public static string ToMd5String(this byte[] data)
         {
             if (data is null)
             {
@@ -47,7 +60,21 @@ namespace PeanutButter.Utils
         /// <param name="data">Binary data to encode as a UTF-8 string</param>
         /// <returns>The string representation of the binary data</returns>
         // ReSharper disable once InconsistentNaming
+        [Obsolete($"renamed to {nameof(ToUtf8String)}")]
         public static string ToUTF8String(this byte[] data)
+        {
+            return data.ToUtf8String();
+        }
+
+        /// <summary>
+        /// Provides a UTF-8 encoded string from the given binary data
+        /// </summary>
+        /// <param name="data">Binary data to encode as a UTF-8 string</param>
+        /// <returns>The string representation of the binary data</returns>
+        // ReSharper disable once InconsistentNaming
+        public static string ToUtf8String(
+            this byte[] data
+        )
         {
             return data is null
                 ? null
@@ -72,12 +99,13 @@ namespace PeanutButter.Utils
         /// <param name="bytes">input bytes</param>
         /// <returns>MemoryStream wrapping input bytes</returns>
         public static MemoryStream ToMemoryStream(
-            this byte[] bytes)
+            this byte[] bytes
+        )
         {
             return new MemoryStream(bytes ?? new byte[0]);
         }
 
-        #if NETSTANDARD
+#if NETSTANDARD
         /// <summary>
         /// </summary>
         /// <param name="bytes">input bytes</param>
@@ -88,6 +116,33 @@ namespace PeanutButter.Utils
         {
             return new ArraySegment<byte>(bytes);
         }
-        #endif
+#endif
+
+        /// <summary>
+        /// Tests if the byte array being operated on starts
+        /// with the bytes in the reference array
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="reference"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static bool StartsWith(
+            this byte[] data,
+            byte[] reference
+        )
+        {
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            if (reference is null)
+            {
+                throw new ArgumentNullException(nameof(reference));
+            }
+            
+            return data.Take(reference.Length)
+                .SequenceEqual(reference);
+        }
     }
 }
