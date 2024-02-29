@@ -17,11 +17,10 @@
         <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
         <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
     </PropertyGroup>
-    <ItemGroup>
-        <Reference Include="System.Runtime.InteropServices.RuntimeInformation">
-          <HintPath>..\..\..\..\..\..\Program Files\dotnet\sdk\8.0.100\Microsoft\Microsoft.NET.Build.Extensions\net462\lib\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
-        </Reference>
-        <Reference Include="System.ServiceProcess" Condition=" '$(TargetFramework)' != 'netstandard2.0'"/>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+        <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
+        <Reference Include="System.ServiceProcess"/>
+        <Reference Include="System.Configuration"/>
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="System.Management" Version="8.0.0"/>
@@ -60,7 +59,6 @@
         <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj"/>
     </ItemGroup>
     <ItemGroup>
-        <Reference Include="System.Configuration" Condition="'$(TargetFramework)' == 'net462'"/>
     </ItemGroup>
     <Import Project="..\..\MonoForFramework.targets"/>
 </Project>

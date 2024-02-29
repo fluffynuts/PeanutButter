@@ -6,9 +6,8 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using static NExpect.Expectations;
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable StringLiteralTypo
 
 // ReSharper disable ExpressionIsAlwaysNull
 
@@ -38,7 +37,8 @@ public class TestStringExtensions
 
 
         //---------------Test Result -----------------------
-        Expect(result).To.Equal(expected);
+        Expect(result)
+            .To.Equal(expected);
     }
 
     [TestFixture]
@@ -346,28 +346,28 @@ public class TestStringExtensions
                 string foo = null;
 
                 // Act
-                var stringTime = Benchmark.Time(
+                Benchmark.Time(
                     () =>
                     {
                         foo = input.ReplaceAll(strings, " ");
                     },
                     100
                 );
-                var charTime = Benchmark.Time(
+                Benchmark.Time(
                     () =>
                     {
                         foo = input.ReplaceAll(chars, ' ');
                     },
                     100
                 );
-                stringTime = Benchmark.Time(
+                var stringTime = Benchmark.Time(
                     () =>
                     {
                         foo = input.ReplaceAll(strings, " ");
                     },
                     iterations
                 );
-                charTime = Benchmark.Time(
+                var charTime = Benchmark.Time(
                     () =>
                     {
                         foo = input.ReplaceAll(chars, ' ');
@@ -393,6 +393,7 @@ public class TestStringExtensions
         {
             // Arrange
             var input = "foo-bar.quux_wat";
+            // ReSharper disable once StringLiteralTypo
             var expected = "foobarquuxwat";
             // Act
             var result = input.RemoveAll(
@@ -601,7 +602,7 @@ public class TestStringExtensions
             var result = ((string)null).AsBytes();
 
             //---------------Test Result -----------------------
-            Expect(result as object).To.Be.Null();
+            Expect((object) result).To.Be.Null();
         }
 
         [Test]
@@ -616,7 +617,7 @@ public class TestStringExtensions
             var result = string.Empty.AsBytes();
 
             //---------------Test Result -----------------------
-            Expect(result as object).Not.To.Be.Null();
+            Expect((object) result).Not.To.Be.Null();
             Assert.That(result, Is.Empty);
         }
 
@@ -639,12 +640,12 @@ public class TestStringExtensions
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         private static Encoding[] Encodings { get; } =
-        {
+        [
             Encoding.UTF8,
             Encoding.ASCII,
             Encoding.UTF32,
             Encoding.UTF7
-        };
+        ];
 
         [TestCaseSource(nameof(Encodings))]
         [Parallelizable]
@@ -915,12 +916,12 @@ public class TestStringExtensions
         {
             // ReSharper disable once MemberHidesStaticFromOuterClass
             public static readonly string[] NullOrWhitespaceStrings =
-            {
+            [
                 null,
                 "\t",
                 "\r",
                 "\n"
-            };
+            ];
 
             [TestCaseSource(nameof(NullOrWhitespaceStrings))]
             [Parallelizable]
@@ -962,14 +963,6 @@ public class TestStringExtensions
                     .To.Be.False();
             }
         }
-
-        private static readonly string[] NullOrWhitespaceStrings =
-        {
-            null,
-            "\t",
-            "\r",
-            "\n"
-        };
     }
 
     [TestFixture]
@@ -1685,7 +1678,7 @@ public class TestStringExtensions
 
         [Test]
         [Parallelizable]
-        public void ToLower_ShouldOwerCaseAll()
+        public void ToLower_ShouldLowerCaseAll()
         {
             // Arrange
             var src = GetRandomArray<string>(10).ToUpper();
@@ -2016,7 +2009,7 @@ public class TestStringExtensions
             // Act
             var result = input.ToMemoryStream();
             // Assert
-            Expect(result.ToArray().ToUTF8String()).To.Equal(input);
+            Expect(result.ToArray().ToUtf8String()).To.Equal(input);
         }
 
         [Test]
@@ -2028,7 +2021,7 @@ public class TestStringExtensions
             // Act
             var result = input.ToMemoryStream();
             // Assert
-            Expect(result.ToArray().ToUTF8String()).To.Be.Empty();
+            Expect(result.ToArray().ToUtf8String()).To.Be.Empty();
         }
 
         [Test]
@@ -2040,7 +2033,7 @@ public class TestStringExtensions
             // Act
             var result = input.ToMemoryStream();
             // Assert
-            Expect(result.ToArray().ToUTF8String()).To.Be.Empty();
+            Expect(result.ToArray().ToUtf8String()).To.Be.Empty();
         }
     }
 
@@ -2436,12 +2429,11 @@ public class TestStringExtensions
         public void ShouldBeAbleToUnBase64UnpaddedByteData()
         {
             // Arrange
-            string str;
             byte[] bytes;
             string base64;
             do
             {
-                str = GetRandomString(10, 32);
+                var str = GetRandomString(10, 32);
                 bytes = Encoding.UTF8.GetBytes(str);
                 base64 = Convert.ToBase64String(bytes);
             } while (!base64.Contains("="));
@@ -2506,7 +2498,7 @@ public class TestStringExtensions
             var json = JsonConvert.SerializeObject(data);
             var base64 = json.ToBase64();
             // Act
-            var result = base64.UnBase64<Poco>(
+            var result = base64.UnBase64(
                 JsonConvert.DeserializeObject<Poco>
             );
             // Assert
@@ -2542,7 +2534,7 @@ public class TestStringExtensions
 
         [Test]
         [Parallelizable]
-        public void ShouldDefaultStringDecodeToBeUTF8String()
+        public void ShouldDefaultStringDecodeToBeUtf8String()
         {
             // Arrange
             var data = GetRandomString(20, 32);

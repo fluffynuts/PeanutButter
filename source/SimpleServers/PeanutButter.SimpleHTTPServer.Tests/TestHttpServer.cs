@@ -9,12 +9,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Newtonsoft.Json;
-using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 using PeanutButter.SimpleTcpServer;
 using PeanutButter.Utils;
-using NExpect;
-using static NExpect.Expectations;
+
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -40,16 +41,14 @@ public class TestHttpServer
                 try
                 {
                     //---------------Set up test pack-------------------
-                    using (var server = Create(port))
-                    {
-                        //---------------Assert Precondition----------------
+                    using var server = Create(port);
+                    //---------------Assert Precondition----------------
 
-                        //---------------Execute Test ----------------------
+                    //---------------Execute Test ----------------------
 
-                        //---------------Test Result -----------------------
-                        Expect(server.Port)
-                            .To.Equal(port);
-                    }
+                    //---------------Test Result -----------------------
+                    Expect(server.Port)
+                        .To.Equal(port);
 
                     return;
                 }
@@ -103,7 +102,7 @@ public class TestHttpServer
             var result = DownloadResultFrom(
                 server.Instance,
                 theDocName
-            ).ToUTF8String();
+            ).ToUtf8String();
 
             //---------------Test Result -----------------------
             Expect(result)
@@ -120,7 +119,7 @@ public class TestHttpServer
         var payload = JsonConvert.SerializeObject(expected);
         // Act
         var id = sut.AddJsonDocumentHandler(
-            (p, s) =>
+            (p, _) =>
             {
                 if (p.Path == "/doc")
                 {
@@ -137,7 +136,7 @@ public class TestHttpServer
         Expect(parsed)
             .To.Deep.Equal(expected);
         sut.RemoveHandler(id);
-        
+
         var result = await client.GetAsync(sut.GetFullUrlFor("/doc"));
         // Assert
         Expect(result.StatusCode)
@@ -386,7 +385,7 @@ public class TestHttpServer
                 route,
                 null,
                 out string _
-            ).ToUTF8String();
+            ).ToUtf8String();
 
             //---------------Test Result -----------------------
             var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(stringResult);
@@ -406,7 +405,7 @@ public class TestHttpServer
         {
             //---------------Set up test pack-------------------
             var theFile = GetRandomBytes(100, 200);
-            const string theFileName = "somefile.bin";
+            const string theFileName = "some-file.bin";
             using var server = GlobalSetup.Pool.Borrow();
             //---------------Assert Precondition----------------
             server.Instance.AddFileHandler(
@@ -426,7 +425,7 @@ public class TestHttpServer
         {
             //---------------Set up test pack-------------------
             var theFile = GetRandomBytes(100, 200);
-            const string theFileName = "somefile.bin";
+            const string theFileName = "some-file.bin";
             using var server = GlobalSetup.Pool.Borrow();
             //---------------Assert Precondition----------------
             server.Instance.ServeFile("/" + theFileName, () => theFile, contentType: "application/octet-stream");
@@ -505,7 +504,7 @@ public class TestHttpServer
             using var server = GlobalSetup.Pool.Borrow();
             var captured = null as string;
             server.Instance.AddJsonDocumentHandler(
-                (p, s) =>
+                (p, _) =>
                 {
                     captured = p.FullUrl;
                     return new SimpleData()
@@ -541,15 +540,13 @@ public class TestHttpServer
             );
             server.Instance.ServeDocument("/index.html", doc);
 
-            var url = server.Instance.GetFullUrlFor("/index.html");
-
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
             var result = DownloadResultFrom(server, "/index.html", null, out var contentType);
 
             //---------------Test Result -----------------------
-            Expect(result.ToUTF8String())
+            Expect(result.ToUtf8String())
                 .To.Equal(doc.ToString());
             Expect(contentType)
                 .To.Equal("text/html");
@@ -589,7 +586,7 @@ public class TestHttpServer
             var result = DownloadResultFrom(server, serveMethod, path, null, out contentType);
 
             //---------------Test Result -----------------------
-            Expect(result.ToUTF8String())
+            Expect(result.ToUtf8String())
                 .To.Equal(doc.ToString());
             Expect(contentType)
                 .To.Equal("text/html");
@@ -610,7 +607,7 @@ public class TestHttpServer
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, theDocName).ToUTF8String();
+            var result = DownloadResultFrom(server, theDocName).ToUtf8String();
 
             //---------------Test Result -----------------------
             Expect(doc.ToString(SaveOptions.DisableFormatting))
@@ -635,7 +632,7 @@ public class TestHttpServer
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, theDocName).ToUTF8String();
+            var result = DownloadResultFrom(server, theDocName).ToUtf8String();
 
             //---------------Test Result -----------------------
             Expect(doc.ToString(SaveOptions.DisableFormatting))
@@ -659,7 +656,7 @@ public class TestHttpServer
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, theDocName).ToUTF8String();
+            var result = DownloadResultFrom(server, theDocName).ToUtf8String();
 
             //---------------Test Result -----------------------
             Expect(doc.ToString(SaveOptions.DisableFormatting))
@@ -683,7 +680,7 @@ public class TestHttpServer
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, theDocName).ToUTF8String();
+            var result = DownloadResultFrom(server, theDocName).ToUtf8String();
 
             //---------------Test Result -----------------------
             Expect(doc.ToString(SaveOptions.DisableFormatting))
@@ -741,7 +738,7 @@ public class TestHttpServer
             );
 
             //---------------Test Result -----------------------
-            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
+            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUtf8String());
             Expect(result)
                 .Not.To.Be.Null();
             Expect(resultAsObject.SomeProperty)
@@ -769,7 +766,7 @@ public class TestHttpServer
             );
 
             //---------------Test Result -----------------------
-            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
+            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUtf8String());
             Expect(result)
                 .Not.To.Be.Null();
             Expect(resultAsObject.SomeProperty)
@@ -798,7 +795,7 @@ public class TestHttpServer
             );
 
             //---------------Test Result -----------------------
-            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
+            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUtf8String());
             Expect(result)
                 .Not.To.Be.Null();
             Expect(resultAsObject.SomeProperty)
@@ -845,7 +842,7 @@ public class TestHttpServer
             );
 
             //---------------Test Result -----------------------
-            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUTF8String());
+            var resultAsObject = JsonConvert.DeserializeObject<SimpleData>(result.ToUtf8String());
             Expect(result)
                 .Not.To.Be.Null();
             Expect(resultAsObject.SomeProperty)
@@ -1149,16 +1146,16 @@ public class TestHttpServer
         if (File.Exists(outFile))
         {
             var fullDownloadSize = GetContentLengthFor(url);
-            var finfo = new FileInfo(outFile);
-            existingSize = finfo.Length;
+            var fileInfo = new FileInfo(outFile);
+            existingSize = fileInfo.Length;
             if (fullDownloadSize == existingSize)
             {
                 Console.WriteLine("Already fully downloaded");
                 return outFile;
             }
 
-            Console.WriteLine("Resuming download from byte: {0}", finfo.Length);
-            req.AddRange(finfo.Length);
+            Console.WriteLine("Resuming download from byte: {0}", fileInfo.Length);
+            req.AddRange(fileInfo.Length);
         }
 
         req.Timeout = 90000;
@@ -1178,7 +1175,12 @@ public class TestHttpServer
         return long.Parse(response.Headers[CONTENT_LENGTH_HEADER]);
     }
 
-    private void DownloadFile(WebResponse response, string outFile, long expectedSize, long totalSize)
+    private void DownloadFile(
+        WebResponse response,
+        string outFile,
+        long expectedSize,
+        long totalSize
+    )
     {
         if (totalSize <= 0)
             throw new ArgumentOutOfRangeException(nameof(totalSize));
@@ -1298,8 +1300,6 @@ public class TestHttpServer
         [HttpMethods.Post] = HttpMethod.Post,
         [HttpMethods.Put] = HttpMethod.Put
     };
-
-    const string CONTENT_TYPE_HEADER = "Content-Type";
 
     private static HttpClient HttpClient
         => _httpClient ??= new HttpClient();
