@@ -36,6 +36,7 @@ namespace PeanutButter.Utils
 
         /// <summary>
         /// Resolves a relative path (or path parts) within the auto temp folder
+        /// - note: this doesn't guarantee that the path exists
         /// </summary>
         /// <param name="p1"></param>
         /// <param name="more"></param>
@@ -43,6 +44,16 @@ namespace PeanutButter.Utils
         string ResolvePath(
             string p1,
             params string[] more
+        );
+
+        /// <summary>
+        /// Resolves all provided relative paths within the temp folder
+        /// - note: this doesn't guarantee that the path exists
+        /// </summary>
+        /// <param name="relativePaths"></param>
+        /// <returns></returns>
+        IEnumerable<string> ResolvePaths(
+            IEnumerable<string> relativePaths
         );
 
         /// <summary>
@@ -343,6 +354,13 @@ namespace PeanutButter.Utils
                     p1
                 }.Concat(platformMore)
             );
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<string> ResolvePaths(IEnumerable<string> relativePaths)
+        {
+            return (relativePaths ?? Array.Empty<string>())
+                .Select(s => ResolvePath(s));
         }
 
         private static readonly string PathSeparator

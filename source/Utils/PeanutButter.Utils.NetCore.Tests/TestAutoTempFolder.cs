@@ -1,9 +1,9 @@
 using System.Reflection;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable AccessToDisposedClosure
 
 // ReSharper disable AssignNullToNotNullAttribute
 
-namespace PeanutButter.Utils.NetCore.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestAutoTempFolder
@@ -159,6 +159,26 @@ namespace PeanutButter.Utils.NetCore.Tests
         }
 
         [TestFixture]
+        public class ResolvePaths
+        {
+            [Test]
+            public void ShouldResolveAllProvidedRelativePaths()
+            {
+                // Arrange
+                using var sut = Create();
+                var input = GetRandomArray<string>(3, 6);
+                var expected = input.Select(
+                    p => Path.Combine(sut.Path, p)
+                );
+                // Act
+                var result = sut.ResolvePaths(input);
+                // Assert
+                Expect(result)
+                    .To.Be.Equivalent.To(expected);
+            }
+        }
+
+        [TestFixture]
         public class CreateFolder
         {
             [Test]
@@ -274,10 +294,10 @@ namespace PeanutButter.Utils.NetCore.Tests
                 var sub2 = GetRandomString(12);
                 var filename = GetRandomString(12);
                 using var sut = Create();
-                var relpath = Path.Combine(sub1, sub2, filename);
+                var relativePath = Path.Combine(sub1, sub2, filename);
 
                 // Act
-                var fullPath = sut.WriteFile(relpath, data);
+                var fullPath = sut.WriteFile(relativePath, data);
                 // Assert
 
                 Expect(fullPath)
@@ -635,7 +655,7 @@ namespace PeanutButter.Utils.NetCore.Tests
             }
 
             [Test]
-            public void ShouldDisposeUndisposedFileStreams()
+            public void ShouldDisposeUnDisposedFileStreams()
             {
                 // Arrange
                 var filename = GetRandomString(32);
