@@ -443,8 +443,8 @@ console.log(process.env[`{envVar}`]);
                 {
                     "stdout 1",
                     "stderr 1",
-                    "stderr 2",
                     "stdout 2",
+                    "stderr 2",
                 }
             );
     }
