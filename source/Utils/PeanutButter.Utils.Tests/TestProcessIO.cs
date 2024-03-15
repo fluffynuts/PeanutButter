@@ -429,11 +429,25 @@ console.log(process.env[`{envVar}`]);
     {
         // Arrange
         // Act
+        using var tempFile = new AutoTempFile(@"
+(async () => {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    console.log('stdout 1');
+    await sleep(1);
+    console.error('stderr 1');
+    await sleep(1);
+    console.error('stdout 2');
+    await sleep(1);
+    console.log('stderr 2');
+})();
+");
         using var io = ProcessIO
             .Start(
                 "node",
-                "-e",
-                "console.log('stdout 1');console.error('stderr 1');console.error('stderr 2');console.log('stdout 2');"
+                tempFile.Path
             );
         io.WaitForExit();
         // Assert
