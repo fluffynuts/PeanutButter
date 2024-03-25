@@ -22,7 +22,7 @@ namespace PeanutButter.Utils
 #else
     public
 #endif
-        static class Run
+        static partial class Run
     {
         /// <summary>
         /// Run all actions in parallel, returning any captured exceptions
