@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.DatabaseHelpers</id>
-    <version>3.0.277</version>
+    <version>3.0.278</version>
     <title>PeanutButter.DatabaseHelpers</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
@@ -24,7 +24,7 @@
     <copyright>Copyright  2014</copyright>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="PeanutButter.Utils" version="3.0.277" />
+        <dependency id="PeanutButter.Utils" version="3.0.278" />
       </group>
     </dependencies>
     <references></references>
