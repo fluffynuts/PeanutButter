@@ -150,10 +150,13 @@ public static partial class Run
 
         var logicCancellationTokenSource = new CancellationTokenSource();
         var logicToken = logicCancellationTokenSource.Token;
+        
+        var barrier = new Barrier(2);
 
         var t1 = Task.Run(
             async () =>
             {
+                barrier.SignalAndWait(waitToken);
                 await Task.Delay(timeout, waitToken);
                 if (waitCancellationTokenSource.IsCancellationRequested)
                 {
@@ -168,6 +171,7 @@ public static partial class Run
         var t2 = Task.Run(
             async () =>
             {
+                barrier.SignalAndWait(logicToken);
                 var result = await logic(logicToken);
                 if (logicCancellationTokenSource.IsCancellationRequested)
                 {

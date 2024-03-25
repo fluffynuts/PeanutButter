@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-
 namespace PeanutButter.Utils.Tests;
 
 [TestFixture]
@@ -137,6 +135,7 @@ public class TestRunWithTimeout
         public class WhenTooSlow
         {
             [Test]
+            [Repeat(50)]
             public void ShouldThrow()
             {
                 // Arrange
