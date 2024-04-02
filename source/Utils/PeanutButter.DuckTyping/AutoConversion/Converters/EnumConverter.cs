@@ -14,7 +14,8 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
             Type fromType,
             Type toType,
             object sourceValue,
-            out object result)
+            out object result
+        )
         {
             result = null;
             var enumType = Choose(fromType, toType, t => t.IsEnum);
@@ -28,9 +29,17 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
                 return true;
             }
 
-            var method = GenericTryParse.MakeGenericMethod(enumType);
-            var args = new[] { sourceValue, true, null };
-            var parsed = (bool) method.Invoke(null, args);
+            var method = GenericTryParse.MakeGenericMethod(enumType)
+                ?? throw new InvalidOperationException(
+                    $"Unable to create generic method TryParse for {enumType}"
+                );
+            var args = new[]
+            {
+                sourceValue,
+                true,
+                null
+            };
+            var parsed = (bool)method.Invoke(null, args);
             if (parsed)
                 result = args[2];
             return parsed;
