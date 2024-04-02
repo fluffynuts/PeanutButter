@@ -501,6 +501,7 @@ namespace PeanutButter.RandomGenerators
                     $"maxValue for {nameof(GetRandomIntKey)} must be at least 2"
                 );
             }
+
             return GetRandomInt(1, maxValue);
         }
 
@@ -2572,14 +2573,30 @@ namespace PeanutButter.RandomGenerators
         /// <returns>new string within the required parts range</returns>
         public static string GetRandomHostname(int minParts, int maxParts)
         {
-            return string.Join(
-                ".",
-                GetRandomCollection(
-                    () => GetRandomString(1),
-                    minParts,
-                    maxParts
+            return Run.Until(
+                IsValidHostname,
+                () => string.Join(
+                    ".",
+                    GetRandomCollection(
+                        () => GetRandomString(1),
+                        minParts,
+                        maxParts
+                    )
                 )
             );
+        }
+
+        private static bool IsValidHostname(string arg)
+        {
+            try
+            {
+                var uri = new Uri($"https://{arg}");
+                return uri.Host == arg;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>

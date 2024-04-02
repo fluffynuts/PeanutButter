@@ -19,6 +19,7 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 using static PeanutButter.Utils.PyLike;
 using TimeSpan = System.TimeSpan;
 using static PeanutButter.RandomGenerators.Tests.RandomTestCycles;
+using static NExpect.Implementations.MessageHelpers;
 
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable PossibleMultipleEnumeration
@@ -4381,7 +4382,7 @@ public class TestRandomValueGen
     public class GetRandomHostName
     {
         [Test]
-        public void ShouldReturnRandomHostName()
+        public void ShouldReturnRandomValidHostName()
         {
             //---------------Set up test pack-------------------
 
@@ -4394,6 +4395,8 @@ public class TestRandomValueGen
                 () =>
                 {
                     var result = GetRandomHostname();
+                    Expect(result)
+                        .To.Be.A.Valid.Hostname();
                     Expect(result)
                         .Not.To.Be.Null
                         .Or.Whitespace();
@@ -4411,7 +4414,7 @@ public class TestRandomValueGen
                         );
                     allResults.Add(result);
                 },
-                1024
+                4096
             );
 
             //---------------Test Result -----------------------
@@ -5800,6 +5803,35 @@ public class SomePOCO
         return string.Join(
             Environment.NewLine,
             parts
+        );
+    }
+}
+
+public static class HostNameMatcher
+{
+    public static IMore<string> Hostname(
+        this IValid<string> valid
+    )
+    {
+        return valid.AddMatcher(
+            actual =>
+            {
+                var passed = false;
+                try
+                {
+                    var uri = new Uri($"https://{actual}");
+                    passed = uri.Host == actual;
+                }
+                catch
+                {
+                    /* ignore */
+                }
+
+                return new MatcherResult(
+                    passed,
+                    () => $"Expected {actual}{passed.AsNot()}to be a valid hostname"
+                );
+            }
         );
     }
 }
