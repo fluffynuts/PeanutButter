@@ -32,7 +32,8 @@ public class TestActionResultExtensions
                 Expect(result.StatusCode)
                     .To.Equal((int) HttpStatusCode.TemporaryRedirect);
                 Expect(result.Headers.Location)
-                    .To.Equal("/Home/Index?foo=bar");
+                    .To.Contain.Only(1)
+                    .Equal.To("/Home/Index?foo=bar");
             }
 
             [Test]
@@ -50,7 +51,8 @@ public class TestActionResultExtensions
                 Expect(result.StatusCode)
                     .To.Equal((int) HttpStatusCode.PermanentRedirect);
                 Expect(result.Headers.Location)
-                    .To.Equal("/Home/Index?foo=bar");
+                    .To.Contain.Only(1)
+                    .Equal.To("/Home/Index?foo=bar");
             }
 
             [Test]
@@ -75,7 +77,8 @@ public class TestActionResultExtensions
                 Expect(result.StatusCode)
                     .To.Equal((int) HttpStatusCode.Redirect);
                 Expect(result.Headers.Location)
-                    .To.Equal($"/{controller}/{action}?id={routeValues.id}&foo=bar");
+                    .To.Contain.Only(1)
+                    .Equal.To($"/{controller}/{action}?id={routeValues.id}&foo=bar");
             }
         }
 
@@ -246,7 +249,8 @@ public class TestActionResultExtensions
                 Expect(result.StatusCode)
                     .To.Equal((int) HttpStatusCode.TemporaryRedirect);
                 Expect(result.Headers.Location)
-                    .To.Equal("/Home/Index?foo=bar");
+                    .To.Contain.Only(1)
+                    .Equal.To("/Home/Index?foo=bar");
             }
 
             [Test]
@@ -264,7 +268,8 @@ public class TestActionResultExtensions
                 Expect(result.StatusCode)
                     .To.Equal((int) HttpStatusCode.PermanentRedirect);
                 Expect(result.Headers.Location)
-                    .To.Equal("/Home/Index?foo=bar");
+                    .To.Contain.Only(1)
+                    .Equal.To("/Home/Index?foo=bar");
             }
 
             [Test]
@@ -289,7 +294,8 @@ public class TestActionResultExtensions
                 Expect(result.StatusCode)
                     .To.Equal((int) HttpStatusCode.Redirect);
                 Expect(result.Headers.Location)
-                    .To.Equal($"/{controller}/{action}?id={routeValues.id}&foo=bar");
+                    .To.Contain.Only(1)
+                    .Equal.To($"/{controller}/{action}?id={routeValues.id}&foo=bar");
             }
         }
 

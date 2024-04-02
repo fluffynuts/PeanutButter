@@ -401,9 +401,9 @@ public class TestHttpContextBuilder
             .To.Be.Null();
         Expect(req.Path)
             .To.Equal("/path/to/resource");
-        Expect(req.Query["foo"])
+        Expect($"{req.Query["foo"]}")
             .To.Equal("bar");
-        Expect(req.Query["one"])
+        Expect($"{req.Query["one"]}")
             .To.Equal("1");
     }
 
@@ -424,9 +424,9 @@ public class TestHttpContextBuilder
             .To.Equal(1234);
         Expect(req.Path)
             .To.Equal("/path/to/resource");
-        Expect(req.Query["foo"])
+        Expect($"{req.Query["foo"]}")
             .To.Equal("bar");
-        Expect(req.Query["one"])
+        Expect($"{req.Query["one"]}")
             .To.Equal("1");
     }
 
@@ -580,7 +580,7 @@ public class TestHttpContextBuilder
             // Assert
             Expect(result)
                 .To.Equal(expected);
-            Expect(ctx.Request.Headers["Content-Type"])
+            Expect($"{ctx.Request.Headers["Content-Type"]}")
                 .To.Equal(expected);
         }
 
@@ -829,7 +829,7 @@ public class TestHttpContextBuilder
                     Expect(feature!.Headers)
                         .To.Be.Empty();
                     Expect(feature.Headers)
-                        .To.Be(ctx.Response.Headers);
+                        .To.Equal(ctx.Response.Headers);
                 }
 
                 [Test]

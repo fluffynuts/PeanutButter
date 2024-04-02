@@ -362,7 +362,7 @@ public class TestHttpRequestBuilder
         // Act
         var result = sut.Query[search];
         // Assert
-        Expect(result)
+        Expect($"{result}")
             .To.Equal(value);
     }
 
@@ -394,7 +394,7 @@ public class TestHttpRequestBuilder
             .WithQueryParameter(key, value)
             .Build();
         // Assert
-        Expect(result.Query[key])
+        Expect($"{result.Query[key]}")
             .To.Equal(value);
         Expect(result.QueryString.Value)
             .To.Contain(key)
@@ -744,7 +744,7 @@ public class TestHttpRequestBuilder
             // Act
             var result = sut.Form[randomized];
             // Assert
-            Expect(result)
+            Expect($"{result}")
                 .To.Equal(value, "form field access should be case-insensitive");
         }
 
@@ -818,7 +818,7 @@ public class TestHttpRequestBuilder
             // Act
             var result = sut.Headers["Origin"];
             // Assert
-            Expect(result)
+            Expect($"{result}")
                 .To.Equal(expected);
         }
 
@@ -834,7 +834,7 @@ public class TestHttpRequestBuilder
             // Act
             var result = sut.Headers["Origin"];
             // Assert
-            Expect(result)
+            Expect($"{result}")
                 .To.Equal(expected);
         }
     }

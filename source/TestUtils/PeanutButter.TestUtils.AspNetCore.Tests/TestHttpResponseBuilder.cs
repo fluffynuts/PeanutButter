@@ -393,7 +393,7 @@ public class TestHttpResponseBuilder
         // Act
         res.Headers["set-cookie"] = "foo=bar";
         // Assert
-        Expect(res.Headers["Set-Cookie"])
+        Expect($"{res.Headers["Set-Cookie"]}")
             .To.Equal("foo=bar");
     }
 
