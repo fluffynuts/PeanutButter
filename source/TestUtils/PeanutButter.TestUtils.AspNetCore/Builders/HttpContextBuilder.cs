@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+
+// ReSharper disable ConstantConditionalAccessQualifier
+
+// ReSharper disable ConditionIsAlwaysTrueOrFalse
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 
@@ -270,6 +275,52 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
         );
     }
 
+    /// <summary>
+    /// Sets a query parameter on the request
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithRequestQueryParameter(
+        string key,
+        string value
+    )
+    {
+        return WithRequestMutator(
+            o =>
+            {
+                var request = o.As<FakeHttpRequest>();
+                var existingUri = request.FullUrl();
+                var existingParameters = HttpUtility.ParseQueryString(existingUri.Query);
+                var builder = QueryBuilder.Create(existingUri);
+                builder.WithParameters(existingParameters);
+                builder.WithParameter(key, value);
+                request.Query = builder.Build();
+            }
+        );
+    }
+
+    /// <summary>
+    /// Bulk-sets query parameters on the request
+    /// </summary>
+    /// <returns></returns>
+    public HttpContextBuilder WithRequestQueryParameters(
+        IDictionary<string, string> parameters
+    )
+    {
+        return WithRequestMutator(
+            o =>
+            {
+                var request = o.As<FakeHttpRequest>();
+                var existingUri = request.FullUrl();
+                var existingParameters = HttpUtility.ParseQueryString(existingUri.Query);
+                var builder = QueryBuilder.Create(existingUri);
+                builder.WithParameters(existingParameters);
+                builder.WithParameters(parameters);
+                request.Query = builder.Build();
+            }
+        );
+    }
 
     /// <summary>
     /// Adds a form field to the request

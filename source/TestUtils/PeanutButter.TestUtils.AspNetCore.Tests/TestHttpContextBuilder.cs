@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
@@ -11,6 +14,7 @@ using Microsoft.Extensions.Primitives;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.TestUtils.AspNetCore.Utils;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
@@ -787,7 +791,7 @@ public class TestHttpContextBuilder
                     // Act
                     // Assert
                     Expect(feature!.StatusCode)
-                        .To.Equal((int) HttpStatusCode.OK);
+                        .To.Equal((int)HttpStatusCode.OK);
                 }
 
                 [TestCase("OK")]
@@ -809,10 +813,10 @@ public class TestHttpContextBuilder
                     var ctx = HttpContextBuilder.BuildDefault();
                     var feature = ctx.Features.Get<IHttpResponseFeature>();
                     // Act
-                    ctx.Response.StatusCode = (int) GetRandom<HttpStatusCode>();
+                    ctx.Response.StatusCode = (int)GetRandom<HttpStatusCode>();
                     Expect(feature!.StatusCode)
                         .To.Equal(ctx.Response.StatusCode);
-                    feature.StatusCode = (int) GetRandom<HttpStatusCode>();
+                    feature.StatusCode = (int)GetRandom<HttpStatusCode>();
                     Expect(ctx.Response.StatusCode)
                         .To.Equal(feature.StatusCode);
                     // Assert
@@ -882,12 +886,6 @@ public class TestHttpContextBuilder
                 }
 #pragma warning restore CS0618
             }
-        }
-
-        [TestFixture]
-        public class HttpResponseBodyFeature
-        {
-            // TODO
         }
 
         [TestFixture]
@@ -1093,7 +1091,7 @@ public class TestHttpContextBuilder
             }
         }
     }
-    
+
     [Test]
     public void ShouldBeAbleToSetRemoteAddress()
     {
@@ -1107,6 +1105,60 @@ public class TestHttpContextBuilder
         // Assert
         Expect(result)
             .To.Equal(IPAddress.Parse(expected));
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetQueryStringParameter()
+    {
+        // Arrange
+        var key = GetRandomString(10);
+        var value = GetRandomString(10);
+        // Act
+        var ctx = HttpContextBuilder.Create()
+            .WithRequestQueryParameter(key, value)
+            .Build();
+        // Assert
+        var dict = HttpUtility.ParseQueryString(
+            ctx.Request.FullUrl().Query
+        );
+        Expect(dict)
+            .To.Contain.Key(key)
+            .With.Value(value);
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetQueryParametersFromDictionary()
+    {
+        // Arrange
+        var expected = GetRandom<Dictionary<string, string>>();
+        // Act
+        var ctx = HttpContextBuilder.Create()
+            .WithRequestQueryParameters(expected)
+            .Build();
+        // Assert
+        var result = HttpUtility.ParseQueryString(
+            ctx.Request.FullUrl().Query
+        );
+        Expect(result)
+            .To.Equal(expected);
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetQueryParametersFromNameValueCollection()
+    {
+        // Arrange
+        var parameters = GetRandom<NameValueCollection>();
+        var expected = parameters.ToDictionary();
+        // Act
+        var ctx = HttpContextBuilder.Create()
+            .WithRequestQueryParameters(expected)
+            .Build();
+        // Assert
+        var result = HttpUtility.ParseQueryString(
+            ctx.Request.FullUrl().Query
+        );
+        Expect(result)
+            .To.Equal(expected);
     }
 
     public class AService
