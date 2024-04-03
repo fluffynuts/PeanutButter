@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -446,6 +447,84 @@ public class TestHttpResponseBuilder
             .To.Be.True();
         Expect(cookies[key2].Value)
             .To.Equal(value2);
+    }
+
+    [TestFixture]
+    public class SettingHeaders
+    {
+        [Test]
+        public void ShouldBeAbleToSetIndividually()
+        {
+            // Arrange
+            var key1 = GetRandomString();
+            var key2 = GetAnother(key1);
+            var value1 = GetRandomString();
+            var value2 = GetAnother(value1);
+            // Act
+            var sut = HttpResponseBuilder.Create()
+                .WithHeader(key1, value1)
+                .WithHeader(key2, value2)
+                .Build();
+            // Assert
+            Expect(sut.Headers)
+                .To.Contain.Key(key1)
+                .With.Value(value1);
+            Expect(sut.Headers)
+                .To.Contain.Key(key2)
+                .With.Value(value2);
+        }
+
+        [Test]
+        public void ShouldBeAbleToSetFromDictionary()
+        {
+            // Arrange
+            var key1 = GetRandomString();
+            var key2 = GetAnother(key1);
+            var value1 = GetRandomString();
+            var value2 = GetAnother(value1);
+            var dict = new Dictionary<string, string>()
+            {
+                [key1] = value1,
+                [key2] = value2
+            };
+            // Act
+            var sut = HttpResponseBuilder.Create()
+                .WithHeaders(dict)
+                .Build();
+            // Assert
+            Expect(sut.Headers)
+                .To.Contain.Key(key1)
+                .With.Value(value1);
+            Expect(sut.Headers)
+                .To.Contain.Key(key2)
+                .With.Value(value2);
+        }
+
+        [Test]
+        public void ShouldBeAbleToSetFromNameValueCollection()
+        {
+            // Arrange
+            var key1 = GetRandomString();
+            var key2 = GetAnother(key1);
+            var value1 = GetRandomString();
+            var value2 = GetAnother(value1);
+            var collection = new NameValueCollection()
+            {
+                [key1] = value1,
+                [key2] = value2
+            };
+            // Act
+            var sut = HttpResponseBuilder.Create()
+                .WithHeaders(collection)
+                .Build();
+            // Assert
+            Expect(sut.Headers)
+                .To.Contain.Key(key1)
+                .With.Value(value1);
+            Expect(sut.Headers)
+                .To.Contain.Key(key2)
+                .With.Value(value2);
+        }
     }
 
     public class Data

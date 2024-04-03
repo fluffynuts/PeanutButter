@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +29,7 @@ public class HttpResponseBuilder : RandomizableBuilder<HttpResponseBuilder, Http
     {
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     internal HttpResponseBuilder(bool noContext) : base(Actualize)
     {
         WithStatusCode(HttpStatusCode.OK)
@@ -88,7 +92,8 @@ public class HttpResponseBuilder : RandomizableBuilder<HttpResponseBuilder, Http
     /// <param name="handler"></param>
     /// <returns></returns>
     public HttpResponseBuilder WithRedirectHandler(
-        Action<string, bool> handler)
+        Action<string, bool> handler
+    )
     {
         return With<FakeHttpResponse>(
             o => o.AddRedirectHandler(handler)
@@ -128,7 +133,7 @@ public class HttpResponseBuilder : RandomizableBuilder<HttpResponseBuilder, Http
     /// <returns></returns>
     public HttpResponseBuilder WithStatusCode(HttpStatusCode code)
     {
-        return WithStatusCode((int) code);
+        return WithStatusCode((int)code);
     }
 
     /// <summary>
@@ -266,6 +271,56 @@ public class HttpResponseBuilder : RandomizableBuilder<HttpResponseBuilder, Http
         CookieOptions options
     )
     {
-        return With(o => o.Cookies.Append(key, value, options));
+        return With(
+            o => o.Cookies.Append(
+                key,
+                value,
+                options
+            )
+        );
+    }
+
+    /// <summary>
+    /// Sets a header on the response
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public HttpResponseBuilder WithHeader(
+        string key,
+        string value
+    )
+    {
+        return With(o => o.Headers[key] = value);
+    }
+
+    /// <summary>
+    /// Sets one or more headers on the response
+    /// </summary>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    public HttpResponseBuilder WithHeaders(
+        IDictionary<string, string> headers
+    )
+    {
+        return headers.Aggregate(
+            this,
+            (acc, cur) => acc.WithHeader(cur.Key, cur.Value)
+        );
+    }
+
+    /// <summary>
+    /// Sets one or more headers on the response
+    /// </summary>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    public HttpResponseBuilder WithHeaders(
+        NameValueCollection headers
+    )
+    {
+        return headers.AllKeys.Aggregate(
+            this,
+            (acc, cur) => acc.WithHeader(cur, headers[cur])
+        );
     }
 }
