@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using PeanutButter.RandomGenerators;
 
-namespace PeanutButter.Utils.NetCore.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestAutoDeleter

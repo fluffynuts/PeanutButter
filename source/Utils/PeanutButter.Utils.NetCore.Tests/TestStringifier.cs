@@ -1,7 +1,6 @@
-﻿using System;
-using PeanutButter.TestUtils.AspNetCore.Builders;
+﻿using PeanutButter.TestUtils.AspNetCore.Builders;
 
-namespace PeanutButter.Utils.NetCore.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestStringifier

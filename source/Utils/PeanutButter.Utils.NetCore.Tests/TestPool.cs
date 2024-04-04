@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace PeanutButter.Utils.NetCore.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestPool

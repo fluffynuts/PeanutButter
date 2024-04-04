@@ -16,7 +16,7 @@ using PeanutButter.DuckTyping.Extensions;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable UnusedMember.Global
 
-namespace PeanutButter.Utils.NetCore.Tests;
+namespace PeanutButter.Utils.Tests;
 
 [TestFixture]
 public class TestObjectExtensions

@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
 using PeanutButter.RandomGenerators;
+
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
-namespace PeanutButter.Utils.NetCore.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestDecimalDecorator

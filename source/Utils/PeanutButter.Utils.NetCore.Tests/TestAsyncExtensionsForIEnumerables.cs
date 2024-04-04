@@ -1,10 +1,10 @@
-﻿using static PeanutButter.RandomGenerators.RandomValueGen;
+﻿
 
 // ReSharper disable ExpressionIsAlwaysNull
 
 // ReSharper disable PossibleMultipleEnumeration
 
-namespace PeanutButter.Utils.NetCore.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestAsyncExtensionsForIEnumerables

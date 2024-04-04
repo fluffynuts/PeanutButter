@@ -1,10 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Builders;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 
-namespace PeanutButter.Utils.NetCore.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestDeepEqualityTester

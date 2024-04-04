@@ -1,6 +1,6 @@
 using PeanutButter.RandomGenerators;
 
-namespace PeanutButter.Utils.NetCore.Tests
+namespace PeanutButter.Utils.Tests
 {
     public class DictionaryBuilder<TKey, TValue>
         : GenericBuilder<DictionaryBuilder<TKey, TValue>, Dictionary<TKey, TValue>>

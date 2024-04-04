@@ -8,6 +8,7 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>PeanutButter.Utils.Tests</RootNamespace>
+      <DefineConstants>$(DefineConstants);IS_NETCORE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">

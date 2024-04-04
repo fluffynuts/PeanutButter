@@ -1,7 +1,6 @@
-﻿using static PeanutButter.RandomGenerators.RandomValueGen;
-using static PeanutButter.Utils.PyLike;
+﻿using static PeanutButter.Utils.PyLike;
 
-namespace PeanutButter.Utils.NetCore.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestMetadataExtensions

@@ -1,7 +1,7 @@
 ﻿// ReSharper disable ObjectCreationAsStatement
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace PeanutButter.Utils.NetCore.Tests;
+namespace PeanutButter.Utils.Tests;
 
 [TestFixture]
 public class TestAutoLockerFat

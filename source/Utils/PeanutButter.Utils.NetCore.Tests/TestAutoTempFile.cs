@@ -1,8 +1,7 @@
 using System.Reflection;
 using System.Text;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 
-namespace PeanutButter.Utils.NetCore.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestAutoTempFile

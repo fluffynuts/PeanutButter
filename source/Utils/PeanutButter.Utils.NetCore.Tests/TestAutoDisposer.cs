@@ -1,7 +1,6 @@
 ﻿using NSubstitute;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 
-namespace PeanutButter.Utils.NetCore.Tests
+namespace PeanutButter.Utils.Tests
 {
     [TestFixture]
     public class TestAutoDisposer
