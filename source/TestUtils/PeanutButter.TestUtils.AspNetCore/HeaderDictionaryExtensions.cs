@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Microsoft.AspNetCore.Http;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -57,6 +58,137 @@ public
 
         return SameSiteMode.None;
     }
+    
+    
+    /// <summary>
+    /// Parses cookies from an IHeaderDictionary
+    /// </summary>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    public static IEnumerable<Cookie> ParseCookies(
+        this IHeaderDictionary headers
+    )
+    {
+        return headers.Where(
+                h => h.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)
+            ).Select(h => h.Value.Select(ParseCookieHeader))
+            .SelectMany(o => o);
+    }
+
+    private static Cookie ParseCookieHeader(
+        string header
+    )
+    {
+        var parts = TrimAll(header.Split(';'));
+        return parts.Aggregate(
+            new Cookie(),
+            (acc, cur) =>
+            {
+                var subs = cur.Split('=');
+                var key = subs[0].Trim();
+                var value = string.Join("=", subs.Skip(1));
+                if (string.IsNullOrWhiteSpace(acc.Name))
+                {
+                    acc.Name = key;
+                    acc.Value = value;
+                }
+                else
+                {
+                    if (CookieMutations.TryGetValue(key, out var modifier))
+                    {
+                        modifier(acc, value);
+                    }
+                }
+
+                return acc;
+            }
+        );
+    }
+
+
+    private static readonly Dictionary<string, Action<Cookie, string>>
+        CookieMutations = new(
+            StringComparer.InvariantCultureIgnoreCase
+        )
+        {
+            ["Expires"] = SetCookieExpiration,
+            ["Max-Age"] = SetCookieMaxAgeToExpires,
+            ["Domain"] = SetCookieDomain,
+            ["Secure"] = SetCookieSecure,
+            ["HttpOnly"] = SetCookieHttpOnly,
+            ["Path"] = SetCookiePath
+        };
+
+    private static void SetCookiePath(
+        Cookie cookie,
+        string value
+    )
+    {
+        cookie.Path = value;
+    }
+
+    private static void SetCookieHttpOnly(
+        Cookie cookie,
+        string value
+    )
+    {
+        cookie.HttpOnly = true;
+    }
+
+    private static void SetCookieSecure(
+        Cookie cookie,
+        string value
+    )
+    {
+        cookie.Secure = true;
+    }
+
+    private static void SetCookieDomain(
+        Cookie cookie,
+        string value
+    )
+    {
+        cookie.Domain = value;
+    }
+
+    private static void SetCookieMaxAgeToExpires(
+        Cookie cookie,
+        string value
+    )
+    {
+        if (!int.TryParse(value, out var seconds))
+        {
+            throw new ArgumentException(
+                $"Unable to parse '{value}' as an integer value"
+            );
+        }
+
+        cookie.Expires = DateTime.Now.AddSeconds(seconds);
+        cookie.Expired = seconds < 1;
+    }
+
+    private static void SetCookieExpiration(
+        Cookie cookie,
+        string value
+    )
+    {
+        if (cookie.Expires > DateTime.MinValue)
+        {
+            // Max-Age takes precedence over Expires
+            return;
+        }
+
+        if (!DateTime.TryParse(value, out var expires))
+        {
+            throw new ArgumentException(
+                $"Unable to parse '{value}' as a date-time value"
+            );
+        }
+
+        cookie.Expires = expires;
+        cookie.Expired = expires <= DateTime.Now;
+    }
+    
 
     private static string[] TrimAll(IEnumerable<string> source)
     {
