@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using PeanutButter.Utils;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.TestUtils.AspNetCore;
@@ -43,10 +43,10 @@ public
             throw new CookieNotFoundException(cookieName);
         }
 
-        var parts = cookieHeader.Split(";").Trim();
+        var parts = TrimAll(cookieHeader.Split(";"));
         foreach (var part in parts)
         {
-            var subs = part.Split('=').Trim().ToArray();
+            var subs = TrimAll(part.Split('='));
             if (subs[0].Equals("SameSite", StringComparison.OrdinalIgnoreCase))
             {
                 return Enum.TryParse<SameSiteMode>(subs[1], out var parsed)
@@ -56,5 +56,10 @@ public
         }
 
         return SameSiteMode.None;
+    }
+
+    private static string[] TrimAll(IEnumerable<string> source)
+    {
+        return source.Select(s => s.Trim()).ToArray();
     }
 }
