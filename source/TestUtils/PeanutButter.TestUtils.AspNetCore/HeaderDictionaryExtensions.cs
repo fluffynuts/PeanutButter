@@ -50,7 +50,7 @@ public
             var subs = TrimAll(part.Split('='));
             if (subs[0].Equals("SameSite", StringComparison.OrdinalIgnoreCase))
             {
-                return Enum.TryParse<SameSiteMode>(subs[1], out var parsed)
+                return Enum.TryParse<SameSiteMode>(subs[1], ignoreCase: true, out var parsed)
                     ? parsed
                     : throw new InvalidSameSiteValueException(subs[1]);
             }
