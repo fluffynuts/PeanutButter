@@ -71,7 +71,15 @@ public
     {
         return headers.Where(
                 h => h.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)
-            ).Select(h => h.Value.Select(ParseCookieHeader))
+            ).Select(
+                h =>
+                {
+                    var values = h.Value.Select(s => s.Split(","))
+                        .SelectMany(o => o)
+                        .ToArray();
+                    return values.Select(ParseCookieHeader);
+                }
+            )
             .SelectMany(o => o);
     }
 

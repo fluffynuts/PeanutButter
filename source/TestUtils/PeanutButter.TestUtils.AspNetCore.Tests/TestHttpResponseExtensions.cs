@@ -39,6 +39,36 @@ public class TestHttpResponseExtensions
         }
 
         [Test]
+        public void ShouldParseMultipleCookiesProperly()
+        {
+            // Arrange
+            var k1 = GetRandomString();
+            var k2 = GetAnother(k1);
+            var v1 = GetRandomString();
+            var v2 = GetRandomString();
+            var res = HttpResponseBuilder.Create()
+                .WithCookie(k1, v1)
+                .WithCookie(k2, v2)
+                .Build();
+
+            // Act
+            var result = res.ParseCookies().ToArray();
+            // Assert
+            Expect(result)
+                .To.Contain.Only(2).Items();
+            Expect(result)
+                .To.Contain.Exactly(1)
+                .Matched.By(
+                    cookie => cookie.Name == k1 && cookie.Value == v1
+                );
+            Expect(result)
+                .To.Contain.Exactly(1)
+                .Matched.By(
+                    cookie => cookie.Name == k2 && cookie.Value == v2
+                );
+        }
+
+        [Test]
         public void ShouldParseSecureCookie()
         {
             // Arrange
