@@ -1,7 +1,7 @@
 using System;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
-namespace Imported PeanutButter.TestUtils.AspNetCore;
+namespace Imported.PeanutButter.TestUtils.AspNetCore;
 #else
 namespace PeanutButter.TestUtils.AspNetCore;
 #endif
