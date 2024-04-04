@@ -45,6 +45,7 @@ public class FakeHttpResponse : HttpResponse, IFake
 
     /// <inheritdoc />
     public override HttpContext HttpContext =>
+        // ReSharper disable once AssignNullToNotNullAttribute
         _httpContext ??= _httpContextAccessor?.Invoke();
 
     private Func<HttpContext> _httpContextAccessor;

@@ -1,12 +1,21 @@
 ﻿using System;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore;
+#else
 namespace PeanutButter.TestUtils.AspNetCore;
+#endif
 
 /// <summary>
 /// Thrown when unable to cast an abstract type to the faked implementation
 /// </summary>
 /// <typeparam name="TExpected"></typeparam>
-public class InvalidImplementationException<TExpected> : Exception
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class InvalidImplementationException<TExpected> : Exception
 {
     /// <inheritdoc />
     public InvalidImplementationException(

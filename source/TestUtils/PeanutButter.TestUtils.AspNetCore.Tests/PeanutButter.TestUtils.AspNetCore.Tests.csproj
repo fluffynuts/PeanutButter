@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Utils\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj" />
     <ProjectReference Include="..\PeanutButter.TestUtils.AspNetCore\PeanutButter.TestUtils.AspNetCore.csproj" />
   </ItemGroup>
 

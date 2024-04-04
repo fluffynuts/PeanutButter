@@ -6,44 +6,52 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.Utils;
 
-namespace PeanutButter.TestUtils.AspNetCore
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore;
+#else
+namespace PeanutButter.TestUtils.AspNetCore;
+#endif
+
+/// <summary>
+/// Provides extensions for action results
+/// </summary>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    static class ActionResultExtensions
 {
     /// <summary>
-    /// Provides extensions for action results
+    /// Resolve the HttpResponse that would be generated for
+    /// the provided action result (synchronous overload)
     /// </summary>
-    public static class ActionResultExtensions
+    /// <param name="actionResult"></param>
+    /// <returns></returns>
+    public static HttpResponse ResolveResponse(
+        this IActionResult actionResult
+    )
     {
-        /// <summary>
-        /// Resolve the HttpResponse that would be generated for
-        /// the provided action result (synchronous overload)
-        /// </summary>
-        /// <param name="actionResult"></param>
-        /// <returns></returns>
-        public static HttpResponse ResolveResponse(
-            this IActionResult actionResult
-        )
-        {
-            return Async.RunSync(actionResult.ResolveResponseAsync);
-        }
+        return Async.RunSync(actionResult.ResolveResponseAsync);
+    }
 
-        /// <summary>
-        /// Resolve the HttpResponse that would be generated for
-        /// the provided action result
-        /// </summary>
-        /// <param name="actionResult"></param>
-        /// <returns></returns>
-        public static async Task<HttpResponse> ResolveResponseAsync(
-            this IActionResult actionResult
-        )
-        {
-            var result = new ActionContext(
-                HttpContextBuilder.BuildDefault(),
-                RouteDataBuilder.BuildDefault(),
-                new ControllerActionDescriptor(),
-                new ModelStateDictionary()
-            );
-            await actionResult.ExecuteResultAsync(result);
-            return result.HttpContext.Response;
-        }
+    /// <summary>
+    /// Resolve the HttpResponse that would be generated for
+    /// the provided action result
+    /// </summary>
+    /// <param name="actionResult"></param>
+    /// <returns></returns>
+    public static async Task<HttpResponse> ResolveResponseAsync(
+        this IActionResult actionResult
+    )
+    {
+        var result = new ActionContext(
+            HttpContextBuilder.BuildDefault(),
+            RouteDataBuilder.BuildDefault(),
+            new ControllerActionDescriptor(),
+            new ModelStateDictionary()
+        );
+        await actionResult.ExecuteResultAsync(result);
+        return result.HttpContext.Response;
     }
 }

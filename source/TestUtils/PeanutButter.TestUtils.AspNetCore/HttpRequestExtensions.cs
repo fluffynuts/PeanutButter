@@ -1,15 +1,21 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore;
+#else
 namespace PeanutButter.TestUtils.AspNetCore;
-
-// TODO: if there's ever more asp.net utils,
-// move this into that project to publish
+#endif
 
 /// <summary>
 /// Provides convenience HttpRequestExtensions
 /// </summary>
-public static class HttpRequestExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    static class HttpRequestExtensions
 {
     /// <summary>
     /// Groks the full url for an HttpRequest into an Uri
@@ -20,13 +26,31 @@ public static class HttpRequestExtensions
         this HttpRequest request
     )
     {
-        return new Uri($@"{
-            request.Scheme
-        }://{
-            request.Host
-        }{
-            request.Path
-        }{request.QueryString}"
+        return new Uri(
+            $@"{
+                request.Scheme
+            }://{
+                request.Host
+            }{
+                request.Path
+            }{request.QueryString}"
         );
+    }
+
+    /// <summary>
+    /// Reads the SameSite attribute for a cookie from the request headers,
+    /// since System.Net.Cookie doesn't expose this
+    /// </summary>
+    /// <param name="res"></param>
+    /// <param name="cookieName"></param>
+    /// <returns></returns>
+    /// <exception cref="CookieNotFoundException"></exception>
+    /// <exception cref="InvalidSameSiteValueException"></exception>
+    public static SameSiteMode ReadSameSiteForCookie(
+        this HttpResponse res,
+        string cookieName
+    )
+    {
+        return res.Headers.ReadSameSiteForCookie(cookieName);
     }
 }

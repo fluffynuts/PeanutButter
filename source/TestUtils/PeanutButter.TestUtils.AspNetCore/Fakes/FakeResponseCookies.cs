@@ -228,6 +228,12 @@ public class FakeResponseCookies : IResponseCookies, IFake
             parts.Add(COOKIE_HTTP_ONLY_FLAG);
         }
 
+        if (opts.Expires is not null)
+        {
+            var totalSeconds = Math.Floor((opts.Expires.Value - DateTimeOffset.Now).TotalSeconds);
+            parts.Add($"Max-Age={totalSeconds}");
+        }
+
         return string.Join("; ", parts);
     }
 
