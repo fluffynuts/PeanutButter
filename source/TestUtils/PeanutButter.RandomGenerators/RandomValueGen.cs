@@ -9,7 +9,10 @@ using System.Net;
 using System.Reflection;
 using PeanutButter.Utils;
 using static PeanutButter.Utils.PyLike;
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 
+// SwapViaDeconstruction will require a reference to System.Tuple for netfx hosts
+// ReSharper disable SwapViaDeconstruction
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -52,7 +55,8 @@ namespace PeanutButter.RandomGenerators
                 [typeof(DateTime)] = () => GetRandomDate(),
                 [typeof(string)] = () => GetRandomString(),
                 [typeof(bool)] = () => GetRandomBoolean(),
-                [typeof(Type)] = GetRandomType
+                [typeof(Type)] = GetRandomType,
+                [typeof(DateTimeOffset)] = () => GetRandomDateTimeOffset(),
             };
 
         /// <summary>
@@ -202,22 +206,7 @@ namespace PeanutButter.RandomGenerators
             Func<T> generator
         )
         {
-            RandomGenerators[typeof(T)] = () => (object)(generator());
-        }
-
-        private class RandomValueSpecialCase
-        {
-            public Func<Type, bool> Matcher { get; }
-            public Func<Type, object> Generator { get; }
-
-            public RandomValueSpecialCase(
-                Func<Type, bool> matcher,
-                Func<Type, object> generator
-            )
-            {
-                Matcher = matcher;
-                Generator = generator;
-            }
+            RandomGenerators[typeof(T)] = () => generator();
         }
 
         private static readonly ConcurrentDictionary<Type, Func<object>> RandomGenerators = new()
@@ -628,11 +617,152 @@ namespace PeanutButter.RandomGenerators
         /// <param name="maxTime">Maximum time to consider (default all)</param>
         /// <returns>Random Local DateTime within the specified range</returns>
         public static DateTime GetRandomDate(
+            DateTime? minDate,
+            DateTime? maxDate,
+            bool dateOnly,
+            DateTime? minTime,
+            DateTime? maxTime
+        )
+        {
+            return GetRandomDate(
+                DateTimeKind.Local,
+                minDate,
+                maxDate,
+                dateOnly,
+                minTime,
+                maxTime
+            );
+        }
+
+        public static DateTime GetRandomDate()
+        {
+            return GetRandomDate(DateTimeKind.Local);
+        }
+
+        public static DateTime GetRandomDate(
+            DateTimeKind kind
+        )
+        {
+            return GetRandomDate(
+                kind,
+                DefaultMinimumDate
+            );
+        }
+        
+        private static readonly DateTime DefaultMinimumDate = new(1990, 1, 1);
+        private const int RANDOM_DATE_AUTOMATIC_RANGE_YEARS = 30;
+
+        // public static DateTime GetRandomDate(
+        //     DateTimeKind kind,
+        //     DateTime minDate
+        // )
+        // {
+        //     return GetRandomDate(
+        //         kind,
+        //         minDate,
+        //         DateTime.MaxValue
+        //     );
+        // }
+        //
+        // public static DateTime GetRandomDate(
+        //     DateTimeKind kind,
+        //     DateTime minDate,
+        //     DateTime maxDate
+        // )
+        // {
+        //     return GetRandomDate(
+        //         kind,
+        //         minDate,
+        //         maxDate,
+        //         dateOnly: false
+        //     );
+        // }
+        //
+        // public static DateTime GetRandomDate(
+        //     DateTimeKind kind,
+        //     DateTime minDate,
+        //     DateTime maxDate,
+        //     bool dateOnly
+        // )
+        // {
+        //     return GetRandomDate(
+        //         kind,
+        //         minDate,
+        //         maxDate,
+        //         dateOnly
+        //     );
+        // }
+
+        /// <summary>
+        /// Gets a random DateTime value of the specified kind, by default within SQL-safe range
+        /// </summary>
+        /// <param name="kind">DateTimeKind required for this value</param>
+        /// <param name="minDate">Minimum date to consider</param>
+        /// <param name="maxDate">Maximum date to consider</param>
+        /// <param name="dateOnly">Flag to determine if times should be truncated</param>
+        /// <param name="minTime">Minimum time to consider (default all)</param>
+        /// <param name="maxTime">Maximum time to consider (default all)</param>
+        /// <returns>Random DateTime value of the specified kind, within the specified range</returns>
+        // ReSharper disable once MemberCanBePrivate.Global
+        public static DateTime GetRandomDate(
+            DateTimeKind kind,
+            DateTime? minDate,
+            DateTime? maxDate,
+            bool dateOnly, // = false,
+            DateTime? minTime, // = null,
+            DateTime? maxTime // = null
+        )
+        {
+
+            if (dateOnly)
+            {
+                minDate = minDate?.AddTicks(-1).AddDays(1).StartOfDay();
+                maxDate = maxDate?.StartOfDay().AddDays(1).AddTicks(-1);
+                if (minDate > maxDate)
+                {
+                    minDate = minDate.Value.AddDays(-1);
+                }
+            }
+
+            var minTicks = (minDate ?? maxDate?.AddYears(-RANDOM_DATE_AUTOMATIC_RANGE_YEARS) ?? DefaultMinimumDate).Ticks;
+            var maxTicks = (maxDate ?? new DateTime(minTicks).AddYears(RANDOM_DATE_AUTOMATIC_RANGE_YEARS)).Ticks;
+            var actualTicks = GetRandomLong(minTicks, maxTicks);
+            var rawDateTime = new DateTime(actualTicks);
+            var sanitised = new DateTime(
+                rawDateTime.Year,
+                rawDateTime.Month,
+                rawDateTime.Day,
+                rawDateTime.Hour,
+                rawDateTime.Minute,
+                rawDateTime.Second,
+                rawDateTime.Millisecond,
+                kind
+            );
+            return dateOnly
+                ? sanitised.StartOfDay()
+                : RangeCheckTimeOnRandomDate(minTime, maxTime, sanitised);
+        }
+
+        /// <summary>
+        /// Gets a random DateTime value of the specified kind, by default within SQL-safe range
+        /// </summary>
+        /// <param name="minDate">Minimum date to consider</param>
+        /// <param name="maxDate">Maximum date to consider</param>
+        /// <param name="dateOnly">Flag to determine if times should be truncated</param>
+        /// <param name="minTime">Minimum time to consider (default all)</param>
+        /// <param name="maxTime">Maximum time to consider (default all)</param>
+        /// <returns>Random DateTime value of the specified kind, within the specified range</returns>
+        // ReSharper disable once MemberCanBePrivate.Global
+        public static DateTime GetRandomDate(
+            // ReSharper disable once MethodOverloadWithOptionalParameter
+            // if I use ReSharper alt-enter to pull out an overload,
+            // then code referencing this method doesn't get it any more,
+            // so we're going to not believe ReSharper for a little bit here
             DateTime? minDate = null,
             DateTime? maxDate = null,
             bool dateOnly = false,
-            DateTime? minTime = null,
-            DateTime? maxTime = null
+            TimeSpan? minTime = null,
+            TimeSpan? maxTime = null
         )
         {
             return GetRandomDate(
@@ -658,15 +788,24 @@ namespace PeanutButter.RandomGenerators
         // ReSharper disable once MemberCanBePrivate.Global
         public static DateTime GetRandomDate(
             DateTimeKind kind,
-            DateTime? minDate = null,
+            DateTime? minDate,
             DateTime? maxDate = null,
             bool dateOnly = false,
-            DateTime? minTime = null,
-            DateTime? maxTime = null
+            TimeSpan? minTime = null,
+            TimeSpan? maxTime = null
         )
         {
             var dateRangeLower = new DateTime(1990, 1, 1);
             const int dateRangeYears = 30;
+
+            if (minDate is not null && 
+                maxDate is not null && 
+                minDate.Value > maxDate.Value)
+            {
+                var swap = minDate;
+                minDate = maxDate;
+                maxDate = swap;
+            }
 
             if (dateOnly)
             {
@@ -698,6 +837,159 @@ namespace PeanutButter.RandomGenerators
         }
 
         /// <summary>
+        /// Like GetRandomDate, but for DateTimeOffset values
+        /// </summary>
+        /// <param name="minDate"></param>
+        /// <param name="maxDate"></param>
+        /// <param name="minTime"></param>
+        /// <param name="maxTime"></param>
+        /// <param name="dateOnly"></param>
+        /// <returns></returns>
+        public static DateTimeOffset GetRandomDateTimeOffset(
+            DateTimeOffset? minDate = null,
+            DateTimeOffset? maxDate = null,
+            TimeSpan? minTime = null,
+            TimeSpan? maxTime = null,
+            bool dateOnly = false
+        )
+        {
+            var dateRangeLower = new DateTimeOffset(DefaultMinimumDate);
+            const int dateRangeYears = 30;
+            minDate ??= dateRangeLower;
+            maxDate ??= new DateTimeOffset(DateTime.Now.AddYears(dateRangeYears));
+
+            if (maxDate < minDate)
+            {
+                var swap = minDate;
+                minDate = maxDate;
+                maxDate = swap;
+            }
+
+            return new DateTimeOffset(
+                GetRandomDate(
+                    minDate.Value.DateTime,
+                    maxDate.Value.DateTime,
+                    dateOnly,
+                    minTime,
+                    maxTime
+                )
+            );
+
+            //
+            // var range = maxDate.Value - minDate.Value;
+            // if (minTime is null && maxTime is null)
+            // {
+            //     var toAdd = TimeSpan.FromMilliseconds(
+            //         range.TotalMilliseconds
+            //     );
+            //     return minDate.Value.Add(
+            //         toAdd
+            //     );
+            // }
+            //
+            // var initial = minDate.Value.Add(
+            //     TimeSpan.FromDays(range.TotalDays)
+            // );
+            //
+            // minTime ??= TimeSpan.FromHours(0);
+            // maxTime ??= TimeSpan.FromHours(24);
+            //
+            // return FindClosest(
+            //     initial,
+            //     minDate.Value,
+            //     maxDate.Value,
+            //     minTime.Value,
+            //     maxTime.Value
+            // );
+        }
+
+        private static DateTimeOffset FindClosest(
+            DateTimeOffset start,
+            DateTimeOffset min,
+            DateTimeOffset max,
+            TimeSpan minTime,
+            TimeSpan maxTime
+        )
+        {
+            if (minTime > maxTime)
+            {
+                var swap = minTime;
+                minTime = maxTime;
+                maxTime = swap;
+            }
+
+            var minTest = start.Add(minTime);
+            var maxTest = start.Add(maxTime);
+            if (minTest >= min && maxTest <= max)
+            {
+                // trivial case: pick a time in the range and gtfo
+                return RandomTimeOnDay(start);
+            }
+
+            // try "yesterday"
+            var yesterday = start.AddDays(-1);
+            minTest = yesterday.Add(minTime);
+            maxTest = yesterday.Add(maxTime);
+            if (minTest >= min && maxTest <= max)
+            {
+                return RandomTimeOnDay(yesterday);
+            }
+
+            var tomorrow = start.AddDays(1);
+            minTest = tomorrow.Add(minTime);
+            maxTest = tomorrow.Add(maxTime);
+            if (minTest >= min && maxTest <= max)
+            {
+                return RandomTimeOnDay(tomorrow);
+            }
+
+            throw new InvalidOperationException(
+                $"Unable to generate DateTimeOffset between {min} and {max} which also satisfies time constraints {minTime} - {maxTime}"
+            );
+
+            DateTimeOffset RandomTimeOnDay(
+                DateTimeOffset date
+            )
+            {
+                return date.Add(
+                    GetRandomTimeSpan(
+                        minTime,
+                        maxTime
+                    )
+                );
+            }
+        }
+
+        private const int MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
+
+        /// <summary>
+        /// Returns a random UTC date within the specified range
+        /// </summary>
+        /// <param name="minDate"></param>
+        /// <param name="maxDate"></param>
+        /// <param name="dateOnly"></param>
+        /// <param name="minTime"></param>
+        /// <param name="maxTime"></param>
+        /// <returns></returns>
+        public static DateTime GetRandomUtcDate(
+            DateTime? minDate,
+            DateTime? maxDate,
+            bool dateOnly,
+            DateTime? minTime,
+            DateTime? maxTime
+        )
+        {
+            return GetRandomDate(
+                DateTimeKind.Utc,
+                minDate,
+                maxDate,
+                dateOnly,
+                minTime,
+                maxTime
+            );
+        }
+
+        /// <summary>
         /// Returns a random UTC date within the specified range
         /// </summary>
         /// <param name="minDate"></param>
@@ -710,8 +1002,8 @@ namespace PeanutButter.RandomGenerators
             DateTime? minDate = null,
             DateTime? maxDate = null,
             bool dateOnly = false,
-            DateTime? minTime = null,
-            DateTime? maxTime = null
+            TimeSpan? minTime = null,
+            TimeSpan? maxTime = null
         )
         {
             return GetRandomDate(
@@ -873,6 +1165,28 @@ namespace PeanutButter.RandomGenerators
         }
 
         internal static DateTime RangeCheckTimeOnRandomDate(
+            TimeSpan? minTime,
+            TimeSpan? maxTime,
+            DateTime value
+        )
+        {
+            var baseDate = new DateTime(value.Year, value.Month, value.Day);
+            var minDate = baseDate.Add(minTime ?? TimeSpan.FromSeconds(0));
+            var maxDate = baseDate.Add(maxTime ?? TimeSpan.FromDays(1).Subtract(TimeSpan.FromTicks(1)));
+
+            if (minDate > maxDate)
+            {
+                var swap = minDate;
+                minDate = maxDate;
+                maxDate = swap;
+            }
+
+            return value > maxDate || value < minDate
+                ? GetRandomDate(minDate, maxDate)
+                : value;
+        }
+
+        internal static DateTime RangeCheckTimeOnRandomDate(
             DateTime? minTime,
             DateTime? maxTime,
             DateTime value
@@ -884,6 +1198,7 @@ namespace PeanutButter.RandomGenerators
 
             if (minTime > maxTime)
             {
+                // ReSharper disable once SwapViaDeconstruction
                 var swap = minTime;
                 minTime = maxTime;
                 maxTime = swap;

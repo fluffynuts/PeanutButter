@@ -1382,8 +1382,8 @@ public class TestRandomValueGen
                 minTicks,
                 ticksInOneDay - 1
             );
-            var minTime = GetRandomDate().StartOfDay().AddTicks(minTicks);
-            var maxTime = GetRandomDate().StartOfDay().AddTicks(maxTicks);
+            var minTime = GetRandomDate().StartOfDay().AddTicks(minTicks).TimeOfDay;
+            var maxTime = GetRandomDate().StartOfDay().AddTicks(maxTicks).TimeOfDay;
 
             //---------------Assert Precondition----------------
 
@@ -1522,10 +1522,7 @@ public class TestRandomValueGen
         public void GivenMinTime_ShouldProduceRandomDatesWithTimesGreaterOrEqual()
         {
             //---------------Set up test pack-------------------
-            var minTime = new DateTime(
-                1900,
-                1,
-                1,
+            var minTime = new TimeSpan(
                 GetRandomInt(
                     0,
                     12
@@ -1539,15 +1536,13 @@ public class TestRandomValueGen
                     59
                 )
             );
-            var maxTime = new DateTime(
-                minTime.Year,
-                minTime.Month,
-                minTime.Day,
+            var maxTime = new TimeSpan(
                 0,
                 0,
                 0
             );
-            maxTime = maxTime.AddDays(1).AddMilliseconds(-1);
+            maxTime = maxTime.Add(TimeSpan.FromDays(1))
+                .Add(TimeSpan.FromMilliseconds(-1));
             var results = new List<DateTime>();
 
             //---------------Assert Precondition----------------
@@ -1669,10 +1664,8 @@ public class TestRandomValueGen
                 minTicks,
                 ticksInOneSecond - 1
             );
-            var minTime = baseDateTime.AddTicks(minTicks);
-            var maxTime = baseDateTime.AddTicks(maxTicks);
-            var expectedMinTime = minTime.TruncateMicroseconds();
-            var expectedMaxTime = maxTime.TruncateMicroseconds();
+            var minTime = baseDateTime.AddTicks(minTicks).TimeOfDay;
+            var maxTime = baseDateTime.AddTicks(maxTicks).TimeOfDay;
 
             //---------------Assert Precondition----------------
 
@@ -1683,21 +1676,19 @@ public class TestRandomValueGen
             );
 
             //---------------Test Result -----------------------
-            Assert.That(
-                result.TimeOfDay,
-                Is.GreaterThanOrEqualTo(expectedMinTime.TimeOfDay)
-                    .And.LessThanOrEqualTo(expectedMaxTime.TimeOfDay)
-            );
+            Expect(result.TimeOfDay)
+                .To.Be.Greater.Than
+                .Or.Equal.To(minTime.TruncateMilliseconds())
+                .And
+                .To.Be.Less.Than
+                .Or.Equal.To(maxTime);
         }
 
         [Test]
         public void GivenMaxTime_ShouldProduceRandomDatesWithTimesLessThanOrEqual()
         {
             //---------------Set up test pack-------------------
-            var maxTime = new DateTime(
-                1900,
-                1,
-                1,
+            var maxTime = new TimeSpan(
                 GetRandomInt(
                     12,
                     23
@@ -1723,7 +1714,7 @@ public class TestRandomValueGen
 
             //---------------Test Result -----------------------
             var outOfRange = results
-                .Where(d => d.MillisecondsSinceStartOfDay() > maxTime.MillisecondsSinceStartOfDay())
+                .Where(d => d.MillisecondsSinceStartOfDay() > maxTime.TotalMilliseconds)
                 .ToArray();
             Expect(
                 outOfRange.Any()
@@ -1857,7 +1848,6 @@ public class TestRandomValueGen
         }
     }
 
-
     [TestFixture]
     public class GetRandomUtcDate
     {
@@ -1962,8 +1952,8 @@ public class TestRandomValueGen
                 minTicks,
                 ticksInOneDay - 1
             );
-            var minTime = GetRandomUtcDate().StartOfDay().AddTicks(minTicks);
-            var maxTime = GetRandomUtcDate().StartOfDay().AddTicks(maxTicks);
+            var minTime = GetRandomUtcDate().StartOfDay().AddTicks(minTicks).TimeOfDay;
+            var maxTime = GetRandomUtcDate().StartOfDay().AddTicks(maxTicks).TimeOfDay;
 
             //---------------Assert Precondition----------------
 
@@ -2096,10 +2086,7 @@ public class TestRandomValueGen
         public void GetRandomUtcDate_GivenMinTime_ShouldProduceRandomDatesWithTimesGreaterOrEqual()
         {
             //---------------Set up test pack-------------------
-            var minTime = new DateTime(
-                1900,
-                1,
-                1,
+            var minTime = new TimeSpan(
                 GetRandomInt(
                     0,
                     12
@@ -2113,15 +2100,13 @@ public class TestRandomValueGen
                     59
                 )
             );
-            var maxTime = new DateTime(
-                minTime.Year,
-                minTime.Month,
-                minTime.Day,
+            var maxTime = new TimeSpan(
                 0,
                 0,
                 0
             );
-            maxTime = maxTime.AddDays(1).AddMilliseconds(-1);
+            maxTime = maxTime.Add(TimeSpan.FromDays(1))
+                .Add(TimeSpan.FromMilliseconds(-1));
             var results = new List<DateTime>();
 
             //---------------Assert Precondition----------------
@@ -2243,32 +2228,29 @@ public class TestRandomValueGen
             );
             var minTime = baseDateTime.AddTicks(minTicks);
             var maxTime = baseDateTime.AddTicks(maxTicks);
-            var expectedMinTime = minTime.TruncateMicroseconds();
-            var expectedMaxTime = maxTime.TruncateMicroseconds();
+            var expectedMinTime = minTime.TruncateMicroseconds().TimeOfDay;
+            var expectedMaxTime = maxTime.TruncateMicroseconds().TimeOfDay;
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
             var result = GetRandomUtcDate(
-                minTime: minTime,
-                maxTime: maxTime
+                minTime: minTime.TimeOfDay,
+                maxTime: maxTime.TimeOfDay
             );
 
             //---------------Test Result -----------------------
             Expect(result.TimeOfDay)
-                .To.Be.Greater.Than.Or.Equal.To(expectedMinTime.TimeOfDay)
+                .To.Be.Greater.Than.Or.Equal.To(expectedMinTime)
                 .And
-                .To.Be.Less.Than.Or.Equal.To(expectedMaxTime.TimeOfDay);
+                .To.Be.Less.Than.Or.Equal.To(expectedMaxTime);
         }
 
         [Test]
         public void GetRandomUtcDate_GivenMaxTime_ShouldProduceRandomDatesWithTimesLessThanOrEqual()
         {
             //---------------Set up test pack-------------------
-            var maxTime = new DateTime(
-                1900,
-                1,
-                1,
+            var maxTime = new TimeSpan(
                 GetRandomInt(
                     12,
                     23
@@ -2291,7 +2273,7 @@ public class TestRandomValueGen
 
             //---------------Test Result -----------------------
             var outOfRange = results
-                .Where(d => d.MillisecondsSinceStartOfDay() > maxTime.MillisecondsSinceStartOfDay())
+                .Where(d => d.MillisecondsSinceStartOfDay() > maxTime.TotalMilliseconds)
                 .ToArray();
             Expect(outOfRange)
                 .To.Be.Empty(
@@ -2684,6 +2666,180 @@ public class TestRandomValueGen
                 );
             Expect(collected)
                 .To.Vary();
+        }
+    }
+
+    [TestFixture]
+    public class GetRandomDateTimeOffset
+    {
+        [Test]
+        public void ShouldReturnARandomValue()
+        {
+            // Arrange
+            var results = new List<DateTimeOffset>();
+            // Act
+            RunCycles(
+                () => results.Add(GetRandomDateTimeOffset()),
+                NORMAL_RANDOM_TEST_CYCLES
+            );
+            // Assert
+            Expect(results)
+                .To.Vary();
+        }
+
+        [TestFixture]
+        public class WithinBoundaries
+        {
+            [Test]
+            public void ShouldReturnValuesGreaterThanOrEqualToMinDate()
+            {
+                // Arrange
+                var min = DateTimeOffset.Now;
+                var results = new List<DateTimeOffset>();
+                // Act
+                RunCycles(
+                    () => results.Add(GetRandomDateTimeOffset(min))
+                );
+                // Assert
+                Expect(results)
+                    .To.Contain.All
+                    .Matched.By(o => o >= min);
+            }
+
+            [Test]
+            public void ShouldReturnValuesLessThanOrEqualToMaxDate()
+            {
+                // Arrange
+                var max = DateTimeOffset.Now;
+                var results = new List<DateTimeOffset>();
+                // Act
+                RunCycles(
+                    () => results.Add(GetRandomDateTimeOffset(maxDate: max))
+                );
+                // Assert
+                Expect(results)
+                    .To.Contain.All
+                    .Matched.By(o => o <= max);
+            }
+
+            [Test]
+            public void ShouldReturnValuesWithinRange()
+            {
+                // Arrange
+                var max = DateTimeOffset.Now.AddDays(
+                    GetRandomInt(0, 1_000)
+                );
+                var min = DateTimeOffset.Now.AddDays(
+                    -GetRandomInt(0, 1_000)
+                );
+                var results = new List<DateTimeOffset>();
+                var verify = new List<DateTime>();
+                // Act
+                RunCycles(
+                    () =>
+                    {
+                        verify.Add(
+                            GetRandomDate(
+                                min.DateTime,
+                                max.DateTime
+                            )
+                        );
+                        results.Add(GetRandomDateTimeOffset(minDate: min, maxDate: max));
+                    }
+                );
+                // Assert
+                Expect(verify)
+                    .To.Contain.All
+                    .Matched.By(
+                        o => o <= max.DateTime && o >= min.DateTime,
+                        () => $"Should all be between {min}  and  {max}"
+                    );
+                Expect(results)
+                    .To.Contain.All
+                    .Matched.By(
+                        o => o <= max && o >= min,
+                        () => $"Should all be between {min}  and  {max}"
+                    );
+            }
+            [Test]
+            public void ShouldAutomaticallySwitchMinMaxOutOfOrder()
+            {
+                // Arrange
+                var maxParameter = DateTimeOffset.Now.AddDays(
+                    -GetRandomInt(0, 1_000)
+                );
+                var minParameter = DateTimeOffset.Now.AddDays(
+                    GetRandomInt(0, 1_000)
+                );
+                var min = maxParameter;
+                var max = minParameter;
+                var results = new List<DateTimeOffset>();
+                var verify = new List<DateTime>();
+                // Act
+                RunCycles(
+                    () =>
+                    {
+                        verify.Add(
+                            GetRandomDate(
+                                minParameter.DateTime,
+                                maxParameter.DateTime
+                            )
+                        );
+                        results.Add(GetRandomDateTimeOffset(minDate: minParameter, maxDate: maxParameter));
+                    }
+                );
+                // Assert
+                Expect(verify)
+                    .To.Contain.All
+                    .Matched.By(
+                        o => o <= max.DateTime && o >= min.DateTime,
+                        () => $"Should all be between {min}  and  {max}"
+                    );
+                Expect(results)
+                    .To.Contain.All
+                    .Matched.By(
+                        o => o <= max && o >= min,
+                        () => $"Should all be between {min}  and  {max}"
+                    );
+            }
+        }
+
+        [TestFixture]
+        public class WhenTimesAreSpecified
+        {
+            [Test]
+            public void ShouldProduceValuesWithTimesGreaterThanOrEqualToMin()
+            {
+                // Arrange
+                var minTime = new TimeSpan(
+                    GetRandomInt(0, 4),
+                    GetRandomInt(0, 10),
+                    GetRandomInt(0, 10)
+                );
+                var maxTime = new TimeSpan(
+                    GetRandomInt(6, 10),
+                    GetRandomInt(6, 10),
+                    GetRandomInt(6, 10)
+                );
+                var results = new List<DateTimeOffset>();
+
+                // Act
+                RunCycles(
+                    () => results.Add(
+                        GetRandomDateTimeOffset(
+                            minTime: minTime,
+                            maxTime: maxTime
+                        )
+                    )
+                );
+                // Assert
+                Expect(results)
+                    .To.Contain.All
+                    .Matched.By(
+                        o => o.TimeOfDay >= minTime && o.TimeOfDay <= maxTime,
+                        () => $"should be between {minTime}-{maxTime}"
+                    );
+            }
         }
     }
 
@@ -3205,7 +3361,6 @@ public class TestRandomValueGen
             );
         }
     }
-
 
     [TestFixture]
     public class GetRandomNonAlphaNumericString
@@ -5003,8 +5158,8 @@ public class TestRandomValueGen
     private static string GetErrorHelpFor(
         IEnumerable<DateTime> outOfRangeLeft,
         IEnumerable<DateTime> outOfRangeRight,
-        DateTime minTime,
-        DateTime maxTime
+        TimeSpan minTime,
+        TimeSpan maxTime
     )
     {
         var message = "";
