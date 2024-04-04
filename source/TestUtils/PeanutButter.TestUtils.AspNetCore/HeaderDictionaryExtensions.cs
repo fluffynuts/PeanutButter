@@ -89,8 +89,8 @@ public
                 var value = string.Join("=", subs.Skip(1));
                 if (string.IsNullOrWhiteSpace(acc.Name))
                 {
-                    acc.Name = key;
-                    acc.Value = value;
+                    acc.Name = WebUtility.UrlDecode(key);
+                    acc.Value = WebUtility.UrlDecode(value);
                 }
                 else
                 {
