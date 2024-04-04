@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.Utils;
 
@@ -156,30 +157,44 @@ public static partial class Run
         var t1 = Task.Run(
             async () =>
             {
-                barrier.SignalAndWait(waitToken);
-                await Task.Delay(timeout, waitToken);
-                if (waitCancellationTokenSource.IsCancellationRequested)
+                try
+                {
+                    barrier.SignalAndWait(waitToken);
+                    await Task.Delay(timeout, waitToken);
+                    if (waitCancellationTokenSource.IsCancellationRequested)
+                    {
+                        return default;
+                    }
+
+                    logicCancellationTokenSource.Cancel();
+                    return default;
+                }
+                catch
                 {
                     return default(T);
                 }
-
-                logicCancellationTokenSource.Cancel();
-                return default(T);
             },
             waitToken
         );
         var t2 = Task.Run(
             async () =>
             {
-                barrier.SignalAndWait(logicToken);
-                var result = await logic(logicToken);
-                if (logicCancellationTokenSource.IsCancellationRequested)
+                try
                 {
-                    return default(T);
-                }
+                    barrier.SignalAndWait(logicToken);
+                    var result = await logic(logicToken);
+                    if (logicCancellationTokenSource.IsCancellationRequested)
+                    {
+                        return default;
+                    }
 
-                waitCancellationTokenSource.Cancel();
-                return result;
+                    waitCancellationTokenSource.Cancel();
+                    return result;
+                }
+                catch
+                {
+                    return default;
+                }
             },
             logicToken
         );
