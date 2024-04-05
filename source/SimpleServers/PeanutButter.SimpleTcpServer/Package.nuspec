@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.SimpleTcpServer</id>
-    <version>3.0.285</version>
+    <version>3.0.286</version>
     <title>PeanutButter.SimpleTcpServer</title>
     <authors>Davyd McColl</authors>
     <owners></owners>
@@ -30,10 +30,10 @@
     <copyright>Copyright  2014</copyright>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="PeanutButter.Utils" version="3.0.285" />
+        <dependency id="PeanutButter.Utils" version="3.0.286" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="PeanutButter.Utils" version="3.0.285" />
+        <dependency id="PeanutButter.Utils" version="3.0.286" />
       </group>
     </dependencies>
     <references></references>
