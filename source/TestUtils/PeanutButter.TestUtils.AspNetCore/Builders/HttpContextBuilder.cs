@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Web;
@@ -657,6 +658,56 @@ via builder methods. If you're providing your own RequestServices, you'll have t
     {
         return With(
             o => o.Connection.RemoteIpAddress = address
+        );
+    }
+
+    /// <summary>
+    /// Sets session items on the HttpContext from the
+    /// provided collection
+    /// </summary>
+    /// <param name="items"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public HttpContextBuilder WithSessionItems(
+        IDictionary<string, object> items
+    )
+    {
+        if (items is null)
+        {
+            throw new ArgumentException(nameof(items));
+        }
+
+        return items.Aggregate(
+            this,
+            (acc, cur) => acc.WithSessionItem(cur.Key, cur.Value)
+        );
+    }
+
+    /// <summary>
+    /// Sets an item in the HttpContext.Session
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithSessionItem(
+        string key,
+        object value
+    )
+    {
+        return With(
+            o =>
+            {
+                if (value is null)
+                {
+                    o.Session.Remove(key);
+                    return;
+                }
+
+                o.Session.SetString(
+                    key,
+                    System.Text.Json.JsonSerializer.Serialize(value)
+                );
+            }
         );
     }
 }

@@ -1161,10 +1161,68 @@ public class TestHttpContextBuilder
             .To.Equal(expected);
     }
 
+    [Test]
+    public void ShouldBeAbleToSetSessionItems()
+    {
+        // Arrange
+        var k1 = GetRandomString();
+        var v1 = new IdContainer(GetRandomInt(1));
+        var k2 = GetAnother(k1);
+        var v2 = GetRandomDate();
+        var items = new Dictionary<string, object>()
+        {
+            [k1] = v1,
+            [k2] = v2
+        };
+        // Act
+        var ctx = HttpContextBuilder.Create()
+            .WithSessionItems(items)
+            .Build();
+        // Assert
+        var result1 = ctx.Session.Read<IdContainer>(k1);
+        var result2 = ctx.Session.Read<DateTime>(k2);
+        
+        Expect(result1)
+            .To.Deep.Equal(v1);
+        Expect(result2)
+            .To.Equal(v2);
+    }
+
+    public class IdContainer
+    {
+        public int Id { get; set; }
+
+        public IdContainer(int id)
+        {
+            Id = id;
+        }
+    }
+
     public class AService
     {
         public void DoNothing()
         {
         }
+    }
+}
+
+internal static class SessionExtensions
+{
+    internal static T Read<T>(
+        this ISession session,
+        string key
+    )
+    {
+        if (!session.Keys.Contains(key))
+        {
+            return default;
+        }
+        var str = session.GetString(key);
+        if (str is null)
+        {
+            return default;
+        }
+
+        return System.Text.Json.JsonSerializer.Deserialize<T>(str);
     }
 }
