@@ -27,7 +27,7 @@ public class FakeResponseCookies : IResponseCookies, IFake
 
     private IDictionary<string, FakeCookie> Cache
         => ProvideStore();
-    
+
     private readonly Dictionary<string, FakeCookie> _tempStore = new(StringComparer.OrdinalIgnoreCase);
 
     private IDictionary<string, FakeCookie> ProvideStore()
@@ -36,7 +36,7 @@ public class FakeResponseCookies : IResponseCookies, IFake
         {
             return _tempStore;
         }
-        
+
         Import(_tempStore);
         _tempStore.Clear();
 
@@ -66,10 +66,7 @@ public class FakeResponseCookies : IResponseCookies, IFake
     {
         foreach (var stringValue in stringValues)
         {
-            foreach (var subValue in stringValue.Split(','))
-            {
-                yield return Parse(subValue);
-            }
+            yield return Parse(stringValue);
         }
     }
 
@@ -156,13 +153,6 @@ public class FakeResponseCookies : IResponseCookies, IFake
         }
 
         UpdateResponseCookieHeaders(_response, this);
-        var strings = Cache.Select(
-            kvp => GenerateSetCookieHeaderFor(kvp.Value)
-        ).ToArray();
-        _response.Headers[SET_COOKIE] =
-            new StringValues(
-                strings
-            );
     }
 
     private static void UpdateResponseCookieHeaders(

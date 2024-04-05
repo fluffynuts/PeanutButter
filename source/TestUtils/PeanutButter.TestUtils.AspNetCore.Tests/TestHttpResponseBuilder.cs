@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
 
@@ -123,7 +124,7 @@ public class TestHttpResponseBuilder
         var called = false;
         Func<object, Task> capturedFunc = null;
         object capturedState = null;
-        Func<object, Task> inputFunc = o => Task.CompletedTask;
+        Func<object, Task> inputFunc = _ => Task.CompletedTask;
         var inputState = new object();
         // Act
         var result = HttpResponseBuilder.Create()
@@ -153,7 +154,7 @@ public class TestHttpResponseBuilder
         var called = false;
         Func<object, Task> capturedFunc = null;
         object capturedState = null;
-        Func<object, Task> inputFunc = o => Task.CompletedTask;
+        Func<object, Task> inputFunc = _ => Task.CompletedTask;
         var inputState = new object();
         // Act
         var result = HttpResponseBuilder.Create()
@@ -435,6 +436,8 @@ public class TestHttpResponseBuilder
             .WithCookie(key1, value1)
             .WithCookie(key2, value2)
             .Build();
+        Expect(sut.Headers["Set-Cookie"].Count)
+            .To.Equal(2);
         // Assert
         Expect(sut.Cookies)
             .To.Be.An.Instance.Of<FakeResponseCookies>();

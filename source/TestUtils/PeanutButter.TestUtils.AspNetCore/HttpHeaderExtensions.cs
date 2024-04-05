@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -18,7 +21,7 @@ internal
 #else
 public
 #endif
-    static class HeaderDictionaryExtensions
+    static class HttpHeaderExtensions
 {
     /// <summary>
     /// Reads the SameSite attribute for a cookie from the headers,
@@ -58,8 +61,8 @@ public
 
         return SameSiteMode.None;
     }
-    
-    
+
+
     /// <summary>
     /// Parses cookies from an IHeaderDictionary
     /// </summary>
@@ -72,13 +75,37 @@ public
         return headers.Where(
                 h => h.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)
             ).Select(
-                h =>
-                {
-                    var values = h.Value.Select(s => s.Split(","))
-                        .SelectMany(o => o)
-                        .ToArray();
-                    return values.Select(ParseCookieHeader);
-                }
+                h => h.Value.Select(ParseCookieHeader)
+            )
+            .SelectMany(o => o);
+    }
+
+    /// <summary>
+    /// Parses cookies on an HttpResponseMessage
+    /// </summary>
+    /// <param name="res"></param>
+    /// <returns></returns>
+    public static IEnumerable<Cookie> ParseCookies(
+        this HttpResponseMessage res
+    )
+    {
+        return res.Headers.ParseCookies();
+    }
+
+    /// <summary>
+    /// Parses cookies on the HttpResponseHeaders from
+    /// an HttpResponseMessage
+    /// </summary>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    public static IEnumerable<Cookie> ParseCookies(
+        this HttpResponseHeaders headers
+    )
+    {
+        return headers.Where(
+                h => h.Key.Equals("Set-Cookie", StringComparison.OrdinalIgnoreCase)
+            ).Select(
+                h => h.Value.Select(ParseCookieHeader)
             )
             .SelectMany(o => o);
     }
@@ -196,7 +223,7 @@ public
         cookie.Expires = expires;
         cookie.Expired = expires <= DateTime.Now;
     }
-    
+
 
     private static string[] TrimAll(IEnumerable<string> source)
     {

@@ -220,7 +220,7 @@ public abstract class StringValueMap
     /// </summary>
     public ICollection<string> Keys => Store.Keys;
 
-    private void Set(string key, string value)
+    private void Set(string key, StringValues value)
     {
         NotifyChangedAfter(() => Store[key] = value);
     }
