@@ -1169,10 +1169,13 @@ public class TestHttpContextBuilder
         var v1 = new IdContainer(GetRandomInt(1));
         var k2 = GetAnother(k1);
         var v2 = GetRandomDate();
+        var k3 = GetAnother<string>(new[] { k1, k2 });
+        var v3 = GetRandomWords();
         var items = new Dictionary<string, object>()
         {
             [k1] = v1,
-            [k2] = v2
+            [k2] = v2,
+            [k3] = v3
         };
         // Act
         var ctx = HttpContextBuilder.Create()
@@ -1181,11 +1184,14 @@ public class TestHttpContextBuilder
         // Assert
         var result1 = ctx.Session.Read<IdContainer>(k1);
         var result2 = ctx.Session.Read<DateTime>(k2);
+        var result3 = ctx.Session.GetString(k3);
         
         Expect(result1)
             .To.Deep.Equal(v1);
         Expect(result2)
             .To.Equal(v2);
+        Expect(result3)
+            .To.Equal(v3);
     }
 
     public class IdContainer

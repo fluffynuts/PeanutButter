@@ -705,7 +705,8 @@ via builder methods. If you're providing your own RequestServices, you'll have t
 
                 o.Session.SetString(
                     key,
-                    System.Text.Json.JsonSerializer.Serialize(value)
+                    value as string 
+                    ?? System.Text.Json.JsonSerializer.Serialize(value)
                 );
             }
         );
