@@ -30,7 +30,7 @@ public class TestActionResultExtensions
                 var result = await redirectResult.ResolveResponseAsync();
                 // Assert
                 Expect(result.StatusCode)
-                    .To.Equal((int) HttpStatusCode.TemporaryRedirect);
+                    .To.Equal((int)HttpStatusCode.TemporaryRedirect);
                 Expect(result.Headers.Location)
                     .To.Contain.Only(1)
                     .Equal.To("/Home/Index?foo=bar");
@@ -49,7 +49,7 @@ public class TestActionResultExtensions
                 var result = await redirectResult.ResolveResponseAsync();
                 // Assert
                 Expect(result.StatusCode)
-                    .To.Equal((int) HttpStatusCode.PermanentRedirect);
+                    .To.Equal((int)HttpStatusCode.PermanentRedirect);
                 Expect(result.Headers.Location)
                     .To.Contain.Only(1)
                     .Equal.To("/Home/Index?foo=bar");
@@ -75,7 +75,7 @@ public class TestActionResultExtensions
                 var result = await redirectResult.ResolveResponseAsync();
                 // Assert
                 Expect(result.StatusCode)
-                    .To.Equal((int) HttpStatusCode.Redirect);
+                    .To.Equal((int)HttpStatusCode.Redirect);
                 Expect(result.Headers.Location)
                     .To.Contain.Only(1)
                     .Equal.To($"/{controller}/{action}?id={routeValues.id}&foo=bar");
@@ -92,14 +92,17 @@ public class TestActionResultExtensions
                 var model = GetRandom<Person>();
                 var key = GetRandomString();
                 var value = GetRandomString();
-                var statusCode = (int) GetRandom<HttpStatusCode>();
+                var statusCode = (int)GetRandom<HttpStatusCode>();
                 var viewName = GetRandomString();
                 var viewResult = new PartialViewResult()
                 {
                     ViewName = viewName,
                     ViewData = ViewDataDictionaryBuilder.Create()
                         .WithModel(model)
-                        .With(key, value)
+                        .With(
+                            key,
+                            value
+                        )
                         .Build(),
                     StatusCode = statusCode
                 };
@@ -132,14 +135,17 @@ public class TestActionResultExtensions
                 var model = GetRandom<Person>();
                 var key = GetRandomString();
                 var value = GetRandomString();
-                var statusCode = (int) GetRandom<HttpStatusCode>();
+                var statusCode = (int)GetRandom<HttpStatusCode>();
                 var viewName = GetRandomString();
                 var viewResult = new ViewResult()
                 {
                     ViewName = viewName,
                     ViewData = ViewDataDictionaryBuilder.Create()
                         .WithModel(model)
-                        .With(key, value)
+                        .With(
+                            key,
+                            value
+                        )
                         .Build(),
                     StatusCode = statusCode
                 };
@@ -171,7 +177,7 @@ public class TestActionResultExtensions
                 // Arrange
                 var contentResult = new ContentResult()
                 {
-                    StatusCode = (int) GetRandom<HttpStatusCode>(),
+                    StatusCode = (int)GetRandom<HttpStatusCode>(),
                     ContentType = "application/json",
                     Content = "<html><head></head><body>Hello, world!</body></html>"
                 };
@@ -198,9 +204,11 @@ public class TestActionResultExtensions
                 var data = GetRandom<Person>();
                 var objectResult = new ObjectResult(data)
                 {
-                    StatusCode = (int) GetRandom<HttpStatusCode>(),
+                    StatusCode = (int)GetRandom<HttpStatusCode>(),
                     ContentTypes = new MediaTypeCollection()
-                        { "application/json" }
+                    {
+                        "application/json"
+                    }
                 };
                 // Act
                 var result = await objectResult.ResolveResponseAsync();
@@ -223,7 +231,7 @@ public class TestActionResultExtensions
                 var result = await notFound.ResolveResponseAsync();
                 // Assert
                 Expect(result.StatusCode)
-                    .To.Equal((int) HttpStatusCode.NotFound);
+                    .To.Equal((int)HttpStatusCode.NotFound);
             }
         }
     }
@@ -247,7 +255,7 @@ public class TestActionResultExtensions
                 var result = redirectResult.ResolveResponse();
                 // Assert
                 Expect(result.StatusCode)
-                    .To.Equal((int) HttpStatusCode.TemporaryRedirect);
+                    .To.Equal((int)HttpStatusCode.TemporaryRedirect);
                 Expect(result.Headers.Location)
                     .To.Contain.Only(1)
                     .Equal.To("/Home/Index?foo=bar");
@@ -266,7 +274,7 @@ public class TestActionResultExtensions
                 var result = redirectResult.ResolveResponse();
                 // Assert
                 Expect(result.StatusCode)
-                    .To.Equal((int) HttpStatusCode.PermanentRedirect);
+                    .To.Equal((int)HttpStatusCode.PermanentRedirect);
                 Expect(result.Headers.Location)
                     .To.Contain.Only(1)
                     .Equal.To("/Home/Index?foo=bar");
@@ -292,7 +300,7 @@ public class TestActionResultExtensions
                 var result = redirectResult.ResolveResponse();
                 // Assert
                 Expect(result.StatusCode)
-                    .To.Equal((int) HttpStatusCode.Redirect);
+                    .To.Equal((int)HttpStatusCode.Redirect);
                 Expect(result.Headers.Location)
                     .To.Contain.Only(1)
                     .Equal.To($"/{controller}/{action}?id={routeValues.id}&foo=bar");
@@ -309,14 +317,17 @@ public class TestActionResultExtensions
                 var model = GetRandom<Person>();
                 var key = GetRandomString();
                 var value = GetRandomString();
-                var statusCode = (int) GetRandom<HttpStatusCode>();
+                var statusCode = (int)GetRandom<HttpStatusCode>();
                 var viewName = GetRandomString();
                 var viewResult = new PartialViewResult()
                 {
                     ViewName = viewName,
                     ViewData = ViewDataDictionaryBuilder.Create()
                         .WithModel(model)
-                        .With(key, value)
+                        .With(
+                            key,
+                            value
+                        )
                         .Build(),
                     StatusCode = statusCode
                 };
@@ -349,14 +360,17 @@ public class TestActionResultExtensions
                 var model = GetRandom<Person>();
                 var key = GetRandomString();
                 var value = GetRandomString();
-                var statusCode = (int) GetRandom<HttpStatusCode>();
+                var statusCode = (int)GetRandom<HttpStatusCode>();
                 var viewName = GetRandomString();
                 var viewResult = new ViewResult()
                 {
                     ViewName = viewName,
                     ViewData = ViewDataDictionaryBuilder.Create()
                         .WithModel(model)
-                        .With(key, value)
+                        .With(
+                            key,
+                            value
+                        )
                         .Build(),
                     StatusCode = statusCode
                 };
@@ -388,7 +402,7 @@ public class TestActionResultExtensions
                 // Arrange
                 var contentResult = new ContentResult()
                 {
-                    StatusCode = (int) GetRandom<HttpStatusCode>(),
+                    StatusCode = (int)GetRandom<HttpStatusCode>(),
                     ContentType = "application/json",
                     Content = "<html><head></head><body>Hello, world!</body></html>"
                 };
@@ -415,9 +429,11 @@ public class TestActionResultExtensions
                 var data = GetRandom<Person>();
                 var objectResult = new ObjectResult(data)
                 {
-                    StatusCode = (int) GetRandom<HttpStatusCode>(),
+                    StatusCode = (int)GetRandom<HttpStatusCode>(),
                     ContentTypes = new MediaTypeCollection()
-                        { "application/json" }
+                    {
+                        "application/json"
+                    }
                 };
                 // Act
                 var result = objectResult.ResolveResponse();
@@ -440,7 +456,50 @@ public class TestActionResultExtensions
                 var result = notFound.ResolveResponse();
                 // Assert
                 Expect(result.StatusCode)
-                    .To.Equal((int) HttpStatusCode.NotFound);
+                    .To.Equal((int)HttpStatusCode.NotFound);
+            }
+        }
+    }
+
+    [TestFixture]
+    public class FetchModel
+    {
+        [TestFixture]
+        public class OperatingOnViewResult
+        {
+            [Test]
+            public void ShouldFetchTheModel()
+            {
+                // Arrange
+                var model = GetRandom<Person>();
+                var res = new ViewResult()
+                {
+                    ViewData = ViewDataDictionaryBuilder.Create()
+                        .WithModel(model)
+                        .Build()
+                } as IActionResult;
+                // Act
+                var result = res.FetchModel<Person>();
+                // Assert
+                Expect(result)
+                    .To.Be(model);
+            }
+        }
+
+        [TestFixture]
+        public class OperatingOnJsonResult
+        {
+            [Test]
+            public void ShouldFetchTheModel()
+            {
+                // Arrange
+                var model = GetRandom<Person>();
+                var res = new JsonResult(model);
+                // Act
+                var result = res.FetchModel<Person>();
+                // Assert
+                Expect(result)
+                    .To.Be(model);
             }
         }
     }

@@ -54,4 +54,25 @@ public
         await actionResult.ExecuteResultAsync(result);
         return result.HttpContext.Response;
     }
+
+
+    /// <summary>
+    /// Attempts to fetch the model off of the ActionResult.
+    /// This requires that you know the model type, otherwise
+    /// it will fail.
+    /// </summary>
+    /// <param name="actionResult"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T FetchModel<T>(
+        this IActionResult actionResult
+    )
+    {
+        return actionResult switch
+        {
+            JsonResult jsonResult => (T)jsonResult.Value,
+            ViewResult viewResult => (T)viewResult.Model,
+            _ => actionResult.Get<T>("Model")
+        };
+    }
 }
