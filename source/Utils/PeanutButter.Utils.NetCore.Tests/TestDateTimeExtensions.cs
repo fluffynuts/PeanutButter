@@ -645,13 +645,19 @@ public class TestDateTimeExtensions
             {
                 // Arrange
                 var subject = GetRandomDate();
-                var before = GetRandomDate(subject.AddDays(GetRandomInt(1)), subject.AddDays(-1));
-                var after = GetRandomDate(before, before.AddDays(GetRandomInt(1)));
+                var before = GetRandomDate(subject.AddDays(GetRandomInt(1)), subject.AddDays(100));
+                var after = GetRandomDate(before.AddDays(1), before.AddDays(GetRandomInt(100)));
+                Expect(subject)
+                    .To.Be.Less.Than(before)
+                    .And
+                    .To.Be.Less.Than(after);
                 // Act
                 var result = subject.IsBetween(before, after);
                 // Assert
                 Expect(result)
-                    .To.Be.False();
+                    .To.Be.False(() => $"{
+                        subject
+                    } should be between {before} and {after}:\n{before} < {subject}: {before < subject}\n{after} > {subject}: {after > subject}");
             }
 
             [Test]
@@ -659,8 +665,12 @@ public class TestDateTimeExtensions
             {
                 // Arrange
                 var subject = GetRandomDate();
-                var before = GetRandomDate(subject.AddDays(GetRandomInt(1)), subject.AddDays(-1));
-                var after = GetRandomDate(before, before.AddDays(GetRandomInt(1)));
+                var before = GetRandomDate(subject.AddDays(GetRandomInt(1)), subject.AddDays(100));
+                var after = GetRandomDate(before.AddDays(1), before.AddDays(GetRandomInt(100)));
+                Expect(subject)
+                    .To.Be.Less.Than(before)
+                    .And
+                    .To.Be.Less.Than(after);
                 // Act
                 var result = subject.IsBetween(after, before);
                 // Assert
@@ -683,7 +693,7 @@ public class TestDateTimeExtensions
                 var result = subject.IsBetween(before, after);
                 // Assert
                 Expect(result)
-                    .To.Be.True();
+                    .To.Be.False();
             }
 
             [Test]
@@ -697,7 +707,7 @@ public class TestDateTimeExtensions
                 var result = subject.IsBetween(after, before);
                 // Assert
                 Expect(result)
-                    .To.Be.True();
+                    .To.Be.False();
             }
         }
     }
