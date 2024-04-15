@@ -306,6 +306,30 @@ public
     }
 
     /// <summary>
+    /// Returns true when the subject date-time is between
+    /// the provided before and after values
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="before"></param>
+    /// <param name="after"></param>
+    /// <returns></returns>
+    public static bool IsBetween(
+        this DateTime subject,
+        DateTime before,
+        DateTime after
+    )
+    {
+        if (before > after)
+        {
+            var swap = before;
+            before = after;
+            after = swap;
+        }
+
+        return before < subject && subject < after;
+    }
+
+    /// <summary>
     /// Provides a new DateTime with all components from the subject except
     /// Seconds, which are truncated.
     /// </summary>

@@ -602,6 +602,106 @@ public class TestDateTimeExtensions
         }
     }
 
+    [TestFixture]
+    public class IsBetween
+    {
+        [TestFixture]
+        public class WhenSubjectIsBetweenDates
+        {
+            [Test]
+            public void ShouldReturnTrue()
+            {
+                // Arrange
+                var subject = GetRandomDate();
+                var before = GetRandomDate(subject.AddDays(-GetRandomInt(1)), subject.AddDays(-1));
+                var after = GetRandomDate(subject.AddDays(1), subject.AddDays(GetRandomInt(1)));
+                // Act
+                var result = subject.IsBetween(before, after);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnTrueWhenSwapped()
+            {
+                // Arrange
+                var subject = GetRandomDate();
+                var before = GetRandomDate(subject.AddDays(-GetRandomInt(1)), subject.AddDays(-1));
+                var after = GetRandomDate(subject.AddDays(1), subject.AddDays(GetRandomInt(1)));
+                // Act
+                var result = subject.IsBetween(after, before);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+        }
+
+        [TestFixture]
+        public class WhenSubjectBeforeStart
+        {
+            [Test]
+            public void ShouldReturnFalse()
+            {
+                // Arrange
+                var subject = GetRandomDate();
+                var before = GetRandomDate(subject.AddDays(GetRandomInt(1)), subject.AddDays(-1));
+                var after = GetRandomDate(before, before.AddDays(GetRandomInt(1)));
+                // Act
+                var result = subject.IsBetween(before, after);
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+
+            [Test]
+            public void ShouldReturnFalseWhenSwapped()
+            {
+                // Arrange
+                var subject = GetRandomDate();
+                var before = GetRandomDate(subject.AddDays(GetRandomInt(1)), subject.AddDays(-1));
+                var after = GetRandomDate(before, before.AddDays(GetRandomInt(1)));
+                // Act
+                var result = subject.IsBetween(after, before);
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
+        }
+
+        [TestFixture]
+        public class WhenSubjectAfterEnd
+        {
+            [Test]
+            public void ShouldReturnFalse()
+            {
+                // Arrange
+                var subject = GetRandomDate();
+                var after = GetRandomDate(subject.AddDays(-GetRandomInt(100)), subject.AddDays(-1));
+                var before = GetRandomDate(after.AddDays(-GetRandomInt(100)), after.AddDays(-1));
+                // Act
+                var result = subject.IsBetween(before, after);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+
+            [Test]
+            public void ShouldReturnFalseWhenSwapped()
+            {
+                // Arrange
+                var subject = GetRandomDate();
+                var after = GetRandomDate(subject.AddDays(-GetRandomInt(100)), subject.AddDays(-1));
+                var before = GetRandomDate(after.AddDays(-GetRandomInt(100)), after.AddDays(-1));
+                // Act
+                var result = subject.IsBetween(after, before);
+                // Assert
+                Expect(result)
+                    .To.Be.True();
+            }
+        }
+    }
+
     public class ThingWithDate
     {
         public DateTime DateProperty { get; set; }
