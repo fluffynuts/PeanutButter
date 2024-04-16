@@ -2,7 +2,7 @@
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
-using static Impoerted.PeanutButter.RandomGenerators.RandomValueGen;
+using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
 #else
