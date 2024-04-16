@@ -1,5 +1,11 @@
 using System;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.RandomGenerators;
+#else
+namespace PeanutButter.RandomGenerators;
+#endif
+
 internal class ThreadSafeRandom
 {
     private readonly Random _random = new(DateTime.Now.Millisecond);

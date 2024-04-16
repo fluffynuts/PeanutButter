@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
-using PeanutButter.TestUtils.AspNetCore.Fakes;
 
 // ReSharper disable ClassNeverInstantiated.Global
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
 namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
 #else
+using PeanutButter.TestUtils.AspNetCore.Fakes;
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 #endif
 

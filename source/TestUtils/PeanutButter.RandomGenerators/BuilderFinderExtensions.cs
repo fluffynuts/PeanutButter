@@ -1,50 +1,55 @@
 using System;
 using PeanutButter.Utils;
 
-namespace PeanutButter.RandomGenerators
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.RandomGenerators;
+#else
+namespace PeanutButter.RandomGenerators;
+#endif
+
+internal static class BuilderFinderExtensions
 {
-    internal static class BuilderFinderExtensions
+    private static readonly Type GenericBuilderBaseType = typeof(GenericBuilder<,>);
+    private static readonly Type ObjectType = typeof(object);
+
+    public static bool IsBuilderFor(this Type t, Type toBuild)
     {
-        private static readonly Type GenericBuilderBaseType = typeof(GenericBuilder<,>);
-        private static readonly Type ObjectType = typeof(object);
+        var builderType = TryFindBuilderTypeInClassHeirachyFor(t, toBuild);
+        return builderType != null;
+    }
 
-        public static bool IsBuilderFor(this Type t, Type toBuild)
-        {
-            var builderType = TryFindBuilderTypeInClassHeirachyFor(t, toBuild);
-            return builderType != null;
-        }
+    public static bool IsABuilder(this Type t)
+    {
+        return t.TryFindGenericBuilderInClassHeirachy() != null;
+    }
 
-        public static bool IsABuilder(this Type t)
-        {
-            return t.TryFindGenericBuilderInClassHeirachy() != null;
-        }
+    private static Type TryFindBuilderTypeInClassHeirachyFor(Type potentialBuilder, Type buildType)
+    {
+        var current = TryFindGenericBuilderInClassHeirachy(potentialBuilder);
+        if (current == null)
+            return null;
+        var typeParameters = current.GetGenericArguments();
+        return typeParameters.Length > 1 && typeParameters[1] == buildType
+            ? current
+            : null;
+    }
 
-        private static Type TryFindBuilderTypeInClassHeirachyFor(Type potentialBuilder, Type buildType)
+    internal static Type TryFindGenericBuilderInClassHeirachy(this Type current)
+    {
+        while (current != ObjectType && current != null)
         {
-            var current = TryFindGenericBuilderInClassHeirachy(potentialBuilder);
-            if (current == null)
-                return null;
-            var typeParameters = current.GetGenericArguments();
-            return typeParameters.Length > 1 && typeParameters[1] == buildType
-                ? current
-                : null;
-        }
-
-        internal static Type TryFindGenericBuilderInClassHeirachy(this Type current)
-        {
-            while (current != ObjectType && current != null)
+            if (current.IsGenericType())
             {
-                if (current.IsGenericType())
-                {
-                    var genericBase = current.GetGenericTypeDefinition();
-                    if (genericBase == GenericBuilderBaseType)
-                        break;
-                }
-                current = current.BaseType();
+                var genericBase = current.GetGenericTypeDefinition();
+                if (genericBase == GenericBuilderBaseType)
+                    break;
             }
-            if (current == ObjectType || current == null)
-                return null;
-            return current;
+
+            current = current.BaseType();
         }
+
+        if (current == ObjectType || current == null)
+            return null;
+        return current;
     }
 }
