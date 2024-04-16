@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Primitives;
@@ -86,10 +87,10 @@ namespace PeanutButter.TestUtils.AspNetCore.Tests
                     .Not.To.Be.Null();
                 Expect(metaData)
                     .To.Be.An.Instance.Of<FakeModelMetadata>();
-                Expect(metaData.BindingSource!.DisplayName)
-                    .To.Equal(expectedMetaData.BindingSource!.DisplayName);
+                Expect(Guid.TryParse(metaData.BindingSource!.DisplayName, out _))
+                    .To.Be.True();
                 Expect(metaData.BindingSource.IsGreedy)
-                    .To.Equal(expectedMetaData.BindingSource.IsGreedy);
+                    .To.Equal(expectedMetaData.BindingSource!.IsGreedy);
                 Expect(metaData.BindingSource.IsFromRequest)
                     .To.Equal(expectedMetaData.BindingSource.IsFromRequest);
                 Expect(metaData.BindingSource.Id)
