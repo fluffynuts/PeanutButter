@@ -1,3 +1,5 @@
+using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -77,4 +79,53 @@ public
             _ => actionResult.Get<T>("Model")
         };
     }
+    
+    /// <summary>
+    /// Verifies the status code on the action result
+    /// </summary>
+    /// <param name="actionResult"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static HttpStatusCode StatusCode(
+        this IActionResult actionResult
+    )
+    {
+        var statusCode = actionResult.GetOrDefault<int?>(nameof(ObjectResult.StatusCode), null);
+        if (statusCode is null)
+        {
+            var type = actionResult.GetType();
+            var prop = type.GetProperty(nameof(ObjectResult.StatusCode));
+            if (prop is not null)
+            {
+                // the result has the prop, but it's nullable, so optional...
+                if (actionResult is JsonResult)
+                {
+                    // if you don't set a status code on JsonResults, you're saying 👌
+                    return HttpStatusCode.OK;
+                }
+
+                throw new NotImplementedException(
+                    $"StatusCode inference not implemented for action of type: {type}"
+                );
+            }
+
+            if (actionResult is ForbidResult)
+            {
+                return HttpStatusCode.Forbidden;
+            }
+
+            if (actionResult is UnauthorizedResult)
+            {
+                return HttpStatusCode.Unauthorized;
+            }
+
+            throw new InvalidOperationException(
+                $"{actionResult} ({type}) has no StatusCode property"
+            );
+        }
+
+        return (HttpStatusCode) statusCode;
+    }
+
 }
