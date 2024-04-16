@@ -2,12 +2,21 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// simplify some routines around HttpRequests
 /// </summary>
-public static class HttpRequestExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public 
+#endif
+    static class HttpRequestExtensions
 {
     /// <summary>
     /// Set the request up as if it came from the provided url

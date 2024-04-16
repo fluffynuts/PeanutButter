@@ -2,120 +2,122 @@
 using System.Buffers;
 using System.Diagnostics;
 
-namespace PeanutButter.TestUtils.AspNetCore.Fakes.Internal
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes.Internal;
+#else
+namespace PeanutButter.TestUtils.AspNetCore.Fakes.Internal;
+#endif
+/// <summary>
+/// Copied from dotnet sources, kept internal
+/// </summary>
+internal sealed class BufferSegment : ReadOnlySequenceSegment<byte>
 {
+    private IMemoryOwner<byte> _memoryOwner;
+    private byte[] _array;
+    private BufferSegment _next;
+    private int _end;
+
     /// <summary>
-    /// Copied from dotnet sources, kept internal
+    /// The End represents the offset into AvailableMemory where the range of "active" bytes ends. At the point when the block is leased
+    /// the End is guaranteed to be equal to Start. The value of Start may be assigned anywhere between 0 and
+    /// Buffer.Length, and must be equal to or less than End.
     /// </summary>
-    internal sealed class BufferSegment : ReadOnlySequenceSegment<byte>
+    public int End
     {
-        private IMemoryOwner<byte> _memoryOwner;
-        private byte[] _array;
-        private BufferSegment _next;
-        private int _end;
-
-        /// <summary>
-        /// The End represents the offset into AvailableMemory where the range of "active" bytes ends. At the point when the block is leased
-        /// the End is guaranteed to be equal to Start. The value of Start may be assigned anywhere between 0 and
-        /// Buffer.Length, and must be equal to or less than End.
-        /// </summary>
-        public int End
+        get => _end;
+        set
         {
-            get => _end;
-            set
-            {
-                Debug.Assert(value <= AvailableMemory.Length);
+            Debug.Assert(value <= AvailableMemory.Length);
 
-                _end = value;
-                Memory = AvailableMemory.Slice(0, value);
-            }
+            _end = value;
+            Memory = AvailableMemory.Slice(0, value);
+        }
+    }
+
+    /// <summary>
+    /// Reference to the next block of data when the overall "active" bytes spans multiple blocks. At the point when the block is
+    /// leased Next is guaranteed to be null. Start, End, and Next are used together in order to create a linked-list of discontiguous
+    /// working memory. The "active" memory is grown when bytes are copied in, End is increased, and Next is assigned. The "active"
+    /// memory is shrunk when bytes are consumed, Start is increased, and blocks are returned to the pool.
+    /// </summary>
+    public BufferSegment NextSegment
+    {
+        get => _next;
+        set
+        {
+            Next = value;
+            _next = value;
+        }
+    }
+
+    public void SetOwnedMemory(IMemoryOwner<byte> memoryOwner)
+    {
+        _memoryOwner = memoryOwner;
+        AvailableMemory = memoryOwner.Memory;
+    }
+
+    public void SetOwnedMemory(byte[] arrayPoolBuffer)
+    {
+        _array = arrayPoolBuffer;
+        AvailableMemory = arrayPoolBuffer;
+    }
+
+    public void ResetMemory()
+    {
+        var memoryOwner = _memoryOwner;
+        if (memoryOwner != null)
+        {
+            _memoryOwner = null;
+            memoryOwner.Dispose();
+        }
+        else
+        {
+            Debug.Assert(_array != null);
+            ArrayPool<byte>.Shared.Return(_array);
+            _array = null;
         }
 
-        /// <summary>
-        /// Reference to the next block of data when the overall "active" bytes spans multiple blocks. At the point when the block is
-        /// leased Next is guaranteed to be null. Start, End, and Next are used together in order to create a linked-list of discontiguous
-        /// working memory. The "active" memory is grown when bytes are copied in, End is increased, and Next is assigned. The "active"
-        /// memory is shrunk when bytes are consumed, Start is increased, and blocks are returned to the pool.
-        /// </summary>
-        public BufferSegment NextSegment
+        Next = null;
+        RunningIndex = 0;
+        Memory = default;
+        _next = null;
+        _end = 0;
+        AvailableMemory = default;
+    }
+
+    // Exposed for testing
+    internal object MemoryOwner => (object)_memoryOwner ?? _array;
+
+    public Memory<byte> AvailableMemory { get; private set; }
+
+    public int Length => End;
+
+    public int WritableBytes
+    {
+        get => AvailableMemory.Length - End;
+    }
+
+    public void SetNext(BufferSegment segment)
+    {
+        NextSegment = segment;
+
+        segment = this;
+
+        while (segment.Next != null)
         {
-            get => _next;
-            set
-            {
-                Next = value;
-                _next = value;
-            }
+            Debug.Assert(segment.NextSegment != null);
+            segment.NextSegment.RunningIndex = segment.RunningIndex + segment.Length;
+            segment = segment.NextSegment;
         }
+    }
 
-        public void SetOwnedMemory(IMemoryOwner<byte> memoryOwner)
-        {
-            _memoryOwner = memoryOwner;
-            AvailableMemory = memoryOwner.Memory;
-        }
+    internal static long GetLength(BufferSegment startSegment, int startIndex, BufferSegment endSegment, int endIndex)
+    {
+        return (endSegment.RunningIndex + (uint)endIndex) - (startSegment.RunningIndex + (uint)startIndex);
+    }
 
-        public void SetOwnedMemory(byte[] arrayPoolBuffer)
-        {
-            _array = arrayPoolBuffer;
-            AvailableMemory = arrayPoolBuffer;
-        }
-
-        public void ResetMemory()
-        {
-            var memoryOwner = _memoryOwner;
-            if (memoryOwner != null)
-            {
-                _memoryOwner = null;
-                memoryOwner.Dispose();
-            }
-            else
-            {
-                Debug.Assert(_array != null);
-                ArrayPool<byte>.Shared.Return(_array);
-                _array = null;
-            }
-
-            Next = null;
-            RunningIndex = 0;
-            Memory = default;
-            _next = null;
-            _end = 0;
-            AvailableMemory = default;
-        }
-
-        // Exposed for testing
-        internal object MemoryOwner => (object) _memoryOwner ?? _array;
-
-        public Memory<byte> AvailableMemory { get; private set; }
-
-        public int Length => End;
-
-        public int WritableBytes
-        {
-            get => AvailableMemory.Length - End;
-        }
-
-        public void SetNext(BufferSegment segment)
-        {
-            NextSegment = segment;
-
-            segment = this;
-
-            while (segment.Next != null)
-            {
-                Debug.Assert(segment.NextSegment != null);
-                segment.NextSegment.RunningIndex = segment.RunningIndex + segment.Length;
-                segment = segment.NextSegment;
-            }
-        }
-
-        internal static long GetLength(BufferSegment startSegment, int startIndex, BufferSegment endSegment, int endIndex)
-        {
-            return (endSegment.RunningIndex + (uint) endIndex) - (startSegment.RunningIndex + (uint) startIndex);
-        }
-
-        internal static long GetLength(long startPosition, BufferSegment endSegment, int endIndex)
-        {
-            return (endSegment.RunningIndex + (uint) endIndex) - startPosition;
-        }
+    internal static long GetLength(long startPosition, BufferSegment endSegment, int endIndex)
+    {
+        return (endSegment.RunningIndex + (uint)endIndex) - startPosition;
     }
 }

@@ -1,4 +1,8 @@
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Utils;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Utils;
+#endif
 
 internal class OneWayFlag
 {

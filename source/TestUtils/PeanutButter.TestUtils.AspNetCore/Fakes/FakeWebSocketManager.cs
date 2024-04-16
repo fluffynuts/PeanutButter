@@ -4,12 +4,21 @@ using System.Net.WebSockets;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides a fake websocket manager
 /// </summary>
-public class FakeWebSocketManager : WebSocketManager, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeWebSocketManager : WebSocketManager, IFake
 {
     /// <inheritdoc />
     public override Task<WebSocket> AcceptWebSocketAsync(string subProtocol)
@@ -22,10 +31,12 @@ public class FakeWebSocketManager : WebSocketManager, IFake
 
     /// <inheritdoc />
     public override bool IsWebSocketRequest => _isWebSocketRequest;
+
     private bool _isWebSocketRequest;
 
     /// <inheritdoc />
     public override IList<string> WebSocketRequestedProtocols => _protocols;
+
     private List<string> _protocols = new();
 
     private Func<string, Task<WebSocket>> _webSocketAcceptHandler = DefaultWebSocketHandler;
@@ -61,6 +72,6 @@ public class FakeWebSocketManager : WebSocketManager, IFake
     /// <param name="protocols"></param>
     public void SetProtocols(IEnumerable<string> protocols)
     {
-        _protocols = new List<string>(protocols);
+        _protocols = [..protocols];
     }
 }

@@ -7,16 +7,33 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+using Imported.PeanutButter.Utils;
+using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable ConditionIsAlwaysTrueOrFalse
+// ReSharper disable ConstantConditionalAccessQualifier
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Builds a fake http response
 /// </summary>
-public class HttpResponseBuilder : RandomizableBuilder<HttpResponseBuilder, HttpResponse>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class HttpResponseBuilder : RandomizableBuilder<HttpResponseBuilder, HttpResponse>
 {
     internal static HttpResponseBuilder CreateWithNoHttpContext()
     {

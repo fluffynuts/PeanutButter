@@ -3,17 +3,26 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides a fake http header dictionary
 /// </summary>
-public class FakeHeaderDictionary : StringValueMap, IHeaderDictionary, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeHeaderDictionary : StringValueMap, IHeaderDictionary, IFake
 {
     /// <inheritdoc />
     public FakeHeaderDictionary(
         IDictionary<string, StringValues> store
-    ): base(store)
+    ) : base(store)
     {
     }
 

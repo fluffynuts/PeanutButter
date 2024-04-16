@@ -2,14 +2,27 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 using PeanutButter.TestUtils.AspNetCore.Builders;
+// ReSharper disable ConstantNullCoalescingCondition
 
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Implements a fake form collection
 /// </summary>
-public class FakeFormCollection : StringValueMap, IFormCollection, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeFormCollection : StringValueMap, IFormCollection, IFake
 {
     /// <inheritdoc />
     public FakeFormCollection(

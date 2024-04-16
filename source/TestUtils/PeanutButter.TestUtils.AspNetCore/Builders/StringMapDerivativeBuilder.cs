@@ -1,6 +1,10 @@
 ﻿using PeanutButter.TestUtils.AspNetCore.Fakes;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Provides a base builder for fake collections derived off of StringValueMap
@@ -8,7 +12,12 @@ namespace PeanutButter.TestUtils.AspNetCore.Builders;
 /// <typeparam name="TBuilder"></typeparam>
 /// <typeparam name="TInterface"></typeparam>
 /// <typeparam name="TConcrete"></typeparam>
-public abstract class StringMapDerivativeBuilder<TBuilder, TInterface, TConcrete>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    abstract class StringMapDerivativeBuilder<TBuilder, TInterface, TConcrete>
     : RandomizableBuilder<TBuilder, TInterface>
     where TBuilder : RandomizableBuilder<TBuilder, TInterface>, new()
     where TConcrete : class, TInterface, IFake, ICanBeIndexedBy<string>, new()

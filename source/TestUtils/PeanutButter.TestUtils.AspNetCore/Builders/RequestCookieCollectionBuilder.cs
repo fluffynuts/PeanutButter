@@ -1,15 +1,27 @@
-﻿using System;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
+
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 // ReSharper disable once ClassNeverInstantiated.Global
 /// <summary>
 /// Builds a fake request cookie collection
 /// </summary>
-public class RequestCookieCollectionBuilder
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class RequestCookieCollectionBuilder
     : RandomizableBuilder<RequestCookieCollectionBuilder, IRequestCookieCollection>
 {
     /// <summary>

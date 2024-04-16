@@ -6,19 +6,30 @@ using System.Security.Claims;
 using System.Threading;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Server.HttpSys;
-using PeanutButter.TestUtils.AspNetCore.Builders;
-using PeanutButter.TestUtils.AspNetCore.Utils;
-using PeanutButter.Utils.Dictionaries;
 
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+using Imported.PeanutButter.Utils.Dictionaries;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
+using PeanutButter.TestUtils.AspNetCore.Builders;
+using PeanutButter.Utils.Dictionaries;
+
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides a fake http context
 /// </summary>
-public class FakeHttpContext : HttpContext, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeHttpContext : HttpContext, IFake
 {
     /// <inheritdoc />
     public override void Abort()

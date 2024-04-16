@@ -2,13 +2,22 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides an ActionExecutedContext where the controller can
 /// be late-set
 /// </summary>
-public class FakeActionExecutedContext : ActionExecutedContext, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeActionExecutedContext : ActionExecutedContext, IFake
 {
     /// <inheritdoc />
     public FakeActionExecutedContext(

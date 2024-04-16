@@ -4,14 +4,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
-using PeanutButter.TestUtils.AspNetCore.Fakes;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
+using PeanutButter.TestUtils.AspNetCore.Fakes;
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Builds an ActionExecutedContext
 /// </summary>
-public class ActionExecutedContextBuilder
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class ActionExecutedContextBuilder
     : Builder<ActionExecutedContextBuilder, ActionExecutedContext>
 {
     private ActionContext _actionContext;

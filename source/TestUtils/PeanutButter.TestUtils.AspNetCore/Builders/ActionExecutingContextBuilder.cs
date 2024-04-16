@@ -8,12 +8,21 @@ using PeanutButter.TestUtils.AspNetCore.Fakes;
 
 // ReSharper disable ClassNeverInstantiated.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Constructs an ActionExecutingContext
 /// </summary>
-public class ActionExecutingContextBuilder
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class ActionExecutingContextBuilder
     : Builder<ActionExecutingContextBuilder, ActionExecutingContext>
 {
     private ActionContext _actionContext;
@@ -103,7 +112,7 @@ public class ActionExecutingContextBuilder
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     public ActionExecutingContextBuilder ForController<T>()
-        where T: ControllerBase, new()
+        where T : ControllerBase, new()
     {
         return WithController(new T());
     }

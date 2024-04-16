@@ -3,19 +3,31 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Web;
 using Microsoft.AspNetCore.Http;
+
+// ReSharper disable UnusedType.Global
+// ReSharper disable MemberCanBePrivate.Global
+
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+using Imported.PeanutButter.Utils;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
 
-// ReSharper disable UnusedType.Global
-
-// ReSharper disable MemberCanBePrivate.Global
-
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Alias to QueryCollectionBuilder
 /// </summary>
-public class QueryBuilder : QueryCollectionBuilder
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    static class QueryBuilder
 {
     /// <summary>
     /// 
@@ -34,7 +46,12 @@ public class QueryBuilder : QueryCollectionBuilder
 /// <summary>
 /// Builds query collections
 /// </summary>
-public class QueryCollectionBuilder
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class QueryCollectionBuilder
     : StringMapDerivativeBuilder<QueryCollectionBuilder, IQueryCollection, FakeQueryCollection>
 {
     /// <inheritdoc />

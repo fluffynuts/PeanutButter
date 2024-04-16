@@ -7,8 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Options;
 using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
+// ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides a minimal implementation of IServiceProvider
@@ -19,7 +24,12 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 ///     - concrete types
 /// - possibly the simplest DI "framework" in the world...
 /// </summary>
-public interface IMinimalServiceProvider : IServiceProvider
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    interface IMinimalServiceProvider : IServiceProvider
 {
     /// <summary>
     /// Resolve the service TService
@@ -74,7 +84,12 @@ internal class DefaultJsonOptions : IOptions<JsonOptions>
 /// <summary>
 /// Provides a very minimal service provider
 /// </summary>
-public class MinimalServiceProvider : IFake, IMinimalServiceProvider
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class MinimalServiceProvider : IFake, IMinimalServiceProvider
 {
     /// <summary>
     /// 
@@ -130,7 +145,7 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
     /// <inheritdoc />
     public T Resolve<T>()
     {
-        return (T) GetService(typeof(T));
+        return (T)GetService(typeof(T));
     }
 
     /// <inheritdoc />
@@ -286,7 +301,7 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
             return result;
         }
 
-        result = new HashSet<Type>(t.GetInterfaces());
+        result = [..t.GetInterfaces()];
         InterfaceMap.TryAdd(t, result);
         return result;
     }
@@ -297,12 +312,11 @@ public class MinimalServiceProvider : IFake, IMinimalServiceProvider
         {
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (SeenAssemblies.Contains(asm))
+                if (!SeenAssemblies.Add(asm))
                 {
                     continue;
                 }
 
-                SeenAssemblies.Add(asm);
                 try
                 {
                     AllTypes.AddRange(asm.GetExportedTypes());

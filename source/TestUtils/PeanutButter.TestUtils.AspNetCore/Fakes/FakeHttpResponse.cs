@@ -9,12 +9,21 @@ using Microsoft.AspNetCore.Http;
 
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides a fake http response
 /// </summary>
-public class FakeHttpResponse : HttpResponse, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeHttpResponse : HttpResponse, IFake
 {
     /// <summary>
     /// The default content type for a response
@@ -66,7 +75,7 @@ public class FakeHttpResponse : HttpResponse, IFake
         get => _body;
         set
         {
-            if (object.ReferenceEquals(_body, value))
+            if (ReferenceEquals(_body, value))
             {
                 return;
             }

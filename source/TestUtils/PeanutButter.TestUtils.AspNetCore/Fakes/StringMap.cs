@@ -1,12 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+// ReSharper disable MemberCanBeProtected.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides a collection of string maps
 /// </summary>
-public class StringMap : IEnumerable<KeyValuePair<string, string>>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class StringMap : IEnumerable<KeyValuePair<string, string>>
 {
     /// <summary>
     /// Clears the store
@@ -87,8 +97,6 @@ public class StringMap : IEnumerable<KeyValuePair<string, string>>
     /// <param name="key"></param>
     protected virtual string Retrieve(string key)
     {
-        return _store.TryGetValue(key, out var result)
-            ? result
-            : null;
+        return _store.GetValueOrDefault(key);
     }
 }

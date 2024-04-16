@@ -2,12 +2,23 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
+// ReSharper disable MemberCanBeProtected.Global
+
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Utils;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Utils;
+#endif
 
 /// <summary>
 /// Provides a null-implementation for IOptions&lt;MvcOptions&gt;
 /// </summary>
-public class DefaultMvcOptions : DefaultOptions<MvcOptions>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class DefaultMvcOptions : DefaultOptions<MvcOptions>
 {
 }
 
@@ -15,11 +26,16 @@ public class DefaultMvcOptions : DefaultOptions<MvcOptions>
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class DefaultOptions<T> : DefaultOptionsWithFactory<T> 
-    where T: class, new()
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class DefaultOptions<T> : DefaultOptionsWithFactory<T>
+    where T : class, new()
 {
     /// <inheritdoc />
-    public DefaultOptions(): base(() => new T())
+    public DefaultOptions() : base(() => new T())
     {
     }
 }
@@ -28,7 +44,12 @@ public class DefaultOptions<T> : DefaultOptionsWithFactory<T>
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class DefaultOptionsWithFactory<T> : IOptions<T> where T : class
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class DefaultOptionsWithFactory<T> : IOptions<T> where T : class
 {
     /// <inheritdoc />
     public T Value { get; }

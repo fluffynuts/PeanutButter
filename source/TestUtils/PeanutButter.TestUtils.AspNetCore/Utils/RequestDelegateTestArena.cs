@@ -2,18 +2,32 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+using Imported.PeanutButter.Utils;
+using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Utils;
+#else
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Utils;
+#endif
 
 /// <summary>
 /// Sets up the useful bits for testing an asp.net middleware
 /// class - use this to easily set up the context and next
 /// parameters for InvokeAsync
 /// </summary>
-public class RequestDelegateTestArena
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class RequestDelegateTestArena
 {
     /// <summary>
     /// The delegate that is generated for your test
@@ -39,7 +53,13 @@ public class RequestDelegateTestArena
                     .WithUrl(GetRandomHttpsUrl())
                     .WithMethod(
                         GetRandomFrom(
-                            new[] { "GET", "POST", "PUT", "DELETE" }
+                            new[]
+                            {
+                                "GET",
+                                "POST",
+                                "PUT",
+                                "DELETE"
+                            }
                         )
                     )
                     .Build()
@@ -114,7 +134,7 @@ public class RequestDelegateTestArena
     public RequestDelegateTestArena(
         Action<HttpContext> logic,
         Action<HttpContextBuilder> httpContextMutator
-    ): this(WrapSynchronousLogic(logic), httpContextMutator)
+    ) : this(WrapSynchronousLogic(logic), httpContextMutator)
     {
     }
 
@@ -159,7 +179,7 @@ public class RequestDelegateTestArena
     public RequestDelegateTestArena(
         Func<HttpContext, Task> logic,
         HttpContext httpContext
-    ): this(logic, NoOp)
+    ) : this(logic, NoOp)
     {
         _httpContext = httpContext;
     }

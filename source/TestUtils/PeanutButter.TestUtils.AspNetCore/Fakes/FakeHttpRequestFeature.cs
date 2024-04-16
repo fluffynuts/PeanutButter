@@ -2,13 +2,23 @@ using System;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using PeanutButter.TestUtils.AspNetCore;
-using PeanutButter.TestUtils.AspNetCore.Fakes;
+// ReSharper disable ConstantNullCoalescingCondition
+
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
+namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides a faked implementation of IHttpRequestFeature
 /// </summary>
-public class FakeHttpRequestFeature : IHttpRequestFeature
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeHttpRequestFeature : IHttpRequestFeature
 {
     private readonly Func<HttpRequest> _factory;
 

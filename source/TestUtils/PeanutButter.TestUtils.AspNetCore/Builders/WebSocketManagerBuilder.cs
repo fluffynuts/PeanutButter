@@ -5,12 +5,21 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Builds a fake websocket manager
 /// </summary>
-public class WebSocketManagerBuilder : RandomizableBuilder<WebSocketManagerBuilder, WebSocketManager>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class WebSocketManagerBuilder : RandomizableBuilder<WebSocketManagerBuilder, WebSocketManager>
 {
     /// <summary>
     /// Does nothing - just here to ensure GetRandom works

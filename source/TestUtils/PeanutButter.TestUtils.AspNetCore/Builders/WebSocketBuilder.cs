@@ -2,17 +2,30 @@
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using PeanutButter.RandomGenerators;
-using PeanutButter.TestUtils.AspNetCore.Fakes;
 
 // ReSharper disable ClassNeverInstantiated.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.RandomGenerators;
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
+using PeanutButter.RandomGenerators;
+using PeanutButter.TestUtils.AspNetCore.Fakes;
+
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Builds a fake web socket
 /// </summary>
-public class WebSocketBuilder : RandomizableBuilder<WebSocketBuilder, WebSocket>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class WebSocketBuilder : RandomizableBuilder<WebSocketBuilder, WebSocket>
 {
     /// <summary>
     /// Does nothing - only here so that GetRandom works

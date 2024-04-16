@@ -9,7 +9,13 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 
+// ReSharper disable MemberCanBePrivate.Global
+
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 internal class MockValueProvider : IValueProvider
 {
@@ -58,7 +64,12 @@ internal class MockValueProvider : IValueProvider
 /// <summary>
 /// Builds a ModelBindingContext for testing
 /// </summary>
-public class ModelBindingContextBuilder
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class ModelBindingContextBuilder
     : RandomizableBuilder<ModelBindingContextBuilder, ModelBindingContext>
 {
     private readonly CompositeValueProvider _originalCompositeProvider;
@@ -80,14 +91,23 @@ public class ModelBindingContextBuilder
             .WithBindingSource(BindingSource.Body)
             .WithFieldName("Field")
             .WithTopLevelObject(true)
-            .WithModel(new { })
+            .WithModel(
+                new
+                {
+                }
+            )
             .WithModelMetadata(ModelMetadataBuilder.BuildDefault())
             .WithModelState(new ModelStateDictionary())
             .WithValidationState(new ValidationStateDictionary())
             .WithValueProvider(_originalCompositeProvider)
             .WithPartialValueProvider(new RouteValueProvider(BindingSource.Query, new RouteValueDictionary()))
-            .WithPartialValueProvider(new FormValueProvider(BindingSource.Form, FormBuilder.BuildDefault(),
-                CultureInfo.CurrentCulture))
+            .WithPartialValueProvider(
+                new FormValueProvider(
+                    BindingSource.Form,
+                    FormBuilder.BuildDefault(),
+                    CultureInfo.CurrentCulture
+                )
+            )
             .WithPartialValueProvider(_mockedProvider)
             .WithPropertyFilter(_ => true)
             .WithSuccessfulModelBindingResult();
@@ -101,21 +121,24 @@ public class ModelBindingContextBuilder
     /// <returns></returns>
     public ModelBindingContextBuilder WithModelValue(StringValues value)
     {
-        return With(o =>
-        {
-            if (o.ValueProvider != _originalCompositeProvider)
+        return With(
+            o =>
             {
-                throw new InvalidOperationException(
-                    "Cannot set the value for the model if the value provider has been replaced"
+                if (o.ValueProvider != _originalCompositeProvider)
+                {
+                    throw new InvalidOperationException(
+                        "Cannot set the value for the model if the value provider has been replaced"
+                    );
+                }
+
+                _mockedProvider.OverrideGetValue(
+                    s =>
+                        s == o.ModelName
+                            ? new ValueProviderResult(value)
+                            : throw new KeyNotFoundException()
                 );
             }
-
-            _mockedProvider.OverrideGetValue(s =>
-                s == o.ModelName
-                    ? new ValueProviderResult(value)
-                    : throw new KeyNotFoundException()
-            );
-        });
+        );
     }
 
     /// <summary>
@@ -184,15 +207,17 @@ public class ModelBindingContextBuilder
         IValueProvider valueProvider
     )
     {
-        return With(o =>
-        {
-            if (o.ValueProvider is not CompositeValueProvider compositeValueProvider)
+        return With(
+            o =>
             {
-                o.ValueProvider = compositeValueProvider = new CompositeValueProvider();
-            }
+                if (o.ValueProvider is not CompositeValueProvider compositeValueProvider)
+                {
+                    o.ValueProvider = compositeValueProvider = new CompositeValueProvider();
+                }
 
-            compositeValueProvider.Add(valueProvider);
-        });
+                compositeValueProvider.Add(valueProvider);
+            }
+        );
     }
 
     /// <summary>
@@ -325,7 +350,12 @@ public class ModelBindingContextBuilder
 /// <summary>
 /// Provides a faked implementation of ModelBindingContext
 /// </summary>
-public class FakeModelBindingContext : ModelBindingContext
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeModelBindingContext : ModelBindingContext
 {
     /// <inheritdoc />
     public override NestedScope EnterNestedScope(

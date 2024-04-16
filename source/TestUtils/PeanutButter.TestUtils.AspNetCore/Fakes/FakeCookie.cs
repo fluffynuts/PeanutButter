@@ -4,12 +4,21 @@ using Microsoft.AspNetCore.Http;
 
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Implements a fake cookie holder
 /// </summary>
-public class FakeCookie : IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeCookie : IFake
 {
     /// <summary>
     /// The name of the cookie
@@ -68,7 +77,13 @@ public class FakeCookie : IFake
             return null;
         }
 
-        var parts = rawCookie.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+        var parts = rawCookie.Split(
+            new[]
+            {
+                ";"
+            },
+            StringSplitOptions.RemoveEmptyEntries
+        );
         var sub = parts[0].Split('=');
         var name = sub[0];
         var value = string.Join("=", sub.Skip(1));
@@ -76,7 +91,13 @@ public class FakeCookie : IFake
         foreach (var part in parts.Skip(1))
         {
             var trimmed = part.Trim();
-            var pair = trimmed.Split(new[] { "=" }, StringSplitOptions.RemoveEmptyEntries);
+            var pair = trimmed.Split(
+                new[]
+                {
+                    "="
+                },
+                StringSplitOptions.RemoveEmptyEntries
+            );
             if (pair.Length < 2)
             {
                 foreach (var parser in SimpleOptionsParsers)
@@ -100,10 +121,10 @@ public class FakeCookie : IFake
     }
 
     private static readonly Action<string, CookieOptions>[] SimpleOptionsParsers =
-    {
+    [
         ParseHttpOnlyFlag,
         ParseSecureFlag
-    };
+    ];
 
     private static void ParseSecureFlag(string value, CookieOptions opts)
     {
@@ -122,25 +143,21 @@ public class FakeCookie : IFake
     }
 
     private static readonly Action<string, string, CookieOptions>[] PairedOptionsParsers =
-    {
+    [
         SetDomain,
         SetPath,
         SetSameSite,
         SetMaxAge
-    };
+    ];
 
     private static void SetMaxAge(string key, string value, CookieOptions opts)
     {
         if (AreEqual(key, COOKIE_MAX_AGE_KEY))
         {
-            if (int.TryParse(value, out var seconds))
-            {
-                opts.MaxAge = TimeSpan.FromSeconds(seconds);
-            }
-            else
-            {
-                opts.MaxAge = TimeSpan.FromSeconds(0);
-            }
+            var seconds = int.TryParse(value, out var parsed)
+                ? parsed
+                : 0;
+            opts.MaxAge = TimeSpan.FromSeconds(seconds);
         }
     }
 

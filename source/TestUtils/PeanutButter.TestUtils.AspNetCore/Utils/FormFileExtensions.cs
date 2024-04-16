@@ -3,12 +3,21 @@ using System.Text;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.Utils;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Utils;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Utils;
+#endif
 
 /// <summary>
 /// Provides some convenience extensions for form files
 /// </summary>
-public static class FormFileExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    static class FormFileExtensions
 {
     /// <summary>
     /// Read all bytes of the file

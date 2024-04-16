@@ -3,12 +3,21 @@ using System.Net;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.Utils;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Utils;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Utils;
+#endif
 
 /// <summary>
 /// Encodes a form with url-encoding
 /// </summary>
-public class UrlEncodedBodyEncoder : IFormEncoder
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class UrlEncodedBodyEncoder : IFormEncoder
 {
     /// <inheritdoc />
     public Stream Encode(IFormCollection form)

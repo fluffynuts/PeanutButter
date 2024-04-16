@@ -4,12 +4,21 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.Utils;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides a fake cookie collection
 /// </summary>
-public class FakeRequestCookieCollection
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeRequestCookieCollection
     : StringMap, IRequestCookieCollection, IFake
 {
     /// <summary>
@@ -75,7 +84,13 @@ public class FakeRequestCookieCollection
         }
 
         var header = HttpRequest.Headers[CookieUtil.HEADER].FirstOrDefault() ?? "";
-        var parts = header.Split(new[] { CookieUtil.DELIMITER }, StringSplitOptions.RemoveEmptyEntries)
+        var parts = header.Split(
+                new[]
+                {
+                    CookieUtil.DELIMITER
+                },
+                StringSplitOptions.RemoveEmptyEntries
+            )
             .Select(p => p.Trim())
             .ToArray();
         foreach (var part in parts)
@@ -112,6 +127,5 @@ public class FakeRequestCookieCollection
 
         CookieUtil.GenerateCookieHeader(this, HttpRequest, overwrite: true);
         _headerHashCode = HttpRequest.Headers[CookieUtil.HEADER].GetHashCode();
-        
     }
 }

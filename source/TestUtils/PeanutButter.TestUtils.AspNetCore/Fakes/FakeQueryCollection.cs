@@ -2,20 +2,29 @@
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides a fake query collection
 /// </summary>
-public class FakeQueryCollection : StringValueMap, IQueryCollection, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeQueryCollection : StringValueMap, IQueryCollection, IFake
 {
     /// <inheritdoc />
-    public FakeQueryCollection(): base(StringComparer.OrdinalIgnoreCase)
+    public FakeQueryCollection() : base(StringComparer.OrdinalIgnoreCase)
     {
     }
 
     /// <inheritdoc />
-    public FakeQueryCollection(string queryString): base(StringComparer.OrdinalIgnoreCase)
+    public FakeQueryCollection(string queryString) : base(StringComparer.OrdinalIgnoreCase)
     {
         queryString ??= "";
         queryString = queryString.Trim();

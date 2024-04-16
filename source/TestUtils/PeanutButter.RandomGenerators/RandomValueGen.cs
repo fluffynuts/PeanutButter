@@ -634,11 +634,21 @@ namespace PeanutButter.RandomGenerators
             );
         }
 
+        
+        /// <summary>
+        /// Returns a local random datetime
+        /// </summary>
+        /// <returns></returns>
         public static DateTime GetRandomDate()
         {
             return GetRandomDate(DateTimeKind.Local);
         }
 
+        /// <summary>
+        /// Returns a random date-time with the required kind
+        /// </summary>
+        /// <param name="kind"></param>
+        /// <returns></returns>
         public static DateTime GetRandomDate(
             DateTimeKind kind
         )
@@ -651,47 +661,6 @@ namespace PeanutButter.RandomGenerators
         
         private static readonly DateTime DefaultMinimumDate = new(1990, 1, 1);
         private const int RANDOM_DATE_AUTOMATIC_RANGE_YEARS = 30;
-
-        // public static DateTime GetRandomDate(
-        //     DateTimeKind kind,
-        //     DateTime minDate
-        // )
-        // {
-        //     return GetRandomDate(
-        //         kind,
-        //         minDate,
-        //         DateTime.MaxValue
-        //     );
-        // }
-        //
-        // public static DateTime GetRandomDate(
-        //     DateTimeKind kind,
-        //     DateTime minDate,
-        //     DateTime maxDate
-        // )
-        // {
-        //     return GetRandomDate(
-        //         kind,
-        //         minDate,
-        //         maxDate,
-        //         dateOnly: false
-        //     );
-        // }
-        //
-        // public static DateTime GetRandomDate(
-        //     DateTimeKind kind,
-        //     DateTime minDate,
-        //     DateTime maxDate,
-        //     bool dateOnly
-        // )
-        // {
-        //     return GetRandomDate(
-        //         kind,
-        //         minDate,
-        //         maxDate,
-        //         dateOnly
-        //     );
-        // }
 
         /// <summary>
         /// Gets a random DateTime value of the specified kind, by default within SQL-safe range

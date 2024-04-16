@@ -5,12 +5,21 @@ using Microsoft.Extensions.Primitives;
 
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Raised when a StringValueMap changes
 /// </summary>
-public class StringValueMapChangedEventArgs : EventArgs
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class StringValueMapChangedEventArgs : EventArgs
 {
     /// <summary>
     /// The new values in the map (copy of the map)

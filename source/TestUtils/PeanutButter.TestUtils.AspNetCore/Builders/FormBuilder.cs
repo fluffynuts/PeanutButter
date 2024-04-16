@@ -1,24 +1,42 @@
 ﻿using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.Http;
-using PeanutButter.TestUtils.AspNetCore.Fakes;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+
 // ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedType.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
+#else
+using PeanutButter.TestUtils.AspNetCore.Fakes;
+using static PeanutButter.RandomGenerators.RandomValueGen;
+
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Alias to FormBuilder, to keep naming in line with QueryCollectionBuilder
 /// </summary>
-public class FormCollectionBuilder : FormBuilder;
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FormCollectionBuilder : FormBuilder;
 
 /// <summary>
 /// Builds a form for an asp.net request
 /// </summary>
-public class FormBuilder : RandomizableBuilder<FormBuilder, IFormCollection>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FormBuilder : RandomizableBuilder<FormBuilder, IFormCollection>
 {
     /// <summary>
     /// Constructs the fake form
@@ -175,7 +193,8 @@ public class FormBuilder : RandomizableBuilder<FormBuilder, IFormCollection>
     public FormBuilder WithRandomFile()
     {
         return With<FakeFormCollection>(
-            o => o.AddFile(FormFileBuilder.BuildRandom()
+            o => o.AddFile(
+                FormFileBuilder.BuildRandom()
             )
         );
     }

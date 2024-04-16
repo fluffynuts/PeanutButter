@@ -1,14 +1,24 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+// ReSharper disable ConstantNullCoalescingCondition
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides an ActionExecutingContext implementation where
 /// the controller can be late-set
 /// </summary>
-public class FakeActionExecutingContext : ActionExecutingContext, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeActionExecutingContext : ActionExecutingContext, IFake
 {
     /// <inheritdoc />
     public FakeActionExecutingContext(

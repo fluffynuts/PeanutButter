@@ -9,51 +9,54 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 
-namespace PeanutButter.TestUtils.AspNetCore.Fakes
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
+namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
+
+internal class FakeObjectResultExecutor : IActionResultExecutor<ObjectResult>
 {
-    internal class FakeObjectResultExecutor : IActionResultExecutor<ObjectResult>
+    public async Task ExecuteAsync(
+        ActionContext context,
+        ObjectResult result
+    )
     {
-        public async Task ExecuteAsync(
-            ActionContext context,
-            ObjectResult result
-        )
+        var stringContent = SerializeToString(result);
+        await context.HttpContext.Response.WriteAsync(stringContent);
+        context.HttpContext.Response.StatusCode =
+            result.StatusCode ?? (int)HttpStatusCode.OK;
+        context.HttpContext.Response.ContentType =
+            ResolveContentTypeFor(result);
+    }
+
+    private static string ResolveContentTypeFor(
+        ObjectResult result
+    )
+    {
+        return result.ContentTypes.FirstOrDefault()
+            ?? "application/json";
+    }
+
+    private static string SerializeToString(
+        ObjectResult result
+    )
+    {
+        if (result.Value is null)
         {
-            var stringContent = SerializeToString(result);
-            await context.HttpContext.Response.WriteAsync(stringContent);
-            context.HttpContext.Response.StatusCode =
-                result.StatusCode ?? (int) HttpStatusCode.OK;
-            context.HttpContext.Response.ContentType =
-                ResolveContentTypeFor(result);
+            return "";
         }
 
-        private static string ResolveContentTypeFor(
-            ObjectResult result
-        )
+        var contentType = ResolveContentTypeFor(result);
+        if (!contentType.Contains("xml"))
         {
-            return result.ContentTypes.FirstOrDefault()
-                ?? "application/json";
+            return JsonSerializer.Serialize(result.Value);
         }
 
-        private static string SerializeToString(
-            ObjectResult result
-        )
-        {
-            if (result.Value is null)
-            {
-                return "";
-            }
-
-            var contentType = ResolveContentTypeFor(result);
-            if (!contentType.Contains("xml"))
-            {
-                return JsonSerializer.Serialize(result.Value);
-            }
-
-            var serializer = new XmlSerializer(result.Value.GetType());
-            using var stringWriter = new StringWriter();
-            using var xmlWriter = XmlWriter.Create(stringWriter);
-            serializer.Serialize(xmlWriter, result.Value);
-            return stringWriter.ToString();
-        }
+        var serializer = new XmlSerializer(result.Value.GetType());
+        using var stringWriter = new StringWriter();
+        using var xmlWriter = XmlWriter.Create(stringWriter);
+        serializer.Serialize(xmlWriter, result.Value);
+        return stringWriter.ToString();
     }
 }

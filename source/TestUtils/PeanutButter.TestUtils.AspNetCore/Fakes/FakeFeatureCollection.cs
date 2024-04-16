@@ -2,15 +2,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http.Features;
+// ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Implements a fake feature collection
 /// </summary>
-public class FakeFeatureCollection : IFeatureCollection, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeFeatureCollection : IFeatureCollection, IFake
 {
     private readonly Dictionary<Type, object> _store = new();
     private readonly Dictionary<Type, Func<object>> _factories = new();
@@ -63,17 +73,14 @@ public class FakeFeatureCollection : IFeatureCollection, IFake
 
     private object ResolveService(Type key)
     {
-        if (_store.ContainsKey(key))
+        if (_store.TryGetValue(key, out var service))
         {
-            return _store[key];
+            return service;
         }
 
-        if (_factories.ContainsKey(key))
-        {
-            return _factories[key]();
-        }
-
-        return default;
+        return _factories.TryGetValue(key, out var factory)
+            ? factory()
+            : default;
     }
 
     /// <summary>

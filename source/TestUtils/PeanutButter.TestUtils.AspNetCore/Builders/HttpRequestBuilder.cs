@@ -5,17 +5,33 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using Microsoft.AspNetCore.Http;
+
+// ReSharper disable MemberCanBePrivate.Global
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+using Imported.PeanutButter.Utils;
+using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable ConditionIsAlwaysTrueOrFalse
+// ReSharper disable ConstantConditionalAccessQualifier
 
-// ReSharper disable MemberCanBePrivate.Global
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Builds an http request
 /// </summary>
-public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRequest>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRequest>
 {
     internal static HttpRequestBuilder CreateWithNoHttpContext()
     {
@@ -233,10 +249,10 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
     }
 
     private static readonly string[] HttpSchemes =
-    {
+    [
         "http",
         "https"
-    };
+    ];
 
     private static void Actualize(HttpRequest built)
     {
@@ -473,14 +489,16 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
         IDictionary<string, string> parameters
     )
     {
-        return With(o =>
-        {
-            var query = o.Query.As<FakeQueryCollection>();
-            foreach (var kvp in parameters)
+        return With(
+            o =>
             {
-                query[kvp.Key] = kvp.Value;
+                var query = o.Query.As<FakeQueryCollection>();
+                foreach (var kvp in parameters)
+                {
+                    query[kvp.Key] = kvp.Value;
+                }
             }
-        });
+        );
     }
 
     /// <summary>
@@ -677,14 +695,16 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
     )
     {
         var dict = fields ?? throw new ArgumentNullException(nameof(fields));
-        return With(o =>
-        {
-            var form = o.Form.As<FakeFormCollection>();
-            foreach (var kvp in dict)
+        return With(
+            o =>
             {
-                form[kvp.Key] = kvp.Value;
+                var form = o.Form.As<FakeFormCollection>();
+                foreach (var kvp in dict)
+                {
+                    form[kvp.Key] = kvp.Value;
+                }
             }
-        });
+        );
     }
 
     /// <summary>
@@ -760,12 +780,6 @@ public class HttpRequestBuilder : RandomizableBuilder<HttpRequestBuilder, HttpRe
     {
         return With(o => o.As<FakeHttpRequest>().SetUrl(url));
     }
-
-    private static readonly Dictionary<string, int> DefaultPorts = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["http"] = 80,
-        ["https"] = 443
-    };
 
     /// <summary>
     /// Adds a form file with text content and the provided name and filename

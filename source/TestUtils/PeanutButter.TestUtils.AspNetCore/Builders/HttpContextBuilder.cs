@@ -8,17 +8,26 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable ConstantConditionalAccessQualifier
-
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Builds an HttpContext
 /// </summary>
-public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpContext>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpContext>
 {
     /// <summary>
     /// Constructs the fake http context
@@ -448,12 +457,6 @@ public class HttpContextBuilder : RandomizableBuilder<HttpContextBuilder, HttpCo
         return newUri.Port == uriPort;
     }
 
-    private static readonly Dictionary<string, int> DefaultPortsPerScheme = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["http"] = 80,
-        ["https"] = 443
-    };
-
     /// <summary>
     /// Register a transient service
     /// </summary>
@@ -705,7 +708,7 @@ via builder methods. If you're providing your own RequestServices, you'll have t
 
                 o.Session.SetString(
                     key,
-                    value as string 
+                    value as string
                     ?? System.Text.Json.JsonSerializer.Serialize(value)
                 );
             }

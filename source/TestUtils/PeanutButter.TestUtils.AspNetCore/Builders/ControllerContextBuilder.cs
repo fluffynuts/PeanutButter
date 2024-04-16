@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -7,17 +6,34 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
-using PeanutButter.TestUtils.AspNetCore.Fakes;
-using PeanutButter.Utils;
 
 // ReSharper disable ClassNeverInstantiated.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+using Imported.PeanutButter.Utils;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
+using PeanutButter.TestUtils.AspNetCore.Fakes;
+using PeanutButter.Utils;
+
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ConstantNullCoalescingCondition
+// ReSharper disable ConditionIsAlwaysTrueOrFalse
+
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Builds a controller context
 /// </summary>
-public class ControllerContextBuilder : Builder<ControllerContextBuilder, ControllerContext>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class ControllerContextBuilder : Builder<ControllerContextBuilder, ControllerContext>
 {
     /// <inheritdoc />
     public ControllerContextBuilder()
@@ -72,11 +88,13 @@ public class ControllerContextBuilder : Builder<ControllerContextBuilder, Contro
         HttpRequest request
     )
     {
-        return With(o =>
-        {
-            var fake = o.HttpContext.As<FakeHttpContext>();
-            fake.SetRequestAccessor(() => request);
-        });
+        return With(
+            o =>
+            {
+                var fake = o.HttpContext.As<FakeHttpContext>();
+                fake.SetRequestAccessor(() => request);
+            }
+        );
     }
 
     /// <summary>
@@ -88,11 +106,13 @@ public class ControllerContextBuilder : Builder<ControllerContextBuilder, Contro
         HttpResponse response
     )
     {
-        return With(o =>
-        {
-            var fake = o.HttpContext.As<FakeHttpContext>();
-            fake.SetResponseAccessor(() => response);
-        });
+        return With(
+            o =>
+            {
+                var fake = o.HttpContext.As<FakeHttpContext>();
+                fake.SetResponseAccessor(() => response);
+            }
+        );
     }
 
     /// <summary>
@@ -134,12 +154,14 @@ public class ControllerContextBuilder : Builder<ControllerContextBuilder, Contro
         IIdentity identity
     )
     {
-        return With(o =>
-        {
-            var principal = o.HttpContext.User ?? new ClaimsPrincipal();
-            principal.AddIdentity(new ClaimsIdentity(identity));
-            o.HttpContext.User = principal;
-        });
+        return With(
+            o =>
+            {
+                var principal = o.HttpContext.User ?? new ClaimsPrincipal();
+                principal.AddIdentity(new ClaimsIdentity(identity));
+                o.HttpContext.User = principal;
+            }
+        );
     }
 
     /// <summary>
@@ -178,7 +200,8 @@ public class ControllerContextBuilder : Builder<ControllerContextBuilder, Contro
     {
         var controllerType = typeof(T);
         var controllerName = controllerType.Name.RegexReplace("Controller$", "");
-        return With(o =>
+        return With(
+            o =>
             {
                 controller.ControllerContext = o;
                 o.ActionDescriptor.ControllerName = controllerType.Name.RegexReplace("Controller$", "");
@@ -214,13 +237,21 @@ public class ControllerContextBuilder : Builder<ControllerContextBuilder, Contro
     /// <returns></returns>
     public ControllerContextBuilder WithAction(string name)
     {
-        return With(o =>
-        {
-            o.ActionDescriptor.ActionName = o.ActionDescriptor.DisplayName =  name;
-            if (o.ActionDescriptor.ControllerTypeInfo is not null)
+        return With(
+            o =>
             {
-                o.ActionDescriptor.MethodInfo = o.ActionDescriptor.ControllerTypeInfo.GetMethod(name);
+                o.ActionDescriptor.ActionName = o.ActionDescriptor.DisplayName = name;
+                var methodInfo = o.ActionDescriptor.ControllerTypeInfo?.GetMethod(name);
+                if (methodInfo is null)
+                {
+                    throw new ArgumentException(
+                        $"Unable to find action '{name}' on controller '{o.ActionDescriptor.ControllerTypeInfo}'",
+                        nameof(name)
+                    );
+                }
+
+                o.ActionDescriptor.MethodInfo = methodInfo;
             }
-        });
-        }
+        );
     }
+}

@@ -5,16 +5,26 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.Utils;
+
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConstantNullCoalescingCondition
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Implements a fake form file
 /// </summary>
-public class FakeFormFile : IFormFile, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeFormFile : IFormFile, IFake
 {
     private Stream _content;
     private const string CONTENT_TYPE_TEXT = "text/plain";
@@ -23,7 +33,7 @@ public class FakeFormFile : IFormFile, IFake
     /// <summary>
     /// Default constructor: create an empty form file
     /// </summary>
-    public FakeFormFile(): this(Array.Empty<byte>(), "", "")
+    public FakeFormFile() : this(Array.Empty<byte>(), "", "")
     {
     }
 
@@ -130,7 +140,7 @@ public class FakeFormFile : IFormFile, IFake
     /// <returns></returns>
     public byte[] Content
     {
-        get 
+        get
         {
             using var memStream = new MemoryStream();
             _content.Rewind();

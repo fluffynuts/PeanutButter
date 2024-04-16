@@ -2,16 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+#if BUILD_PEANUTBUTTER_INTERNAL
+using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
+#else
 using static PeanutButter.RandomGenerators.RandomValueGen;
+// ReSharper disable MemberCanBePrivate.Global
+#endif
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Provides the base builder for AspNetCore fakes
 /// </summary>
 /// <typeparam name="TBuilder"></typeparam>
 /// <typeparam name="TSubject"></typeparam>
-public abstract class Builder<TBuilder, TSubject>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public 
+#endif
+    abstract class Builder<TBuilder, TSubject>
     where TBuilder : Builder<TBuilder, TSubject>, new()
 {
     private readonly Action<TSubject>[] _actualizers;
@@ -82,14 +96,17 @@ public abstract class Builder<TBuilder, TSubject>
 
     private void StoreMutator(Mutator<TSubject> mutator)
     {
-        var existing = _mutators.Where(o => o.Identifier == mutator.Identifier)
-            .ToArray();
-        foreach (var item in existing)
+        lock (_mutators)
         {
-            _mutators.Remove(item);
-        }
+            var existing = _mutators.Where(o => o.Identifier == mutator.Identifier)
+                .ToArray();
+            foreach (var item in existing)
+            {
+                _mutators.Remove(item);
+            }
 
-        _mutators.Add(mutator);
+            _mutators.Add(mutator);
+        }
     }
 
     /// <summary>

@@ -4,19 +4,33 @@ using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+
+// ReSharper disable MemberCanBePrivate.Global
+
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.RandomGenerators;
+using Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+using static Imported.PeanutButter.TestUtils.AspNetCore.Fakes.FakeCookie;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 using static PeanutButter.TestUtils.AspNetCore.Fakes.FakeCookie;
 
-// ReSharper disable MemberCanBePrivate.Global
-
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
 /// <summary>
 /// Provides a fake response cookies service
 /// </summary>
-public class FakeResponseCookies : IResponseCookies, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeResponseCookies : IResponseCookies, IFake
 {
     /// <summary>
     /// Snapshot the current state of the cookies

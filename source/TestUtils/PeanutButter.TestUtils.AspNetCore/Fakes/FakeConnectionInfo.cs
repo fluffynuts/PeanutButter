@@ -4,13 +4,23 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+// ReSharper disable ClassNeverInstantiated.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides a fake connection
 /// </summary>
-public class FakeConnectionInfo : ConnectionInfo, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeConnectionInfo : ConnectionInfo, IFake
 {
     /// <inheritdoc />
     public override Task<X509Certificate2> GetClientCertificateAsync(

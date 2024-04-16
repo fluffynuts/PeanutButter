@@ -2,7 +2,11 @@
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 // ReSharper disable once UnusedType.Global
 internal static class RandomValueGen
@@ -134,11 +138,11 @@ internal static class RandomValueGen
     }
 
     private static readonly int[] CommonPorts =
-    {
+    [
         80,
         443,
         5000,
         8000,
         8080
-    };
+    ];
 }

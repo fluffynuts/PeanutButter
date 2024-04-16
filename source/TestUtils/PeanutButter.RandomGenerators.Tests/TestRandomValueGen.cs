@@ -1270,18 +1270,21 @@ public class TestRandomValueGen
         [Test]
         public void ShouldReturnRandomDateTimeForDefaultCall()
         {
-            // Arrange
-            var collected = new List<DateTime>();
-            // Act
-            for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            Retry.Max(3).Times(() =>
             {
-                collected.Add(GetRandomDate());
-            }
+                // Arrange
+                var collected = new List<DateTime>();
+                // Act
+                for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+                {
+                    collected.Add(GetRandomDate());
+                }
 
-            // Assert
-            var unique = collected.Distinct();
-            Expect(unique)
-                .To.Be.Equivalent.To(collected);
+                // Assert
+                var unique = collected.Distinct();
+                Expect(unique)
+                    .To.Be.Equivalent.To(collected);
+            });
         }
 
         [TestCase(

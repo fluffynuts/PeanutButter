@@ -14,16 +14,27 @@ using Microsoft.Extensions.Primitives;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.TestUtils.AspNetCore.Utils;
 using PeanutButter.Utils;
+// ReSharper disable ConstantConditionalAccessQualifier
+// ReSharper disable ConstantNullCoalescingCondition
 
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Starts off a builder for your ApiController
 /// (controller inheriting from ControllerBase only)
 /// </summary>
-public static class ControllerBuilder
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    static class ControllerBuilder
 {
     /// <summary>
     /// Create the builder for your controller
@@ -73,7 +84,12 @@ public static class ControllerBuilder
 /// Builds your
 /// </summary>
 /// <typeparam name="TController"></typeparam>
-public class ControllerBuilder<TController>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class ControllerBuilder<TController>
     : Builder<ControllerBuilder<TController>, TController>
     where TController : ControllerBase
 {
@@ -92,16 +108,17 @@ public class ControllerBuilder<TController>
             )
             .WithRouteData(RouteDataBuilder.BuildDefault())
             .WithRouteDataValue("controller", typeof(TController).Name.RegexReplace("Controller$", ""))
-            .WithHttpContext(HttpContextBuilder.Create()
-                .WithRequestServices(new MinimalServiceProvider())
-                .WithService<IModelBinderFactory>(
-                    ctx => new ModelBinderFactory(
-                        defaultModelMetadataProvider,
-                        new DefaultMvcOptions(),
-                        ctx.RequestServices   
+            .WithHttpContext(
+                HttpContextBuilder.Create()
+                    .WithRequestServices(new MinimalServiceProvider())
+                    .WithService<IModelBinderFactory>(
+                        ctx => new ModelBinderFactory(
+                            defaultModelMetadataProvider,
+                            new DefaultMvcOptions(),
+                            ctx.RequestServices
+                        )
                     )
-                )
-                .Build()
+                    .Build()
             )
             .WithModelMetadataProvider(
                 defaultModelMetadataProvider
@@ -290,17 +307,19 @@ public class ControllerBuilder<TController>
         IDictionary<string, string> cookies
     )
     {
-        return WithRequestMutator(req =>
-        {
-            var requestCookies = req.Cookies as FakeRequestCookieCollection
-                ?? throw new InvalidOperationException(
-                    $"Request cookies are not an instance of {nameof(FakeRequestCookieCollection)}"
-                );
-            foreach (var kvp in cookies)
+        return WithRequestMutator(
+            req =>
             {
-                requestCookies[kvp.Key] = kvp.Value;
+                var requestCookies = req.Cookies as FakeRequestCookieCollection
+                    ?? throw new InvalidOperationException(
+                        $"Request cookies are not an instance of {nameof(FakeRequestCookieCollection)}"
+                    );
+                foreach (var kvp in cookies)
+                {
+                    requestCookies[kvp.Key] = kvp.Value;
+                }
             }
-        });
+        );
     }
 
     /// <summary>
@@ -385,7 +404,8 @@ public class ControllerBuilder<TController>
     )
     {
         return With(o => o.ControllerContext.HttpContext = context)
-            .WithActionContext(ctx => new ActionContext(
+            .WithActionContext(
+                ctx => new ActionContext(
                     ctx.HttpContext,
                     ctx.RouteData,
                     ctx.ActionDescriptor
@@ -557,11 +577,19 @@ public class ControllerBuilder<TController>
     /// <returns></returns>
     public ControllerBuilder<TController> WithAction(string name)
     {
+        var methodInfo = typeof(TController).GetMethod(name);
+        if (methodInfo is null)
+        {
+            throw new ArgumentException(
+                $"Action '{name}' is not found on controller '{typeof(TController).Name}'",
+                nameof(name)
+            );
+        }
+
         return With(
             o => o.ControllerContext.ActionDescriptor.ActionName = name
         ).With(
-            o => o.ControllerContext.ActionDescriptor.MethodInfo =
-                typeof(TController).GetMethod(name)
+            o => o.ControllerContext.ActionDescriptor.MethodInfo = methodInfo
         ).WithRouteDataValue("action", name);
     }
 
@@ -629,9 +657,11 @@ public class ControllerBuilder<TController>
         string method
     )
     {
-        return WithRequestMutator(req =>
-        {
-            req.Method = method;
-        });
+        return WithRequestMutator(
+            req =>
+            {
+                req.Method = method;
+            }
+        );
     }
 }

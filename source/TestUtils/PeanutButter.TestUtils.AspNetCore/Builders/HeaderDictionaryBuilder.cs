@@ -1,12 +1,25 @@
-﻿using PeanutButter.TestUtils.AspNetCore.Fakes;
+﻿#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
+using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 
+#endif
+
 /// <summary>
 /// Constructs a header dictionary
 /// </summary>
-public class HeaderDictionaryBuilder
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class HeaderDictionaryBuilder
     : RandomizableBuilder<HeaderDictionaryBuilder, FakeHeaderDictionary>
 {
     /// <summary>

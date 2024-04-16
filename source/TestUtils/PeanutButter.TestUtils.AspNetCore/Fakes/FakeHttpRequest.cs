@@ -9,17 +9,28 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Utils;
 using PeanutButter.Utils;
+// ReSharper disable RedundantNameQualifier
+
+// ReSharper disable ConstantConditionalAccessQualifier
 
 // ReSharper disable ConstantNullCoalescingCondition
-
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Implements a fake http request
 /// </summary>
-public class FakeHttpRequest : HttpRequest, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeHttpRequest : HttpRequest, IFake
 {
     /// <inheritdoc />
     public override Task<IFormCollection> ReadFormAsync(
@@ -155,7 +166,7 @@ public class FakeHttpRequest : HttpRequest, IFake
         {
             return;
         }
-        
+
         var autoType = SelectContentTypeForFormOrBody();
         if (autoType == current)
         {
@@ -375,6 +386,10 @@ public class FakeHttpRequest : HttpRequest, IFake
     /// <param name="url"></param>
     public void SetUrl(Uri url)
     {
+#if BUILD_PEANUTBUTTER_INTERNAL
+        global::Imported.PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestExtensions.SetUrl(this, url);
+#else
         global::PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestExtensions.SetUrl(this, url);
+#endif
     }
 }

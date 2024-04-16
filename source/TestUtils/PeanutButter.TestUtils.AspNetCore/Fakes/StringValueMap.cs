@@ -3,14 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
 using PeanutButter.Utils.Dictionaries;
+
 // ReSharper disable PublicConstructorInAbstractClass
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides a string-to-stringvalue map
 /// </summary>
-public abstract class StringValueMap
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    abstract class StringValueMap
     : IEnumerable, ICanBeIndexedBy<string>
 {
     /// <summary>

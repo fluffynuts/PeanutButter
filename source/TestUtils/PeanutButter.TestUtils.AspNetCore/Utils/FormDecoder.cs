@@ -5,15 +5,28 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+using Imported.PeanutButter.Utils;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Utils;
+#else
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
 
 namespace PeanutButter.TestUtils.AspNetCore.Utils;
+#endif
 
 /// <summary>
 /// Attempts to decode a form from an http request body
 /// </summary>
-public class FormDecoder : IFormDecoder
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FormDecoder : IFormDecoder
 {
     /// <summary>
     /// Attempt to decode the form from the body
@@ -182,7 +195,8 @@ public class FormDecoder : IFormDecoder
                         hasCrLf.WasSet
                             ? "\r\n"
                             : "\n",
-                        bits.StoredLines);
+                        bits.StoredLines
+                    );
                     result.AddFile(new FakeFormFile(value, bits.Name, bits.FileName, bits.MimeType));
                     break;
             }
@@ -220,7 +234,15 @@ public class FormDecoder : IFormDecoder
             }
 
             var first = sub[0].Trim();
-            var second = WebUtility.UrlDecode(sub[1].Trim(new[] { '"', ' ' }));
+            var second = WebUtility.UrlDecode(
+                sub[1].Trim(
+                    new[]
+                    {
+                        '"',
+                        ' '
+                    }
+                )
+            );
             if (first == MultiPartBodyEncoder.NAME)
             {
                 name = second;

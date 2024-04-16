@@ -2,12 +2,21 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Builds ControllerActionDescriptor instances
 /// </summary>
-public class ControllerActionDescriptorBuilder
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class ControllerActionDescriptorBuilder
     : Builder<ControllerActionDescriptorBuilder, ControllerActionDescriptor>
 {
     /// <summary>

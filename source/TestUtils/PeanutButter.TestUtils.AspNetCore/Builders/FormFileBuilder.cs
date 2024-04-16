@@ -1,16 +1,29 @@
 ﻿using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.Http;
+
+// ReSharper disable MemberCanBePrivate.Global
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
+
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+#else
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
-// ReSharper disable MemberCanBePrivate.Global
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
+#endif
 
 /// <summary>
 /// Builds a form file
 /// </summary>
-public class FormFileBuilder : RandomizableBuilder<FormFileBuilder, IFormFile>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FormFileBuilder : RandomizableBuilder<FormFileBuilder, IFormFile>
 {
     /// <summary>
     /// Randomizes the file

@@ -3,12 +3,21 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+#else
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
+#endif
 
 /// <summary>
 /// Provides a fake websocket
 /// </summary>
-public class FakeWebSocket : WebSocket, IFake
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeWebSocket : WebSocket, IFake
 {
     /// <inheritdoc />
     public override void Abort()
@@ -33,7 +42,8 @@ public class FakeWebSocket : WebSocket, IFake
     public override Task CloseOutputAsync(
         WebSocketCloseStatus closeStatus,
         string statusDescription,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         return CloseAsync(closeStatus, statusDescription, cancellationToken);
     }
@@ -74,7 +84,8 @@ public class FakeWebSocket : WebSocket, IFake
         ArraySegment<byte> buffer,
         WebSocketMessageType messageType,
         bool endOfMessage,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         return _sender(buffer, messageType, endOfMessage, cancellationToken);
     }
