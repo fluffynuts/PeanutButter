@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using PeanutButter.Utils;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.Utils;
 using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace Imported.PeanutButter.RandomGenerators;
 #else
+using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.RandomGenerators;
