@@ -6,16 +6,19 @@ using System.Security.Claims;
 using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using PeanutButter.TestUtils.AspNetCore.Fakes;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable ConstantConditionalAccessQualifier
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
+using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
 namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
 #else
+using PeanutButter.TestUtils.AspNetCore.Fakes;
+using static PeanutButter.RandomGenerators.RandomValueGen;
+
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 #endif
 
