@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using PeanutButter.TestUtils.AspNetCore.Builders;
-using PeanutButter.Utils;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Builders;
+using Imported.PeanutButter.Utils;
 namespace Imported.PeanutButter.TestUtils.AspNetCore;
 #else
+using PeanutButter.TestUtils.AspNetCore.Builders;
+using PeanutButter.Utils;
 namespace PeanutButter.TestUtils.AspNetCore;
 #endif
 
