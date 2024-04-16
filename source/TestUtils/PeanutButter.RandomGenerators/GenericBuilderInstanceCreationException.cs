@@ -1,9 +1,10 @@
 ﻿using System;
-using PeanutButter.Utils;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.Utils;
 namespace Imported.PeanutButter.RandomGenerators;
 #else
+using PeanutButter.Utils;
 namespace PeanutButter.RandomGenerators;
 #endif
 
