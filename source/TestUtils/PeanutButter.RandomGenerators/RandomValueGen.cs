@@ -7,8 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
-using PeanutButter.Utils;
-using static PeanutButter.Utils.PyLike;
 // ReSharper disable ConstantNullCoalescingCondition
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -20,8 +18,14 @@ using static PeanutButter.Utils.PyLike;
 // ReSharper disable ClassNeverInstantiated.Global
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.Utils;
+using static Imported.PeanutButter.Utils.PyLike;
+
 namespace Imported.PeanutButter.RandomGenerators;
 #else
+using PeanutButter.Utils;
+using static PeanutButter.Utils.PyLike;
+
 namespace PeanutButter.RandomGenerators;
 #endif
 
@@ -2605,7 +2609,7 @@ public
     {
         shouldRegenerateIf = shouldRegenerateIf ?? DefaultEqualityTest;
         return GetANewRandomValueUsing(differentFromThisValue, usingThisGenerator, IsANewValue);
-        
+
         bool IsANewValue(T o) => !shouldRegenerateIf(differentFromThisValue, o);
     }
 
