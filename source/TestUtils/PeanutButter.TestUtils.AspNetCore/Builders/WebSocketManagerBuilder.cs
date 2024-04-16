@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using PeanutButter.TestUtils.AspNetCore.Fakes;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
 namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
 #else
+using PeanutButter.TestUtils.AspNetCore.Fakes;
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 #endif
 

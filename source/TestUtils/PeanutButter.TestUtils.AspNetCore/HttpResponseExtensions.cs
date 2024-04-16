@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net;
 using Microsoft.AspNetCore.Http;
-using PeanutButter.Utils;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.TestUtils.AspNetCore;
@@ -14,7 +11,12 @@ namespace PeanutButter.TestUtils.AspNetCore;
 /// <summary>
 /// Provides extensions for asp.net HttpResponse objects
 /// </summary>
-public static class HttpResponseExtensions
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    static class HttpResponseExtensions
 {
     /// <summary>
     /// ASP.NET core HttpResponse objects don't provide

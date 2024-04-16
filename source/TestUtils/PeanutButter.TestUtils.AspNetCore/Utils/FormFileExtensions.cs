@@ -1,11 +1,12 @@
 ﻿using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.Http;
-using PeanutButter.Utils;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.Utils;
 namespace Imported.PeanutButter.TestUtils.AspNetCore.Utils;
 #else
+using PeanutButter.Utils;
 namespace PeanutButter.TestUtils.AspNetCore.Utils;
 #endif
 

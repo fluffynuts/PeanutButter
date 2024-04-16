@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
 // ReSharper disable HeuristicUnreachableCode
@@ -10,8 +9,10 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable InconsistentNaming
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
 namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
 #else
+using static PeanutButter.RandomGenerators.RandomValueGen;
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 #endif
 

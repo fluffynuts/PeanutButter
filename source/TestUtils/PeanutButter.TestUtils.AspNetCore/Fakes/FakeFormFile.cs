@@ -4,15 +4,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using PeanutButter.Utils;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConstantNullCoalescingCondition
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.Utils;
 namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
 #else
+using PeanutButter.Utils;
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 #endif
 

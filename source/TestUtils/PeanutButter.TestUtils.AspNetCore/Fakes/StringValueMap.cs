@@ -2,13 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
-using PeanutButter.Utils.Dictionaries;
 
 // ReSharper disable PublicConstructorInAbstractClass
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.Utils.Dictionaries;
 namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
 #else
+using PeanutButter.Utils.Dictionaries;
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 #endif
 

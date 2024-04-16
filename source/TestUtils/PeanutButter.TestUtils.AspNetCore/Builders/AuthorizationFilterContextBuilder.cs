@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Routing;
 #if BUILD_PEANUTBUTTER_INTERNAL
 using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
 using Imported.PeanutButter.Utils;
-namespace ImportedPeanutButter.TestUtils.AspNetCore.Builders;
+namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
 #else
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;

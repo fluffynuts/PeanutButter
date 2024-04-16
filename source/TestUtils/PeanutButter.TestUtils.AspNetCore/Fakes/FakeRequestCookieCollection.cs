@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using PeanutButter.Utils;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.Utils;
 namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
 #else
+using PeanutButter.Utils;
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 #endif
 

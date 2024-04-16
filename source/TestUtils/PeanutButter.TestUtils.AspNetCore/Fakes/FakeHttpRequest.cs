@@ -7,18 +7,20 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using PeanutButter.TestUtils.AspNetCore.Utils;
-using PeanutButter.Utils;
 // ReSharper disable RedundantNameQualifier
-
 // ReSharper disable ConstantConditionalAccessQualifier
-
 // ReSharper disable ConstantNullCoalescingCondition
 // ReSharper disable MemberCanBePrivate.Global
 
 #if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.TestUtils.AspNetCore.Utils;
+using Imported.PeanutButter.Utils;
+
 namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
 #else
+using PeanutButter.TestUtils.AspNetCore.Utils;
+using PeanutButter.Utils;
+
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 #endif
 
