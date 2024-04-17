@@ -1,14 +1,23 @@
 using System;
 using System.Threading.Tasks;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils;
+#else
 namespace PeanutButter.Utils;
+#endif
 
 /// <summary>
 /// Provides Run.Until, a convenience mechanism
 /// to run a bit of logic until some condition is
 /// met
 /// </summary>
-public static partial class Run
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    static partial class Run
 {
     /// <summary>
     /// Run the generator until the validator
@@ -28,6 +37,7 @@ public static partial class Run
         {
             result = generator();
         } while (!validator(result));
+
         return result;
     }
 
@@ -50,6 +60,7 @@ public static partial class Run
         {
             last = result = generator(last);
         } while (!validator(result));
+
         return result;
     }
 

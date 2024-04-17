@@ -1,16 +1,26 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+
 // ReSharper disable MemberCanBePrivate.Global
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils;
+#else
 namespace PeanutButter.Utils;
+#endif
 
 /// <summary>
 /// Provides a convenience wrapper to
 /// time-out a long-running operation
 /// which has taken too long
 /// </summary>
-public static partial class Run
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    static partial class Run
 {
     /// <summary>
     /// 
@@ -151,7 +161,7 @@ public static partial class Run
 
         var logicCancellationTokenSource = new CancellationTokenSource();
         var logicToken = logicCancellationTokenSource.Token;
-        
+
         var barrier = new Barrier(2);
 
         var t1 = Task.Run(

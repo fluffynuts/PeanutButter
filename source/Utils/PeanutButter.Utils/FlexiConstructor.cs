@@ -3,6 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable MemberCanBePrivate.Global
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils;
@@ -13,7 +16,12 @@ namespace PeanutButter.Utils;
 /// <summary>
 /// (optional) flags to pass to the Construct&lt;T&gt; method
 /// </summary>
-public enum ConstructFlags
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    enum ConstructFlags
 {
     /// <summary>
     /// No flags
@@ -45,7 +53,12 @@ public enum ConstructFlags
 /// - missing parameters are fed in as
 ///     the default value for the type
 /// </summary>
-public class FlexiConstructor
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FlexiConstructor
 {
     /// <summary>
     /// Attempts to construct the type T with the provided
@@ -211,8 +224,8 @@ public class FlexiConstructor
         public ConstructorInfo Info { get; }
         public ConstructorParameter[] Parameters { get; }
         public object[] OriginalParameters { get; }
-        public decimal Score => _score = CalculateScore();
-        private decimal _score;
+        public decimal Score => _score ??= CalculateScore();
+        private decimal? _score;
 
         private decimal CalculateScore()
         {
@@ -243,7 +256,7 @@ public class FlexiConstructor
                 o => o.Flags.HasFlag(ParameterFlags.WasProvided) &&
                     o.Flags.HasFlag(ParameterFlags.IsExactTypeMatch)
             );
-            return exactMatches / (decimal)Parameters.Length;
+            return exactMatches / Parameters.Length;
         }
 
         private decimal PercentageOfForcedMatches()
