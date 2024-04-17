@@ -1270,21 +1270,23 @@ public class TestRandomValueGen
         [Test]
         public void ShouldReturnRandomDateTimeForDefaultCall()
         {
-            Retry.Max(3).Times(() =>
-            {
-                // Arrange
-                var collected = new List<DateTime>();
-                // Act
-                for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+            Retry.Max(3).Times(
+                () =>
                 {
-                    collected.Add(GetRandomDate());
-                }
+                    // Arrange
+                    var collected = new List<DateTime>();
+                    // Act
+                    for (var i = 0; i < HIGH_RANDOM_TEST_CYCLES; i++)
+                    {
+                        collected.Add(GetRandomDate());
+                    }
 
-                // Assert
-                var unique = collected.Distinct();
-                Expect(unique)
-                    .To.Be.Equivalent.To(collected);
-            });
+                    // Assert
+                    var unique = collected.Distinct();
+                    Expect(unique)
+                        .To.Be.Equivalent.To(collected);
+                }
+            );
         }
 
         [TestCase(
@@ -2764,6 +2766,7 @@ public class TestRandomValueGen
                         () => $"Should all be between {min}  and  {max}"
                     );
             }
+
             [Test]
             public void ShouldAutomaticallySwitchMinMaxOutOfOrder()
             {
@@ -4781,26 +4784,24 @@ public class TestRandomValueGen
         public void GivenPath_ShouldCreateSomeRandomFoldersThereAndReturnTheRelativePaths()
         {
             //---------------Set up test pack-------------------
-            using (var folder = new AutoTempFolder())
-            {
-                //---------------Assert Precondition----------------
+            using var folder = new AutoTempFolder();
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = CreateRandomFoldersIn(folder.Path);
+            //---------------Execute Test ----------------------
+            var result = CreateRandomFoldersIn(folder.Path);
 
-                //---------------Test Result -----------------------
-                Expect(result)
-                    .Not.To.Be.Null();
-                Expect(result)
-                    .Not.To.Be.Empty();
-                Expect(result)
-                    .To.Have.Unique.Items();
+            //---------------Test Result -----------------------
+            Expect(result)
+                .Not.To.Be.Null();
+            Expect(result)
+                .Not.To.Be.Empty();
+            Expect(result)
+                .To.Have.Unique.Items();
 
-                Expect(result)
-                    .To.Be.FoldersUnder(folder.Path);
-                Expect(result)
-                    .To.Be.TheOnlyFoldersUnder(folder.Path);
-            }
+            Expect(result)
+                .To.Be.FoldersUnder(folder.Path);
+            Expect(result)
+                .To.Be.TheOnlyFoldersUnder(folder.Path);
         }
 
         [Test]
@@ -4847,21 +4848,19 @@ public class TestRandomValueGen
         public void CreateRandomFileIn_GivenPath_ShouldReturnNameOfFileCreatedThereWithRandomContents()
         {
             //---------------Set up test pack-------------------
-            using (var folder = new AutoTempFolder())
-            {
-                //---------------Assert Precondition----------------
+            using var folder = new AutoTempFolder();
+            //---------------Assert Precondition----------------
 
-                //---------------Execute Test ----------------------
-                var result = CreateRandomFileIn(folder.Path);
+            //---------------Execute Test ----------------------
+            var result = CreateRandomFileIn(folder.Path);
 
-                //---------------Test Result -----------------------
-                Expect(result)
-                    .Not.To.Exist();
-                Expect(Path.Combine(folder.Path, result))
-                    .To.Be.A.File();
-                Expect(File.ReadAllBytes(folder.ResolvePath(result)))
-                    .Not.To.Be.Empty();
-            }
+            //---------------Test Result -----------------------
+            Expect(result)
+                .Not.To.Exist();
+            Expect(Path.Combine(folder.Path, result))
+                .To.Be.A.File();
+            Expect(File.ReadAllBytes(folder.ResolvePath(result)))
+                .Not.To.Be.Empty();
         }
 
         [Test]
@@ -5773,58 +5772,81 @@ public class TestRandomValueGen
                 .To.Equal(dict.Values.Distinct());
         }
     }
-}
 
-[TestFixture]
-public class WildIssues
-{
-    [Test]
-    public void ShouldPopulateLongAndNullableLongProps()
+    [TestFixture]
+    public class RandomMimeType
     {
-        // Arrange
-        var collected = new List<IMooCakes>();
-        // Act
-        for (var i = 0; i < NORMAL_RANDOM_TEST_CYCLES; i++)
+        [Test]
+        public void ShouldGenerateRandomMimeTypeFromKnownTypes()
         {
-            collected.Add(GetRandom<IMooCakes>());
-        }
+            // Arrange
+            var source = new HashSet<string>(MimeType.KnownMimeTypes);
+            var collected = new List<string>();
+            // Act
+            RunCycles(() =>
+            {
+                collected.Add(GetRandomMIMEType());
+            });
 
-        // Assert
-        // random values for long include zero (the default of long)
-        // -> so we just need to affirm that that's not _always_ set
-        Expect(collected)
-            .To.Contain.Any
-            .Matched.By(o => o.Id != 0);
-        var first = collected.First();
-        Expect(first.ReferenceId)
-            .Not.To.Be.Null();
-        Expect(first.OverallRunTime)
-            .Not.To.Be.Null();
-        Expect(first.StepRunTime)
-            .Not.To.Be.Null();
+            // Assert
+            Expect(collected)
+                .To.Vary();
+            Expect(source)
+                .To.Contain.All.Of(collected);
+        }
     }
 
-    public interface IMooCakes
+    [TestFixture]
+    public class WildIssues
     {
-        long Id { get; set; }
+        [Test]
+        public void ShouldPopulateLongAndNullableLongProps()
+        {
+            // Arrange
+            var collected = new List<IMooCakes>();
+            // Act
+            for (var i = 0; i < NORMAL_RANDOM_TEST_CYCLES; i++)
+            {
+                collected.Add(GetRandom<IMooCakes>());
+            }
 
-        string Channel { get; set; }
+            // Assert
+            // random values for long include zero (the default of long)
+            // -> so we just need to affirm that that's not _always_ set
+            Expect(collected)
+                .To.Contain.Any
+                .Matched.By(o => o.Id != 0);
+            var first = collected.First();
+            Expect(first.ReferenceId)
+                .Not.To.Be.Null();
+            Expect(first.OverallRunTime)
+                .Not.To.Be.Null();
+            Expect(first.StepRunTime)
+                .Not.To.Be.Null();
+        }
 
-        Guid UniqueIdentifier { get; set; }
+        public interface IMooCakes
+        {
+            long Id { get; set; }
 
-        long? ReferenceId { get; set; }
+            string Channel { get; set; }
 
-        string Type { get; set; }
+            Guid UniqueIdentifier { get; set; }
 
-        string Info { get; set; }
+            long? ReferenceId { get; set; }
 
-        string Meta { get; set; }
+            string Type { get; set; }
 
-        DateTime DateTime { get; set; }
+            string Info { get; set; }
 
-        long? OverallRunTime { get; set; }
+            string Meta { get; set; }
 
-        long? StepRunTime { get; set; }
+            DateTime DateTime { get; set; }
+
+            long? OverallRunTime { get; set; }
+
+            long? StepRunTime { get; set; }
+        }
     }
 }
 

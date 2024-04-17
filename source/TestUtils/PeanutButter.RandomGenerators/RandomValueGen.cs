@@ -523,15 +523,6 @@ public
         return GetRandomInt(1, 100) < 50;
     }
 
-    private static readonly string[] MimeTypes =
-    [
-        "text/plain",
-        "text/html",
-        "image/png",
-        "application/pdf",
-        "image/jpeg"
-    ];
-
     // ReSharper disable once InconsistentNaming
     /// <summary>
     /// Gets a pseudo-random mimetype (picks from a short list of known mime types)
@@ -539,8 +530,9 @@ public
     /// <returns>String which is a valid mime type</returns>
     public static string GetRandomMIMEType()
     {
-        var idx = GetRandomInt(0, MimeTypes.Length - 1);
-        return MimeTypes[idx];
+        return GetRandomFrom(
+            MimeType.KnownMimeTypes
+        );
     }
 
     /// <summary>
@@ -1849,7 +1841,7 @@ public
     /// <returns></returns>
     public static string GetRandomFileExtension()
     {
-        return GetRandomFrom(MIMEType.KnownFileExtensions);
+        return GetRandomFrom(MimeType.KnownFileExtensions);
     }
 
     /// <summary>

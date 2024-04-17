@@ -120,7 +120,7 @@ public
         _content = content;
         Name = name;
         FileName = fileName ?? name;
-        ContentType = mimeType ?? MIMEType.GuessForFileName(FileName);
+        ContentType = mimeType ?? MimeType.GuessForFileName(FileName);
         ContentDisposition = $"attachment; filename=${FileName}";
     }
 
