@@ -94,7 +94,10 @@ public
     {
         var max = _used.Count * 2;
         if (max < 10)
+        {
             max = 10;
+        }
+
         return GetRandomInt(1, max);
     }
 }

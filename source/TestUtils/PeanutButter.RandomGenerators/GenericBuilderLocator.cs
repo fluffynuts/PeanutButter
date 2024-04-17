@@ -59,11 +59,16 @@ public
     public static Type TryFindExistingBuilderFor(Type type)
     {
         if (type == null)
+        {
             return null;
+        }
+
         lock (BuilderTypeCache)
         {
             if (BuilderTypeCache.TryGetValue(type, out var result))
+            {
                 return result;
+            }
         }
 
         return TryFindExistingBuilderAndCacheFor(type);
@@ -94,7 +99,10 @@ public
     private static void CacheBuilderType(Type type, Type builderType)
     {
         if (type == null)
+        {
             return;
+        }
+
         lock (BuilderTypeCache)
         {
             BuilderTypeCache[type] = builderType;
@@ -107,7 +115,10 @@ public
         {
             var genericBuilder = builderType.TryFindGenericBuilderInClassHeirachy();
             if (genericBuilder.GenericTypeArguments.Length != 2)
+            {
                 return;
+            }
+
             var builtType = genericBuilder.GenericTypeArguments[1]; // Naive, but let's run with it
             CacheBuilderType(builderType, builtType);
         }
@@ -160,7 +171,10 @@ public
             var types = allBuilders.Where(t => t.IsBuilderFor(propertyType))
                 .ToArray();
             if (!types.Any())
+            {
                 return null;
+            }
+
             return types.Length == 1
                 ? types.First()
                 : FindClosestNamespaceMatchFor(propertyType, types);
@@ -183,7 +197,10 @@ public
         lock (ReferenceLoadLock)
         {
             if (_haveLoadedImmediateAssemblies)
+            {
                 return;
+            }
+
             _haveLoadedImmediateAssemblies = true;
             AppDomain.CurrentDomain.GetAssemblies().ForEach(LoadReferencedAssemblies);
         }
@@ -247,14 +264,20 @@ public
     private static Type FindClosestNamespaceMatchFor(Type propertyType, IEnumerable<Type> types)
     {
         if (propertyType?.Namespace == null) // R# is convinced this might happen :/
+        {
             return null;
+        }
+
         var seekNamespace = propertyType.Namespace.Split('.');
         return types.Aggregate(
             (Type)null,
             (acc, cur) =>
             {
                 if (acc?.Namespace == null || cur.Namespace == null)
+                {
                     return cur;
+                }
+
                 var accParts = acc.Namespace.Split('.');
                 var curParts = cur.Namespace.Split('.');
                 var accMatchIndex = seekNamespace.MatchIndexFor(accParts);

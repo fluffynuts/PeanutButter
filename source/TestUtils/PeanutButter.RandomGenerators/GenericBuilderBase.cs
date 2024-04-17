@@ -105,11 +105,17 @@ public
     internal static Type ReuseOrGenerateDynamicBuilderFor(Type type)
     {
         if (type == null)
+        {
             return null;
+        }
+
         lock (DynamicBuilders)
         {
             if (DynamicBuilders.TryGetValue(type, out var dynamicBuilderType))
+            {
                 return dynamicBuilderType;
+            }
+
             var t = typeof(GenericBuilder<,>);
 
             var modBuilder = CreateOrReuseDynamicModule();
@@ -336,14 +342,18 @@ public
 
     private static void AttemptToLoadAssemblyAlongside<T>(string fileName)
     {
-        var codeBase = new Uri(typeof(T).Assembly.CodeBase).LocalPath;
+        var codeBase = new Uri(typeof(T).Assembly.Location).LocalPath;
         if (!File.Exists(codeBase))
+        {
             return;
+        }
 
         var folder = Path.GetDirectoryName(codeBase);
         var search = Path.Combine(folder ?? "", fileName);
         if (!File.Exists(search))
+        {
             return;
+        }
 
         try
         {

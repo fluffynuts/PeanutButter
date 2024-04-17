@@ -21,7 +21,10 @@ public static class EnumerableExtensions
     public static IEnumerable<T> Randomize<T>(this IEnumerable<T> input)
     {
         if (input == null)
+        {
             return null;
+        }
+
         var src = new List<T>(input);
         var result = new List<T>();
         while (src.Count > 0)

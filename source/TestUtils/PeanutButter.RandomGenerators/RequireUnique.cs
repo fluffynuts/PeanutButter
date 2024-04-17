@@ -52,7 +52,10 @@ public
 
         var generatorKey = new Tuple<Type, string>(entityType, PropertyNames.Single());
         if (!Generators.ContainsKey(generatorKey))
+        {
             Generators[generatorKey] = UniqueRandomValueGenerator.For(PropertyType);
+        }
+
         _generator = Generators[generatorKey];
     }
 

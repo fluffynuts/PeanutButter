@@ -25,7 +25,10 @@ internal static class StringArrayExtensionsForMatchingNamespaces
     private static int StringCompare(string first, string second)
     {
         if (first == second)
+        {
             return 0;
+        }
+
         var ordered = new[]
         {
             first,

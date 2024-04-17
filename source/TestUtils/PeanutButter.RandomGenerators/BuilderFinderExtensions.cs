@@ -28,7 +28,10 @@ internal static class BuilderFinderExtensions
     {
         var current = TryFindGenericBuilderInClassHeirachy(potentialBuilder);
         if (current == null)
+        {
             return null;
+        }
+
         var typeParameters = current.GetGenericArguments();
         return typeParameters.Length > 1 && typeParameters[1] == buildType
             ? current
@@ -43,14 +46,19 @@ internal static class BuilderFinderExtensions
             {
                 var genericBase = current.GetGenericTypeDefinition();
                 if (genericBase == GenericBuilderBaseType)
+                {
                     break;
+                }
             }
 
             current = current.BaseType();
         }
 
         if (current == ObjectType || current == null)
+        {
             return null;
+        }
+
         return current;
     }
 }
