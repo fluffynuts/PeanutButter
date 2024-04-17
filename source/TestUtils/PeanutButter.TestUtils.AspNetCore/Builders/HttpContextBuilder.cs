@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -74,8 +75,8 @@ public
                 () => HttpResponseBuilder.CreateWithNoHttpContext()
                     .Build()
             )
-            .WithConnection(GetRandom<FakeConnectionInfo>())
-            .WithUser(GetRandom<ClaimsPrincipal>())
+            .WithConnection(MakeRandomConnectionInfo())
+            .WithUser(MakeRandomClaimsPrincipal())
             .WithRequestServices(new MinimalServiceProvider())
             .WithRequest(
                 () => HttpRequestBuilder.CreateWithNoHttpContext()
@@ -85,6 +86,37 @@ public
                     .Build()
             );
     }
+    private static ClaimsPrincipal MakeRandomClaimsPrincipal()
+    {
+        return new ClaimsPrincipal(
+            new FakeIdentity()
+            {
+                AuthenticationType = GetRandomFrom(["Basic", "NTLM", "Kerberos", "Passport", "Bearer"]),
+                Name = GetRandomName(),
+                IsAuthenticated = true
+            }
+        );
+    }
+
+    private class FakeIdentity : IIdentity
+    {
+        public string AuthenticationType { get; set; }
+        public bool IsAuthenticated { get; set; }
+        public string Name { get; set; }
+    }
+
+    private static FakeConnectionInfo MakeRandomConnectionInfo()
+    {
+        return new FakeConnectionInfo()
+        {
+            Id = GetRandomString(),
+            LocalIpAddress = IPAddress.Parse("127.0.0.1"),
+            LocalPort = GetRandomInt(80, 8080),
+            RemoteIpAddress = IPAddress.Parse(GetRandomIPv4Address()),
+            RemotePort = GetRandomInt(80, 8080)
+        };
+    }
+
 
     private static void Actualize(HttpContext context)
     {
