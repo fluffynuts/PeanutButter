@@ -11,7 +11,12 @@ namespace PeanutButter.RandomGenerators;
 /// <summary>
 /// Requires that the named property is randomized to a non-zero value
 /// </summary>
-public class RequireNonZero : RandomizerAttribute
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class RequireNonZero : RandomizerAttribute
 {
     /// <inheritdoc />
     public RequireNonZero(string propertyName, params string[] moreProps)
