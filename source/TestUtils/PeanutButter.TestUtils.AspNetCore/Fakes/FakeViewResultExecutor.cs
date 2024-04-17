@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,25 @@ namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 /// <summary>
 /// Actually rendering a view is going to be tricky, and probably
 /// unnecessary. For testing purposes, the caller needs to be able
-/// to assert the view name and the provided data
+/// to assert the view name and the provided data. This fake renderer
+/// will execute to arrive at:
+/// 1. the response body will be the view name
+/// 2. The http context on the action context will have the following Items set:
+///    - Model
+///    - ViewData
+///    - ContentType
+///    - StatusCode
 /// </summary>
-internal class FakeViewResultExecutor
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeViewResultExecutor
     : IActionResultExecutor<PartialViewResult>,
       IActionResultExecutor<ViewResult>
 {
+    /// <inheritdoc />
     public async Task ExecuteAsync(
         ActionContext context,
         PartialViewResult result
@@ -35,6 +49,11 @@ internal class FakeViewResultExecutor
         );
     }
 
+    private static readonly JsonSerializerOptions Options = new()
+    {
+        WriteIndented = true
+    };
+
     private async Task Resolve(
         ActionContext context,
         int? statusCode,
@@ -44,7 +63,19 @@ internal class FakeViewResultExecutor
         ViewDataDictionary viewData
     )
     {
-        await context.HttpContext.Response.WriteAsync($"[{viewName}]");
+        await context.HttpContext.Response.WriteAsync(
+            $@"
+Status: {statusCode ?? 200}
+Content Type: {contentType ?? "text/html"}
+View: {viewName}
+
+Model:
+{(model is null ? "(null)" : JsonSerializer.Serialize(model, Options))}
+
+ViewData:
+{(viewData is null ? "(null)" : JsonSerializer.Serialize(viewData))}
+".Trim()
+        );
         context.HttpContext.Items["Model"] = model;
         context.HttpContext.Items["ViewData"] = viewData;
         context.HttpContext.Response.StatusCode =
@@ -53,6 +84,7 @@ internal class FakeViewResultExecutor
             contentType ?? "text/html";
     }
 
+    /// <inheritdoc />
     public async Task ExecuteAsync(
         ActionContext context,
         ViewResult result

@@ -3,10 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Options;
 using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
+
 // ReSharper disable MemberCanBePrivate.Global
 
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -110,6 +112,9 @@ public
         );
         RegisterInstance<IActionResultExecutor<ViewResult>>(
             viewResultExecutor
+        );
+        RegisterInstance<IActionResultExecutor<JsonResult>>(
+            new FakeJsonResultExecutor()
         );
     }
 

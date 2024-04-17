@@ -15,8 +15,18 @@ namespace Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
 namespace PeanutButter.TestUtils.AspNetCore.Fakes;
 #endif
 
-internal class FakeObjectResultExecutor : IActionResultExecutor<ObjectResult>
+/// <summary>
+/// Provides a faked implementation for rendering ObjectResult
+/// values
+/// </summary>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class FakeObjectResultExecutor : IActionResultExecutor<ObjectResult>
 {
+    /// <inheritdoc />
     public async Task ExecuteAsync(
         ActionContext context,
         ObjectResult result
