@@ -528,7 +528,18 @@ public
     /// Gets a pseudo-random mimetype (picks from a short list of known mime types)
     /// </summary>
     /// <returns>String which is a valid mime type</returns>
+    [Obsolete("This has been renamed to GetRandomMimeType and will be removed in a future release")]
     public static string GetRandomMIMEType()
+    {
+        return GetRandomMimeType();
+    }
+
+    // ReSharper disable once InconsistentNaming
+    /// <summary>
+    /// Gets a pseudo-random mimetype (picks from a short list of known mime types)
+    /// </summary>
+    /// <returns>String which is a valid mime type</returns>
+    public static string GetRandomMimeType()
     {
         return GetRandomFrom(
             MimeType.KnownMimeTypes
