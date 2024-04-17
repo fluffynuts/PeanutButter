@@ -129,6 +129,19 @@ public class TestRequestDelegateTestArena
         }
 
         [Test]
+        public void ShouldBeAbleToStartWithOptionsRequest()
+        {
+            // Arrange
+            // Act
+            var (ctx, _) = RequestDelegateTestArenaBuilder.Create()
+                .ForOptionsRequest()
+                .Build();
+            // Assert
+            Expect(ctx.Request.Method)
+                .To.Equal("OPTIONS");
+        }
+
+        [Test]
         [Parallelizable]
         public void ShouldHaveEasierAccessToSetTheRequest()
         {

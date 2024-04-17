@@ -85,10 +85,8 @@ public
     public RequestDelegateTestArenaBuilder ForOptionsRequest()
     {
         return WithContextMutator(
-            builder => builder.With(
-                o => o.WithRequestMutator(
-                    r => r.Method = "OPTIONS"
-                )
+            builder => builder.WithRequestMutator(
+                r => r.Method = "OPTIONS"
             )
         );
     }
