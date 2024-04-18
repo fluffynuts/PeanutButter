@@ -81,7 +81,15 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="allowReadonlyDefaultMembers">allows properties with no backing to be read as the default value for that type</param>
         // ReSharper disable once UnusedMember.Global
         public ShimSham(object toWrap, Type interfaceToMimic, bool isFuzzy, bool allowReadonlyDefaultMembers)
-            : this(new[] { toWrap }, interfaceToMimic, isFuzzy, allowReadonlyDefaultMembers)
+            : this(
+                new[]
+                {
+                    toWrap
+                },
+                interfaceToMimic,
+                isFuzzy,
+                allowReadonlyDefaultMembers
+            )
         {
         }
 
@@ -100,7 +108,8 @@ namespace PeanutButter.DuckTyping.Shimming
             Type interfaceToMimic,
             bool isFuzzy,
             bool allowReadonlyDefaultsForMissingMembers,
-            IPropertyInfoFetcher propertyInfoFetcher)
+            IPropertyInfoFetcher propertyInfoFetcher
+        )
         {
             if (interfaceToMimic is null)
             {
@@ -128,8 +137,9 @@ namespace PeanutButter.DuckTyping.Shimming
                 interfaceToMimic.GetAllImplementedInterfaces()
                     .And(interfaceToMimic)
                     .Distinct()
-                    .Select(i => _propertyInfoFetcher
-                        .GetProperties(i, bindingFlags)
+                    .Select(
+                        i => _propertyInfoFetcher
+                            .GetProperties(i, bindingFlags)
                     )
                     .SelectMany(c => c)
                     .ToArray()
@@ -162,7 +172,20 @@ namespace PeanutButter.DuckTyping.Shimming
             var propCode = propertyName.GetHashCode();
             if (_wrappingADuck)
             {
-                return FieldValueFor(propertyName);
+                var itemType = _wrappedTypes[0];
+                if (PropertyInfos.TryGetValue(itemType, out var props))
+                {
+                    if (props.PropertyInfos.TryGetValue(propertyName, out var pi))
+                    {
+                        return pi.GetValue(_wrapped[0]);
+                    }
+
+                    throw new InvalidOperationException(
+                        $"Unable to find property '{propertyName}' on type '{itemType}'"
+                    );
+                }
+
+                throw new InvalidOperationException($"Unable to find cached property infos for '{itemType}'");
             }
 
             if (_shimmedProperties.TryGetValue(propCode, out var shimmed))
@@ -185,6 +208,70 @@ namespace PeanutButter.DuckTyping.Shimming
             }
 
             return DuckIfRequired(propInfo, propertyName);
+        }
+
+        /// <inheritdoc />
+        public void SetPropertyValue(string propertyName, object newValue)
+        {
+            var propCode = propertyName.GetHashCode();
+            if (_wrappingADuck)
+            {
+                var itemType = _wrappedTypes[0];
+                if (PropertyInfos.TryGetValue(itemType, out var props))
+                {
+                    if (props.PropertyInfos.TryGetValue(propertyName, out var pi))
+                    {
+                        pi.SetValue(_wrapped[0], newValue);
+                        return;
+                    }
+
+                    throw new InvalidOperationException(
+                        $"Unable to find property '{propertyName}' on type '{itemType}'"
+                    );
+                }
+
+                throw new InvalidOperationException($"Unable to find cached property infos for '{itemType}'");
+            }
+
+            var propInfo = FindPropertyInfoFor(propCode, propertyName);
+            if (propInfo == null)
+            {
+                throw new PropertyNotFoundException(_wrappedTypes[0], propertyName);
+            }
+
+            if (!propInfo.CanWrite || propInfo.Setter is null)
+            {
+                // TODO: throw for correct wrapped type for this particular property
+                throw new ReadOnlyPropertyException(_wrappedTypes[0], propertyName);
+            }
+
+            var mimickedType = _localMimicPropertyTypes[propertyName];
+            var newValueType = newValue?.GetType();
+            if (newValueType is null)
+            {
+                var defaultValue = GetDefaultValueFor(mimickedType);
+                TrySetValue(defaultValue, mimickedType, propInfo);
+                return;
+            }
+
+            if (mimickedType.IsAssignableFrom(newValueType))
+            {
+                TrySetValue(newValue, newValueType, propInfo);
+                return;
+            }
+
+            var duckType = MakeTypeToImplement(mimickedType, _isFuzzy);
+            var instance = Activator.CreateInstance(
+                duckType,
+                new object[]
+                {
+                    new[]
+                    {
+                        newValue
+                    }
+                }
+            );
+            _shimmedProperties[propCode] = instance;
         }
 
         private object DuckIfRequired(
@@ -235,11 +322,22 @@ namespace PeanutButter.DuckTyping.Shimming
 
             var duckType = MakeTypeToImplement(correctType, _isFuzzy);
             var asDict = propValue.TryConvertToDictionary();
-            var instance = Activator.CreateInstance(duckType,
+            var instance = Activator.CreateInstance(
+                duckType,
                 asDict == null
                     // ReSharper disable once RedundantExplicitArrayCreation
-                    ? new object[] { new object[] { propValue } }
-                    : new object[] { asDict });
+                    ? new object[]
+                    {
+                        new object[]
+                        {
+                            propValue
+                        }
+                    }
+                    : new object[]
+                    {
+                        asDict
+                    }
+            );
             _shimmedProperties[propertyName.GetHashCode()] = instance;
             return instance;
         }
@@ -258,48 +356,6 @@ namespace PeanutButter.DuckTyping.Shimming
             }
 
             return result;
-        }
-
-        /// <inheritdoc />
-        public void SetPropertyValue(string propertyName, object newValue)
-        {
-            var propCode = propertyName.GetHashCode();
-            if (_wrappingADuck)
-            {
-                SetFieldValue(propertyName, newValue);
-                return;
-            }
-
-            var propInfo = FindPropertyInfoFor(propCode, propertyName);
-            if (propInfo == null)
-            {
-                throw new PropertyNotFoundException(_wrappedTypes[0], propertyName);
-            }
-
-            if (!propInfo.CanWrite || propInfo.Setter is null)
-            {
-                // TODO: throw for correct wrapped type for this particular property
-                throw new ReadOnlyPropertyException(_wrappedTypes[0], propertyName);
-            }
-
-            var mimickedType = _localMimicPropertyTypes[propertyName];
-            var newValueType = newValue?.GetType();
-            if (newValueType is null)
-            {
-                var defaultValue = GetDefaultValueFor(mimickedType);
-                TrySetValue(defaultValue, mimickedType, propInfo);
-                return;
-            }
-
-            if (mimickedType.IsAssignableFrom(newValueType))
-            {
-                TrySetValue(newValue, newValueType, propInfo);
-                return;
-            }
-
-            var duckType = MakeTypeToImplement(mimickedType, _isFuzzy);
-            var instance = Activator.CreateInstance(duckType, new object[] { new[] { newValue } });
-            _shimmedProperties[propCode] = instance;
         }
 
 
@@ -386,13 +442,14 @@ namespace PeanutButter.DuckTyping.Shimming
             }
 
             throw new InvalidOperationException(
-                $"Unable to find matching underlying method '{methodName}' with parameter types {string.Join(",", argumentTypes.Select(t => (object) t))}"
+                $"Unable to find matching underlying method '{methodName}' with parameter types {string.Join(",", argumentTypes.Select(t => (object)t))}"
             );
         }
 
         private object[] AttemptToOrderCorrectly(
             object[] parameters,
-            MethodInfo methodInfo)
+            MethodInfo methodInfo
+        )
         {
             var methodParameters = methodInfo.GetParameters();
             if (parameters.Length != methodParameters.Length)
@@ -501,8 +558,11 @@ namespace PeanutButter.DuckTyping.Shimming
 
                 PropertyInfos[type] = new PropertyInfoContainer(
                     _propertyInfoFetcher
-                        .GetPropertiesFor(toCacheFor,
-                            BindingFlags.Instance | BindingFlags.Public));
+                        .GetPropertiesFor(
+                            toCacheFor,
+                            BindingFlags.Instance | BindingFlags.Public
+                        )
+                );
                 if (!cacheFieldInfosToo)
                 {
                     return;
@@ -622,8 +682,11 @@ namespace PeanutButter.DuckTyping.Shimming
             var exValue = Expression.Parameter(typeof(object), "p");
             // FIXME: find the correct wrapped object to target
             var exTarget = Expression.Constant(_wrapped[0]);
-            var exBody = Expression.Call(exTarget, methodInfo,
-                Expression.Convert(exValue, propertyInfo.PropertyType));
+            var exBody = Expression.Call(
+                exTarget,
+                methodInfo,
+                Expression.Convert(exValue, propertyInfo.PropertyType)
+            );
 
             var lambda = Expression.Lambda<Action<object>>(exBody, exValue);
             var action = lambda.Compile();
@@ -648,7 +711,8 @@ namespace PeanutButter.DuckTyping.Shimming
             if (converter is null)
             {
                 throw new InvalidOperationException(
-                    $"Unable to set property: no converter for {newValueType.Name} => {pType.Name}");
+                    $"Unable to set property: no converter for {newValueType.Name} => {pType.Name}"
+                );
             }
 
             var converted = ConvertWith(converter, newValue, pType);
