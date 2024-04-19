@@ -173,24 +173,7 @@ namespace PeanutButter.DuckTyping.Shimming
             var propCode = propertyName.GetHashCode();
             if (_wrappingADuck)
             {
-                if (_wrappingADictionaryDuck)
-                {
-                    if (ReadPropertyDirectly(propertyName, out var value))
-                    {
-                        return value;
-                    }
-                }
-                else
-                {
-                    if (ReadBackingFieldValue(propertyName, out var o))
-                    {
-                        return o;
-                    }
-                }
-
-                throw new InvalidOperationException(
-                    $"Unable to read property '{propertyName}' from ducked type '{_wrappedTypes[0]}'"
-                );
+                return ReadDuckedProperty(propertyName);
             }
 
             if (_shimmedProperties.TryGetValue(propCode, out var shimmed))
@@ -213,6 +196,28 @@ namespace PeanutButter.DuckTyping.Shimming
             }
 
             return DuckIfRequired(propInfo, propertyName);
+        }
+
+        private object ReadDuckedProperty(string propertyName)
+        {
+            if (_wrappingADictionaryDuck)
+            {
+                if (ReadPropertyDirectly(propertyName, out var value))
+                {
+                    return value;
+                }
+            }
+            else
+            {
+                if (ReadBackingFieldValue(propertyName, out var o))
+                {
+                    return o;
+                }
+            }
+
+            throw new InvalidOperationException(
+                $"Unable to read property '{propertyName}' from ducked type '{_wrappedTypes[0]}'"
+            );
         }
 
         private bool ReadBackingFieldValue(string propertyName, out object o)
@@ -258,35 +263,8 @@ namespace PeanutButter.DuckTyping.Shimming
             var propCode = propertyName.GetHashCode();
             if (_wrappingADuck)
             {
-                if (_wrappingADictionaryDuck)
-                {
-                    var itemType = _wrappedTypes[0];
-                    if (PropertyInfos.TryGetValue(itemType, out var props))
-                    {
-                        if (props.PropertyInfos.TryGetValue(propertyName, out var pi))
-                        {
-                            pi.SetValue(_wrapped[0], newValue);
-                            return;
-                        }
-
-                        throw new InvalidOperationException(
-                            $"Unable to find property '{propertyName}' on type '{itemType}'"
-                        );
-                    }
-                }
-                else
-                {
-                    var fieldInfo = FindPrivateBackingFieldFor(propertyName);
-                    if (fieldInfo is not null)
-                    {
-                        fieldInfo.SetValue(_wrapped[0], newValue);
-                        return;
-                    }
-                }
-
-                throw new InvalidOperationException(
-                    $"Unable to set property '{propertyName}' on ducked type '{_wrappedTypes[0]}'"
-                );
+                WriteDuckedProperty(propertyName, newValue);
+                return;
             }
 
             var propInfo = FindPropertyInfoFor(propCode, propertyName);
@@ -328,6 +306,39 @@ namespace PeanutButter.DuckTyping.Shimming
                 }
             );
             _shimmedProperties[propCode] = instance;
+        }
+
+        private void WriteDuckedProperty(string propertyName, object newValue)
+        {
+            if (_wrappingADictionaryDuck)
+            {
+                var itemType = _wrappedTypes[0];
+                if (PropertyInfos.TryGetValue(itemType, out var props))
+                {
+                    if (props.PropertyInfos.TryGetValue(propertyName, out var pi))
+                    {
+                        pi.SetValue(_wrapped[0], newValue);
+                        return;
+                    }
+
+                    throw new InvalidOperationException(
+                        $"Unable to find property '{propertyName}' on type '{itemType}'"
+                    );
+                }
+            }
+            else
+            {
+                var fieldInfo = FindPrivateBackingFieldFor(propertyName);
+                if (fieldInfo is not null)
+                {
+                    fieldInfo.SetValue(_wrapped[0], newValue);
+                    return;
+                }
+            }
+
+            throw new InvalidOperationException(
+                $"Unable to set property '{propertyName}' on ducked type '{_wrappedTypes[0]}'"
+            );
         }
 
         private object DuckIfRequired(
