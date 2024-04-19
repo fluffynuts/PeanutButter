@@ -113,7 +113,7 @@ public class TestActionResultExtensions
                 Expect(result.StatusCode)
                     .To.Equal(statusCode);
                 Expect(await result.Body.ReadAllTextAsync())
-                    .To.Equal($"[{viewName}]");
+                    .To.Contain(viewName);
                 Expect(result.HttpContext.Items)
                     .To.Contain.Key("ViewData")
                     .With.Value(viewResult.ViewData);
@@ -156,7 +156,7 @@ public class TestActionResultExtensions
                 Expect(result.StatusCode)
                     .To.Equal(statusCode);
                 Expect(await result.Body.ReadAllTextAsync())
-                    .To.Equal($"[{viewName}]");
+                    .To.Contain(viewName);
                 Expect(result.HttpContext.Items)
                     .To.Contain.Key("ViewData")
                     .With.Value(viewResult.ViewData);
@@ -337,8 +337,14 @@ public class TestActionResultExtensions
                 // Assert
                 Expect(result.StatusCode)
                     .To.Equal(statusCode);
-                Expect(result.Body.ReadAllText())
-                    .To.Equal($"[{viewName}]");
+                var body = result.Body.ReadAllText();
+                Expect(body)
+                    .To.Contain("Status:")
+                    .Then($"{statusCode}")
+                    .Then("Content Type:")
+                    .Then("text/html")
+                    .Then("View:")
+                    .Then(viewName);
                 Expect(result.HttpContext.Items)
                     .To.Contain.Key("ViewData")
                     .With.Value(viewResult.ViewData);
@@ -381,7 +387,7 @@ public class TestActionResultExtensions
                 Expect(result.StatusCode)
                     .To.Equal(statusCode);
                 Expect(result.Body.ReadAllText())
-                    .To.Equal($"[{viewName}]");
+                    .To.Contain(viewName);
                 Expect(result.HttpContext.Items)
                     .To.Contain.Key("ViewData")
                     .With.Value(viewResult.ViewData);

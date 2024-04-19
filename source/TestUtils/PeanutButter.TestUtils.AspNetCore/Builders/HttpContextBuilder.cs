@@ -75,7 +75,7 @@ public
                 () => HttpResponseBuilder.CreateWithNoHttpContext()
                     .Build()
             )
-            .WithConnection(MakeRandomConnectionInfo())
+            .WithConnection(MakeDefaultConnectionInfo())
             .WithUser(MakeRandomClaimsPrincipal())
             .WithRequestServices(new MinimalServiceProvider())
             .WithRequest(
@@ -86,6 +86,27 @@ public
                     .Build()
             );
     }
+
+    /// <summary>
+    /// Populates a ConnectionInfo on the HttpContext
+    /// with the local and remote addresses both being
+    /// 127.0.0.1
+    /// </summary>
+    /// <returns></returns>
+    public HttpContextBuilder WithDefaultConnection()
+    {
+        return WithConnection(MakeDefaultConnectionInfo());
+    }
+
+    /// <summary>
+    /// Populates a random ConnectionInfo on the HttpContext
+    /// </summary>
+    /// <returns></returns>
+    public HttpContextBuilder WithRandomConnection()
+    {
+        return WithConnection(MakeRandomConnectionInfo());
+    }
+
     private static ClaimsPrincipal MakeRandomClaimsPrincipal()
     {
         return new ClaimsPrincipal(
@@ -105,18 +126,38 @@ public
         public string Name { get; set; }
     }
 
-    private static FakeConnectionInfo MakeRandomConnectionInfo()
+    private static FakeConnectionInfo MakeConnectionInfo(
+        string localIpAddress,
+        string remoteIpAddress
+    )
     {
         return new FakeConnectionInfo()
         {
             Id = GetRandomString(),
-            LocalIpAddress = IPAddress.Parse("127.0.0.1"),
+            LocalIpAddress = IPAddress.Parse(localIpAddress),
             LocalPort = GetRandomInt(80, 8080),
-            RemoteIpAddress = IPAddress.Parse(GetRandomIPv4Address()),
+            RemoteIpAddress = IPAddress.Parse(remoteIpAddress),
             RemotePort = GetRandomInt(80, 8080)
         };
     }
 
+    private static FakeConnectionInfo MakeRandomConnectionInfo()
+    {
+        return MakeConnectionInfo(
+            GetRandomIPv4Address(),
+            GetRandomIPv4Address()
+        );
+    }
+
+    private static FakeConnectionInfo MakeDefaultConnectionInfo()
+    {
+        return MakeConnectionInfo(
+            LOCALHOST,
+            LOCALHOST
+        );
+    }
+
+    const string LOCALHOST = "127.0.0.1";
 
     private static void Actualize(HttpContext context)
     {

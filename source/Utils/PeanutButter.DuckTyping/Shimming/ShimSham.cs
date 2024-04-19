@@ -43,7 +43,8 @@ namespace PeanutButter.DuckTyping.Shimming
         private readonly bool _allowReadonlyDefaultsForMissingMembers;
         private readonly IPropertyInfoFetcher _propertyInfoFetcher;
         private readonly Type[] _wrappedTypes;
-        private readonly bool _wrappingADuck;
+        private bool _wrappingADuck;
+        private bool _wrappingADictionaryDuck;
 
         private static readonly Dictionary<Type, PropertyInfoContainer> PropertyInfos = new();
         private static readonly Dictionary<Type, MethodInfoContainer> MethodInfos = new();
@@ -121,7 +122,7 @@ namespace PeanutButter.DuckTyping.Shimming
             _wrapped = toWrap;
             _allowReadonlyDefaultsForMissingMembers = allowReadonlyDefaultsForMissingMembers;
             _wrappedTypes = toWrap.Select(w => w.GetType()).ToArray();
-            _wrappingADuck = IsObjectADuck();
+            ExamineObjectForDuckiness();
             StaticallyCachePropertyInfosFor(_wrapped, _wrappingADuck);
             StaticallyCachePropertyInfosFor(interfaceToMimic);
             StaticallyCacheMethodInfosFor(_wrappedTypes);
@@ -172,20 +173,24 @@ namespace PeanutButter.DuckTyping.Shimming
             var propCode = propertyName.GetHashCode();
             if (_wrappingADuck)
             {
-                var itemType = _wrappedTypes[0];
-                if (PropertyInfos.TryGetValue(itemType, out var props))
+                if (_wrappingADictionaryDuck)
                 {
-                    if (props.PropertyInfos.TryGetValue(propertyName, out var pi))
+                    if (ReadPropertyDirectly(propertyName, out var value))
                     {
-                        return pi.GetValue(_wrapped[0]);
+                        return value;
                     }
-
-                    throw new InvalidOperationException(
-                        $"Unable to find property '{propertyName}' on type '{itemType}'"
-                    );
+                }
+                else
+                {
+                    if (ReadBackingFieldValue(propertyName, out var o))
+                    {
+                        return o;
+                    }
                 }
 
-                throw new InvalidOperationException($"Unable to find cached property infos for '{itemType}'");
+                throw new InvalidOperationException(
+                    $"Unable to read property '{propertyName}' from ducked type '{_wrappedTypes[0]}'"
+                );
             }
 
             if (_shimmedProperties.TryGetValue(propCode, out var shimmed))
@@ -210,27 +215,78 @@ namespace PeanutButter.DuckTyping.Shimming
             return DuckIfRequired(propInfo, propertyName);
         }
 
+        private bool ReadBackingFieldValue(string propertyName, out object o)
+        {
+            var fieldInfo = FindPrivateBackingFieldFor(propertyName);
+            if (fieldInfo is not null)
+            {
+                {
+                    o = fieldInfo.GetValue(_wrapped[0]);
+                    return true;
+                }
+            }
+
+            o = default;
+            return false;
+        }
+
+        private bool ReadPropertyDirectly(string propertyName, out object value)
+        {
+            var itemType = _wrappedTypes[0];
+            if (PropertyInfos.TryGetValue(itemType, out var props))
+            {
+                if (props.PropertyInfos.TryGetValue(propertyName, out var pi))
+                {
+                    {
+                        value = pi.GetValue(_wrapped[0]);
+                        return true;
+                    }
+                }
+
+                throw new InvalidOperationException(
+                    $"Unable to find property '{propertyName}' on type '{itemType}'"
+                );
+            }
+
+            value = default;
+            return false;
+        }
+
         /// <inheritdoc />
         public void SetPropertyValue(string propertyName, object newValue)
         {
             var propCode = propertyName.GetHashCode();
             if (_wrappingADuck)
             {
-                var itemType = _wrappedTypes[0];
-                if (PropertyInfos.TryGetValue(itemType, out var props))
+                if (_wrappingADictionaryDuck)
                 {
-                    if (props.PropertyInfos.TryGetValue(propertyName, out var pi))
+                    var itemType = _wrappedTypes[0];
+                    if (PropertyInfos.TryGetValue(itemType, out var props))
                     {
-                        pi.SetValue(_wrapped[0], newValue);
+                        if (props.PropertyInfos.TryGetValue(propertyName, out var pi))
+                        {
+                            pi.SetValue(_wrapped[0], newValue);
+                            return;
+                        }
+
+                        throw new InvalidOperationException(
+                            $"Unable to find property '{propertyName}' on type '{itemType}'"
+                        );
+                    }
+                }
+                else
+                {
+                    var fieldInfo = FindPrivateBackingFieldFor(propertyName);
+                    if (fieldInfo is not null)
+                    {
+                        fieldInfo.SetValue(_wrapped[0], newValue);
                         return;
                     }
-
-                    throw new InvalidOperationException(
-                        $"Unable to find property '{propertyName}' on type '{itemType}'"
-                    );
                 }
 
-                throw new InvalidOperationException($"Unable to find cached property infos for '{itemType}'");
+                throw new InvalidOperationException(
+                    $"Unable to set property '{propertyName}' on ducked type '{_wrappedTypes[0]}'"
+                );
             }
 
             var propInfo = FindPropertyInfoFor(propCode, propertyName);
@@ -577,9 +633,26 @@ namespace PeanutButter.DuckTyping.Shimming
             }
         }
 
-        private bool IsObjectADuck()
+        private void ExamineObjectForDuckiness()
+            
         {
-            return _wrappedTypes.Any(t => t.GetCustomAttributes(true).OfType<IsADuckAttribute>().Any());
+            for (var i = 0; i < _wrapped.Length; i++)
+            {
+                var type = _wrappedTypes[i];
+                if (type.GetCustomAttributes(true).OfType<IsADuckAttribute>().Any())
+                {
+                    _wrappingADuck = true;
+                }
+
+                var shimField = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+                    .FirstOrDefault(f => f.Name == "_shim");
+                if (shimField is null)
+                {
+                    return;
+                }
+                var shimTarget = shimField.GetValue(_wrapped[i]);
+                _wrappingADictionaryDuck = shimTarget is DictionaryShimSham;
+            }
         }
 
         private readonly Dictionary<int, PropertyInfoCacheItem> _propertyInfoLookupCache = new();

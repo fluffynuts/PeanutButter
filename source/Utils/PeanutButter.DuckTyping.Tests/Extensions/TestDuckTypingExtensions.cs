@@ -3650,7 +3650,8 @@ public class TestDuckTypingExtensions
         public void ShouldBeAbleToDuckToInterfaceWithObjectProperties()
         {
             // Arrange
-            var person = GetRandom<ITypedPerson>();
+            var person = GetRandom<ITypedPerson>()
+                .With(o => o.Id = GetRandomInt(1, 100));
             // Act
             var result = person.DuckAs<IUntypedPerson>();
             // Assert
