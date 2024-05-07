@@ -1,6 +1,4 @@
 using System;
-using NExpect;
-using static NExpect.Expectations;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
 

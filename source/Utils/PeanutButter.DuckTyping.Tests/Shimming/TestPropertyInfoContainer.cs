@@ -1,8 +1,6 @@
 ﻿using System.Reflection;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Shimming;
-using NExpect;
-using static NExpect.Expectations;
 
 namespace PeanutButter.DuckTyping.Tests.Shimming
 {

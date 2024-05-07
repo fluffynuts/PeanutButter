@@ -3,8 +3,6 @@ using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.TestUtils.Generic;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using static NExpect.Expectations;
 
 namespace PeanutButter.DuckTyping.Tests.Exceptions
 {

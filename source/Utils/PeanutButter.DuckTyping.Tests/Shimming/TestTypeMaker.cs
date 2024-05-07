@@ -5,8 +5,6 @@ using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Shimming;
 using PeanutButter.RandomGenerators;
 using PeanutButter.Utils;
-using NExpect;
-using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable ClassNeverInstantiated.Global

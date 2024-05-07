@@ -1,5 +1,4 @@
 using System;
-using NExpect;
 using NUnit.Framework;
 
 namespace PeanutButter.DuckTyping.Tests.Extensions

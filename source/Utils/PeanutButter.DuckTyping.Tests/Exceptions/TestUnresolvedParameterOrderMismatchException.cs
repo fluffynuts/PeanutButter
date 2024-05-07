@@ -1,8 +1,7 @@
 ﻿using System.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
-using NExpect;
-using static NExpect.Expectations;
+
 // ReSharper disable PossibleNullReferenceException
 
 namespace PeanutButter.DuckTyping.Tests.Exceptions

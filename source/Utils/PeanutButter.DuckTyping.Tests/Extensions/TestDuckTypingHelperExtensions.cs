@@ -6,8 +6,7 @@ using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using static NExpect.Expectations;
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnassignedGetOnlyAutoProperty
 // ReSharper disable UsePatternMatching

@@ -75,14 +75,10 @@ namespace PeanutButter.DuckTyping.AutoConversion
             temp.ForEach(
                 o =>
                 {
-                    try
-                    {
-                        result.Add(o.key, o.value);
-                    }
-                    catch
+                    if (!result.TryAdd(o.key, o.value))
                     {
                         Trace.WriteLine(
-                            $@"WARNING: Converter {
+                            $"WARNING: Converter {
                                 result[o.key]
                             } will be used for converting between {
                                 o.key.Item1

@@ -2,8 +2,7 @@
 using System.Reflection;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Extensions;
-using NExpect;
-using static NExpect.Expectations;
+
 // ReSharper disable ExpressionIsAlwaysNull
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global

@@ -4,8 +4,6 @@ using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Shimming;
 using PeanutButter.RandomGenerators;
-using NExpect;
-using static NExpect.Expectations;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ExpressionIsAlwaysNull
