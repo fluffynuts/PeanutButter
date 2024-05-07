@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using PeanutButter.Utils;
 
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
@@ -199,20 +200,28 @@ namespace PeanutButter.EasyArgs
             var result = new CommandlineArgument();
             this.CopyPropertiesTo(result, deep: false);
             result.ShortName = null;
-            result.LongName = $"no-{result.LongName}";
-            result.ConflictsWithKeys = new[] { Key };
+            result.LongName = $"no-{LongName}";
+            result.ConflictsWithKeys = new[]
+            {
+                Key
+            };
             result.IsNegatedFlag = true;
 
             result.IsRequired = false;
-            try
+            result.Default = false;
+            switch (Default)
             {
-                result.Default = !(bool)Default;
+                case null:
+                    break;
+                case bool flag:
+                    result.Default = flag;
+                    break;
+                default:
+                    Console.Error.WriteLine(
+                        $"Default value for flag '{LongName}' is not a boolean value - falling back to false"
+                    );
+                    break;
             }
-            catch
-            {
-                result.Default = false;
-            }
-
             return result;
         }
     }
