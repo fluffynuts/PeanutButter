@@ -5785,7 +5785,7 @@ public class TestRandomValueGen
             // Act
             RunCycles(() =>
             {
-                collected.Add(GetRandomMIMEType());
+                collected.Add(GetRandomMimeType());
             });
 
             // Assert
