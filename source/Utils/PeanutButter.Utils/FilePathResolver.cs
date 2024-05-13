@@ -32,7 +32,7 @@ public class FilePathResolver : IFilePathResolver
         {
             if (File.Exists(item))
             {
-                yield return item;
+                yield return Path.GetFullPath(item);
                 continue;
             }
 
@@ -40,7 +40,7 @@ public class FilePathResolver : IFilePathResolver
             {
                 foreach (var sub in ListDir(item, "*", recurse: true))
                 {
-                    yield return sub;
+                    yield return Path.GetFullPath(sub);
                 }
 
                 continue;
@@ -54,7 +54,7 @@ public class FilePathResolver : IFilePathResolver
 
             foreach (var p1 in SearchWithFilter(parts))
             {
-                yield return p1;
+                yield return Path.GetFullPath(p1);
             }
         }
     }
@@ -126,7 +126,7 @@ public class FilePathResolver : IFilePathResolver
 
             if (recurse && Directory.Exists(sub))
             {
-                foreach (var subItem in ListDir(sub, searchPattern, recurse))
+                foreach (var subItem in ListDir(sub, searchPattern, true))
                 {
                     yield return subItem;
                 }

@@ -1,4 +1,5 @@
 ﻿// ReSharper disable StringLiteralTypo
+
 namespace PeanutButter.Utils.Tests;
 
 [TestFixture]
@@ -66,6 +67,56 @@ public class FilePathResolverTests
     }
 
     [TestFixture]
+    public class GivenDotPathToFolder
+    {
+        [TestFixture]
+        public class CurrentFolder
+        {
+            [Test]
+            public void ShouldEnumerateTheFolder()
+            {
+                // Arrange
+                var fileNames = GetRandomArray<string>(3, 6);
+                using var tempFolder = new AutoTempFolder();
+                foreach (var item in fileNames)
+                {
+                    tempFolder.WriteFile(item, GetRandomWords());
+                }
+
+                var expected = tempFolder.ResolvePaths(fileNames);
+                var sut = Create();
+                // Act
+                using var _ = new AutoWorkFolder(tempFolder);
+                var result = sut.Resolve(".");
+                // Assert
+                Expect(result)
+                    .To.Be.Equivalent.To(expected);
+            }
+
+            [Test]
+            public void ShouldRecurseTheFolder()
+            {
+                // Arrange
+                using var tempFolder = new AutoTempFolder();
+                var paths = GetRandomArray(GetRandomPath);
+                foreach (var item in paths)
+                {
+                    tempFolder.WriteFile(item, GetRandomWords());
+                }
+
+                var expected = tempFolder.ResolvePaths(paths);
+                var sut = Create();
+                // Act
+                using var _ = new AutoWorkFolder(tempFolder);
+                var result = sut.Resolve(".");
+                // Assert
+                Expect(result)
+                    .To.Be.Equivalent.To(expected);
+            }
+        }
+    }
+
+    [TestFixture]
     public class GivenGlob
     {
         [Test]
@@ -80,7 +131,10 @@ public class FilePathResolverTests
             tempFolder.WriteFile(unexpected1, GetRandomWords());
             tempFolder.WriteFile(unexpected2, GetRandomWords());
             var expected = tempFolder.ResolvePaths(
-                new[] { expected1 }
+                new[]
+                {
+                    expected1
+                }
             );
             var sut = Create();
             var input = Path.Combine(tempFolder.Path, "foo*");
@@ -103,7 +157,11 @@ public class FilePathResolverTests
             tempFolder.WriteFile(expected2, GetRandomWords());
             tempFolder.WriteFile(unexpected, GetRandomWords());
             var expected = tempFolder.ResolvePaths(
-                new[] { expected1, expected2 }
+                new[]
+                {
+                    expected1,
+                    expected2
+                }
             );
             var sut = Create();
             // Act
