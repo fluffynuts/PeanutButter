@@ -16,12 +16,8 @@ namespace PeanutButter.DuckTyping.Shimming
     /// <summary>
     /// Base class for common shim functionality
     /// </summary>
-#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
-    internal
-#else
-    public
-#endif
-    abstract class ShimShamBase
+    // required to be public for source-embedding
+    public abstract class ShimShamBase
     {
         private static MethodInfo GetTypeMakerMethod(string name)
         {

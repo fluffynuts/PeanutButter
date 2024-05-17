@@ -29,12 +29,8 @@ namespace PeanutButter.DuckTyping.Shimming
     /// <summary>
     /// Shim to wrap objects for ducking
     /// </summary>
-#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
-    internal
-#else
-    public
-#endif
-        class ShimSham : ShimShamBase, IShimSham
+    // (probably) required to be public for source embedding
+    public class ShimSham : ShimShamBase, IShimSham
     {
         // ReSharper disable once MemberCanBePrivate.Global
         // ReSharper disable once InconsistentNaming

@@ -9,12 +9,8 @@ namespace PeanutButter.DuckTyping.Shimming
     /// field within the ducked type. Could potentially be used as a starting point
     /// for new ways to duck.
     /// </summary>
-#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
-    internal
-#else
-    public
-#endif
-    interface IShimSham
+    // required to be public to be able to embed source
+    public interface IShimSham
     {
         /// <summary>
         /// Gets a property value from the underlying object

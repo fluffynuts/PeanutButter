@@ -38,7 +38,7 @@ namespace PeanutButter.DuckTyping.AutoConversion
     /// Base interface for converters of all types
     /// </summary>
 #if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
-    internal
+    public
 #else
     public
 #endif

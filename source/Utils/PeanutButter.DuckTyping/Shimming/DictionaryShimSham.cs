@@ -28,7 +28,7 @@ namespace PeanutButter.DuckTyping.Shimming
     /// Provides the required shimming to duck a dictionary object to an interface
     /// </summary>
 #if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
-    internal
+    public
 #else
     public
 #endif
