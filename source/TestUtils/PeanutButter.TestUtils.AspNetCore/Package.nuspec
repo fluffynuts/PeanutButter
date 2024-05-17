@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.TestUtils.AspNetCore</id>
-    <version>3.0.296</version>
+    <version>3.0.297</version>
     <title>PeanutButter.TestUtils.MVC.Sources</title>
     <authors>Davyd McColl</authors>
     <owners />
@@ -33,13 +33,13 @@
     <copyright>Copyright 2016</copyright>
     <dependencies>
       <group targetFramework="net6.0">
-        <dependency id="PeanutButter.Utils" version="3.0.296" />
-        <dependency id="PeanutButter.RandomGenerators" version="3.0.296" />
+        <dependency id="PeanutButter.Utils" version="3.0.297" />
+        <dependency id="PeanutButter.RandomGenerators" version="3.0.297" />
         <dependency id="System.Text.Json" version="6.0.5" />
       </group>
       <group targetFramework="net7.0">
-        <dependency id="PeanutButter.Utils" version="3.0.296" />
-        <dependency id="PeanutButter.RandomGenerators" version="3.0.296" />
+        <dependency id="PeanutButter.Utils" version="3.0.297" />
+        <dependency id="PeanutButter.RandomGenerators" version="3.0.297" />
         <dependency id="System.Text.Json" version="6.0.5" />
       </group>
     </dependencies>
