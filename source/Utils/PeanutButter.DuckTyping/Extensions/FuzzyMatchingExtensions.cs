@@ -16,7 +16,7 @@ namespace PeanutButter.DuckTyping.Extensions
             string replaceWith
         )
         {
-            return search.Aggregate(src, (acc, cur) => src.Replace(cur, replaceWith));
+            return search.Aggregate(src, (acc, cur) => acc.Replace(cur, replaceWith));
         }
 
         internal static bool FuzzyCaseSensitiveMatches(

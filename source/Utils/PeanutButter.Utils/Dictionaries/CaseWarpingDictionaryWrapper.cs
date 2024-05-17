@@ -80,6 +80,7 @@ namespace PeanutButter.Utils.Dictionaries
         /// <inheritdoc />
         public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
         {
+            // ReSharper disable once NotDisposedResourceIsReturned
             return _actual.GetEnumerator();
         }
 

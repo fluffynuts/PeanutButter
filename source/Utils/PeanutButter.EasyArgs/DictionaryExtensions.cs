@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using PeanutButter.DuckTyping.Extensions;
+using Imported.PeanutButter.DuckTyping.Extensions;
 
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
 namespace Imported.PeanutButter.EasyArgs

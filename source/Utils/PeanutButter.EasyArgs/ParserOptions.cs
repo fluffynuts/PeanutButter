@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using PeanutButter.EasyArgs.Attributes;
+
+#if BUILD_PEANUTBUTTER_INTERNAL
+using Imported.PeanutButter.Utils;
+#else
 using PeanutButter.Utils;
+#endif
 
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+using Imported.PeanutButter.EasyArgs.Attributes;
 namespace Imported.PeanutButter.EasyArgs
 #else
+using PeanutButter.EasyArgs.Attributes;
 namespace PeanutButter.EasyArgs
 #endif
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using PeanutButter.Utils;
+using Imported.PeanutButter.Utils;
 
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
 namespace Imported.PeanutButter.EasyArgs

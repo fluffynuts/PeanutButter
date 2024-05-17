@@ -15,6 +15,7 @@ using Imported.PeanutButter.DuckTyping.AutoConversion;
 using Imported.PeanutButter.DuckTyping.AutoConversion.Converters;
 using Imported.PeanutButter.DuckTyping.Exceptions;
 using Imported.PeanutButter.DuckTyping.Shimming;
+
 #else
 using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
@@ -50,9 +51,11 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             return typeof(DuckTypingObjectExtensions)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(mi => mi.Name == name &&
-                    mi.IsGenericMethod &&
-                    IsCorrectSignature(mi));
+                .FirstOrDefault(
+                    mi => mi.Name == name &&
+                        mi.IsGenericMethod &&
+                        IsCorrectSignature(mi)
+                );
         }
 
         private static bool IsCorrectSignature(MethodInfo mi)
@@ -83,14 +86,22 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var specific = genericMethod.MakeGenericMethod(toType);
-            return specific.Invoke(null, new[] { src, throwOnError });
+            return specific.Invoke(
+                null,
+                new[]
+                {
+                    src,
+                    throwOnError
+                }
+            );
         }
 
         internal static T ForceDuckAs<T>(
             IDictionary<string, object> src,
             bool allowFuzzy,
             bool allowDefaultValueForMissingProperties,
-            bool forceConcrete)
+            bool forceConcrete
+        )
         {
             if (allowFuzzy && src.IsCaseSensitive())
             {
@@ -103,14 +114,24 @@ namespace PeanutButter.DuckTyping.Extensions
                 forceConcrete
             );
 
-            return (T) Activator.CreateInstance(type, new object[] { new[] { src } });
+            return (T)Activator.CreateInstance(
+                type,
+                new object[]
+                {
+                    new[]
+                    {
+                        src
+                    }
+                }
+            );
         }
 
         internal static T ForceDuckAs<T>(
             object src,
             bool allowFuzzy,
             bool allowDefaultValueForMissingProperties,
-            bool forceConcrete)
+            bool forceConcrete
+        )
         {
             var type = CreateDuckTypeFor<T>(
                 allowFuzzy,
@@ -119,7 +140,6 @@ namespace PeanutButter.DuckTyping.Extensions
             );
             if (src is not null)
             {
-                
                 src = src switch
                 {
                     NameValueCollection n => new DictionaryWrappingNameValueCollection(n),
@@ -132,7 +152,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 };
             }
 
-            return (T) Activator.CreateInstance(type, src);
+            return (T)Activator.CreateInstance(type, src);
 
             object ConvertDictionaryIfNecessary()
             {
@@ -141,6 +161,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 {
                     dict = dict?.ToCaseInsensitiveDictionary();
                 }
+
                 return dict ?? src;
             }
         }
@@ -163,10 +184,14 @@ namespace PeanutButter.DuckTyping.Extensions
             bool calculatedResult,
             bool allowFuzzy,
             Type from,
-            Type to)
+            Type to
+        )
         {
             DuckableTypesCache.CacheDuckable(
-                from, to, calculatedResult, allowFuzzy
+                from,
+                to,
+                calculatedResult,
+                allowFuzzy
             );
             return calculatedResult;
         }
@@ -221,8 +246,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
         internal static IDictionary<string, object> TryConvertToDictionary(this object src)
         {
-#if NETSTANDARD
-#else
+#if !NETSTANDARD
             var asConnectionStringSettings = src as ConnectionStringSettingsCollection;
             if (asConnectionStringSettings != null)
             {
@@ -249,12 +273,20 @@ namespace PeanutButter.DuckTyping.Extensions
             }
 
             var method = GenericConvertDictionaryMethod.MakeGenericMethod(dictionaryTypes.ValueType);
-            return (IDictionary<string, object>) method.Invoke(null, new[] { src });
+            return (IDictionary<string, object>)method.Invoke(
+                null,
+                new[]
+                {
+                    src
+                }
+            );
         }
 
         private static readonly MethodInfo GenericConvertDictionaryMethod =
-            typeof(DuckTypingExtensionSharedMethods).GetMethod(nameof(ConvertDictionary),
-                BindingFlags.Static | BindingFlags.NonPublic);
+            typeof(DuckTypingExtensionSharedMethods).GetMethod(
+                nameof(ConvertDictionary),
+                BindingFlags.Static | BindingFlags.NonPublic
+            );
 
         private static IDictionary<string, object> ConvertDictionary<T>(IDictionary<string, T> src)
         {
@@ -351,7 +383,8 @@ namespace PeanutButter.DuckTyping.Extensions
                 catch (UnDuckableException ex)
                 {
                     errors.Add(
-                        $"Property {prop.Name} is dictionary but can't be ducked to {targetType.Name}; examine following errors for more information:");
+                        $"Property {prop.Name} is dictionary but can't be ducked to {targetType.Name}; examine following errors for more information:"
+                    );
                     errors.AddRange(ex.Errors.Select(e => $"{prop.Name}: {e}"));
                 }
 
@@ -368,7 +401,8 @@ namespace PeanutButter.DuckTyping.Extensions
                 }
 #pragma warning restore S2219 // Runtime type checking should be simplified
                 errors.Add(
-                    $"{targetType.Name} is not assignable from {srcType.Name}{(allowFuzzy ? " and no converter found" : "")}");
+                    $"{targetType.Name} is not assignable from {srcType.Name}{(allowFuzzy ? " and no converter found" : "")}"
+                );
             }
         }
 
@@ -455,8 +489,13 @@ namespace PeanutButter.DuckTyping.Extensions
             var errors = new List<string>();
             if (primitiveMismatches.Any())
             {
-                AddPrimitivePropertyMismatchErrorsFor(primitiveMismatches, srcPrimitives, expectedPrimitives,
-                    allowFuzzy, errors);
+                AddPrimitivePropertyMismatchErrorsFor(
+                    primitiveMismatches,
+                    srcPrimitives,
+                    expectedPrimitives,
+                    allowFuzzy,
+                    errors
+                );
             }
 
             var accessMismatches = expectedProperties.Except(expectedPrimitives)
@@ -507,10 +546,12 @@ namespace PeanutButter.DuckTyping.Extensions
                 return;
             }
 
-            var accessMismatches = mismatches.Where(kvp =>
+            var accessMismatches = mismatches.Where(
+                    kvp =>
 //                    srcPrimitives.Keys.Contains(kvp.Key) && 
-                    !srcPrimitives[kvp.Key]
-                        .IsNoMoreRestrictiveThan(expectedPrimitives[kvp.Key]))
+                        !srcPrimitives[kvp.Key]
+                            .IsNoMoreRestrictiveThan(expectedPrimitives[kvp.Key])
+                )
                 .ToArray();
             if (accessMismatches.Any())
             {
@@ -535,30 +576,36 @@ namespace PeanutButter.DuckTyping.Extensions
         private static void AddAccessMismatchErrorsFor(
             Dictionary<string, PropertyInfo> srcPrimitives,
             KeyValuePair<string, PropertyInfo>[] accessMismatches,
-            List<string> errors)
+            List<string> errors
+        )
         {
             errors.Add(
-                $"Mismatched target accessors for {MakeTargetAccessorMessageFor(accessMismatches, srcPrimitives)}");
+                $"Mismatched target accessors for {MakeTargetAccessorMessageFor(accessMismatches, srcPrimitives)}"
+            );
         }
 
         private static string GetTypeMismatchErrorsFor(
             Dictionary<string, PropertyInfo> mismatches,
-            Dictionary<string, PropertyInfo> expectedPrimitives)
+            Dictionary<string, PropertyInfo> expectedPrimitives
+        )
         {
             var parts =
                 mismatches.Select(
                     kvp =>
-                        $"{kvp.Key}: {kvp.Value.PropertyType.Name} -> {expectedPrimitives[kvp.Key].PropertyType.Name}");
+                        $"{kvp.Key}: {kvp.Value.PropertyType.Name} -> {expectedPrimitives[kvp.Key].PropertyType.Name}"
+                );
             return string.Join(", ", parts);
         }
 
         private static string MakeTargetAccessorMessageFor(
             IEnumerable<KeyValuePair<string, PropertyInfo>> accessMismatches,
-            Dictionary<string, PropertyInfo> expectedPrimitives)
+            Dictionary<string, PropertyInfo> expectedPrimitives
+        )
         {
             var legends =
                 accessMismatches.Select(
-                    kvp => $"{kvp.Key} {GetSetFor(expectedPrimitives[kvp.Key])} -> {GetSetFor(kvp.Value)}");
+                    kvp => $"{kvp.Key} {GetSetFor(expectedPrimitives[kvp.Key])} -> {GetSetFor(kvp.Value)}"
+                );
             return string.Join(", ", legends);
         }
 
@@ -592,7 +639,8 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static bool HaveConvertersFor(
             Dictionary<string, PropertyInfo> mismatches,
-            Dictionary<string, PropertyInfo> expectedPrimitives)
+            Dictionary<string, PropertyInfo> expectedPrimitives
+        )
         {
             foreach (var kvp in mismatches)
             {
@@ -635,7 +683,7 @@ namespace PeanutButter.DuckTyping.Extensions
             var converter = ConverterLocator.GetConverter(src.GetType(), typeof(T));
             if (converter != null)
             {
-                return (T) converter.Convert(src);
+                return (T)converter.Convert(src);
             }
 
 
@@ -653,10 +701,22 @@ namespace PeanutButter.DuckTyping.Extensions
             var duckType = FindOrCreateDuckTypeFor<T>(allowFuzzy);
             // ReSharper disable RedundantExplicitArrayCreation
             var ctorArgs = srcAsDict == null
-                ? new object[] { new object[] { src } }
-                : new object[] { new IDictionary<string, object>[] { srcAsDict } };
+                ? new object[]
+                {
+                    new object[]
+                    {
+                        src
+                    }
+                }
+                : new object[]
+                {
+                    new IDictionary<string, object>[]
+                    {
+                        srcAsDict
+                    }
+                };
             // ReSharper restore RedundantExplicitArrayCreation
-            return (T) Activator.CreateInstance(duckType, ctorArgs);
+            return (T)Activator.CreateInstance(duckType, ctorArgs);
         }
 
         private static readonly Dictionary<Type, TypeLookup> DuckTypes

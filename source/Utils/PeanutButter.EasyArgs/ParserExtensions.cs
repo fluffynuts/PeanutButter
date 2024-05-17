@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Imported.PeanutButter.DuckTyping.Extensions;
+using Imported.PeanutButter.Utils;
+using Imported.PeanutButter.Utils.Dictionaries;
 using PeanutButter.EasyArgs.Attributes;
-using PeanutButter.DuckTyping.Extensions;
-using PeanutButter.Utils;
-using PeanutButter.Utils.Dictionaries;
 
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
 namespace Imported.PeanutButter.EasyArgs
