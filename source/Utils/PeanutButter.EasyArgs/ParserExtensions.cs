@@ -8,11 +8,12 @@ using System.Reflection;
 using Imported.PeanutButter.DuckTyping.Extensions;
 using Imported.PeanutButter.Utils;
 using Imported.PeanutButter.Utils.Dictionaries;
-using PeanutButter.EasyArgs.Attributes;
 
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
+using Imported.PeanutButter.EasyArgs.Attributes;
 namespace Imported.PeanutButter.EasyArgs
 #else
+using PeanutButter.EasyArgs.Attributes;
 namespace PeanutButter.EasyArgs
 #endif
 {
