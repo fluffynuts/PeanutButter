@@ -10,12 +10,8 @@ namespace PeanutButter.DuckTyping.Shimming
     /// <summary>
     /// Interface to implement for a utility to fetch properties on a type or object
     /// </summary>
-#if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
-    internal
-#else
-    public
-#endif
-    interface IPropertyInfoFetcher
+    // required to be public for net8.0 code-embedding
+    public interface IPropertyInfoFetcher
     {
         /// <summary>
         /// Fetches properties from a type which conform to the provided binding flags
