@@ -1,5 +1,9 @@
 using System;
-using PeanutButter.Utils;
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils;
+#else
+namespace PeanutButter.Utils;
+#endif
 
 /// <summary>
 /// Performs work within the provided working
@@ -9,7 +13,12 @@ using PeanutButter.Utils;
 /// changes the entire CWD for the current
 /// process!
 /// </summary>
-public class AutoWorkFolder : IDisposable
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class AutoWorkFolder : IDisposable
 {
     private AutoTempFolder _tempFolder;
     private readonly string _startDir;
@@ -30,7 +39,7 @@ public class AutoWorkFolder : IDisposable
     /// <param name="tempFolder"></param>
     public AutoWorkFolder(
         AutoTempFolder tempFolder
-    ): this(tempFolder, false)
+    ) : this(tempFolder, false)
     {
     }
 
@@ -44,7 +53,7 @@ public class AutoWorkFolder : IDisposable
     public AutoWorkFolder(
         AutoTempFolder tempFolder,
         bool disposeTempFolderWhenDone
-    ): this(tempFolder.Path)
+    ) : this(tempFolder.Path)
     {
         if (disposeTempFolderWhenDone)
         {
