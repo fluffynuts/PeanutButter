@@ -34,7 +34,7 @@ namespace PeanutButter.Utils;
 /// <summary>
 /// Kept to maintain legacy code
 /// </summary>
-[Obsolete("MIMEType has been renamed to MimeType and will be removed in a future release")]
+[Obsolete("MIMEType has been renamed to MimeTypes and will be removed in a future release")]
 #if BUILD_PEANUTBUTTER_INTERNAL
 internal
 #else
@@ -46,12 +46,12 @@ public
     /// <summary>
     /// A list of all known file extensions for MIMEType
     /// </summary>
-    public static string[] KnownFileExtensions => MimeType.KnownFileExtensions;
+    public static string[] KnownFileExtensions => MimeTypes.KnownFileExtensions;
 
     /// <summary>
     /// A list of all known MIME types for MIMEType
     /// </summary>
-    public static string[] KnownMimeTypes => MimeType.KnownMimeTypes;
+    public static string[] KnownMimeTypes => MimeTypes.KnownMimeTypes;
 
     /// <summary>
     /// Tries to get the type of the MIME from the provided string.
@@ -60,7 +60,7 @@ public
     /// <returns>The MIME type.</returns>
     /// <exception cref="ArgumentNullException" />
     public static string GuessForFileName(string fileNameOrExtension)
-        => MimeType.GuessForFileName(fileNameOrExtension);
+        => MimeTypes.GuessForFileName(fileNameOrExtension);
 
     /// <summary>
     /// Gets the extension from the provided MINE type.
@@ -72,7 +72,7 @@ public
     public static bool TryGuessExtensionForMimeType(
         string mimeType,
         out string extension
-    ) => MimeType.TryGuessExtensionForMimeType(mimeType, out extension);
+    ) => MimeTypes.TryGuessExtensionForMimeType(mimeType, out extension);
 
     /// <summary>
     /// Returns true for all text mime types:
@@ -100,7 +100,7 @@ public
 #else
 public
 #endif
-    static class MimeType
+    static class MimeTypes
 {
     private const string DEFAULT_MIME_TYPE = "application/octet-stream";
 

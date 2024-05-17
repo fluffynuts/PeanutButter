@@ -103,7 +103,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="contentType"></param>
         Guid AddFileHandler(
             Func<HttpProcessor, Stream, byte[]> handler,
-            string contentType = MimeTypes.BYTES
+            string contentType = HttpConstants.MimeTypes.BYTES
         );
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="path">Absolute path matched for this file</param>
         /// <param name="data">Data to provide</param>
         /// <param name="contentType">Content type of the data</param>
-        Guid ServeFile(string path, byte[] data, string contentType = MimeTypes.BYTES);
+        Guid ServeFile(string path, byte[] data, string contentType = HttpConstants.MimeTypes.BYTES);
 
         /// <summary>
         /// Serves a file via a factory Func
@@ -217,7 +217,7 @@ namespace PeanutButter.SimpleHTTPServer
         Guid ServeFile(
             string path,
             Func<byte[]> dataFactory,
-            string contentType = MimeTypes.BYTES
+            string contentType = HttpConstants.MimeTypes.BYTES
         );
 
         /// <summary>
@@ -343,7 +343,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="contentType"></param>
         public Guid AddFileHandler(
             Func<HttpProcessor, Stream, byte[]> handler,
-            string contentType = MimeTypes.BYTES
+            string contentType = HttpConstants.MimeTypes.BYTES
         )
         {
             return AddHandler(
@@ -389,7 +389,7 @@ namespace PeanutButter.SimpleHTTPServer
 
         private static string AutoMimeDefault(string arg)
         {
-            return MimeTypes.BYTES;
+            return HttpConstants.MimeTypes.BYTES;
         }
 
         private static string AutoMimeJson(string content)
@@ -398,7 +398,7 @@ namespace PeanutButter.SimpleHTTPServer
                 content != null &&
                 content.StartsWith("{") &&
                 content.EndsWith("}")
-                    ? MimeTypes.JSON
+                    ? HttpConstants.MimeTypes.JSON
                     : null;
         }
 
@@ -406,7 +406,7 @@ namespace PeanutButter.SimpleHTTPServer
         {
             return content != null &&
                 (content.StartsWith("<?xml") || HasOpenAndCloseTags(content))
-                    ? MimeTypes.XML
+                    ? HttpConstants.MimeTypes.XML
                     : null;
         }
 
@@ -435,7 +435,7 @@ namespace PeanutButter.SimpleHTTPServer
             return content != null &&
                 (content.ToLowerInvariant().StartsWith("<!doctype") ||
                     HasOpenAndCloseTags(content, "html"))
-                    ? MimeTypes.HTML
+                    ? HttpConstants.MimeTypes.HTML
                     : null;
         }
 
@@ -465,7 +465,7 @@ namespace PeanutButter.SimpleHTTPServer
                 handler,
                 "html",
                 null,
-                _ => MimeTypes.HTML
+                _ => HttpConstants.MimeTypes.HTML
             );
         }
 
@@ -479,7 +479,7 @@ namespace PeanutButter.SimpleHTTPServer
                 handler,
                 "json",
                 o => _jsonSerializer(o),
-                _ => MimeTypes.JSON
+                _ => HttpConstants.MimeTypes.JSON
             );
         }
 
@@ -694,7 +694,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="path">Absolute path matched for this file</param>
         /// <param name="data">Data to provide</param>
         /// <param name="contentType">Content type of the data</param>
-        public Guid ServeFile(string path, byte[] data, string contentType = MimeTypes.BYTES)
+        public Guid ServeFile(string path, byte[] data, string contentType = HttpConstants.MimeTypes.BYTES)
         {
             return ServeFile(path, () => data, contentType);
         }
@@ -708,7 +708,7 @@ namespace PeanutButter.SimpleHTTPServer
         public Guid ServeFile(
             string path,
             Func<byte[]> dataFactory,
-            string contentType = MimeTypes.BYTES
+            string contentType = HttpConstants.MimeTypes.BYTES
         )
         {
             return AddFileHandler(

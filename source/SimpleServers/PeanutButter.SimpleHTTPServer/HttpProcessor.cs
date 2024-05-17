@@ -365,7 +365,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// </summary>
         /// <param name="mimeType"></param>
         /// <param name="data"></param>
-        public void WriteSuccess(string mimeType = MimeTypes.HTML, byte[] data = null)
+        public void WriteSuccess(string mimeType = HttpConstants.MimeTypes.HTML, byte[] data = null)
         {
             WriteOKStatusHeader();
             WriteMIMETypeHeader(mimeType);
@@ -576,7 +576,7 @@ namespace PeanutButter.SimpleHTTPServer
         /// <param name="document"></param>
         public void WriteDocument(string document)
         {
-            WriteDocument(document, MimeTypes.HTML);
+            WriteDocument(document, HttpConstants.MimeTypes.HTML);
         }
 
         /// <summary>

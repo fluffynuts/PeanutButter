@@ -5780,7 +5780,7 @@ public class TestRandomValueGen
         public void ShouldGenerateRandomMimeTypeFromKnownTypes()
         {
             // Arrange
-            var source = new HashSet<string>(MimeType.KnownMimeTypes);
+            var source = new HashSet<string>(MimeTypes.KnownMimeTypes);
             var collected = new List<string>();
             // Act
             RunCycles(() =>

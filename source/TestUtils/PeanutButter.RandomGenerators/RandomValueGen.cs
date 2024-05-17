@@ -542,7 +542,7 @@ public
     public static string GetRandomMimeType()
     {
         return GetRandomFrom(
-            MimeType.KnownMimeTypes
+            MimeTypes.KnownMimeTypes
         );
     }
 
@@ -1852,7 +1852,7 @@ public
     /// <returns></returns>
     public static string GetRandomFileExtension()
     {
-        return GetRandomFrom(MimeType.KnownFileExtensions);
+        return GetRandomFrom(MimeTypes.KnownFileExtensions);
     }
 
     /// <summary>

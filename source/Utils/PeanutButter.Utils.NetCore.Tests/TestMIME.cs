@@ -14,7 +14,7 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 // Act
-                Expect(() => MimeType.GuessForFileName(null))
+                Expect(() => MimeTypes.GuessForFileName(null))
                     .To.Throw<ArgumentNullException>();
                 // Assert
             }
@@ -24,7 +24,7 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 // Act
-                var result = MimeType.GuessForFileName("some-file");
+                var result = MimeTypes.GuessForFileName("some-file");
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
@@ -35,7 +35,7 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 // Act
-                var result = MimeType.GuessForFileName("my-file.some-extension");
+                var result = MimeTypes.GuessForFileName("my-file.some-extension");
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
@@ -48,7 +48,7 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 // Act
-                var result = MimeType.GuessForFileName(fileName);
+                var result = MimeTypes.GuessForFileName(fileName);
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
@@ -70,7 +70,7 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 // Act
-                var resolved = MimeType.TryGuessExtensionForMimeType(
+                var resolved = MimeTypes.TryGuessExtensionForMimeType(
                     mimeType,
                     out var result
                 );
