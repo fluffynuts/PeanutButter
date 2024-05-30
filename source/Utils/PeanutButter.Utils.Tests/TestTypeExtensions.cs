@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NExpect;
 using NUnit.Framework;
-using static NExpect.Expectations;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+using PeanutButter.RandomGenerators;
 using static PeanutButter.Utils.Benchmark;
+// ReSharper disable ExpressionIsAlwaysNull
+// ReSharper disable UnusedTypeParameter
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable MemberCanBePrivate.Global
@@ -54,7 +56,8 @@ namespace PeanutButter.Utils.Tests
                         {
                             typeof(object),
                             typeof(SimpleType)
-                        });
+                        }
+                    );
             }
 
             [Test]
@@ -76,7 +79,8 @@ namespace PeanutButter.Utils.Tests
                             typeof(object),
                             typeof(SimpleType),
                             typeof(InheritedType)
-                        });
+                        }
+                    );
             }
 
             [TestFixture]
@@ -568,7 +572,8 @@ namespace PeanutButter.Utils.Tests
                             typeof(ILevel3),
                             typeof(ILevel4),
                             typeof(ILevel4Again)
-                        });
+                        }
+                    );
             }
         }
 
@@ -665,7 +670,8 @@ namespace PeanutButter.Utils.Tests
             [TestCase(typeof(int), 0)]
             public void ShouldReturnDefaultValueForType(
                 Type t,
-                object expected)
+                object expected
+            )
             {
                 // Arrange
                 // Pre-assert
@@ -883,7 +889,7 @@ namespace PeanutButter.Utils.Tests
             {
                 // Arrange
                 var t = typeof(HasStatics);
-                var expected = (byte) GetRandomInt(1, 10);
+                var expected = (byte)GetRandomInt(1, 10);
                 // Act
                 t.SetStatic("Id", expected);
                 // Assert
@@ -1195,12 +1201,14 @@ namespace PeanutButter.Utils.Tests
                     var sut = typeof(TestClass)
                         .GetMethod(nameof(TestClass.DoNothing));
                     // Act
-                    Expect(sut.HasAttribute<BaseMethodAttribute>(
+                    Expect(
+                        sut.HasAttribute<BaseMethodAttribute>(
                             inherit: true,
                             a => a.Id == 123
                         )
                     ).To.Be.True();
-                    Expect(sut.HasAttribute<BaseMethodAttribute>(
+                    Expect(
+                        sut.HasAttribute<BaseMethodAttribute>(
                             a => a.Id == 123
                         )
                     ).To.Be.True();
@@ -1216,12 +1224,14 @@ namespace PeanutButter.Utils.Tests
                     var sut = typeof(TestClass)
                         .GetMethod(nameof(TestClass.DoNothing));
                     // Act
-                    Expect(sut.HasAttribute<MethodAttribute>(
+                    Expect(
+                        sut.HasAttribute<MethodAttribute>(
                             inherit: true,
                             a => a.Name == "Do Nothing"
                         )
                     ).To.Be.True();
-                    Expect(sut.HasAttribute<MethodAttribute>(
+                    Expect(
+                        sut.HasAttribute<MethodAttribute>(
                             inherit: true,
                             a => a.Name == "Do Something"
                         )
@@ -1334,29 +1344,116 @@ namespace PeanutButter.Utils.Tests
                 // Arrange
                 var sut = typeof(TestClass);
                 var iterations = 1000000;
+                // ReSharper disable once NotAccessedVariable
                 bool foo;
                 var classAttrib = typeof(ClassAttribute);
                 var methodAttrib = typeof(MethodAttribute);
-                var nonGeneric = Time(() =>
-                {
-                    foo = sut.GetCustomAttributes()
-                        .Any(a => a?.GetType() == classAttrib);
-                    foo = sut.GetCustomAttributes()
-                        .Any(a => a?.GetType() == methodAttrib);
-                }, iterations);
-                var generic = Time(() =>
-                {
-                    foo = sut.GetCustomAttributes()
-                        .OfType<ClassAttribute>()
-                        .Any();
-                    foo = sut.GetCustomAttributes()
-                        .OfType<MethodAttribute>()
-                        .Any();
-                }, iterations);
+                var nonGeneric = Time(
+                    () =>
+                    {
+                        foo = sut.GetCustomAttributes()
+                            .Any(a => a?.GetType() == classAttrib);
+                        foo = sut.GetCustomAttributes()
+                            .Any(a => a?.GetType() == methodAttrib);
+                    },
+                    iterations
+                );
+                var generic = Time(
+                    () =>
+                    {
+                        foo = sut.GetCustomAttributes()
+                            .OfType<ClassAttribute>()
+                            .Any();
+                        foo = sut.GetCustomAttributes()
+                            .OfType<MethodAttribute>()
+                            .Any();
+                    },
+                    iterations
+                );
                 // Act
                 // Assert
                 Console.WriteLine($"Generic : {generic}");
                 Console.WriteLine($"!Generic: {nonGeneric}");
+            }
+        }
+
+        [TestFixture]
+        public class WalkAttributes
+        {
+            [Test]
+            public void ShouldPresentGroupsOfAttributesPerType()
+            {
+                // Arrange
+                // Act
+                var idx = -1;
+                foreach (var item in typeof(B).WalkAttributes())
+                {
+                    idx++;
+                    if (idx == 0)
+                    {
+                        Expect(item.InitialType)
+                            .To.Equal(typeof(B));
+                        Expect(item.CurrentType)
+                            .To.Equal(typeof(B));
+                        Expect(item.Attributes)
+                            .To.Contain.Only(2).Items();
+                        Expect(item.Attributes)
+                            .To.Contain.None
+                            .Matched.By(o => o is RequireNonZeroId);
+                        Expect(item.Attributes)
+                            .To.Contain.Exactly(1)
+                            .Matched.By(o => o is RequiresThreadAttribute);
+                        Expect(item.Attributes)
+                            .To.Contain.Exactly(1)
+                            .Matched.By(
+                                o => o is DescriptionAttribute d &&
+                                    $"{d.Properties["Description"][0]}" == "B"
+                            );
+                    }
+                    else if (idx == 1)
+                    {
+                        Expect(item.InitialType)
+                            .To.Equal(typeof(B));
+                        Expect(item.CurrentType)
+                            .To.Equal(typeof(A));
+                        Expect(item.Attributes)
+                            .To.Contain.Only(2).Items();
+                        Expect(item.Attributes)
+                            .To.Contain.None
+                            .Matched.By(o => o is RequiresThreadAttribute);
+                        Expect(item.Attributes)
+                            .To.Contain.Exactly(1)
+                            .Matched.By(o => o is RequireNonZeroId);
+                        Expect(item.Attributes)
+                            .To.Contain.Exactly(1)
+                            .Matched.By(
+                                o => o is DescriptionAttribute d &&
+                                    $"{d.Properties["Description"][0]}" == "A"
+                            );
+                    }
+                    else
+                    {
+                        Expect(item.InitialType)
+                            .To.Equal(typeof(B));
+                        Expect(item.CurrentType)
+                            .To.Equal(typeof(object));
+                        Expect(item.Attributes)
+                            .To.Be.Empty();
+                    }
+                }
+                // Assert
+            }
+
+            [Description("A")]
+            [RequireNonZeroId]
+            public class A
+            {
+            }
+
+            [Description("B")]
+            [RequiresThread]
+            public class B : A
+            {
             }
         }
     }

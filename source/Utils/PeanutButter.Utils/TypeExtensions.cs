@@ -53,36 +53,49 @@ namespace PeanutButter.Utils
             Type from
         )
         {
-            var stopAtIsGenericDefinition =
-                from != null &&
-                from.IsGenericType &&
-                from.GetGenericArguments().All(
+            return type
+                .WalkAncestry(from)
+                .Reverse().ToArray();
+        }
+
+        /// <summary>
+        /// Walks the type ancestry of a type, starting at that
+        /// type. If you'd like the ancestry the other way around,
+        /// look at Ancestry and AncestryUntil. This variant is also
+        /// lazy, so bailing out stops the walk.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="oldest"></param>
+        /// <returns></returns>
+        public static IEnumerable<Type> WalkAncestry(
+            this Type type,
+            Type oldest
+        )
+        {
+            var oldestIsGenericType =
+                oldest is { IsGenericType: true } &&
+                oldest.GetGenericArguments().All(
                     a => a.GUID == Guid.Empty
                 );
-            var hierarchy = new List<Type>();
             do
             {
-                if (from != null)
+                if (oldest != null)
                 {
-                    if (type == from)
+                    if (type == oldest)
                     {
                         break;
                     }
 
-                    if (stopAtIsGenericDefinition &&
+                    if (oldestIsGenericType &&
                         type.IsGenericType &&
-                        type.GetGenericTypeDefinition() == from)
+                        type.GetGenericTypeDefinition() == oldest)
                     {
                         break;
                     }
                 }
 
-                hierarchy.Add(type);
+                yield return type;
             } while ((type = type.BaseType()) != null);
-
-            // we typically want this list from most to least ancient
-            hierarchy.Reverse();
-            return hierarchy.ToArray();
         }
 
         /// <summary>
@@ -113,7 +126,7 @@ namespace PeanutButter.Utils
         {
             return type.GetAllConstants()
                 .Where(kvp => kvp.Value is T)
-                .ToDictionary(x => x.Key, y => (T) y.Value);
+                .ToDictionary(x => x.Key, y => (T)y.Value);
         }
 
         /// <summary>
@@ -164,7 +177,13 @@ namespace PeanutButter.Utils
             var collectionType = t.GetCollectionItemType();
             if (collectionType == null) return false;
             var specific = GenericIsAssignableFromArrayOf.MakeGenericMethod(collectionType);
-            return (bool) specific.Invoke(null, new object[] { t });
+            return (bool)specific.Invoke(
+                null,
+                new object[]
+                {
+                    t
+                }
+            );
         }
 
         /// <summary>
@@ -639,7 +658,10 @@ namespace PeanutButter.Utils
                     // ReSharper disable once ConstantNullCoalescingCondition
                     ?.Substring(0, type.FullName?.IndexOf("`") ?? 0)
                     .Split('.') ??
-                new[] { type.Name };
+                new[]
+                {
+                    type.Name
+                };
             return string.Join(
                 "",
                 parts.Last(),
@@ -774,7 +796,13 @@ namespace PeanutButter.Utils
             bool canConvert;
             try
             {
-                castValue = convertSpecific.Invoke(null, new[] { srcValue });
+                castValue = convertSpecific.Invoke(
+                    null,
+                    new[]
+                    {
+                        srcValue
+                    }
+                );
                 canConvert = true;
             }
             catch
@@ -1179,7 +1207,7 @@ namespace PeanutButter.Utils
         )
         {
             var propInfo = data.FindTopMostProperty<T>(propertyName);
-            return (T) propInfo.GetValue(data);
+            return (T)propInfo.GetValue(data);
         }
 
         /// <summary>
@@ -1327,7 +1355,12 @@ namespace PeanutButter.Utils
             }
 
             var method = GenericGetDefaultValueMethod.MakeGenericMethod(arg);
-            var defaultValueForType = method.Invoke(null, new object[] { });
+            var defaultValueForType = method.Invoke(
+                null,
+                new object[]
+                {
+                }
+            );
             var result = defaultValueForType == null;
             return NullableTypes[arg] = result;
         }
@@ -1381,7 +1414,7 @@ namespace PeanutButter.Utils
                 t,
                 fieldOrPropertyName
             );
-            return (T) member.GetValue(null);
+            return (T)member.GetValue(null);
         }
 
         /// <summary>
@@ -1956,6 +1989,34 @@ namespace PeanutButter.Utils
                 }
             }
         }
+
+        /// <summary>
+        /// Walks the attributes per-type on the ancestry of the provided
+        /// type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IEnumerable<AttributeWalkStep> WalkAttributes(
+            this Type type
+        )
+        {
+            if (type is null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+            foreach (var t in type.WalkAncestry(typeof(object)))
+            {
+                yield return new(
+                    type,
+                    t,
+                    t.GetCustomAttributes(inherit: false)
+                        .Cast<Attribute>()
+                        .ToArray()
+                );
+            }
+        }
     }
 
     internal static class Types
@@ -1980,5 +2041,42 @@ namespace PeanutButter.Utils
                 typeof(IPAddress)
             }
         );
+    }
+
+    /// <summary>
+    /// Emitted at every stage of walking attributes per
+    /// type in the ancestry tree
+    /// </summary>
+    public class AttributeWalkStep
+    {
+        /// <summary>
+        /// Emitted at every stage of walking attributes per
+        /// type in the ancestry tree
+        /// </summary>
+        public AttributeWalkStep(
+            Type initialType,
+            Type currentType,
+            Attribute[] attributes
+        )
+        {
+            InitialType = initialType;
+            CurrentType = currentType;
+            Attributes = attributes;
+        }
+
+        /// <summary>
+        /// The type this query was started with
+        /// </summary>
+        public Type InitialType { get; }
+
+        /// <summary>
+        /// The type being presented right now
+        /// </summary>
+        public Type CurrentType { get; }
+
+        /// <summary>
+        /// The attributes
+        /// </summary>
+        public Attribute[] Attributes { get; }
     }
 }
