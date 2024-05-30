@@ -40,7 +40,7 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="asm"></param>
         /// <returns></returns>
-        public static IEnumerable<Assembly[]> WalkDependencies(
+        public static IEnumerable<Assembly> WalkDependencies(
             this Assembly asm
         )
         {
@@ -59,9 +59,13 @@ namespace PeanutButter.Utils
                     yield break;
                 }
 
-                yield return current
-                    .Where(a => !reported.Contains(a.FullName))
-                    .ToArray();
+                var thisRound = current
+                    .Where(a => !reported.Contains(a.FullName));
+                foreach (var foundAssembly in thisRound)
+                {
+                    yield return foundAssembly;
+                }
+
                 foreach (var a in current)
                 {
                     reported.Add(a.FullName);
