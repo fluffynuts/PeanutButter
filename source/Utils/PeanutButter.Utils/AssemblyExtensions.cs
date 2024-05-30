@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -30,6 +32,62 @@ namespace PeanutButter.Utils
             return assembly
                 .GetExportedTypes()
                 .FirstOrDefault(t => t.Name == typeName);
+        }
+
+
+        /// <summary>
+        /// Walks the assembly dependency tree
+        /// </summary>
+        /// <param name="asm"></param>
+        /// <returns></returns>
+        public static IEnumerable<Assembly[]> WalkDependencies(
+            this Assembly asm
+        )
+        {
+            var queue = new Queue<Assembly[]>();
+            queue.Enqueue(asm.InArray());
+            var seen = new HashSet<string>();
+            var reported = new HashSet<string>();
+            var loadedAssemblies = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .ToArray();
+            while (queue.Any())
+            {
+                var current = queue.Dequeue();
+                if (current.Length == 0)
+                {
+                    yield break;
+                }
+
+                yield return current
+                    .Where(a => !reported.Contains(a.FullName))
+                    .ToArray();
+                foreach (var a in current)
+                {
+                    reported.Add(a.FullName);
+                    if (!seen.Add(a.FullName))
+                    {
+                        continue;
+                    }
+
+                    var refs = a.GetReferencedAssemblies()
+                        .Select(n => $"{n}")
+                        .Select(
+                            n => Tuple.Create(
+                                n,
+                                loadedAssemblies
+                                    .FirstOrDefault(
+                                        aa => $"{aa.GetName()}" == n
+                                    ) ?? Assembly.Load(n)
+                            )
+                        )
+                        .Where(o => o.Item2 is not null)
+                        .Select(o => o.Item2)
+                        .ToArray();
+
+                    queue.Enqueue(refs);
+                }
+            }
         }
     }
 }
