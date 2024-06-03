@@ -2047,7 +2047,12 @@ namespace PeanutButter.Utils
     /// Emitted at every stage of walking attributes per
     /// type in the ancestry tree
     /// </summary>
-    public class AttributeWalkStep
+#if BUILD_PEANUTBUTTER_INTERNAL
+    public
+#else
+        internal
+#endif
+        class AttributeWalkStep
     {
         /// <summary>
         /// Emitted at every stage of walking attributes per
