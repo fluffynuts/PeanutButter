@@ -2048,9 +2048,9 @@ namespace PeanutButter.Utils
     /// type in the ancestry tree
     /// </summary>
 #if BUILD_PEANUTBUTTER_INTERNAL
-    public
+    internal
 #else
-        internal
+    public
 #endif
         class AttributeWalkStep
     {
