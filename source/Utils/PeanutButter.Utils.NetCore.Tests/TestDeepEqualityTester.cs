@@ -151,13 +151,37 @@ namespace PeanutButter.Utils.Tests
                 .To.Be.False();
         }
 
+        [Test]
+        public void ShouldBeAbleToCompareNullableAndNonNullablePropsOfSameNameAndUnderlyingType()
+        {
+            // Arrange
+            var date = GetRandom<DateTime>();
+            var left = new HasDate() { Date = date };
+            var right = new HasNullableDate() { Date = date };
+            var sut = Create(left, right);
+            // Act
+            var result = sut.AreDeepEqual();
+            // Assert
+            Expect(result)
+                .To.Be.True();
+        }
+
+        public class HasDate
+        {
+            public DateTime Date { get; set; }
+        }
+
+        public class HasNullableDate
+        {
+            public DateTime? Date { get; set; }
+        }
+
         public class HasAStaticProp
         {
             public static int Id { get; set; }
             public string Name { get; set; }
         }
-
-
+        
         public class Node
         {
             public Node Child { get; set; }

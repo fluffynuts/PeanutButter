@@ -270,7 +270,7 @@ Imported.PeanutButter.Utils
                 case EnumComparisonStrategies.ByObjectEquals:
                     return objSource.Equals(objCompare);
                 case EnumComparisonStrategies.ByIntegerValue:
-                    return (int) objSource == (int) objCompare;
+                    return (int)objSource == (int)objCompare;
                 case EnumComparisonStrategies.ByName:
                     return objSource.ToString() == objCompare.ToString();
                 default:
@@ -288,7 +288,8 @@ Imported.PeanutButter.Utils
             Type sourceType,
             object objSource,
             Type compareType,
-            object objCompare)
+            object objCompare
+        )
         {
             // naive simple equality tester:
             //  if the types match, use .Equals, otherwise attempt upcasting to decimal
@@ -310,7 +311,8 @@ Imported.PeanutButter.Utils
 
         private bool PerformDecimalEquals(
             decimal left,
-            decimal right)
+            decimal right
+        )
         {
             var customResult = TryCompareWithCustomComparer(left, right);
             return customResult ?? left.Equals(right);
@@ -318,7 +320,8 @@ Imported.PeanutButter.Utils
 
         private bool PerformSameTypeEquals(
             object left,
-            object right)
+            object right
+        )
         {
             var customResult = TryCompareWithCustomComparer(left, right);
             if (customResult.HasValue)
@@ -354,7 +357,14 @@ Imported.PeanutButter.Utils
             var method = TryCompareWithCustomComparerGenericMethod.MakeGenericMethod(left.GetType());
             try
             {
-                return (bool?) method.Invoke(this, new[] { left, right });
+                return (bool?)method.Invoke(
+                    this,
+                    new[]
+                    {
+                        left,
+                        right
+                    }
+                );
             }
             catch
             {
@@ -416,7 +426,8 @@ Imported.PeanutButter.Utils
             Type sourceType,
             object objSource,
             Type compareType,
-            object objCompare)
+            object objCompare
+        )
         {
             var sourceItemType = GetItemTypeFor(sourceType);
             var compareItemType = GetItemTypeFor(compareType);
@@ -424,7 +435,14 @@ Imported.PeanutButter.Utils
                 sourceItemType,
                 compareItemType
             );
-            return (bool) method.Invoke(this, new[] { objSource, objCompare });
+            return (bool)method.Invoke(
+                this,
+                new[]
+                {
+                    objSource,
+                    objCompare
+                }
+            );
         }
 
         private static Type GetItemTypeFor(Type collectionType)
@@ -467,7 +485,8 @@ Imported.PeanutButter.Utils
                             index++,
                             cur.Item1,
                             cur.Item2
-                        ));
+                        )
+                );
         }
 
         private bool DeepCompareAtIndex(
@@ -496,7 +515,8 @@ Imported.PeanutButter.Utils
         private static bool CanBeComparedWithEquals(Type t)
         {
             var equatableInterface = EquatableInterfaces.FindOrAdd(
-                t, () => EquatableGenericType.MakeGenericType(t)
+                t,
+                () => EquatableGenericType.MakeGenericType(t)
             );
             return t.Implements(equatableInterface)
                 || IsSimpleTypeOrNullableOfSimpleType(t);
@@ -531,7 +551,8 @@ Imported.PeanutButter.Utils
 
         private PropertyOrField FindMatchingPropertyInfoFor(
             PropertyOrField srcPropInfo,
-            IEnumerable<PropertyOrField> compareProperties)
+            IEnumerable<PropertyOrField> compareProperties
+        )
         {
             var comparePropInfo = compareProperties.FirstOrDefault(
                 pi => pi.Name == srcPropInfo.Name
@@ -586,9 +607,11 @@ Imported.PeanutButter.Utils
 
         private bool TypesAreComparable(Type srcType, Type compareType)
         {
+            var actualSrcType = srcType.ResolveNullableUnderlyingType();
+            var actualCompareType = compareType.ResolveNullableUnderlyingType();
             return _comparableStrategies.Aggregate(
                 false,
-                (acc, cur) => acc || cur(this, srcType, compareType)
+                (acc, cur) => acc || cur(this, actualSrcType, actualCompareType)
             );
         }
 
@@ -616,7 +639,8 @@ Imported.PeanutButter.Utils
         private static bool TypesAreBothEnums(
             DeepEqualityTester arg1,
             Type arg2,
-            Type arg3)
+            Type arg3
+        )
         {
             return arg2.IsEnum &&
                 arg3.IsEnum;
@@ -657,10 +681,8 @@ Imported.PeanutButter.Utils
             Tuple.Create(typeof(int), typeof(float)),
             Tuple.Create(typeof(int), typeof(short)),
             Tuple.Create(typeof(int), typeof(double)),
-
             Tuple.Create(typeof(long), typeof(short)),
             Tuple.Create(typeof(long), typeof(float)),
-
             Tuple.Create(typeof(float), typeof(double)),
             Tuple.Create(typeof(float), typeof(decimal)),
             Tuple.Create(typeof(double), typeof(decimal))
@@ -753,7 +775,8 @@ Imported.PeanutButter.Utils
                     $"{DumpPropertyInfo(srcPropInfos)}",
                     $"\nComparison has {compareProps.Length} properties:",
                     $"{DumpPropertyInfo(compareProps)}"
-                ));
+                )
+            );
             return false;
         }
 
@@ -819,7 +842,8 @@ Imported.PeanutButter.Utils
             object objSource,
             object objCompare,
             PropertyOrField[] srcPropInfos,
-            PropertyOrField[] comparePropInfos)
+            PropertyOrField[] comparePropInfos
+        )
         {
             var didAnyComparison = false;
             var finalResult = srcPropInfos.Aggregate(
@@ -837,7 +861,8 @@ Imported.PeanutButter.Utils
                             !FailOnMissingProperties) ||
                         (compareProp != null &&
                             PropertyValuesMatchFor(objSource, objCompare, srcProp, compareProp));
-                });
+                }
+            );
             return (srcPropInfos.IsEmpty() || didAnyComparison) && finalResult;
         }
 
@@ -861,7 +886,8 @@ Imported.PeanutButter.Utils
             object objSource,
             object objCompare,
             PropertyOrField srcProp,
-            PropertyOrField compareProp)
+            PropertyOrField compareProp
+        )
         {
             var canReadSource = srcProp.TryGetValue(objSource, out var srcValue, out var srcReadException);
             var canReadTarget = compareProp.TryGetValue(objCompare, out var compareValue, out var compareReadException);
@@ -914,7 +940,8 @@ Imported.PeanutButter.Utils
         private bool TryWrapEnumerable(
             object value,
             out object wrapped,
-            out Type wrappedType)
+            out Type wrappedType
+        )
         {
             wrapped = null;
             wrappedType = null;
@@ -943,11 +970,13 @@ Imported.PeanutButter.Utils
             TryResolveEnumerable(
                 ref srcValue,
                 srcProp,
-                out var srcEnumerableInterface);
+                out var srcEnumerableInterface
+            );
             TryResolveEnumerable(
                 ref compareValue,
                 compareProp,
-                out var compareEnumerableInterface);
+                out var compareEnumerableInterface
+            );
 
             if (srcEnumerableInterface == null &&
                 compareEnumerableInterface == null)
@@ -973,7 +1002,8 @@ Imported.PeanutButter.Utils
         private void TryResolveEnumerable(
             ref object value,
             PropertyOrField prop,
-            out Type resolvedType)
+            out Type resolvedType
+        )
         {
             var enumerableInterface = TryGetEnumerableInterfaceFor(prop);
             if (enumerableInterface == null &&
@@ -1012,7 +1042,14 @@ Imported.PeanutButter.Utils
             }
 
             var typedMethod = genericMethod.MakeGenericMethod(t1, t2);
-            return (bool) typedMethod.Invoke(this, new[] { srcValue, compareValue });
+            return (bool)typedMethod.Invoke(
+                this,
+                new[]
+                {
+                    srcValue,
+                    compareValue
+                }
+            );
         }
 
 
