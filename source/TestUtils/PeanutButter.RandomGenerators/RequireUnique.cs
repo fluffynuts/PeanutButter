@@ -19,7 +19,7 @@ internal
 #else
 public
 #endif
-    abstract class RequireUnique : RandomizerAttribute
+    class RequireUnique : RandomizerAttribute
 {
     /// <summary>
     /// The type of the property which is required to be unique, should

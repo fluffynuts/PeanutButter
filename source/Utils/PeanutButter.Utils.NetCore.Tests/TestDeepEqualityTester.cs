@@ -1,5 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Builders;
+// ReSharper disable ExpressionIsAlwaysNull
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 
 namespace PeanutButter.Utils.Tests
 {
