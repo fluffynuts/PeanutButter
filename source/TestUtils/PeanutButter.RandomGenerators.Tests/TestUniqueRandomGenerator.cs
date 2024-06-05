@@ -1,7 +1,5 @@
 ﻿using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using static NExpect.Expectations;
+
 namespace PeanutButter.RandomGenerators.Tests
 {
     [TestFixture]

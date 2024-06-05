@@ -19,7 +19,7 @@ internal
 #else
 public
 #endif
-    class RequireUnique : RandomizerAttribute
+    abstract class RequireUnique : RandomizerAttribute
 {
     /// <summary>
     /// The type of the property which is required to be unique, should
@@ -66,5 +66,25 @@ public
     )
     {
         propInfo.SetValue(target, _generator.NextObjectValue());
+    }
+}
+
+/// <summary>
+/// Require unique values for named properties (don't forget the type!)
+/// </summary>
+/// <typeparam name="T"></typeparam>
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+    class RequireUnique<T> : RequireUnique
+{
+    /// <inheritdoc />
+    public RequireUnique(
+        string propertyName
+    ) : base(propertyName)
+    {
+        PropertyType = typeof(T);
     }
 }

@@ -1813,5 +1813,35 @@ namespace PeanutButter.RandomGenerators.Tests
                     .To.Throw().With.Message.Containing("A generic type definition can't be generated: ");
             }
         }
+
+        [TestFixture]
+        public class RequireUniqueForEveryone
+        {
+            [Test]
+            public void ShouldHonorAttribute()
+            {
+                // Arrange
+                var collection = new List<Poco>();
+                // Act
+                for (var i = 0; i < 100; i++)
+                {
+                    collection.Add(GetRandom<Poco>());
+                }
+                // Assert
+                var result = collection.Select(o => o.Id).ToArray();
+                Expect(result)
+                    .To.Be.Distinct();
+            }
+
+            [RequireUnique<int>("Id")]
+            public class PocoBuilder : GenericBuilder<PocoBuilder, Poco>
+            {
+            }
+
+            public class Poco
+            {
+                public int Id { get; set; }
+            }
+        }
     }
 }
