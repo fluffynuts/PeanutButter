@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.Utils.Entity</id>
-    <version>3.0.301</version>
+    <version>3.0.302</version>
     <title>PeanutButter.Utils.Entity</title>
     <authors>davyd</authors>
     <owners></owners>
@@ -43,7 +43,7 @@
     <dependencies>
       <group targetFramework="netstandard2.0">
         <dependency id="EntityFramework" version="[6.1.3,]" />
-        <dependency id="PeanutButter.Utils" version="3.0.301" />
+        <dependency id="PeanutButter.Utils" version="3.0.302" />
       </group>
     </dependencies>
     <references></references>
