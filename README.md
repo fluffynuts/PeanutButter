@@ -114,7 +114,8 @@ on tests because the windows service management would be hit too hard
 or often. But it does work (:) And some are libraries to help with
 testing, so you'll soon find that they work as expected.
 
-<center>A shout out to:
+<center>A shout out to:</center>
+<center style="background: white; padding: 15px 15px 1px 10px; border-radius: 6px;">
 
 ![Jetbrains Logo](logo_JetBrains_4.png)
 </center>
