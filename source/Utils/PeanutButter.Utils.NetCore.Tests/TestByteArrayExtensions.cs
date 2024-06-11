@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO.Compression;
+using System.Text;
 
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable ExpressionIsAlwaysNull
@@ -287,6 +288,46 @@ public class TestByteArrayExtensions
                 Expect(result)
                     .To.Be.True();
             }
+        }
+    }
+
+    [TestFixture]
+    public class GZip
+    {
+        [Test]
+        public void ShouldGzipTheData()
+        {
+            // Arrange
+            var data = GetRandomBytes();
+            using var source = new MemoryStream(data);
+            using var target = new MemoryStream();
+            using var gzip = new GZipStream(target, CompressionLevel.Optimal, leaveOpen: true);
+            source.CopyTo(gzip);
+            gzip.Close();
+            var expected = target.ToArray();
+            // Act
+            var result = data.GZip();
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
+    }
+
+    [TestFixture]
+    public class UnGZip
+    {
+        [Test]
+        public void ShouldDecompressTheData()
+        {
+            // Arrange
+            var data = GetRandomBytes();
+            var compressed = data.GZip();
+            
+            // Act
+            var result = compressed.UnGZip();
+            // Assert
+            Expect(result)
+                .To.Equal(data);
         }
     }
 }

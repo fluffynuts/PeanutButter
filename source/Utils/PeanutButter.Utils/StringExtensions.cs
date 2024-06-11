@@ -2079,5 +2079,30 @@ namespace PeanutButter.Utils
             }
             return true;
         }
+
+        /// <summary>
+        /// GZips the text as utf 8
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static byte[] GZip(this string str)
+        {
+            return str.GZip(Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// GZips the text with the provided encoding
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public static byte[] GZip(
+            this string str,
+            Encoding encoding
+        )
+        {
+            var bytes = encoding.GetBytes(str);
+            return bytes.GZip();
+        }
     }
 }

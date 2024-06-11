@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 
@@ -140,9 +140,47 @@ namespace PeanutButter.Utils
             {
                 throw new ArgumentNullException(nameof(reference));
             }
-            
+
             return data.Take(reference.Length)
                 .SequenceEqual(reference);
+        }
+
+        /// <summary>
+        /// GZips the input array, producing a new array
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static byte[] GZip(this byte[] data)
+        {
+            using var source = new MemoryStream(data);
+            using var target = new MemoryStream();
+            using var gzip = new GZipStream(
+                target,
+                CompressionLevel.Optimal,
+                leaveOpen: true
+            );
+            source.CopyTo(gzip);
+            gzip.Close();
+            return target.ToArray();
+        }
+
+        /// <summary>
+        /// Decompresses the array of gzipped data
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static byte[] UnGZip(this byte[] data)
+        {
+            using var source = new MemoryStream(data);
+            using var target = new MemoryStream();
+            using var gzip = new GZipStream(
+                source,
+                CompressionMode.Decompress,
+                leaveOpen: true
+            );
+            gzip.CopyTo(target);
+            gzip.Close();
+            return target.ToArray();
         }
     }
 }

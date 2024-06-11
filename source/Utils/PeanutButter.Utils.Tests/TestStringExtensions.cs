@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable StringLiteralTypo
 
@@ -602,7 +605,7 @@ public class TestStringExtensions
             var result = ((string)null).AsBytes();
 
             //---------------Test Result -----------------------
-            Expect((object) result).To.Be.Null();
+            Expect((object)result).To.Be.Null();
         }
 
         [Test]
@@ -617,7 +620,7 @@ public class TestStringExtensions
             var result = string.Empty.AsBytes();
 
             //---------------Test Result -----------------------
-            Expect((object) result).Not.To.Be.Null();
+            Expect((object)result).Not.To.Be.Null();
             Assert.That(result, Is.Empty);
         }
 
@@ -3359,6 +3362,29 @@ function foo() {
                 // Assert
                 Expect(result)
                     .To.Be.True();
+            }
+        }
+
+        [TestFixture]
+        public class GZip
+        {
+            [Test]
+            public void ShouldGzipTheText()
+            {
+                // Arrange
+                // Arrange
+                var data = GetRandomWords();
+                using var source = new MemoryStream(data.AsBytes());
+                using var target = new MemoryStream();
+                using var gzip = new GZipStream(target, CompressionLevel.Optimal, leaveOpen: true);
+                source.CopyTo(gzip);
+                gzip.Close();
+                var expected = target.ToArray();
+                // Act
+                var result = data.GZip();
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
             }
         }
     }
