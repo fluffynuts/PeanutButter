@@ -152,6 +152,11 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static byte[] GZip(this byte[] data)
         {
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+            
             using var source = new MemoryStream(data);
             using var target = new MemoryStream();
             using var gzip = new GZipStream(
@@ -171,6 +176,11 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static byte[] UnGZip(this byte[] data)
         {
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
             using var source = new MemoryStream(data);
             using var target = new MemoryStream();
             using var gzip = new GZipStream(

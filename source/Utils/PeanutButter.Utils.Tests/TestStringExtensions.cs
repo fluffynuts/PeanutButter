@@ -3412,6 +3412,17 @@ function foo() {
                 Expect(result3)
                     .To.Be.True();
             }
+
+            [Test]
+            public void ShouldReturnFalseForNull()
+            {
+                // Arrange
+                // Act
+                var result = (null as byte[]).IsGZipped();
+                // Assert
+                Expect(result)
+                    .To.Be.False();
+            }
         }
     }
 }
