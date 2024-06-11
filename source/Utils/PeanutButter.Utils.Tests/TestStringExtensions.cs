@@ -3387,5 +3387,31 @@ function foo() {
                     .To.Equal(expected);
             }
         }
+
+        [TestFixture]
+        public class IsGZipped
+        {
+            [Test]
+            public void ShouldRecogniseGzippedData()
+            {
+                // Arrange
+                var originalText = GetRandomWords();
+                var zippedText = originalText.GZip();
+                var originalBytes = GetRandomBytes();
+                var zippedBytes = originalBytes.GZip();
+                // Act
+                var result1 = zippedText.IsGZipped();
+                var result2 = originalBytes.IsGZipped();
+                var result3 = zippedBytes.IsGZipped();
+                // Assert
+
+                Expect(result1)
+                    .To.Be.True();
+                Expect(result2)
+                    .To.Be.False();
+                Expect(result3)
+                    .To.Be.True();
+            }
+        }
     }
 }

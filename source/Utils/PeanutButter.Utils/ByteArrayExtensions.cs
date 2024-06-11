@@ -182,5 +182,31 @@ namespace PeanutButter.Utils
             gzip.Close();
             return target.ToArray();
         }
+
+        /// <summary>
+        /// Indicates whether a byte array has been gzipped
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static bool IsGZipped(
+            this byte[] data
+        )
+        {
+            return data is not null && 
+                data.Length >= GZipHeader.Length &&
+                data.StartsWith(GZipHeader);
+        }
+
+        private static readonly byte[] GZipHeader =
+        [
+            0x1f,
+            0x8b,
+            8,
+            0,
+            0,
+            0,
+            0,
+            0
+        ];
     }
 }
