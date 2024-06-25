@@ -285,16 +285,19 @@ namespace PeanutButter.Utils.Tests
 
             // TODO: pick up from here
             [TestFixture]
+            [Ignore("WIP")]
             public class MultiTier
             {
             }
 
             [TestFixture]
+            [Ignore("WIP")]
             public class SingleTierWithCollections
             {
             }
 
             [TestFixture]
+            [Ignore("WIP")]
             public class MultiTierWithCollections
             {
             }

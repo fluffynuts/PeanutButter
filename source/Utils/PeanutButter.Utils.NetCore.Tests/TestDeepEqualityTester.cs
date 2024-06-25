@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using PeanutButter.TestUtils.AspNetCore.Builders;
+
 // ReSharper disable ExpressionIsAlwaysNull
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -14,8 +15,14 @@ namespace PeanutButter.Utils.Tests
         public void ShouldNotStackOverflowWhenComparingEnumValues()
         {
             // Arrange
-            var left = new { LogLevel = LogLevel.Critical };
-            var right = new { LogLevel = LogLevel.Critical };
+            var left = new
+            {
+                LogLevel = LogLevel.Critical
+            };
+            var right = new
+            {
+                LogLevel = LogLevel.Critical
+            };
             var sut = Create(left, right);
             sut.RecordErrors = true;
             sut.VerbosePropertyMismatchErrors = false;
@@ -33,7 +40,10 @@ namespace PeanutButter.Utils.Tests
         public void ShouldNotExplodeWhenOneIsNullAndRecordingErrors()
         {
             // Arrange
-            var left = new { id = 1 };
+            var left = new
+            {
+                id = 1
+            };
             var right = null as object;
             var sut = Create(right, left);
             sut.RecordErrors = true;
@@ -49,8 +59,14 @@ namespace PeanutButter.Utils.Tests
             // Arrange
             int intVal = 1;
             uint uintVal = 1;
-            var left = new { foo = intVal };
-            var right = new { foo = uintVal };
+            var left = new
+            {
+                foo = intVal
+            };
+            var right = new
+            {
+                foo = uintVal
+            };
             var sut = Create(left, right);
             var expected = "Source property 'foo' has type 'Int32' but comparison property has type 'UInt32'";
             sut.RecordErrors = true;
@@ -108,8 +124,20 @@ namespace PeanutButter.Utils.Tests
         public void ComparingKeyValuePairsWithComplexParts()
         {
             // Arrange
-            var kvp1 = new KeyValuePair<string, string[]>("a", new[] { "b" });
-            var kvp2 = new KeyValuePair<string, string[]>("a", new[] { "b" });
+            var kvp1 = new KeyValuePair<string, string[]>(
+                "a",
+                new[]
+                {
+                    "b"
+                }
+            );
+            var kvp2 = new KeyValuePair<string, string[]>(
+                "a",
+                new[]
+                {
+                    "b"
+                }
+            );
             var sut = Create(kvp1, kvp2);
             // Act
             var result = sut.AreDeepEqual();
@@ -145,11 +173,18 @@ namespace PeanutButter.Utils.Tests
                 Name = GetRandomString()
             };
             HasAStaticProp.Id = 123;
-            var sut = Create(data, new { data.Name, Id = 123 });
+            var sut = Create(
+                data,
+                new
+                {
+                    data.Name,
+                    Id = 123
+                }
+            );
 
             // Act
             var result = sut.AreDeepEqual();
-            
+
             // Assert
             Expect(result)
                 .To.Be.False();
@@ -160,14 +195,81 @@ namespace PeanutButter.Utils.Tests
         {
             // Arrange
             var date = GetRandom<DateTime>();
-            var left = new HasDate() { Date = date };
-            var right = new HasNullableDate() { Date = date };
+            var left = new HasDate()
+            {
+                Date = date
+            };
+            var right = new HasNullableDate()
+            {
+                Date = date
+            };
             var sut = Create(left, right);
             // Act
             var result = sut.AreDeepEqual();
             // Assert
             Expect(result)
                 .To.Be.True();
+        }
+
+        [TestFixture]
+        [Explicit("WIP: should handle props which throw exceptions on read")]
+        public class WhenPropertyReadThrowsException
+        {
+            [TestFixture]
+            public class WhenBothDo
+            {
+                [TestFixture]
+                public class AndAreSameExceptionTypeAndMessage
+                {
+                    [Test]
+                    public void ShouldReturnTrue()
+                    {
+                        // Arrange
+
+                        // Act
+                        // Assert
+                    }
+                }
+
+                [TestFixture]
+                public class AndAreDifferentExceptionTypeWithSameMessage
+                {
+                    [Test]
+                    public void ShouldReturnFalseAndIncludeError()
+                    {
+                        // Arrange
+
+                        // Act
+                        // Assert
+                    }
+                }
+
+                [TestFixture]
+                public class AndAreDifferentExceptionMessageWithSameType
+                {
+                    [Test]
+                    public void ShouldReturnFalseAndIncludeError()
+                    {
+                        // Arrange
+
+                        // Act
+                        // Assert
+                    }
+                }
+            }
+
+            [TestFixture]
+            public class WhenOnlyOneThrows
+            {
+                [Test]
+                public void ShouldReturnFalseAndIncludeErrorReport()
+                {
+                    // Arrange
+                    
+                    // Act
+                    // Assert
+                }
+            }
         }
 
         public class HasDate
@@ -185,7 +287,7 @@ namespace PeanutButter.Utils.Tests
             public static int Id { get; set; }
             public string Name { get; set; }
         }
-        
+
         public class Node
         {
             public Node Child { get; set; }
@@ -205,7 +307,10 @@ namespace PeanutButter.Utils.Tests
 
         private static DeepEqualityTester Create(object obj1, object obj2)
         {
-            var sut = new DeepEqualityTester(obj1, obj2) { RecordErrors = true };
+            var sut = new DeepEqualityTester(obj1, obj2)
+            {
+                RecordErrors = true
+            };
             return sut;
         }
     }

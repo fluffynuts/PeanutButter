@@ -111,6 +111,90 @@ public
     /// Run the code...
     /// </summary>
     /// <param name="toRun"></param>
+    /// <param name="exceptionHandler"></param>
+    /// <param name="caller"></param>
+    public async Task TimesAsync(
+        Func<Task> toRun,
+        Func<Exception, Task<ExceptionHandlingStrategies>> exceptionHandler,
+        [CallerMemberName] string caller = null
+    )
+    {
+        await TimesAsync(
+            async _ => await toRun(),
+            _defaultBackoffStrategyFactory(),
+            exceptionHandler,
+            caller
+        );
+    }
+
+    /// <summary>
+    /// Run the code...
+    /// </summary>
+    /// <param name="toRun"></param>
+    /// <param name="exceptionHandler"></param>
+    /// <param name="caller"></param>
+    public async Task TimesAsync(
+        Func<int, Task> toRun,
+        Func<Exception, Task<ExceptionHandlingStrategies>> exceptionHandler,
+        [CallerMemberName] string caller = null
+    )
+    {
+        await TimesAsync(
+            toRun,
+            _defaultBackoffStrategyFactory(),
+            exceptionHandler,
+            caller
+        );
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="toRun"></param>
+    /// <param name="backoffStrategy"></param>
+    /// <param name="exceptionHandler"></param>
+    /// <param name="caller"></param>
+    public async Task TimesAsync(
+        Func<int, Task> toRun,
+        IBackoffStrategy backoffStrategy,
+        Func<Exception, Task<ExceptionHandlingStrategies>> exceptionHandler,
+        [CallerMemberName] string caller = null
+    )
+    {
+        Exception lastException = null;
+        exceptionHandler ??= AlwaysSuppressAsync;
+
+        for (var i = 0; i < MaxAttempts; i++)
+        {
+            try
+            {
+                await toRun(i);
+                return;
+            }
+            catch (Exception ex)
+            {
+                if (await exceptionHandler(ex) == ExceptionHandlingStrategies.Throw)
+                {
+                    throw;
+                }
+
+                lastException = ex;
+                WaitIfNecessary(backoffStrategy, i);
+            }
+        }
+
+        throw new RetriesExceededException(
+            caller,
+            MaxAttempts,
+            lastException
+        );
+    }
+
+
+    /// <summary>
+    /// Run the code...
+    /// </summary>
+    /// <param name="toRun"></param>
     /// <param name="backoffStrategy"></param>
     /// <param name="exceptionHandler"></param>
     /// <param name="caller"></param>
@@ -649,6 +733,13 @@ public
     )
     {
         return ExceptionHandlingStrategies.Suppress;
+    }
+
+    private Task<ExceptionHandlingStrategies> AlwaysSuppressAsync(
+        Exception ex
+    )
+    {
+        return Task.FromResult(ExceptionHandlingStrategies.Suppress);
     }
 }
 

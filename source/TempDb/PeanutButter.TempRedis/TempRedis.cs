@@ -1168,6 +1168,11 @@ stderr:
 
     internal class ConnectionMultiplexerFacade : IConnectionMultiplexer
     {
+        public void AddLibraryNameSuffix(string suffix)
+        {
+            _actual.AddLibraryNameSuffix(suffix);
+        }
+
         public string ClientName => _actual.ClientName;
         public string Configuration => _actual.Configuration;
         public int TimeoutMilliseconds => _actual.TimeoutMilliseconds;

@@ -21,7 +21,7 @@ namespace PeanutButter.DuckTyping.AutoConversion.Converters
         {
             return typeof(T)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(mi => DuckTypingHelperExtensions.IsTryParseMethod(mi));
+                .FirstOrDefault(mi => mi.IsTryParseMethod());
         }
     }
 }

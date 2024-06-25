@@ -7,6 +7,7 @@ using Imported.PeanutButter.Utils;
 #if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
 using Imported.PeanutButter.DuckTyping.AutoConversion.Converters;
 using Imported.PeanutButter.DuckTyping.Extensions;
+
 #else
 using PeanutButter.DuckTyping.AutoConversion.Converters;
 using PeanutButter.DuckTyping.Extensions;
@@ -177,7 +178,9 @@ namespace PeanutButter.DuckTyping.AutoConversion
 
         private static Type[] FindTypesWhichCanTryParseStrings()
         {
-            return _typesWhichCanTryParseStrings ??= AllLoadedTypes.Where(HasValidTryParseMethod).ToArray();
+            return _typesWhichCanTryParseStrings ??= AllLoadedTypes.Where(
+                HasValidTryParseMethod
+            ).ToArray();
         }
 
         private static Type[] _typesWhichCanTryParseStrings;
