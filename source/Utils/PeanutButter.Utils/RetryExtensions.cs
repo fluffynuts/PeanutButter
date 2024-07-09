@@ -181,7 +181,6 @@ namespace PeanutButter.Utils
 
             var lastDelay = retryDelays.Last();
             var delayQueue = new Queue<TimeSpan>(retryDelays);
-
             do
             {
                 try
@@ -190,7 +189,7 @@ namespace PeanutButter.Utils
                 }
                 catch
                 {
-                    if (retries == 0)
+                    if (retries == 1)
                     {
                         throw;
                     }
