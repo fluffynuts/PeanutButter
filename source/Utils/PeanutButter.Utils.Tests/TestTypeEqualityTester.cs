@@ -278,7 +278,8 @@ namespace PeanutButter.Utils.Tests
                         // Act
                         var result = sut.AreDeepEquivalent();
                         // Assert
-                        Expect(result).To.Be.True(sut.Errors.AsText("* "));
+                        Expect(result)
+                            .To.Be.True(sut.Errors.AsText("* "));
                     }
                 }
             }

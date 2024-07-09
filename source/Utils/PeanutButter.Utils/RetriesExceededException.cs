@@ -43,7 +43,7 @@ public
         int attempts,
         Exception lastException
     ) : base(
-        $"{caller} failed after {attempts} attempts: {lastException}",
+        $"{caller} failed after {attempts} attempts: {lastException} ({lastException.Message})",
         lastException
     )
     {

@@ -38,11 +38,13 @@ namespace PeanutButter.Utils
                 throw new ArgumentNullException(nameof(action));
             }
 
-            var func = new Func<bool>(() =>
-            {
-                action.Invoke();
-                return true;
-            });
+            var func = new Func<bool>(
+                () =>
+                {
+                    action.Invoke();
+                    return true;
+                }
+            );
             func.RunWithRetries(retries, retryDelays);
         }
 
@@ -70,7 +72,10 @@ namespace PeanutButter.Utils
 
             if (retryDelays.Length == 0)
             {
-                retryDelays = new[] { TimeSpan.FromSeconds(0) };
+                retryDelays = new[]
+                {
+                    TimeSpan.FromSeconds(0)
+                };
             }
 
             if (retries < 0)
@@ -83,16 +88,17 @@ namespace PeanutButter.Utils
 
             var lastDelay = retryDelays.Last();
             var delayQueue = new Queue<TimeSpan>(retryDelays);
-
+            Exception lastException = null;
             do
             {
                 try
                 {
                     return func.Invoke();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    if (retries == 0)
+                    lastException = ex;
+                    if (retries < 1)
                     {
                         throw;
                     }
@@ -103,8 +109,8 @@ namespace PeanutButter.Utils
                 }
             } while (--retries > 0);
 
-            throw new InvalidOperationException(
-                "Should never get here"
+            throw lastException ?? new InvalidOperationException(
+                "Retries exceeded, no exception recorded"
             );
         }
 
@@ -125,11 +131,13 @@ namespace PeanutButter.Utils
                 throw new ArgumentNullException(nameof(asyncAction));
             }
 
-            var func = new Func<Task<bool>>(async () =>
-            {
-                await asyncAction.Invoke();
-                return true;
-            });
+            var func = new Func<Task<bool>>(
+                async () =>
+                {
+                    await asyncAction.Invoke();
+                    return true;
+                }
+            );
             await func.RunWithRetries(retries, retryDelays);
         }
 
@@ -165,7 +173,10 @@ namespace PeanutButter.Utils
 
             if (retryDelays.Length == 0)
             {
-                retryDelays = new[] { TimeSpan.FromSeconds(0) };
+                retryDelays = new[]
+                {
+                    TimeSpan.FromSeconds(0)
+                };
             }
 
             var lastDelay = retryDelays.Last();
