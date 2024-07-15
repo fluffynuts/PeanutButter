@@ -7,6 +7,28 @@ namespace PeanutButter.Utils.Tests;
 public class TestRetryExtensions
 {
     [Test]
+    public void ShouldNotRetryIfFirstRunSuccessful()
+    {
+        // Arrange
+        var expected = GetRandomInt();
+        var calls = 0;
+        var func = new Func<int>(
+            () =>
+            {
+                calls++;
+                return expected;
+            }
+        );
+        // Act
+        var result = func.RunWithRetries(5);
+        // Assert
+        Expect(result)
+            .To.Equal(expected);
+        Expect(calls)
+            .To.Equal(1);
+    }
+
+    [Test]
     public void ShouldRetryTheNumberOfPrescribedTimes()
     {
         // Arrange
@@ -56,6 +78,7 @@ public class TestRetryExtensions
             {
                 return;
             }
+
             throw new CustomException($"wibbles: {calls}");
         };
         // Act

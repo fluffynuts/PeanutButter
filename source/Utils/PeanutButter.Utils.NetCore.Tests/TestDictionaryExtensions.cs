@@ -228,6 +228,18 @@ public class TestDictionaryExtensions
                         .With.Value(value);
                 }
             }
+
+            [Test]
+            public void ShouldNotCacheValueWhichFailsValidator()
+            {
+                // Arrange
+                var dict = new ConcurrentDictionary<string, string>();
+                // Act
+                var result = dict.FindOrAdd("foo", () => null, v => v is null);
+                // Assert
+                Expect(result)
+                    .To.Be.Empty();
+            }
         }
 
         [TestFixture]

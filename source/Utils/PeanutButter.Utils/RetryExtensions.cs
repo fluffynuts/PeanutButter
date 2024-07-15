@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,11 +27,44 @@ namespace PeanutButter.Utils
         /// </summary>
         /// <param name="action"></param>
         /// <param name="retries"></param>
-        /// <param name="retryDelays"></param>
+        /// <param name="callerFilePath">do not set - automatically set by the compiler</param>
+        /// <param name="callerLineNumber">do not set - automatically set by the compiler</param>
+        /// <param name="callerMemberName">do not set - automatically set by the compiler</param>
         public static void RunWithRetries(
             this Action action,
             int retries,
-            params TimeSpan[] retryDelays
+            [CallerFilePath] string callerFilePath = null,
+            [CallerLineNumber] int callerLineNumber = -1,
+            [CallerMemberName] string callerMemberName = null
+        )
+        {
+            action.RunWithRetries(
+                retries,
+                [],
+                // ReSharper disable ExplicitCallerInfoArgument
+                callerFilePath,
+                callerLineNumber,
+                callerMemberName
+                // ReSharper restore ExplicitCallerInfoArgument
+            );
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="retries"></param>
+        /// <param name="retryDelays"></param>
+        /// <param name="callerFilePath">do not set - automatically set by the compiler</param>
+        /// <param name="callerLineNumber">do not set - automatically set by the compiler</param>
+        /// <param name="callerMemberName">do not set - automatically set by the compiler</param>
+        public static void RunWithRetries(
+            this Action action,
+            int retries,
+            TimeSpan[] retryDelays,
+            [CallerFilePath] string callerFilePath = null,
+            [CallerLineNumber] int callerLineNumber = -1,
+            [CallerMemberName] string callerMemberName = null
         )
         {
             if (action is null)
@@ -45,7 +79,48 @@ namespace PeanutButter.Utils
                     return true;
                 }
             );
-            func.RunWithRetries(retries, retryDelays);
+            func.RunWithRetries(
+                retries,
+                retryDelays,
+                // ReSharper disable ExplicitCallerInfoArgument
+                callerFilePath,
+                callerLineNumber,
+                callerMemberName
+                // ReSharper restore ExplicitCallerInfoArgument
+            );
+        }
+
+        /// <summary>
+        /// Runs the provided function with the requested
+        /// number of retries and provided backoff delays
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="retries"></param>
+        /// <param name="callerFilePath">do not set - automatically set by the compiler</param>
+        /// <param name="callerLineNumber">do not set - automatically set by the compiler</param>
+        /// <param name="callerMemberName">do not set - automatically set by the compiler</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public static T RunWithRetries<T>(
+            this Func<T> func,
+            int retries,
+            [CallerFilePath] string callerFilePath = null,
+            [CallerLineNumber] int callerLineNumber = -1,
+            [CallerMemberName] string callerMemberName = null
+        )
+        {
+            return RunWithRetries(
+                func,
+                retries,
+                [],
+                // ReSharper disable ExplicitCallerInfoArgument
+                callerFilePath,
+                callerLineNumber,
+                callerMemberName
+                // ReSharper restore ExplicitCallerInfoArgument
+            );
         }
 
         /// <summary>
@@ -55,6 +130,9 @@ namespace PeanutButter.Utils
         /// <param name="func"></param>
         /// <param name="retries"></param>
         /// <param name="retryDelays"></param>
+        /// <param name="callerFilePath">do not set - automatically set by the compiler</param>
+        /// <param name="callerLineNumber">do not set - automatically set by the compiler</param>
+        /// <param name="callerMemberName">do not set - automatically set by the compiler</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
@@ -62,7 +140,10 @@ namespace PeanutButter.Utils
         public static T RunWithRetries<T>(
             this Func<T> func,
             int retries,
-            params TimeSpan[] retryDelays
+            TimeSpan[] retryDelays,
+            [CallerFilePath] string callerFilePath = null,
+            [CallerLineNumber] int callerLineNumber = -1,
+            [CallerMemberName] string callerMemberName = null
         )
         {
             if (func is null)
@@ -88,11 +169,14 @@ namespace PeanutButter.Utils
 
             var lastDelay = retryDelays.Last();
             var delayQueue = new Queue<TimeSpan>(retryDelays);
-            Exception lastException = null;
+            Exception lastException;
+            var remaining = retries;
+            var attempt = 0;
             do
             {
                 try
                 {
+                    attempt++;
                     return func.Invoke();
                 }
                 catch (Exception ex)
@@ -107,38 +191,86 @@ namespace PeanutButter.Utils
                         delayQueue.DequeueOrDefault(fallback: lastDelay)
                     );
                 }
-            } while (--retries > 0);
+            } while (--remaining > 0);
 
+            // ReSharper disable once ConstantNullCoalescingCondition
             throw lastException ?? new InvalidOperationException(
-                "Retries exceeded, no exception recorded"
+                $"Should never get here (attempts: {attempt}/{retries}; {callerMemberName} at {callerFilePath}:{callerLineNumber})"
             );
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="asyncAction"></param>
+        /// <param name="asyncFunc"></param>
         /// <param name="retries"></param>
         /// <param name="retryDelays"></param>
+        /// <param name="callerFilePath"></param>
+        /// <param name="callerLineNumber"></param>
+        /// <param name="callerMemberName"></param>
         public static async Task RunWithRetries(
-            this Func<Task> asyncAction,
+            this Func<Task> asyncFunc,
             int retries,
-            params TimeSpan[] retryDelays
+            TimeSpan[] retryDelays,
+            [CallerFilePath] string callerFilePath = null,
+            [CallerLineNumber] int callerLineNumber = -1,
+            [CallerMemberName] string callerMemberName = null
         )
         {
-            if (asyncAction is null)
+            if (asyncFunc is null)
             {
-                throw new ArgumentNullException(nameof(asyncAction));
+                throw new ArgumentNullException(nameof(asyncFunc));
             }
 
             var func = new Func<Task<bool>>(
                 async () =>
                 {
-                    await asyncAction.Invoke();
+                    await asyncFunc.Invoke();
                     return true;
                 }
             );
-            await func.RunWithRetries(retries, retryDelays);
+            await func.RunWithRetries(
+                retries,
+                retryDelays,
+                // ReSharper disable ExplicitCallerInfoArgument
+                callerFilePath,
+                callerLineNumber,
+                // ReSharper restore ExplicitCallerInfoArgument
+                callerMemberName
+            );
+        }
+
+        /// <summary>
+        /// Runs the provided function with the requested
+        /// number of retries and provided backoff delays
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="retries"></param>
+        /// <param name="callerFilePath">do not set - automatically set by the compiler</param>
+        /// <param name="callerLineNumber">do not set - automatically set by the compiler</param>
+        /// <param name="callerMemberName">do not set - automatically set by the compiler</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public static async Task<T> RunWithRetries<T>(
+            this Func<Task<T>> func,
+            int retries,
+            [CallerFilePath] string callerFilePath = null,
+            [CallerLineNumber] int callerLineNumber = -1,
+            [CallerMemberName] string callerMemberName = null
+        )
+        {
+            return await RunWithRetries(
+                func,
+                retries,
+                [],
+                // ReSharper disable ExplicitCallerInfoArgument
+                callerFilePath,
+                callerLineNumber,
+                // ReSharper restore ExplicitCallerInfoArgument
+                callerMemberName
+            );
         }
 
         /// <summary>
@@ -148,6 +280,9 @@ namespace PeanutButter.Utils
         /// <param name="func"></param>
         /// <param name="retries"></param>
         /// <param name="retryDelays"></param>
+        /// <param name="callerFilePath">do not set - automatically set by the compiler</param>
+        /// <param name="callerLineNumber">do not set - automatically set by the compiler</param>
+        /// <param name="callerMemberName">do not set - automatically set by the compiler</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
@@ -155,7 +290,10 @@ namespace PeanutButter.Utils
         public static async Task<T> RunWithRetries<T>(
             this Func<Task<T>> func,
             int retries,
-            params TimeSpan[] retryDelays
+            TimeSpan[] retryDelays,
+            [CallerFilePath] string callerFilePath = null,
+            [CallerLineNumber] int callerLineNumber = -1,
+            [CallerMemberName] string callerMemberName = null
         )
         {
             if (func is null)
@@ -180,12 +318,15 @@ namespace PeanutButter.Utils
             }
 
             var lastDelay = retryDelays.Last();
-            Exception lastException = null;
+            Exception lastException;
             var delayQueue = new Queue<TimeSpan>(retryDelays);
+            var attempt = 0;
+            var remaining = retries;
             do
             {
                 try
                 {
+                    attempt++;
                     return await func.Invoke();
                 }
                 catch (Exception ex)
@@ -195,10 +336,11 @@ namespace PeanutButter.Utils
                         delayQueue.DequeueOrDefault(fallback: lastDelay)
                     );
                 }
-            } while (--retries > 0);
+            } while (--remaining > 0);
 
+            // ReSharper disable once ConstantNullCoalescingCondition
             throw lastException ?? new InvalidOperationException(
-                "Should never get here"
+                $"Should never get here (attempts: {attempt}/{retries}; {callerMemberName} at {callerFilePath}:{callerLineNumber})"
             );
         }
     }

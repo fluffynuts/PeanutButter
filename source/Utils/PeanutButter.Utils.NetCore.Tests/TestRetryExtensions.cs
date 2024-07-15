@@ -1,614 +1,630 @@
-﻿using System;
-using System.Threading.Tasks;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+﻿namespace PeanutButter.Utils.Tests;
 
-namespace PeanutButter.Utils.Tests
+[TestFixture]
+public class TestRetryExtensions
 {
     [TestFixture]
-    public class TestRetryExtensions
+    [Parallelizable]
+    public class SynchronousCode
     {
         [TestFixture]
         [Parallelizable]
-        public class SynchronousCode
+        public class RetryingAnAction
         {
             [TestFixture]
             [Parallelizable]
-            public class RetryingAnAction
+            public class GivenZeroRetries
             {
-                [TestFixture]
-                [Parallelizable]
-                public class GivenZeroRetries
-                {
-                    [Test]
-                    [Parallelizable]
-                    public void ShouldRunActionOnce()
-                    {
-                        // Arrange
-                        var calls = 0;
-                        var func = new Action(() => calls++);
-                        // Act
-                        func.RunWithRetries(0);
-                        // Assert
-                        Expect(calls)
-                            .To.Equal(1);
-                    }
-                }
-
                 [Test]
                 [Parallelizable]
-                public void ShouldRetryTheSpecifiedNumberOfTime()
+                public void ShouldRunActionOnce()
                 {
                     // Arrange
-                    var count = 0;
-                    var runTo = 1000;
-                    var action = new Action(
-                        () =>
-                        {
-                            if (++count < runTo)
-                            {
-                                throw new Exception("moo");
-                            }
-                        }
-                    );
+                    var calls = 0;
+                    var func = new Action(() => calls++);
                     // Act
-                    Expect(
-                        () =>
-                        {
-                            action.RunWithRetries(runTo);
-                        }
-                    ).Not.To.Throw();
+                    func.RunWithRetries(0);
                     // Assert
-
-                    Expect(count)
-                        .To.Equal(runTo);
-                }
-
-                [Test]
-                [Parallelizable]
-                public void ShouldExitTheFirstTimeTheActionRunsProperly()
-                {
-                    // Arrange
-                    var count = 0;
-                    var action = new Action(() => count++);
-
-                    // Act
-                    action.RunWithRetries(5);
-                    // Assert
-                    Expect(count)
+                    Expect(calls)
                         .To.Equal(1);
-                }
-
-                [Test]
-                [Parallelizable]
-                public void ShouldBackOffByTheSingleProvidedTimeSpan()
-                {
-                    // Arrange
-                    var count = 0;
-                    var runTo = GetRandomInt(3, 5);
-                    var action = new Action(
-                        () =>
-                        {
-                            if (++count < runTo)
-                            {
-                                throw new Exception("moo");
-                            }
-                        }
-                    );
-                    // Act
-                    var runTime = Benchmark.Time(
-                        () =>
-                            Expect(
-                                () =>
-                                {
-                                    action.RunWithRetries(runTo, TimeSpan.FromMilliseconds(100));
-                                }
-                            ).Not.To.Throw()
-                    );
-                    // Assert
-
-                    Expect(count)
-                        .To.Equal(runTo);
-                    Expect(runTime.TotalMilliseconds)
-                        .To.Be.Greater.Than(100 * (runTo - 1));
-                }
-
-                [Test]
-                [Parallelizable]
-                public void ShouldBackOffByTheProvidedTimeSpans()
-                {
-                    // Arrange
-                    var count = 0;
-                    var runTo = 4;
-                    var action = new Action(
-                        () =>
-                        {
-                            if (++count < runTo)
-                            {
-                                throw new Exception("moo");
-                            }
-                        }
-                    );
-                    // Act
-                    var runTime = Benchmark.Time(
-                        () =>
-                            Expect(
-                                () =>
-                                {
-                                    action.RunWithRetries(
-                                        runTo,
-                                        TimeSpan.FromMilliseconds(100),
-                                        TimeSpan.FromMilliseconds(200),
-                                        TimeSpan.FromMilliseconds(300),
-                                        TimeSpan.FromMilliseconds(400)
-                                    );
-                                }
-                            ).Not.To.Throw()
-                    );
-                    // Assert
-
-                    Expect(count)
-                        .To.Equal(runTo);
-                    Expect(runTime.TotalMilliseconds)
-                        .To.Be.Greater.Than(
-                            600,
-                            () => "should have exhausted the first three delays"
-                        ).And.To.Be.Less.Than(
-                            1000,
-                            () => "should not have hit the final delay"
-                        );
                 }
             }
 
-            [TestFixture]
+            [Test]
             [Parallelizable]
-            public class RetryingAFunc
+            public void ShouldRetryTheSpecifiedNumberOfTime()
             {
-                [Test]
-                [Parallelizable]
-                public void ShouldRetryTheSpecifiedNumberOfTime()
-                {
-                    // Arrange
-                    var count = 0;
-                    var runTo = 1000;
-                    var expected = GetRandomInt(1);
-                    var func = new Func<int>(
-                        () =>
+                // Arrange
+                var count = 0;
+                var runTo = 1000;
+                var action = new Action(
+                    () =>
+                    {
+                        if (++count < runTo)
                         {
-                            if (++count < runTo)
-                            {
-                                throw new Exception("moo");
-                            }
-
-                            return expected;
+                            throw new Exception("moo");
                         }
-                    );
-                    // Act
-                    var result = -1;
-                    var runTime = Benchmark.Time(
-                        () =>
-                            Expect(
-                                () =>
-                                {
-                                    result = func.RunWithRetries(runTo);
-                                }
-                            ).Not.To.Throw()
-                    );
-                    Console.WriteLine($"Runtime: {runTime}");
-                    // Assert
+                    }
+                );
+                // Act
+                Expect(
+                    () =>
+                    {
+                        action.RunWithRetries(runTo);
+                    }
+                ).Not.To.Throw();
+                // Assert
 
-                    Expect(count)
-                        .To.Equal(runTo);
-                    Expect(result)
-                        .To.Equal(expected);
-                }
+                Expect(count)
+                    .To.Equal(runTo);
+            }
 
-                [Test]
-                [Parallelizable]
-                public void ShouldExitTheFirstTimeTheFuncRunsProperly()
-                {
-                    // Arrange
-                    var count = 0;
-                    var action = new Func<int>(() => count++);
+            [Test]
+            [Parallelizable]
+            public void ShouldExitTheFirstTimeTheActionRunsProperly()
+            {
+                // Arrange
+                var count = 0;
+                var action = new Action(() => count++);
 
-                    // Act
-                    action.RunWithRetries(5);
-                    // Assert
-                    Expect(count)
-                        .To.Equal(1);
-                }
+                // Act
+                action.RunWithRetries(5);
+                // Assert
+                Expect(count)
+                    .To.Equal(1);
+            }
 
-                [Test]
-                [Parallelizable]
-                public void ShouldBackOffByTheSingleProvidedTimeSpan()
-                {
-                    // Arrange
-                    var count = 0;
-                    var runTo = GetRandomInt(3, 5);
-                    var action = new Func<int>(
-                        () =>
+            [Test]
+            [Parallelizable]
+            public void ShouldBackOffByTheSingleProvidedTimeSpan()
+            {
+                // Arrange
+                var count = 0;
+                var runTo = GetRandomInt(3, 5);
+                var action = new Action(
+                    () =>
+                    {
+                        if (++count < runTo)
                         {
-                            if (++count < runTo)
-                            {
-                                throw new Exception("moo");
-                            }
-
-                            return 0;
+                            throw new Exception("moo");
                         }
-                    );
-                    // Act
-                    var runTime = Benchmark.Time(
-                        () =>
-                            Expect(
-                                () =>
-                                {
-                                    action.RunWithRetries(runTo, TimeSpan.FromMilliseconds(100));
-                                }
-                            ).Not.To.Throw()
-                    );
-                    // Assert
+                    }
+                );
+                // Act
+                var runTime = Benchmark.Time(
+                    () =>
+                        Expect(
+                            () =>
+                            {
+                                action.RunWithRetries(runTo, [TimeSpan.FromMilliseconds(100)]);
+                            }
+                        ).Not.To.Throw()
+                );
+                // Assert
 
-                    Expect(count)
-                        .To.Equal(runTo);
-                    Expect(runTime.TotalMilliseconds)
-                        .To.Be.Greater.Than(100 * (runTo - 1));
-                }
+                Expect(count)
+                    .To.Equal(runTo);
+                Expect(runTime.TotalMilliseconds)
+                    .To.Be.Greater.Than(100 * (runTo - 1));
+            }
 
-                [Test]
-                [Parallelizable]
-                public void ShouldBackOffByTheProvidedTimeSpans()
-                {
-                    // Arrange
-                    var count = 0;
-                    var runTo = 4;
-                    var action = new Func<int>(
-                        () =>
+            [Test]
+            [Parallelizable]
+            public void ShouldBackOffByTheProvidedTimeSpans()
+            {
+                // Arrange
+                var count = 0;
+                var runTo = 4;
+                var action = new Action(
+                    () =>
+                    {
+                        if (++count < runTo)
                         {
-                            if (++count < runTo)
-                            {
-                                throw new Exception("moo");
-                            }
-
-                            return 0;
+                            throw new Exception("moo");
                         }
-                    );
-                    // Act
-                    var runTime = Benchmark.Time(
-                        () =>
-                            Expect(
-                                () =>
-                                {
-                                    action.RunWithRetries(
-                                        runTo,
+                    }
+                );
+                // Act
+                var runTime = Benchmark.Time(
+                    () =>
+                        Expect(
+                            () =>
+                            {
+                                action.RunWithRetries(
+                                    runTo,
+                                    [
                                         TimeSpan.FromMilliseconds(100),
                                         TimeSpan.FromMilliseconds(200),
                                         TimeSpan.FromMilliseconds(300),
                                         TimeSpan.FromMilliseconds(400)
-                                    );
-                                }
-                            ).Not.To.Throw()
-                    );
-                    // Assert
+                                    ]
+                                );
+                            }
+                        ).Not.To.Throw()
+                );
+                // Assert
 
-                    Expect(count)
-                        .To.Equal(runTo);
-                    Expect(runTime.TotalMilliseconds)
-                        .To.Be.Greater.Than(
-                            600,
-                            () => "should have exhausted the first three delays"
-                        ).And.To.Be.Less.Than(
-                            1000,
-                            () => "should not have hit the final delay"
-                        );
-                }
+                Expect(count)
+                    .To.Equal(runTo);
+                Expect(runTime.TotalMilliseconds)
+                    .To.Be.Greater.Than(
+                        600,
+                        () => "should have exhausted the first three delays"
+                    ).And.To.Be.Less.Than(
+                        1000,
+                        () => "should not have hit the final delay"
+                    );
             }
         }
 
         [TestFixture]
         [Parallelizable]
-        public class AsynchronousCode
+        public class RetryingAFunc
+        {
+            [Test]
+            [Parallelizable]
+            public void ShouldRetryTheSpecifiedNumberOfTime()
+            {
+                // Arrange
+                var count = 0;
+                var runTo = 1000;
+                var expected = GetRandomInt(1);
+                var func = new Func<int>(
+                    () =>
+                    {
+                        if (++count < runTo)
+                        {
+                            throw new Exception("moo");
+                        }
+
+                        return expected;
+                    }
+                );
+                // Act
+                var result = -1;
+                var runTime = Benchmark.Time(
+                    () =>
+                        Expect(
+                            () =>
+                            {
+                                result = func.RunWithRetries(runTo);
+                            }
+                        ).Not.To.Throw()
+                );
+                Console.WriteLine($"Runtime: {runTime}");
+                // Assert
+
+                Expect(count)
+                    .To.Equal(runTo);
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            [Parallelizable]
+            public void ShouldExitTheFirstTimeTheFuncRunsProperly()
+            {
+                // Arrange
+                var count = 0;
+                var action = new Func<int>(() => count++);
+
+                // Act
+                action.RunWithRetries(5);
+                // Assert
+                Expect(count)
+                    .To.Equal(1);
+            }
+
+            [Test]
+            [Parallelizable]
+            public void ShouldBackOffByTheSingleProvidedTimeSpan()
+            {
+                // Arrange
+                var count = 0;
+                var runTo = GetRandomInt(3, 5);
+                var action = new Func<int>(
+                    () =>
+                    {
+                        if (++count < runTo)
+                        {
+                            throw new Exception("moo");
+                        }
+
+                        return 0;
+                    }
+                );
+                // Act
+                var runTime = Benchmark.Time(
+                    () =>
+                        Expect(
+                            () =>
+                            {
+                                action.RunWithRetries(
+                                    runTo,
+                                    [TimeSpan.FromMilliseconds(100)]
+                                );
+                            }
+                        ).Not.To.Throw()
+                );
+                // Assert
+
+                Expect(count)
+                    .To.Equal(runTo);
+                Expect(runTime.TotalMilliseconds)
+                    .To.Be.Greater.Than(100 * (runTo - 1));
+            }
+
+            [Test]
+            [Parallelizable]
+            public void ShouldBackOffByTheProvidedTimeSpans()
+            {
+                // Arrange
+                var count = 0;
+                var runTo = 4;
+                var action = new Func<int>(
+                    () =>
+                    {
+                        if (++count < runTo)
+                        {
+                            throw new Exception("moo");
+                        }
+
+                        return 0;
+                    }
+                );
+                // Act
+                var runTime = Benchmark.Time(
+                    () =>
+                        Expect(
+                            () =>
+                            {
+                                action.RunWithRetries(
+                                    runTo,
+                                    [
+                                        TimeSpan.FromMilliseconds(100),
+                                        TimeSpan.FromMilliseconds(200),
+                                        TimeSpan.FromMilliseconds(300),
+                                        TimeSpan.FromMilliseconds(400)
+                                    ]
+                                );
+                            }
+                        ).Not.To.Throw()
+                );
+                // Assert
+
+                Expect(count)
+                    .To.Equal(runTo);
+                Expect(runTime.TotalMilliseconds)
+                    .To.Be.Greater.Than(
+                        600,
+                        () => "should have exhausted the first three delays"
+                    ).And.To.Be.Less.Than(
+                        1000,
+                        () => "should not have hit the final delay"
+                    );
+            }
+        }
+    }
+
+    [TestFixture]
+    [Parallelizable]
+    public class AsynchronousCode
+    {
+        [TestFixture]
+        [Parallelizable]
+        public class RetryingAnAsyncAction
         {
             [TestFixture]
             [Parallelizable]
-            public class RetryingAnAsyncAction
+            public class WhenRetriesIsZero
             {
-                [TestFixture]
-                [Parallelizable]
-                public class WhenRetriesIsZero
-                {
-                    [Test]
-                    [Parallelizable]
-                    public async Task ShouldRunTheCodeOnce()
-                    {
-                        // Arrange
-                        var calls = 0;
-                        var func = new Func<Task>(
-                            () =>
-                            {
-                                calls++;
-                                return Task.CompletedTask;
-                            }
-                        );
-                        // Act
-                        await func.RunWithRetries(0);
-                        // Assert
-                        Expect(calls)
-                            .To.Equal(1);
-                    }
-                }
-
                 [Test]
                 [Parallelizable]
-                public async Task ShouldRetryTheSpecifiedNumberOfTime()
+                public async Task ShouldRunTheCodeOnce()
                 {
                     // Arrange
-                    var count = 0;
-                    var runTo = 1000;
-                    var action = new Func<Task>(
+                    var calls = 0;
+                    var func = new Func<Task>(
                         () =>
                         {
-                            if (++count < runTo)
-                            {
-                                throw new Exception("moo");
-                            }
-
+                            calls++;
                             return Task.CompletedTask;
                         }
                     );
                     // Act
-                    await action.RunWithRetries(runTo);
+                    await func.RunWithRetries(0);
                     // Assert
-
-                    Expect(count)
-                        .To.Equal(runTo);
-                }
-
-                [Test]
-                [Parallelizable]
-                public async Task ShouldExitTheFirstTimeTheActionRunsProperly()
-                {
-                    // Arrange
-                    var count = 0;
-                    var action = new Func<Task>(
-                        () =>
-                        {
-                            count++;
-                            return Task.CompletedTask;
-                        }
-                    );
-
-                    // Act
-                    await action.RunWithRetries(5);
-                    // Assert
-                    Expect(count)
+                    Expect(calls)
                         .To.Equal(1);
-                }
-
-                [Test]
-                [Parallelizable]
-                public void ShouldBackOffByTheSingleProvidedTimeSpan()
-                {
-                    // Arrange
-                    var count = 0;
-                    var runTo = GetRandomInt(3, 5);
-                    var action = new Func<Task>(
-                        () =>
-                        {
-                            if (++count < runTo)
-                            {
-                                throw new Exception("moo");
-                            }
-
-                            return Task.CompletedTask;
-                        }
-                    );
-                    // Act
-                    var runTime = Benchmark.Time(
-                        () =>
-                            Expect(
-                                async () =>
-                                {
-                                    await action.RunWithRetries(runTo, TimeSpan.FromMilliseconds(100));
-                                }
-                            ).Not.To.Throw()
-                    );
-                    // Assert
-
-                    Expect(count)
-                        .To.Equal(runTo);
-                    Expect(runTime.TotalMilliseconds)
-                        .To.Be.Greater.Than(100 * (runTo - 1));
-                }
-
-                [Test]
-                [Parallelizable]
-                public void ShouldBackOffByTheProvidedTimeSpans()
-                {
-                    // Arrange
-                    var count = 0;
-                    var runTo = 4;
-                    var action = new Func<Task>(
-                        () =>
-                        {
-                            if (++count < runTo)
-                            {
-                                throw new Exception("moo");
-                            }
-
-                            return Task.CompletedTask;
-                        }
-                    );
-                    // Act
-                    var runTime = Benchmark.Time(
-                        () =>
-                            Expect(
-                                async () =>
-                                {
-                                    await action.RunWithRetries(
-                                        runTo,
-                                        TimeSpan.FromMilliseconds(100),
-                                        TimeSpan.FromMilliseconds(200),
-                                        TimeSpan.FromMilliseconds(300),
-                                        TimeSpan.FromMilliseconds(400)
-                                    );
-                                }
-                            ).Not.To.Throw()
-                    );
-                    // Assert
-
-                    Expect(count)
-                        .To.Equal(runTo);
-                    Expect(runTime.TotalMilliseconds)
-                        .To.Be.Greater.Than(
-                            600,
-                            () => "should have exhausted the first three delays"
-                        ).And.To.Be.Less.Than(
-                            1000,
-                            () => "should not have hit the final delay"
-                        );
                 }
             }
 
-            [TestFixture]
+            [Test]
             [Parallelizable]
-            public class RetryingAnAsyncFunc
+            public async Task ShouldRetryTheSpecifiedNumberOfTime()
             {
-                [Test]
-                [Parallelizable]
-                public void ShouldRetryTheSpecifiedNumberOfTime()
-                {
-                    // Arrange
-                    var count = 0;
-                    var runTo = 1000;
-                    var expected = GetRandomInt(1);
-                    var func = new Func<Task<int>>(
-                        () =>
+                // Arrange
+                var count = 0;
+                var runTo = 1000;
+                var action = new Func<Task>(
+                    () =>
+                    {
+                        if (++count < runTo)
                         {
-                            if (++count < runTo)
-                            {
-                                throw new Exception("moo");
-                            }
-
-                            return Task.FromResult(expected);
+                            throw new Exception("moo");
                         }
-                    );
-                    // Act
-                    var result = -1;
-                    var runTime = Benchmark.Time(
-                        () =>
-                            Expect(
-                                async () =>
-                                {
-                                    result = await func.RunWithRetries(runTo);
-                                }
-                            ).Not.To.Throw()
-                    );
-                    Console.WriteLine($"Runtime: {runTime}");
-                    // Assert
 
-                    Expect(count)
-                        .To.Equal(runTo);
-                    Expect(result)
-                        .To.Equal(expected);
-                }
+                        return Task.CompletedTask;
+                    }
+                );
+                // Act
+                await action.RunWithRetries(runTo);
+                // Assert
 
-                [Test]
-                [Parallelizable]
-                public void ShouldExitTheFirstTimeTheFuncRunsProperly()
-                {
-                    // Arrange
-                    var count = 0;
-                    var action = new Func<int>(() => count++);
+                Expect(count)
+                    .To.Equal(runTo);
+            }
 
-                    // Act
-                    action.RunWithRetries(5);
-                    // Assert
-                    Expect(count)
-                        .To.Equal(1);
-                }
+            [Test]
+            [Parallelizable]
+            public async Task ShouldExitTheFirstTimeTheActionRunsProperly()
+            {
+                // Arrange
+                var count = 0;
+                var action = new Func<Task>(
+                    () =>
+                    {
+                        count++;
+                        return Task.CompletedTask;
+                    }
+                );
 
-                [Test]
-                [Parallelizable]
-                public void ShouldBackOffByTheSingleProvidedTimeSpan()
-                {
-                    // Arrange
-                    var count = 0;
-                    var runTo = GetRandomInt(3, 5);
-                    var action = new Func<Task<int>>(
-                        () =>
+                // Act
+                await action.RunWithRetries(5);
+                // Assert
+                Expect(count)
+                    .To.Equal(1);
+            }
+
+            [Test]
+            [Parallelizable]
+            public void ShouldBackOffByTheSingleProvidedTimeSpan()
+            {
+                // Arrange
+                var count = 0;
+                var runTo = GetRandomInt(3, 5);
+                var action = new Func<Task>(
+                    () =>
+                    {
+                        if (++count < runTo)
                         {
-                            if (++count < runTo)
-                            {
-                                throw new Exception("moo");
-                            }
-
-                            return Task.FromResult(0);
+                            throw new Exception("moo");
                         }
-                    );
-                    // Act
-                    var runTime = Benchmark.Time(
-                        () =>
-                            Expect(
-                                async () =>
-                                {
-                                    await action.RunWithRetries(runTo, TimeSpan.FromMilliseconds(100));
-                                }
-                            ).Not.To.Throw()
-                    );
-                    // Assert
 
-                    Expect(count)
-                        .To.Equal(runTo);
-                    Expect(runTime.TotalMilliseconds)
-                        .To.Be.Greater.Than(100 * (runTo - 1));
-                }
+                        return Task.CompletedTask;
+                    }
+                );
+                // Act
+                var runTime = Benchmark.Time(
+                    () =>
+                        Expect(
+                            async () =>
+                            {
+                                await action.RunWithRetries(
+                                    runTo,
+                                    [
+                                        TimeSpan.FromMilliseconds(100)
+                                    ]
+                                );
+                            }
+                        ).Not.To.Throw()
+                );
+                // Assert
 
-                [Test]
-                [Parallelizable]
-                public void ShouldBackOffByTheProvidedTimeSpans()
-                {
-                    // Arrange
-                    var count = 0;
-                    var runTo = 4;
-                    var action = new Func<Task<int>>(
-                        () =>
+                Expect(count)
+                    .To.Equal(runTo);
+                Expect(runTime.TotalMilliseconds)
+                    .To.Be.Greater.Than(100 * (runTo - 1));
+            }
+
+            [Test]
+            [Parallelizable]
+            public void ShouldBackOffByTheProvidedTimeSpans()
+            {
+                // Arrange
+                var count = 0;
+                var runTo = 4;
+                var action = new Func<Task>(
+                    () =>
+                    {
+                        if (++count < runTo)
                         {
-                            if (++count < runTo)
-                            {
-                                throw new Exception("moo");
-                            }
-
-                            return Task.FromResult(0);
+                            throw new Exception("moo");
                         }
-                    );
-                    // Act
-                    var runTime = Benchmark.Time(
-                        () =>
-                            Expect(
-                                async () =>
-                                {
-                                    await action.RunWithRetries(
-                                        runTo,
+
+                        return Task.CompletedTask;
+                    }
+                );
+                // Act
+                var runTime = Benchmark.Time(
+                    () =>
+                        Expect(
+                            async () =>
+                            {
+                                await action.RunWithRetries(
+                                    runTo,
+                                    [
                                         TimeSpan.FromMilliseconds(100),
                                         TimeSpan.FromMilliseconds(200),
                                         TimeSpan.FromMilliseconds(300),
                                         TimeSpan.FromMilliseconds(400)
-                                    );
-                                }
-                            ).Not.To.Throw()
-                    );
-                    // Assert
+                                    ]
+                                );
+                            }
+                        ).Not.To.Throw()
+                );
+                // Assert
 
-                    Expect(count)
-                        .To.Equal(runTo);
-                    Expect(runTime.TotalMilliseconds)
-                        .To.Be.Greater.Than(
-                            600,
-                            () => "should have exhausted the first three delays"
-                        ).And.To.Be.Less.Than(
-                            1000,
-                            () => "should not have hit the final delay"
-                        );
-                }
+                Expect(count)
+                    .To.Equal(runTo);
+                Expect(runTime.TotalMilliseconds)
+                    .To.Be.Greater.Than(
+                        600,
+                        () => "should have exhausted the first three delays"
+                    ).And.To.Be.Less.Than(
+                        1000,
+                        () => "should not have hit the final delay"
+                    );
+            }
+        }
+
+        [TestFixture]
+        [Parallelizable]
+        public class RetryingAnAsyncFunc
+        {
+            [Test]
+            [Parallelizable]
+            public void ShouldRetryTheSpecifiedNumberOfTime()
+            {
+                // Arrange
+                var count = 0;
+                var runTo = 1000;
+                var expected = GetRandomInt(1);
+                var func = new Func<Task<int>>(
+                    () =>
+                    {
+                        if (++count < runTo)
+                        {
+                            throw new Exception("moo");
+                        }
+
+                        return Task.FromResult(expected);
+                    }
+                );
+                // Act
+                var result = -1;
+                var runTime = Benchmark.Time(
+                    () =>
+                        Expect(
+                            async () =>
+                            {
+                                result = await func.RunWithRetries(runTo);
+                            }
+                        ).Not.To.Throw()
+                );
+                Console.WriteLine($"Runtime: {runTime}");
+                // Assert
+
+                Expect(count)
+                    .To.Equal(runTo);
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            [Parallelizable]
+            public void ShouldExitTheFirstTimeTheFuncRunsProperly()
+            {
+                // Arrange
+                var count = 0;
+                var action = new Func<int>(() => count++);
+
+                // Act
+                action.RunWithRetries(5);
+                // Assert
+                Expect(count)
+                    .To.Equal(1);
+            }
+
+            [Test]
+            [Parallelizable]
+            public void ShouldBackOffByTheSingleProvidedTimeSpan()
+            {
+                // Arrange
+                var count = 0;
+                var runTo = GetRandomInt(3, 5);
+                var action = new Func<Task<int>>(
+                    () =>
+                    {
+                        if (++count < runTo)
+                        {
+                            throw new Exception("moo");
+                        }
+
+                        return Task.FromResult(0);
+                    }
+                );
+                // Act
+                var runTime = Benchmark.Time(
+                    () =>
+                        Expect(
+                            async () =>
+                            {
+                                await action.RunWithRetries(
+                                    runTo,
+                                    [
+                                        TimeSpan.FromMilliseconds(100)
+                                    ]
+                                );
+                            }
+                        ).Not.To.Throw()
+                );
+                // Assert
+
+                Expect(count)
+                    .To.Equal(runTo);
+                Expect(runTime.TotalMilliseconds)
+                    .To.Be.Greater.Than(100 * (runTo - 1));
+            }
+
+            [Test]
+            [Parallelizable]
+            public void ShouldBackOffByTheProvidedTimeSpans()
+            {
+                // Arrange
+                var count = 0;
+                var runTo = 4;
+                var action = new Func<Task<int>>(
+                    () =>
+                    {
+                        if (++count < runTo)
+                        {
+                            throw new Exception("moo");
+                        }
+
+                        return Task.FromResult(0);
+                    }
+                );
+                // Act
+                var runTime = Benchmark.Time(
+                    () =>
+                        Expect(
+                            async () =>
+                            {
+                                await action.RunWithRetries(
+                                    runTo,
+                                    [
+                                        TimeSpan.FromMilliseconds(100),
+                                        TimeSpan.FromMilliseconds(200),
+                                        TimeSpan.FromMilliseconds(300),
+                                        TimeSpan.FromMilliseconds(400)
+                                    ]
+                                );
+                            }
+                        ).Not.To.Throw()
+                );
+                // Assert
+
+                Expect(count)
+                    .To.Equal(runTo);
+                Expect(runTime.TotalMilliseconds)
+                    .To.Be.Greater.Than(
+                        600,
+                        () => "should have exhausted the first three delays"
+                    ).And.To.Be.Less.Than(
+                        1000,
+                        () => "should not have hit the final delay"
+                    );
             }
         }
     }
