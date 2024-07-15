@@ -180,6 +180,7 @@ namespace PeanutButter.Utils
             }
 
             var lastDelay = retryDelays.Last();
+            Exception lastException = null;
             var delayQueue = new Queue<TimeSpan>(retryDelays);
             do
             {
@@ -187,20 +188,16 @@ namespace PeanutButter.Utils
                 {
                     return await func.Invoke();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    if (retries == 1)
-                    {
-                        throw;
-                    }
-
+                    lastException = ex;
                     Thread.Sleep(
                         delayQueue.DequeueOrDefault(fallback: lastDelay)
                     );
                 }
             } while (--retries > 0);
 
-            throw new InvalidOperationException(
+            throw lastException ?? new InvalidOperationException(
                 "Should never get here"
             );
         }
