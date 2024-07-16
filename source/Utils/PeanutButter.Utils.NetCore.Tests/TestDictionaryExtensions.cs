@@ -238,6 +238,8 @@ public class TestDictionaryExtensions
                 var result = dict.FindOrAdd("foo", () => null, v => v is null);
                 // Assert
                 Expect(result)
+                    .To.Be.Null();
+                Expect(dict)
                     .To.Be.Empty();
             }
         }
