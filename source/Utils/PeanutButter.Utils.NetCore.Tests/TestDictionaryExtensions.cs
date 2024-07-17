@@ -10,7 +10,6 @@ using System.Collections.Specialized;
 #if NETSTANDARD
 using PeanutButter.TestUtils.AspNetCore.Builders;
 #endif
-using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests;
 

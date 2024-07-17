@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
+using NSubstitute;
 using PeanutButter.DuckTyping.Extensions;
 
 // ReSharper disable ConvertConstructorToMemberInitializers
