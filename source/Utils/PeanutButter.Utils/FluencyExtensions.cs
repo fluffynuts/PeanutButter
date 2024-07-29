@@ -51,6 +51,21 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Apply a transform to every object in a collection
+        /// </summary>
+        /// <param name="subject"></param>
+        /// <param name="mutator"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<T> WithAll<T>(
+            this IEnumerable<T> subject,
+            Action<T> mutator
+        )
+        {
+            return WithAllInternal<IEnumerable<T>, T>(subject, mutator);
+        }
+
+        /// <summary>
         /// Apply a transform to every object in an array
         /// </summary>
         /// <param name="subject"></param>
@@ -71,7 +86,7 @@ namespace PeanutButter.Utils
         private static TCollection WithAllInternal<TCollection, TItem>(
             TCollection subject,
             Action<TItem> mutator
-        ) where TCollection : IList<TItem>
+        ) where TCollection : IEnumerable<TItem>
         {
             Validate.That(subject, nameof(subject)).IsNotNull()
                 .And.That(mutator, nameof(mutator)).IsNotNull();

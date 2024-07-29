@@ -124,6 +124,31 @@ public class TestFluencyExtensions
                 );
         }
 
+        [Test]
+        public void ShouldApplyTransformToAllElementsOfTheSequenceAndReturnTheSequence3()
+        {
+            // Arrange
+            var items = new List<Container<int>>
+            {
+                new(1),
+                new(2),
+                new(3)
+            }  as IEnumerable<Container<int>>;
+
+            // Act
+            var result = items.WithAll(o => o.Value++);
+            // Assert
+            Expect(result.Select(o => o.Value))
+                .To.Equal(
+                    new[]
+                    {
+                        2,
+                        3,
+                        4
+                    }
+                );
+        }
+
         public class Container<T>
         {
             public T Value { get; set; }
