@@ -67,6 +67,26 @@ public class TestRunWithTimeout
     }
 
     [TestFixture]
+    public class WhenLogicThrows
+    {
+        [Test]
+        public void ShouldRethrow()
+        {
+            // Arrange
+            var message = GetRandomString();
+            // Act
+            Expect(
+                    async () => await Run.WithTimeoutAsync(
+                        1000,
+                        () => throw new InvalidOperationException(message)
+                    )
+                ).To.Throw<InvalidOperationException>()
+                .With.Message.Equal.To(message);
+            // Assert
+        }
+    }
+
+    [TestFixture]
     public class AsyncActionOverload
     {
         [TestFixture]

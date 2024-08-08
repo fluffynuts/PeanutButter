@@ -156,6 +156,25 @@ public
         Func<CancellationToken, Task<T>> logic
     )
     {
+        return await WithTimeoutAsync(
+            timeout,
+            logic,
+            ErrorStrategies.Throw
+        );
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="timeout"></param>
+    /// <param name="logic"></param>
+    /// <param name="errorStrategy"></param>
+    public static async Task<T> WithTimeoutAsync<T>(
+        TimeSpan timeout,
+        Func<CancellationToken, Task<T>> logic,
+        ErrorStrategies errorStrategy
+    )
+    {
         var waitCancellationTokenSource = new CancellationTokenSource();
         var waitToken = waitCancellationTokenSource.Token;
 
@@ -203,6 +222,11 @@ public
                 }
                 catch
                 {
+                    if (errorStrategy == ErrorStrategies.Throw)
+                    {
+                        throw;
+                    }
+
                     return default;
                 }
             },
