@@ -108,6 +108,24 @@ public
     }
 
     /// <summary>
+    /// Run the provided func up to the specified number of times,
+    /// or until it completes successfully
+    /// </summary>
+    /// <param name="toRun"></param>
+    /// <param name="caller"></param>
+    public async Task TimesAsync(
+        Func<Task> toRun,
+        [CallerMemberName] string caller = null
+    )
+    {
+        await TimesAsync(
+            toRun,
+            _ => Task.FromResult(ExceptionHandlingStrategies.Suppress),
+            caller
+        );
+    }
+
+    /// <summary>
     /// Run the code...
     /// </summary>
     /// <param name="toRun"></param>
