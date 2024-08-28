@@ -129,6 +129,42 @@ public
     }
 
     /// <summary>
+    /// Add a mutation on the response for the context
+    /// </summary>
+    /// <param name="mutator"></param>
+    /// <returns></returns>
+    public RequestDelegateTestArenaBuilder WithResponseMutator(
+        Action<HttpResponse> mutator
+    )
+    {
+        if (mutator is not null)
+        {
+            _contextMutators.Add(
+                builder => builder.WithResponseMutator(
+                    mutator
+                )
+            );
+        }
+
+        return this;
+    }
+
+    /// <summary>
+    /// Set the entire response for the context
+    /// </summary>
+    /// <param name="response"></param>
+    /// <returns></returns>
+    public RequestDelegateTestArenaBuilder WithResponse(
+        HttpResponse response
+    )
+    {
+        _contextMutators.Add(
+            builder => builder.WithResponse(response)
+        );
+        return this;
+    }
+
+    /// <summary>
     /// Set the entire request for the context
     /// </summary>
     /// <param name="request"></param>

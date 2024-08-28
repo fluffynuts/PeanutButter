@@ -192,6 +192,38 @@ public class TestRequestDelegateTestArena
         }
 
         [Test]
+        public void ShouldHaveEasyAccessToMutateTheResponse()
+        {
+            // Arrange
+            var expected = GetRandomMimeType();
+            var (ctx, _) = RequestDelegateTestArenaBuilder.Create()
+                .WithResponseMutator(res => res.ContentType = expected)
+                .Build();
+            
+            // Act
+            var result = ctx.Response.ContentType;
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
+
+        [Test]
+        public void ShouldHaveEasyAccessToReplaceTheResponse()
+        {
+            // Arrange
+            var expected = HttpResponseBuilder.BuildRandom();
+            var (ctx, _) = RequestDelegateTestArenaBuilder.Create()
+                .WithResponse(expected)
+                .Build();
+            
+            // Act
+            var result = ctx.Response;
+            // Assert
+            Expect(result)
+                .To.Be(expected);
+        }
+
+        [Test]
         [Parallelizable]
         public void ShouldBeAbleToOutrightSetTheContext()
         {
