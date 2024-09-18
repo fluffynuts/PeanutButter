@@ -1816,7 +1816,7 @@ public
         this string json
     )
     {
-        var serializerToUse = DetermineSerializerFor<T>();
+        var serializerToUse = DetermineSerializerForType(typeof(T));
         switch (serializerToUse)
         {
             case JsonSerializers.Newtonsoft:
@@ -1862,7 +1862,7 @@ public
         this T item
     )
     {
-        var serializerToUse = DetermineSerializerFor<T>();
+        var serializerToUse = DetermineSerializerFor(item);
         switch (serializerToUse)
         {
             case JsonSerializers.Newtonsoft:
@@ -1897,9 +1897,19 @@ public
         System
     }
 
-    private static JsonSerializers DetermineSerializerFor<T>()
+    private static JsonSerializers DetermineSerializerFor(object item)
     {
-        var type = typeof(T);
+        var type = item?.GetType();
+        return DetermineSerializerForType(type);
+    }
+
+    private static JsonSerializers DetermineSerializerForType(Type type)
+    {
+        if (type is null)
+        {
+            return JsonSerializers.Newtonsoft;
+        }
+
         return SerializerCache.FindOrAdd(
             type,
             () =>
