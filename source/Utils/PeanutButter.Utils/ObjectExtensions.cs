@@ -22,7 +22,7 @@ namespace PeanutButter.Utils;
 /// Determines the comparison strategy for DeepEquals and friends
 /// </summary>
 #if BUILD_PEANUTBUTTER_INTERNAL
-    internal
+internal
 #else
 public
 #endif
@@ -43,7 +43,7 @@ public
 /// Provides a set of convenience extensions on everything
 /// </summary>
 #if BUILD_PEANUTBUTTER_INTERNAL
-    internal
+internal
 #else
 public
 #endif
@@ -516,10 +516,9 @@ public
         var method = GenericMakeListCopy.MakeGenericMethod(itemType);
         var newValue = method.Invoke(
             null,
-            new[]
-            {
+            [
                 srcVal
-            }
+            ]
         );
         dstPropertyInfo.SetValue(dst, newValue);
         return true;
@@ -1802,4 +1801,239 @@ public
         ).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     }
 
+
+    /// <summary>
+    /// Deserializes a json string to the type T,
+    /// by first figuring out if T's properties are
+    /// decorated for System.Text.Json or Newtonsoft.Json
+    /// and then choosing the serializer accordingly
+    /// </summary>
+    /// <param name="json"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public static T DeserializeFromJson<T>(
+        this string json
+    )
+    {
+        var serializerToUse = DetermineSerializerFor<T>();
+        switch (serializerToUse)
+        {
+            case JsonSerializers.Newtonsoft:
+                return DeserializeWithNewtonSoft<T>(json);
+            case JsonSerializers.System:
+                return DeserializeWithSystemTextJson<T>(json);
+            default:
+                throw new NotImplementedException($"{serializerToUse} is not supported");
+        }
+    }
+
+    private static T DeserializeWithSystemTextJson<T>(string json)
+    {
+        var method = GenericSystemDeserializer.MakeGenericMethod(typeof(T));
+        return (T)method.Invoke(null, [json, null]);
+    }
+
+    private static T DeserializeWithNewtonSoft<T>(
+        string json
+    )
+    {
+        var type = typeof(T);
+        var method = NewtonsoftSerializeMethodCache.FindOrAdd(
+            type,
+            () => GenericNewtonsoftDeserializer.MakeGenericMethod(type)
+        );
+        return (T)method.Invoke(null, [json]);
+    }
+
+    private static readonly ConcurrentDictionary<Type, MethodInfo> NewtonsoftSerializeMethodCache = new();
+
+    /// <summary>
+    /// Serializes an object of type T to json,
+    /// by first figuring out if T's properties are
+    /// decorated for System.Text.Json or Newtonsoft.Json
+    /// and then choosing the serializer accordingly
+    /// </summary>
+    /// <param name="item"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public static string SerializeToJson<T>(
+        this T item
+    )
+    {
+        var serializerToUse = DetermineSerializerFor<T>();
+        switch (serializerToUse)
+        {
+            case JsonSerializers.Newtonsoft:
+                return SerializeWithNewtonsoft(item);
+            case JsonSerializers.System:
+                return SerializeWithSystem(item);
+            default:
+                throw new NotImplementedException($"{serializerToUse} is not supported");
+        }
+    }
+
+    private static string SerializeWithSystem<T>(T item)
+    {
+        var type = typeof(T);
+        var method = SystemSerializeMethodCache.FindOrAdd(
+            type,
+            () => GenericSystemSerializer.MakeGenericMethod(type)
+        );
+        return (string)method.Invoke(null, [item, null]);
+    }
+
+    private static readonly ConcurrentDictionary<Type, MethodInfo> SystemSerializeMethodCache = new();
+
+    private static string SerializeWithNewtonsoft<T>(T item)
+    {
+        return (string)NewtonsoftSerializerMethod.Invoke(null, [item]);
+    }
+
+    private enum JsonSerializers
+    {
+        Newtonsoft,
+        System
+    }
+
+    private static JsonSerializers DetermineSerializerFor<T>()
+    {
+        var type = typeof(T);
+        return SerializerCache.FindOrAdd(
+            type,
+            () =>
+            {
+                var attributes = type.GetProperties()
+                    .SelectMany(pi => pi.GetCustomAttributes())
+                    .Select(a => a.GetType())
+                    .Distinct()
+                    .ToArray();
+
+                var newtonsoftSupported =
+                    HaveNewtonsoftSerializer &&
+                    attributes.Any(t => (t.Namespace ?? "").StartsWith(NEWTONSOFT_NAMESPACE));
+                if (newtonsoftSupported)
+                {
+                    return JsonSerializers.Newtonsoft;
+                }
+
+                var systemTextSupported =
+                    HaveSystemSerializer &&
+                    attributes.Any(t => (t.Namespace ?? "").StartsWith(SYSTEM_TEXT_JSON_NAMESPACE));
+                if (systemTextSupported)
+                {
+                    return JsonSerializers.System;
+                }
+
+                if (HaveNewtonsoftSerializer)
+                {
+                    return JsonSerializers.Newtonsoft;
+                }
+
+                if (HaveSystemSerializer)
+                {
+                    return JsonSerializers.System;
+                }
+
+                throw new InvalidOperationException(
+                    """
+                    Neither System.Text.Json nor Newtonsoft.Json were found amongst
+                    loaded assemblies
+                    """
+                );
+            }
+        );
+    }
+
+    private static Type TryFindType(string namespacedName)
+    {
+        return AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(asm => asm.GetExportedTypes())
+            .FirstOrDefault(t => t.FullName == namespacedName);
+    }
+
+    private const string NEWTONSOFT_NAMESPACE = "Newtonsoft.Json";
+    private const string SYSTEM_TEXT_JSON_NAMESPACE = "System.Text.Json";
+
+    private static Type SystemTextJsonSerializer =>
+        _systemTextJsonSerializer ??= TryFindType(
+            $"{SYSTEM_TEXT_JSON_NAMESPACE}.JsonSerializer"
+        );
+
+    private static Type _systemTextJsonSerializer;
+
+    private static bool HaveSystemSerializer => SystemTextJsonSerializer is not null;
+
+    private static MethodInfo GenericSystemSerializer =>
+        _genericSystemSerializer ??= SystemTextJsonSerializer
+            ?.GetMethods()
+            .FirstOrDefault(
+                mi =>
+                    mi.IsGenericMethod &&
+                    mi.Name == "Serialize" &&
+                    mi.GetParameters().Length == 2
+            );
+
+    private static MethodInfo _genericSystemSerializer;
+
+    private static MethodInfo GenericSystemDeserializer =>
+        _genericSystemDeserializer ??= SystemTextJsonSerializer
+            ?.GetMethods()
+            .FirstOrDefault(
+                mi => mi.IsGenericMethod &&
+                    mi.Name == "Deserialize" &&
+                    mi.GetGenericArguments().Length == 1 &&
+                    HasRequiredAttributesForGenericSystemDeserializer(mi)
+            );
+
+    private static MethodInfo _genericSystemDeserializer;
+
+    private static bool HasRequiredAttributesForGenericSystemDeserializer(
+        MethodInfo mi
+    )
+    {
+        var parameters = mi.GetParameters();
+        if (parameters.Length < 2)
+        {
+            return false;
+        }
+
+        return parameters[0].ParameterType == typeof(string);
+    }
+
+    private static Type NewtonsoftJsonSerializer =>
+        _newtonsoftJsonSerializer ??= TryFindType(
+            $"{NEWTONSOFT_NAMESPACE}.JsonConvert"
+        );
+
+    private static Type _newtonsoftJsonSerializer;
+
+    private static bool HaveNewtonsoftSerializer => NewtonsoftJsonSerializer is not null;
+
+    private static MethodInfo NewtonsoftSerializerMethod =>
+        _newtonsoftSerializerMethod ??= NewtonsoftJsonSerializer
+            ?.GetMethods()
+            .FirstOrDefault(
+                mi =>
+                    !mi.IsGenericMethod &&
+                    mi.Name == "SerializeObject" &&
+                    mi.GetParameters().Length == 1
+            );
+
+    private static MethodInfo _newtonsoftSerializerMethod;
+
+    private static MethodInfo GenericNewtonsoftDeserializer =>
+        _genericNewtonsoftDeserializer ??= NewtonsoftJsonSerializer
+            ?.GetMethods()
+            .FirstOrDefault(
+                mi => mi.IsGenericMethod &&
+                    mi.Name == "DeserializeObject" &&
+                    mi.GetGenericArguments().Length == 1 &&
+                    mi.GetParameters().Length == 1
+            );
+
+    private static MethodInfo _genericNewtonsoftDeserializer;
+
+    private static readonly ConcurrentDictionary<Type, JsonSerializers> SerializerCache = new();
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using PeanutButter.Utils;
 
 namespace PeanutButter.RandomGenerators;
@@ -54,7 +55,6 @@ public static class ObjectExtensions
 
     private static readonly ConcurrentDictionary<Type, bool> GetRandomizableTypeCache = new();
 
-
     private static T RandomizeProperties<T>(T data) where T : class
     {
         var props = data.GetType().GetProperties();
@@ -87,4 +87,5 @@ public static class ObjectExtensions
 
         return data;
     }
+
 }

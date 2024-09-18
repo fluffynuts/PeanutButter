@@ -1,11 +1,14 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using System.Xml.Serialization;
-using NSubstitute;
+using Newtonsoft.Json;
 using PeanutButter.DuckTyping.Extensions;
+
+using NewtonsoftJsonSerializer = Newtonsoft.Json.JsonConvert;
+using SystemJsonSerializer = System.Text.Json.JsonSerializer;
 
 // ReSharper disable ConvertConstructorToMemberInitializers
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
-
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable MemberCanBePrivate.Global
@@ -3853,5 +3856,198 @@ public class TestObjectExtensions
                 .To.Contain.Key("c")
                 .With.Value("d");
         }
+    }
+    
+    [TestFixture]
+    public class DeserializeFromJson
+    {
+        [TestFixture]
+        public class WhenTargetIsUndecorated
+        {
+            [Test]
+            public void ShouldUseNewtonsoft()
+            {
+                // Arrange
+                var expected = GetRandom<UndecoratedDataObject>();
+                var json = NewtonsoftJsonSerializer.SerializeObject(expected);
+                Expect(json)
+                    .To.Contain("FirstName");
+                // Act
+                var result = json.DeserializeFromJson<UndecoratedDataObject>();
+                // Assert
+                Expect(result)
+                    .To.Deep.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class WhenTargetHasSystemTextDecorations
+        {
+            [Test]
+            public void ShouldUseSystemTextJson()
+            {
+                // Arrange
+                var expected = GetRandom<SystemDataObject>();
+                var json = SystemJsonSerializer.Serialize(expected);
+                Expect(json)
+                    .To.Contain("first_name");
+                // Act
+                var result = json.DeserializeFromJson<SystemDataObject>();
+                // Assert
+                Expect(result)
+                    .To.Deep.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class WhenTargetHasNewtonsoftDecorations
+        {
+            [Test]
+            public void ShouldUseNewtonsoft()
+            {
+                // Arrange
+                var expected = GetRandom<NewtonsoftDataObject>();
+                var json = NewtonsoftJsonSerializer.SerializeObject(expected);
+                Expect(json)
+                    .To.Contain("__first__name__");
+                // Act
+                var result = json.DeserializeFromJson<NewtonsoftDataObject>();
+                // Assert
+                Expect(result)
+                    .To.Deep.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class WhenTargetHasBoth
+        {
+            [Test]
+            public void ShouldUseNewtonsoftJson()
+            {
+                // Arrange
+                var expected = GetRandom<DoubleDecoratedDataObject>();
+                var json = NewtonsoftJsonSerializer.SerializeObject(expected);
+                Expect(json)
+                    .To.Contain("_newton_first_name");
+                // Act
+                var result = json.DeserializeFromJson<DoubleDecoratedDataObject>();
+                // Assert
+                Expect(result)
+                    .To.Deep.Equal(expected);
+            }
+        }
+    }
+
+    [TestFixture]
+    public class SerializeToJson
+    {
+        [TestFixture]
+        public class WhenObjectIsNotDecorated
+        {
+            [Test]
+            public void ShouldPreferNewtonsoft()
+            {
+                // Select from reliability over performance:
+                // 1. if the system has newtonsoft installed, it's probably used
+                // 2. newtonsoft provides the widest compatibility and can serialize
+                //    things like exceptions, which trip up System.Text.Json
+                // Arrange
+                var expected = GetRandom<UndecoratedDataObject>();
+                // Act
+                var json = expected.SerializeToJson();
+                // Assert
+                Expect(json)
+                    .To.Contain("FirstName");
+                var result = json.DeserializeFromJson<UndecoratedDataObject>();
+                Expect(result)
+                    .To.Deep.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class WhenObjectIsDecoratedWithNewtonsoftAttributes
+        {
+            [Test]
+            public void ShouldUseNewtonsoft()
+            {
+                // Arrange
+                var expected = GetRandom<NewtonsoftDataObject>();
+                // Act
+                var json = expected.SerializeToJson();
+                // Assert
+                Expect(json)
+                    .To.Contain("__first__name__");
+                var result = json.DeserializeFromJson<NewtonsoftDataObject>();
+                Expect(result)
+                    .To.Deep.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class WhenObjectIsDecoratedWithSystemTextJsonAttributes
+        {
+            [Test]
+            public void ShouldUseSystem()
+            {
+                // Arrange
+                var expected = GetRandom<SystemDataObject>();
+                // Act
+                var json = expected.SerializeToJson();
+                // Assert
+                Expect(json)
+                    .To.Contain("first_name");
+                var result = json.DeserializeFromJson<SystemDataObject>();
+                Expect(result)
+                    .To.Deep.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class WhenDoubleDecorated
+        {
+            [Test]
+            public void ShouldPreferNewtonsoft()
+            {
+                // Arrange
+                var expected = GetRandom<DoubleDecoratedDataObject>();
+                // Act
+                var json = expected.SerializeToJson();
+                // Assert
+                Expect(json)
+                    .To.Contain("_newton_first_name");
+                var result = json.DeserializeFromJson<DoubleDecoratedDataObject>();
+                Expect(result)
+                    .To.Deep.Equal(expected);
+            }
+        }
+    }
+
+    public class DoubleDecoratedDataObject
+    {
+        public int Id { get; set; }
+        [JsonProperty("_newton_first_name")]
+        [JsonPropertyName("_system_first_name")]
+        public string FirstName { get; set; }
+    }
+
+    public class UndecoratedDataObject
+    {
+        public int Id { get; set; }
+        public string FirstName { get; set; }
+    }
+
+    public class NewtonsoftDataObject
+    {
+        public int Id { get; set; }
+
+        [JsonProperty("__first__name__")]
+        public string FirstName { get; set; }
+    }
+
+    public class SystemDataObject
+    {
+        public int Id { get; set; }
+        [JsonPropertyName("first_name")]
+        public string FirstName { get; set; }
     }
 }
