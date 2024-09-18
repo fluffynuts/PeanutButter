@@ -256,7 +256,7 @@ namespace PeanutButter.SimpleHTTPServer
             }
         }
 
-        private readonly Func<object, string> _jsonSerializer = JsonConvert.SerializeObject;
+        private readonly Func<object, string> _jsonSerializer = o => o.SerializeToJson();
 
         /// <inheritdoc />
         public HttpServer(int port, bool autoStart, Action<string> logAction)
