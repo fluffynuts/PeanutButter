@@ -3,8 +3,11 @@ using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using PeanutButter.DuckTyping.Extensions;
+using PeanutButter.EasyArgs;
+using PeanutButter.EasyArgs.Attributes;
 using NewtonsoftJsonSerializer = Newtonsoft.Json.JsonConvert;
 using SystemJsonSerializer = System.Text.Json.JsonSerializer;
+using Description = PeanutButter.EasyArgs.Attributes.DescriptionAttribute;
 
 // ReSharper disable ConvertConstructorToMemberInitializers
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
@@ -2571,6 +2574,136 @@ public class TestObjectExtensions
                 .Not.To.Be.Null();
             Expect(result.NormalProp)
                 .To.Equal(src.NormalProp);
+        }
+
+        [Test]
+        public void ShouldCloneParsedArguments()
+        {
+            // Arrange
+            var args = new string[0];
+            var options = args.ParseTo<IOptions>();
+            // Act
+            var result = options.DeepClone();
+            // Assert
+            Expect(result)
+                .To.Deep.Equal(options);
+        }
+
+        // anonymised from an original source
+        // exhibiting the problem
+        public interface IOptions
+        {
+            [Default("https://moo.dev.local/v1/api")]
+            [Description("The fully-qualified url to api")]
+            public string ApiUrl { get; set; }
+
+            [Default("123123123")]
+            [Description("The string property #1")]
+            public string StringProp1 { get; set; }
+
+            [Default("Test McTestFace")]
+            [Description("Full name to use")]
+            public string StringProp2 { get; set; }
+
+            [Default("123123123123")]
+            [Description("The third string property")]
+            public string StringProp3 { get; set; }
+
+            [Default("00000")]
+            [Description("The fourth string property")]
+            public string StringProp4 { get; set; }
+
+            [Default("test@null.com")]
+            [Description("The email address to use")]
+            public string TheEmail { get; set; }
+
+            [Default(5)]
+            [Description("First int prop")]
+            [Min(0)]
+            int IntProp1 { get; set; }
+
+            [Default(0)]
+            [Description("The second int prop")]
+            [Min(0)]
+            int IntProp2 { get; set; }
+
+            [Default(10)]
+            [Description("The third int prop")]
+            [Min(0)]
+            int IntProp3 { get; set; }
+
+            [Default(30.685987)]
+            [Description("Longitude to pretend to be at")]
+            [Min(-180)]
+            [Max(180)]
+            decimal Longitude { get; set; }
+
+            [Default(-28.692034)]
+            [Description("Latitude to pretend to be at")]
+            [Min(-90)]
+            [Max(90)]
+            decimal Latitude { get; set; }
+
+            [Default(10000)]
+            [Description("Int property, number the fourth")]
+            [Min(5000)]
+            int IntProp4 { get; set; }
+
+            [Default(AnotherEnum.Value1)]
+            [Description("Some enum value")]
+            AnotherEnum AnotherEnumValue { get; set; }
+
+            [Default(1)]
+            [Description("Int prop #5")]
+            [Min(1)]
+            int IntProp5 { get; set; }
+
+            [Default(3)]
+            [Description("Int prop #6")]
+            int IntProp6 { get; set; }
+
+            [Default(
+                "SCARY WARNING WORDS"
+            )]
+            [Description("These instructions will be carved on the door")]
+            string StringProp5 { get; set; }
+
+            [Default(SomeEnum.Value1)]
+            [Description("Bacon ipsem")]
+            SomeEnum SomeEnumValue { get; set; }
+
+            [Description(
+                "Max degree of parallelism"
+            )]
+            [Default(0)]
+            [Min(0)]
+            int LeCount { get; set; }
+
+            [Description("some flag")]
+            bool Flag1 { get; set; }
+
+            [Description("some strings")]
+            string[] Strings { get; set; }
+
+            [Description("Ignore ssl errors")]
+            bool IgnoreSslErrors { get; set; }
+        }
+
+        public enum AnotherEnum
+        {
+            Unknown = 0,
+            Value1 = 1,
+            Value2 = 2
+        }
+
+        public enum SomeEnum
+        {
+            Unknown = 0,
+            Value1 = 1,
+            Value2 = 2,
+            Value3 = 3,
+            Value4 = 4,
+            Value5 = 5
         }
     }
 

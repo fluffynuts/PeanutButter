@@ -360,7 +360,10 @@ public
                 (acc, cur) =>
                 {
                     if (acc > 1)
+                    {
                         return acc;
+                    }
+
                     acc += comparer(cur, item)
                         ? 1
                         : 0;
@@ -417,7 +420,8 @@ public
         }
 
         var srcPropInfos = props
-            .Where(pi => !ignoreProperties.Contains(pi.Name));
+            .Where(pi => !ignoreProperties.Contains(pi.Name))
+            .ToArray();
         var dstPropInfos = dst.GetType().GetProperties()
             .Where(p => p.CanWrite)
             .ToArray();
@@ -474,7 +478,10 @@ public
     )
     {
         if (!srcPropertyInfo.PropertyType.IsEnum())
+        {
             return false;
+        }
+
         dstPropertyInfo.SetValue(dst, srcValue);
 
         return true;
@@ -509,10 +516,16 @@ public
     )
     {
         if (!srcPropertyInfo.PropertyType.IsGenericOf(typeof(List<>)))
+        {
             return false;
+        }
+
         var itemType = srcPropertyInfo.PropertyType.GetCollectionItemType();
         if (itemType == null)
+        {
             return false;
+        }
+
         var method = GenericMakeListCopy.MakeGenericMethod(itemType);
         var newValue = method.Invoke(
             null,
@@ -534,10 +547,16 @@ public
     )
     {
         if (!srcPropertyInfo.PropertyType.IsArrayOrAssignableFromArray())
+        {
             return false;
+        }
+
         var underlyingType = srcPropertyInfo.PropertyType.GetCollectionItemType();
         if (underlyingType == null)
+        {
             return false;
+        }
+
         var specific = GenericMakeArrayCopy.MakeGenericMethod(underlyingType);
         // ReSharper disable once RedundantExplicitArrayCreation
         var newValue = specific.Invoke(
@@ -561,7 +580,10 @@ public
     )
     {
         if (deep && !IsSimpleTypeOrNullableOfSimpleType(srcPropertyInfo.PropertyType))
+        {
             return false;
+        }
+
         dstPropertyInfo.SetValue(dst, srcVal);
         return true;
     }
@@ -599,7 +621,10 @@ public
         try
         {
             if (src == null)
+            {
                 return null;
+            }
+
             // ReSharper disable once PossibleMultipleEnumeration
             var result = new List<T>();
             // ReSharper disable once PossibleMultipleEnumeration
@@ -619,7 +644,10 @@ public
     {
         var instance = Activator.CreateInstance(targetType) as IDictionary<TKey, TValue>;
         if (instance == null)
+        {
             throw new InvalidOperationException($"Activator couldn't create instance of {targetType}");
+        }
+
         src?.ForEach(kvp => instance.Add(new KeyValuePair<TKey, TValue>(kvp.Key, kvp.Value)));
         return instance;
     }
@@ -650,7 +678,10 @@ public
     )
     {
         if (src == null)
+        {
             return null;
+        }
+
         try
         {
             if (Types.PrimitivesAndImmutables.Contains(cloneType))
@@ -712,7 +743,10 @@ public
     private static object CloneEnumerable(object src, Type cloneType)
     {
         if (!cloneType.ImplementsEnumerableGenericType())
+        {
             return null;
+        }
+
         var itemType = cloneType.GetCollectionItemType();
         var method = FindGenericMethodFor(
             itemType,
@@ -731,7 +765,10 @@ public
     private static object CloneList(object src, Type cloneType)
     {
         if (!cloneType.IsGenericOf(typeof(List<>)) && !cloneType.IsGenericOf(typeof(IList<>)))
+        {
             return null;
+        }
+
         var itemType = cloneType.GetCollectionItemType();
         var method = FindGenericMethodFor(
             itemType,
@@ -750,7 +787,10 @@ public
     private static object CloneArray(object src, Type cloneType)
     {
         if (!cloneType.IsArray)
+        {
             return null;
+        }
+
         var itemType = cloneType.GetCollectionItemType();
         var method = FindGenericMethodFor(
             itemType,
@@ -789,7 +829,9 @@ public
     {
         try
         {
-            var newInstance = Activator.CreateInstance(cloneType);
+            var newInstance = LooksLikeAPeanutButterDuckType(cloneType)
+                ? Activator.CreateInstance(cloneType, new Dictionary<string, object>())
+                : Activator.CreateInstance(cloneType);
             src.CopyPropertiesTo(newInstance);
             return newInstance;
         }
@@ -798,6 +840,12 @@ public
             Debug.WriteLine($"Unable to clone object of type {cloneType.Name}: {e.Message}");
             return cloneType.DefaultValue();
         }
+    }
+
+    private static bool LooksLikeAPeanutButterDuckType(Type type)
+    {
+        return type.Name.IndexOf("_Duck_", StringComparison.OrdinalIgnoreCase) >= 0 &&
+            type.Assembly.FullName.IndexOf("PeanutButter.DuckTyping", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)

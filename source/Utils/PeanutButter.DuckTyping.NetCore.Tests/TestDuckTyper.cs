@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 using NExpect;
 using PeanutButter.DuckTyping.Extensions;
@@ -125,6 +127,29 @@ namespace PeanutButter.DuckTyping.NetCore.Tests
                 .To.Be.True();
             Expect(result)
                 .To.Equal(s);
+        }
+
+        [Test]
+        public void ShouldBeAbleToSetPropertyValueViaReflection()
+        {
+            // Arrange
+            var data = new Dictionary<string, string>()
+            {
+                ["Url"] = "https://kernel.org"
+            };
+            var expected = GetRandomHttpsUrl();
+            var opts = data.DuckAs<IOptions>();
+            // Act
+            var prop = opts.GetType().GetProperty(nameof(IOptions.Url));
+            prop.SetValue(opts, expected);
+            // Assert
+            Expect(opts.Url)
+                .To.Equal(expected);
+        }
+
+        public interface IOptions
+        {
+            string Url { get; set; }
         }
 
         [TestFixture]

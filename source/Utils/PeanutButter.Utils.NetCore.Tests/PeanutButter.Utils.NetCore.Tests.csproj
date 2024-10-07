@@ -30,6 +30,7 @@
     <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
     <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.AspNetCore\PeanutButter.TestUtils.AspNetCore.csproj" />
     <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj" />
+    <ProjectReference Include="..\PeanutButter.EasyArgs\PeanutButter.EasyArgs.csproj" />
     <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj" />
   </ItemGroup>
 
