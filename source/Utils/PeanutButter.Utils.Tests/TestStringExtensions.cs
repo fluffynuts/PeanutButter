@@ -8,10 +8,10 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+// ReSharper disable UnusedMember.Global
 
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable StringLiteralTypo
-
 // ReSharper disable ExpressionIsAlwaysNull
 
 namespace PeanutButter.Utils.Tests;
@@ -181,10 +181,9 @@ public class TestStringExtensions
             // Assert
             Expect(result)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         input
-                    }
+                    ]
                 );
         }
 
@@ -198,11 +197,10 @@ public class TestStringExtensions
             // Assert
             Expect(result)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         "foo",
                         "bar"
-                    }
+                    ]
                 );
         }
 
@@ -216,11 +214,10 @@ public class TestStringExtensions
             // Assert
             Expect(result)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         "foo",
                         "bar"
-                    }
+                    ]
                 );
         }
 
@@ -234,11 +231,10 @@ public class TestStringExtensions
             // Assert
             Expect(result)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         "foo",
                         "bar"
-                    }
+                    ]
                 );
         }
 
@@ -281,12 +277,11 @@ public class TestStringExtensions
 
                 // Act
                 var result = input.ReplaceAll(
-                    new[]
-                    {
+                    [
                         '.',
                         '-',
                         '_'
-                    },
+                    ],
                     ' '
                 );
                 // Assert
@@ -309,12 +304,11 @@ public class TestStringExtensions
 
                 // Act
                 var result = input.ReplaceAll(
-                    new[]
-                    {
+                    [
                         ".",
                         "-",
                         "_"
-                    },
+                    ],
                     " "
                 );
                 // Assert
@@ -1736,12 +1730,11 @@ public class TestStringExtensions
             {
                 // Arrange
                 var input = GetRandomFrom(
-                    new[]
-                    {
+                    [
                         " ",
                         "\t",
                         "\r"
-                    }
+                    ]
                 );
                 // Pre-assert
                 // Act
@@ -1830,12 +1823,11 @@ public class TestStringExtensions
             {
                 // Arrange
                 var input = GetRandomFrom(
-                    new[]
-                    {
+                    [
                         " ",
                         "\r",
                         "\t"
-                    }
+                    ]
                 );
                 // Pre-assert
                 // Act
@@ -1926,12 +1918,11 @@ public class TestStringExtensions
             {
                 // Arrange
                 var input = GetRandomFrom(
-                    new[]
-                    {
+                    [
                         " ",
                         "\r",
                         "\t"
-                    }
+                    ]
                 );
                 // Pre-assert
                 // Act
@@ -2068,10 +2059,9 @@ public class TestStringExtensions
             // Assert
             Expect(result)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         program
-                    }
+                    ]
                 );
         }
 
@@ -2087,10 +2077,9 @@ public class TestStringExtensions
             // Assert
             Expect(result)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         program
-                    }
+                    ]
                 );
         }
 
@@ -2106,10 +2095,9 @@ public class TestStringExtensions
             // Assert
             Expect(result)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         program
-                    }
+                    ]
                 );
         }
 
@@ -2125,12 +2113,11 @@ public class TestStringExtensions
             // Assert
             Expect(result)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         program,
                         "arg1",
                         "arg2"
-                    }
+                    ]
                 );
         }
 
@@ -2146,11 +2133,10 @@ public class TestStringExtensions
             // Assert
             Expect(result)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         program,
                         "arg1 arg2"
-                    }
+                    ]
                 );
         }
     }
@@ -2737,10 +2723,9 @@ function foo() {
                 // Assert
                 Expect(result)
                     .To.Equal(
-                        new[]
-                        {
+                        [
                             ""
-                        }
+                        ]
                     );
             }
         }
@@ -2760,10 +2745,9 @@ function foo() {
                 // Assert
                 Expect(result)
                     .To.Equal(
-                        new[]
-                        {
+                        [
                             str
-                        }
+                        ]
                     );
             }
         }
@@ -3364,24 +3348,118 @@ function foo() {
                     .To.Be.True();
             }
         }
+    }
 
+    [TestFixture]
+    public class GZip
+    {
+        [Test]
+        public void ShouldGzipTheText()
+        {
+            // Arrange
+            // Arrange
+            var data = GetRandomWords();
+            using var source = new MemoryStream(data.AsBytes());
+            using var target = new MemoryStream();
+            using var gzip = new GZipStream(target, CompressionLevel.Optimal, leaveOpen: true);
+            source.CopyTo(gzip);
+            gzip.Close();
+            var expected = target.ToArray();
+            // Act
+            var result = data.GZip();
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
+    }
+
+    [TestFixture]
+    public class IsGZipped
+    {
+        [Test]
+        public void ShouldRecogniseGzippedData()
+        {
+            // Arrange
+            var originalText = GetRandomWords();
+            var zippedText = originalText.GZip();
+            var originalBytes = GetRandomBytes();
+            var zippedBytes = originalBytes.GZip();
+            // Act
+            var result1 = zippedText.IsGZipped();
+            var result2 = originalBytes.IsGZipped();
+            var result3 = zippedBytes.IsGZipped();
+            // Assert
+
+            Expect(result1)
+                .To.Be.True();
+            Expect(result2)
+                .To.Be.False();
+            Expect(result3)
+                .To.Be.True();
+        }
+
+        [Test]
+        public void ShouldReturnFalseForNull()
+        {
+            // Arrange
+            // Act
+            var result = (null as byte[]).IsGZipped();
+            // Assert
+            Expect(result)
+                .To.Be.False();
+        }
+    }
+
+    [TestFixture]
+    public class AppendPath
+    {
         [TestFixture]
-        public class GZip
+        public class DefaultBehavior
         {
             [Test]
-            public void ShouldGzipTheText()
+            public void ShouldAppendPathPartsWithPlatformDelimiter()
             {
                 // Arrange
-                // Arrange
-                var data = GetRandomWords();
-                using var source = new MemoryStream(data.AsBytes());
-                using var target = new MemoryStream();
-                using var gzip = new GZipStream(target, CompressionLevel.Optimal, leaveOpen: true);
-                source.CopyTo(gzip);
-                gzip.Close();
-                var expected = target.ToArray();
+                var start = GetRandomPath();
+                var parts = GetRandomArray<string>(2, 4);
+                var allParts = start.InArray().And(parts);
+                var expected = allParts.JoinWith(Path.DirectorySeparatorChar);
+
                 // Act
-                var result = data.GZip();
+                var result = start.AppendPath(parts);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldRetainLeadingDelimiter()
+            {
+                // Arrange
+                var start = GetRandomAbsolutePath();
+                var parts = GetRandomArray<string>(2, 4);
+                var allParts = start.InArray().And(parts);
+                var expected = allParts.JoinWith(Path.DirectorySeparatorChar);
+
+                // Act
+                var result = start.AppendPath(parts);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldRetainTrailingDelimiter()
+            {
+                // Arrange
+                var start = GetRandomAbsolutePath();
+                var parts = GetRandomArray<string>(2, 4);
+                parts[parts.Length - 1] += "/";
+                var allParts = start.InArray().And(parts);
+                var expected = allParts.JoinWith(Path.DirectorySeparatorChar);
+
+                // Act
+                var result = start.AppendPath(parts);
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
@@ -3389,39 +3467,118 @@ function foo() {
         }
 
         [TestFixture]
-        public class IsGZipped
+        public class WebPathBehavior
         {
             [Test]
-            public void ShouldRecogniseGzippedData()
+            public void ShouldAppendPathPartsWithForwardSlash()
             {
                 // Arrange
-                var originalText = GetRandomWords();
-                var zippedText = originalText.GZip();
-                var originalBytes = GetRandomBytes();
-                var zippedBytes = originalBytes.GZip();
-                // Act
-                var result1 = zippedText.IsGZipped();
-                var result2 = originalBytes.IsGZipped();
-                var result3 = zippedBytes.IsGZipped();
-                // Assert
+                var start = GetRandomPath();
+                var parts = GetRandomArray<string>(2, 4);
+                var allParts = start.InArray().And(parts);
+                var expected = allParts.JoinWith('/');
 
-                Expect(result1)
-                    .To.Be.True();
-                Expect(result2)
-                    .To.Be.False();
-                Expect(result3)
-                    .To.Be.True();
+                // Act
+                var result = start.AppendWebPath(parts);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
             }
 
             [Test]
-            public void ShouldReturnFalseForNull()
+            public void ShouldRetainLeadingDelimiter()
             {
                 // Arrange
+                var start = GetRandomAbsolutePath();
+                var parts = GetRandomArray<string>(2, 4);
+                var allParts = start.InArray().And(parts);
+                var expected = allParts.JoinWith('/');
+
                 // Act
-                var result = (null as byte[]).IsGZipped();
+                var result = start.AppendWebPath(parts);
                 // Assert
                 Expect(result)
-                    .To.Be.False();
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldRetainTrailingDelimiter()
+            {
+                // Arrange
+                var start = GetRandomAbsolutePath();
+                var parts = GetRandomArray<string>(2, 4);
+                parts[parts.Length - 1] += "/";
+                var allParts = start.InArray().And(parts);
+                var expected = allParts.JoinWith('/');
+
+                // Act
+                var result = start.AppendWebPath(parts);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+        }
+
+        [TestFixture]
+        public class ArbitraryBehavior
+        {
+            private static readonly char Delimiter = GetRandomFrom(
+                [
+                    '_',
+                    '*',
+                    '$',
+                    '-',
+                    '+'
+                ]
+            );
+
+            [Test]
+            public void ShouldAppendPathPartsWithProvidedDelimiter()
+            {
+                // Arrange
+                var start = GetRandomPath();
+                var parts = GetRandomArray<string>(2, 4);
+                var allParts = start.InArray().And(parts);
+                var expected = allParts.JoinWith(Delimiter);
+
+                // Act
+                var result = start.AppendPath(Delimiter, parts);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldRetainLeadingDelimiter()
+            {
+                // Arrange
+                var start = GetRandomAbsolutePath();
+                var parts = GetRandomArray<string>(2, 4);
+                var allParts = start.InArray().And(parts);
+                var expected = allParts.JoinWith(Delimiter);
+
+                // Act
+                var result = start.AppendPath(Delimiter, parts);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
+            }
+
+            [Test]
+            public void ShouldRetainTrailingDelimiter()
+            {
+                // Arrange
+                var start = GetRandomAbsolutePath();
+                var parts = GetRandomArray<string>(2, 4);
+                parts[parts.Length - 1] += "/";
+                var allParts = start.InArray().And(parts);
+                var expected = allParts.JoinWith(Delimiter);
+
+                // Act
+                var result = start.AppendPath(Delimiter,parts);
+                // Assert
+                Expect(result)
+                    .To.Equal(expected);
             }
         }
     }

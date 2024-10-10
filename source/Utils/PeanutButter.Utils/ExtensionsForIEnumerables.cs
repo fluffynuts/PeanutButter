@@ -216,6 +216,25 @@ namespace PeanutButter.Utils
         }
 
         /// <summary>
+        /// Fluent alternative to string.Join()
+        /// </summary>
+        /// <param name="collection">Source collection to operate on</param>
+        /// <param name="joinWith">String to join items with</param>
+        /// <typeparam name="T">Underlying type of the collection</typeparam>
+        /// <returns>
+        /// string representing items of the collection joined with the joinWith parameter.
+        /// Where a collection of non-strings is provided, the objects' ToString() methods
+        /// are used to get a string representation.
+        /// </returns>
+        public static string JoinWith<T>(
+            this IEnumerable<T> collection,
+            char joinWith
+        )
+        {
+            return collection.JoinWith($"{joinWith}");
+        }
+
+        /// <summary>
         /// Convenience method, essentially opposite to Any(), except
         /// that it also handles null collections
         /// </summary>
