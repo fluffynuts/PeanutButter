@@ -9,25 +9,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
-        <PackageReference Include="NExpect" Version="2.0.82"/>
-        <PackageReference Include="NExpect.Matchers.AspNetCore" Version="2.0.82"/>
-        <PackageReference Include="NExpect.Matchers.NSubstitute" Version="2.0.82"/>
-        <PackageReference Include="NSubstitute" Version="5.1.0"/>
-        <PackageReference Include="NUnit" Version="4.0.1"/>
-        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0"/>
+        <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+        <PackageReference Include="NExpect" Version="2.0.106" />
+        <PackageReference Include="NExpect.Matchers.AspNetCore" Version="2.0.106" />
+        <PackageReference Include="NExpect.Matchers.NSubstitute" Version="2.0.106" />
+        <PackageReference Include="NSubstitute" Version="5.1.0" />
+        <PackageReference Include="NUnit" Version="4.0.1" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
         <PackageReference Include="NUnit.Analyzers" Version="3.10.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Quackers.TestLogger" Version="1.0.24"/>
+        <PackageReference Include="Quackers.TestLogger" Version="1.0.24" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Utils\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj"/>
-        <ProjectReference Include="..\PeanutButter.TestUtils.AspNetCore\PeanutButter.TestUtils.AspNetCore.csproj"/>
+        <ProjectReference Include="..\..\Utils\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj" />
+        <ProjectReference Include="..\PeanutButter.TestUtils.AspNetCore\PeanutButter.TestUtils.AspNetCore.csproj" />
     </ItemGroup>
 
 </Project>

@@ -25,6 +25,7 @@
     "list-project-assemblies": "zarro @",
     "build-nuget-packages": "zarro @",
     "test-zarro": "zarro test-zarro",
+    "upgrade-nexpect": "cross-env UPGRADE_PACKAGES=/NExpect\\.*/ zarro upgrade-packages",
     "experiment": "zarro @"
   },
   "devDependencies": {

@@ -15,22 +15,22 @@
         <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj"/>
-        <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj"/>
-        <ProjectReference Include="..\PeanutButter.Async\PeanutButter.Async.csproj"/>
+        <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
+        <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj" />
+        <ProjectReference Include="..\PeanutButter.Async\PeanutButter.Async.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}"/>
+        <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
-        <PackageReference Include="NExpect" Version="2.0.82" />
-        <PackageReference Include="NUnit" Version="4.0.1"/>
-        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+        <PackageReference Include="NExpect" Version="2.0.106" />
+        <PackageReference Include="NUnit" Version="4.0.1" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Quackers.TestLogger" Version="1.0.24"/>
-        <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
+        <PackageReference Include="Quackers.TestLogger" Version="1.0.24" />
+        <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     </ItemGroup>
-    <Import Project="..\..\MonoForFramework.targets"/>
+    <Import Project="..\..\MonoForFramework.targets" />
 </Project>
