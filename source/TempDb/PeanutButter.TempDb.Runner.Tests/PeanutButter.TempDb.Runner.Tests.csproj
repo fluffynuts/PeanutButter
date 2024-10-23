@@ -20,7 +20,7 @@
   <ItemGroup>
     <PackageReference Include="MySql.Data" Version="8.0.31" />
     <PackageReference Include="MySqlConnector" Version="2.3.1" />
-    <PackageReference Include="NExpect" Version="2.0.107" />
+    <PackageReference Include="NExpect" Version="2.0.108" />
     <PackageReference Include="nunit" Version="4.0.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
