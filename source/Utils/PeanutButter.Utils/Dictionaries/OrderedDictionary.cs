@@ -2,7 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 
+#if BUILD_PEANUTBUTTER_INTERNAL
+namespace Imported.PeanutButter.Utils.Dictionaries;
+#else
 namespace PeanutButter.Utils.Dictionaries;
+#endif
 
 internal interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 {
