@@ -2446,7 +2446,7 @@ public
                 minValues = maxValues;
             }
         }
-        
+
         if (minValues > maxValues)
         {
             var swap = maxValues;
@@ -2462,12 +2462,13 @@ public
         var howMany = GetRandomInt(minValues, maxValues);
         var skipped = new List<T>();
         var provided = 0;
+        var i = 0;
         foreach (var item in items)
         {
             if (GetRandomBoolean())
             {
                 yield return item;
-                if (++provided > howMany)
+                if (++provided >= howMany)
                 {
                     yield break;
                 }
@@ -2478,15 +2479,19 @@ public
             }
         }
 
+        if (provided >= howMany)
+        {
+            yield break;
+        }
+
         skipped.Randomize();
         foreach (var item in skipped)
         {
-            if (++provided > howMany)
+            yield return item;
+            if (++provided >= howMany)
             {
                 yield break;
             }
-
-            yield return item;
         }
     }
 
