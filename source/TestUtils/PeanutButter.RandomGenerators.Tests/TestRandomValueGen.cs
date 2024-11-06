@@ -5783,16 +5783,113 @@ public class TestRandomValueGen
             var source = new HashSet<string>(MimeTypes.KnownMimeTypes);
             var collected = new List<string>();
             // Act
-            RunCycles(() =>
-            {
-                collected.Add(GetRandomMimeType());
-            });
+            RunCycles(
+                () =>
+                {
+                    collected.Add(GetRandomMimeType());
+                }
+            );
 
             // Assert
             Expect(collected)
                 .To.Vary();
             Expect(source)
                 .To.Contain.All.Of(collected);
+        }
+    }
+
+    [TestFixture]
+    public class GetSubSetOf
+    {
+        [Test]
+        public void ShouldReturnValuesFromCollection()
+        {
+            // Arrange
+            var ints = GetRandomArray<int>(10, 20);
+            // Act
+            var subset = GetSubSetOf(ints);
+            // Assert
+            Expect(subset)
+                .Not.To.Be.Empty();
+            Expect(ints)
+                .To.Contain.All.Of(subset);
+        }
+
+        [Test]
+        public void ShouldReturnValuesFromCollectionWithMinValues()
+        {
+            RunCycles(
+                () =>
+                {
+                    // Arrange
+                    var ints = GetRandomArray<int>(10, 20);
+                    var min = GetRandomInt(5, 8);
+                    // Act
+                    var subset = GetSubSetOf(ints, min);
+                    // Assert
+                    Expect(subset)
+                        .Not.To.Be.Empty();
+                    Expect(ints)
+                        .To.Contain.All.Of(subset);
+                    Expect(subset)
+                        .To.Contain.At.Least(min).Items();
+                }
+            );
+        }
+
+        [Test]
+        public void ShouldReturnValuesFromCollectionWithinProvidedRange()
+        {
+            RunCycles(
+                () =>
+                {
+                    // Arrange
+                    var ints = GetRandomArray<int>(15, 20);
+                    var min = GetRandomInt(5, 10);
+                    var max = GetRandomInt(11, 14);
+                    // Act
+                    var subset = GetSubSetOf(ints, min, max);
+                    // Assert
+                    Expect(subset)
+                        .Not.To.Be.Empty();
+                    Expect(ints)
+                        .To.Contain.All.Of(subset);
+                    Expect(subset)
+                        .To.Contain.At.Least(min).Items()
+                        .And
+                        .To.Contain.At.Most(max).Items();
+                }
+            );
+        }
+
+        [Test]
+        public void ShouldReturnEmptyCollectionFromEmptyCollection()
+        {
+            // Arrange
+            // Act
+            var subset = GetSubSetOf(new int[0]);
+            // Assert
+            Expect(subset)
+                .To.Be.Empty();
+        }
+
+        [Test]
+        public void ShouldNormalizeMinValue()
+        {
+            RunCycles(
+                () =>
+                {
+                    // Arrange
+                    var ints = GetRandomArray<int>(10, 20);
+                    // Act
+                    var result = GetSubSetOf(ints, 25);
+                    // Assert
+                    Expect(result)
+                        .To.Contain.Exactly(ints.Length).Items();
+                    Expect(result)
+                        .To.Be.Equivalent.To(ints);
+                }
+            );
         }
     }
 

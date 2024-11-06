@@ -6,6 +6,8 @@
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
 
+using PeanutButter.RandomGenerators;
+
 namespace PeanutButter.Utils.Tests;
 
 [TestFixture]
@@ -3973,6 +3975,191 @@ public class TestExtensionsForIEnumerables
                 // Assert
                 Expect(hashset)
                     .To.Contain.All.Of(toAdd);
+            }
+        }
+
+        [TestFixture]
+        public class ContainsAllOf
+        {
+            [TestFixture]
+            public class WhenNonIncluded
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    // Arrange
+                    var collection = new[]
+                    {
+                        1,
+                        2,
+                        3
+                    };
+                    // Act
+                    var result = collection.ContainsAllOf(4, 5, 6);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class WhenSomeIncluded
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    // Arrange
+                    var collection = new[]
+                    {
+                        1,
+                        2,
+                        3
+                    };
+                    // Act
+                    var result = collection.ContainsAllOf(1, 2, 4);
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class WhenCollectionsAreEquivalent
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    // Arrange
+                    var collection = new[]
+                    {
+                        1,
+                        2,
+                        3
+                    };
+                    var test = collection.Randomize().ToArray();
+
+                    // Act
+                    var result = collection.ContainsAllOf(test);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+            }
+
+            [TestFixture]
+            public class WhenPrimaryCollectionIsSuperSetOfSecondary
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    // Arrange
+                    var collection = new[]
+                    {
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    };
+                    var test = new[]
+                    {
+                        GetRandomFrom(collection),
+                        GetRandomFrom(collection),
+                        GetRandomFrom(collection)
+                    };
+
+                    // Act
+                    var result = collection.ContainsAllOf(test);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+            }
+        }
+
+        [TestFixture]
+        public class ContainsAnyOf
+        {
+            [TestFixture]
+            public class WhenCollectionContainsNoneOfProvidedValues
+            {
+                [Test]
+                public void ShouldReturnFalse()
+                {
+                    // Arrange
+                    var collection = new[]
+                    {
+                        1,
+                        2,
+                        3
+                    };
+                    // Act
+                    var result = collection.ContainsAnyOf(
+                        4,
+                        5,
+                        6
+                    );
+                    // Assert
+                    Expect(result)
+                        .To.Be.False();
+                }
+            }
+
+            [TestFixture]
+            public class WhenCollectionContainsOneProvidedValue
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    // Arrange
+                    var collection = GetRandomArray<int>(5, 8);
+                    var seek = GetRandomFrom(collection);
+
+                    // Act
+                    var result = collection.ContainsAnyOf(seek);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+            }
+
+            [TestFixture]
+            public class WhenCollectionContainsMoreThanOneProvidedValue
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    // Arrange
+                    var collection = GetRandomArray<int>(5, 8);
+                    var subset = GetSubSetOf(collection).ToArray();
+
+                    // Act
+                    var result = collection.ContainsAnyOf(
+                        subset
+                    );
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+            }
+
+            [TestFixture]
+            public class WhenCollectionsAreEquivalent
+            {
+                [Test]
+                public void ShouldReturnTrue()
+                {
+                    // Arrange
+                    var collection = GetRandomArray<int>(10, 20);
+                    var copy = collection.Randomize().ToArray();
+                    Expect(copy)
+                        .To.Be.Equivalent.To(collection);
+                    // Act
+                    var result = collection.ContainsAnyOf(copy);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
             }
         }
 

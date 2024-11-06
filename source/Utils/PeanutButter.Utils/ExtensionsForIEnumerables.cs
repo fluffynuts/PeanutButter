@@ -212,7 +212,7 @@ namespace PeanutButter.Utils
                 stringArray = collection.Select(i => $"{i}").ToArray();
             }
 
-            return string.Join(joinWith, stringArray ?? new string[0]);
+            return string.Join(joinWith, stringArray ?? []);
         }
 
         /// <summary>
@@ -802,7 +802,7 @@ namespace PeanutButter.Utils
         {
             return collection switch
             {
-                null => Array.Empty<T>(),
+                null => [],
                 T[] arr => arr,
                 _ => collection.ToArray()
             };
@@ -858,10 +858,9 @@ namespace PeanutButter.Utils
                 var op = ResolveImplicitOperator(item.GetType());
                 yield return (TOther)op.Invoke(
                     null,
-                    new[]
-                    {
+                    [
                         item
-                    }
+                    ]
                 );
             }
 
@@ -1138,7 +1137,7 @@ namespace PeanutButter.Utils
         {
             var asArray = source is T[] arr
                 ? arr
-                : source?.ToArray() ?? new T[0];
+                : source?.ToArray() ?? [];
             var padChars = typeof(T) == typeof(string)
                 ? asArray.Cast<string>().Select(s => s?.Length ?? 0).Max()
                 : asArray.Select(s => $"{s}".Length).Max();
@@ -1179,7 +1178,7 @@ namespace PeanutButter.Utils
         {
             if (typeof(T) == typeof(string))
             {
-                var asStringArray = source as string[] ?? new string[0];
+                var asStringArray = source as string[] ?? [];
                 foreach (var item in asStringArray)
                 {
                     yield return item is null
@@ -1225,7 +1224,7 @@ namespace PeanutButter.Utils
         {
             var asArray = source is T[] arr
                 ? arr
-                : source?.ToArray() ?? new T[0];
+                : source?.ToArray() ?? [];
             var padChars = typeof(T) == typeof(string)
                 ? (asArray as string[])!.Select(s => s?.Length ?? 0).Max()
                 : asArray.Select(s => $"{s}".Length).Max();
@@ -1265,7 +1264,7 @@ namespace PeanutButter.Utils
         {
             if (typeof(T) == typeof(string))
             {
-                var stringArray = source as string[] ?? new string[0];
+                var stringArray = source as string[] ?? [];
                 foreach (var item in stringArray)
                 {
                     yield return item is null
@@ -1401,7 +1400,7 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static HashSet<T> AsHashSet<T>(this IEnumerable<T> collection)
         {
-            return new HashSet<T>(collection);
+            return [..collection];
         }
 
         /// <summary>
@@ -1466,7 +1465,7 @@ namespace PeanutButter.Utils
         {
             return collection
                 ?.Select(transform)
-                .ToArray() ?? Array.Empty<TResult>();
+                .ToArray() ?? [];
         }
 
         /// <summary>
@@ -1485,7 +1484,7 @@ namespace PeanutButter.Utils
         {
             return collection
                 ?.Select(transform)
-                .ToList() ?? new List<TResult>();
+                .ToList() ?? [];
         }
 
         /// <summary>
@@ -1503,7 +1502,7 @@ namespace PeanutButter.Utils
         {
             return collection
                 ?.Where(filter)
-                .ToArray() ?? Array.Empty<T>();
+                .ToArray() ?? [];
         }
 
         /// <summary>
@@ -1521,7 +1520,7 @@ namespace PeanutButter.Utils
         {
             return collection
                 ?.Where(filter)
-                .ToList() ?? new List<T>();
+                .ToList() ?? [];
         }
 
         /// <summary>
@@ -1871,7 +1870,7 @@ namespace PeanutButter.Utils
         public static TCollection AddRange<TCollection, TItem>(
             this TCollection collection,
             IEnumerable<TItem> toAdd
-        ) where TCollection: ICollection<TItem>
+        ) where TCollection : ICollection<TItem>
         {
             AddAllItems(collection, toAdd);
             return collection;
@@ -1898,7 +1897,7 @@ namespace PeanutButter.Utils
         private static void AddAllItems<TCollection, TItem>(
             TCollection collection,
             IEnumerable<TItem> items
-        ) where TCollection: ICollection<TItem>
+        ) where TCollection : ICollection<TItem>
         {
             foreach (var item in items)
             {
@@ -2085,6 +2084,55 @@ namespace PeanutButter.Utils
 
             return default;
         }
+
+        /// <summary>
+        /// Returns true if the collection
+        /// contains ALL of the provided values
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="values"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool ContainsAllOf<T>(
+            this IEnumerable<T> collection,
+            params T[] values
+        )
+        {
+            var lookup = collection.AsHashSet();
+            foreach (var v in values)
+            {
+                if (!lookup.Contains(v))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Returns true if the collection
+        /// contains ANY of the provided values
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="values"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool ContainsAnyOf<T>(
+            this IEnumerable<T> collection,
+            params T[] values
+        )
+        {
+            var seek = values.AsHashSet();
+            foreach (var item in collection)
+            {
+                if (seek.Contains(item))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     /// <summary>
@@ -2096,7 +2144,7 @@ namespace PeanutButter.Utils
 #else
     public
 #endif
-    class ElementNotFoundException : Exception
+        class ElementNotFoundException : Exception
     {
         /// <summary>
         /// Constructs the exception

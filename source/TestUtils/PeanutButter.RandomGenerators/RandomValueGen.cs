@@ -438,6 +438,17 @@ public
         /// Number of seconds in a day
         /// </summary>
         public const int ONE_DAY_IN_SECONDS = 86400;
+
+        /// <summary>
+        /// The default number of items to return via GetSubSetOf
+        /// </summary>
+        public const int DEFAULT_MIN_SUBSET_ITEMS = 1;
+
+        /// <summary>
+        /// The max number of items to return via GetSubSetOf
+        /// - negative numbers are inferred to mean (collection size - N)
+        /// </summary>
+        public const int DEFAULT_MAX_SUBSET_ITEMS = -1;
     }
 
     private static readonly ThreadSafeRandom RandomGenerator = new();
@@ -2353,6 +2364,130 @@ public
         } while (notHash.Contains(result));
 
         return result;
+    }
+
+    /// <summary>
+    /// Returns a random subset of items from the
+    /// original collection; evaluation is lazy.
+    /// </summary>
+    /// <param name="items"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static IEnumerable<T> GetSubSetOf<T>(
+        IEnumerable<T> items
+    )
+    {
+        return GetSubSetOf(
+            items,
+            DefaultRanges.DEFAULT_MIN_SUBSET_ITEMS
+        );
+    }
+
+    /// <summary>
+    /// Returns a random subset of items from the
+    /// original collection; evaluation is lazy.
+    /// </summary>
+    /// <param name="items"></param>
+    /// <param name="minValues">minimum required values -
+    /// may be overridden if the collection is too small</param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static IEnumerable<T> GetSubSetOf<T>(
+        IEnumerable<T> items,
+        int minValues
+    )
+    {
+        return GetSubSetOf<T>(
+            items,
+            minValues,
+            DefaultRanges.DEFAULT_MAX_SUBSET_ITEMS
+        );
+    }
+
+    /// <summary>
+    /// Returns a random subset of items from the
+    /// original collection; evaluation is lazy.
+    /// </summary>
+    /// <param name="items"></param>
+    /// <param name="minValues">
+    /// minimum number of required values
+    /// - may be overridden if the collection is too small
+    /// </param>
+    /// <param name="maxValues">
+    /// maximum number of required values
+    /// - if this exceeds the collection size, that will be used instead
+    /// - if this value is negative, it's counted as an offset from
+    ///   the end of the source collection, eg a collection with 12
+    ///   items, given maxValues == -2, produces a subset with max 10 items.
+    /// </param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static IEnumerable<T> GetSubSetOf<T>(
+        IEnumerable<T> items,
+        int minValues,
+        int maxValues
+    )
+    {
+        var total = items?.Count() ?? 0;
+        if (total < 1)
+        {
+            yield break;
+        }
+
+        if (maxValues > total)
+        {
+            maxValues = total;
+        }
+        else if (maxValues < 0)
+        {
+            maxValues = total - maxValues;
+            if (maxValues < minValues)
+            {
+                minValues = maxValues;
+            }
+        }
+        
+        if (minValues > maxValues)
+        {
+            var swap = maxValues;
+            maxValues = minValues;
+            minValues = swap;
+        }
+
+        if (minValues > total)
+        {
+            minValues = maxValues;
+        }
+
+        var howMany = GetRandomInt(minValues, maxValues);
+        var skipped = new List<T>();
+        var provided = 0;
+        foreach (var item in items)
+        {
+            if (GetRandomBoolean())
+            {
+                yield return item;
+                if (++provided > howMany)
+                {
+                    yield break;
+                }
+            }
+            else
+            {
+                skipped.Add(item);
+            }
+        }
+
+        skipped.Randomize();
+        foreach (var item in skipped)
+        {
+            if (++provided > howMany)
+            {
+                yield break;
+            }
+
+            yield return item;
+        }
     }
 
     /// <summary>
