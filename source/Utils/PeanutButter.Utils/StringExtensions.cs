@@ -689,6 +689,25 @@ internal
 
         return new String(result.ToArray());
     }
+    /// <summary>
+    /// Remove all the given substrings from the string, returning a new
+    /// string
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <param name="toRemove"></param>
+    /// <returns></returns>
+    public static string RemoveAll(
+        this string subject,
+        params string[] toRemove
+    )
+    {
+        var result = subject;
+        foreach (var item in toRemove)
+        {
+            result = result.Replace(item, "");
+        }
+        return result;
+    }
 
     /// <summary>
     /// Converts an input string to snake_case

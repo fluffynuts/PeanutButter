@@ -1488,6 +1488,43 @@ Report bugs to <no-one-cares@whatevs.org>
                         }
                     }
                 }
+
+                [TestFixture]
+                public class DecoratingEntireOptionsObjects
+                {
+                    [Test]
+                    public void ShouldReadAllDefaultsFromEnvironment()
+                    {
+                        // Arrange
+                        var expectedNumber = GetRandomInt(1);
+                        using var e1 = new AutoTempEnvironmentVariable(
+                            "THE_NUMBER",
+                            $"{expectedNumber}"
+                        );
+                        var expectedString = GetRandomString();
+                        using var e2 = new AutoTempEnvironmentVariable(
+                            "THE.NA_ME",
+                            $"{expectedString}"
+                        );
+                        // Act
+                        var result = new string[0].ParseTo<AllFromEnv>();
+                        // Assert
+                        Expect(result.TheNumber)
+                            .To.Equal(expectedNumber);
+                        Expect(result.TheName)
+                            .To.Equal(expectedString);
+                    }
+
+                    [AllowDefaultsFromEnvironment]
+                    public class AllFromEnv
+                    {
+                        [Default(1)]
+                        public int TheNumber { get; set; }
+
+                        [Default("moo")]
+                        public string TheName { get; set; }
+                    }
+                }
             }
 
             public class HasDefaultNegativeFlag

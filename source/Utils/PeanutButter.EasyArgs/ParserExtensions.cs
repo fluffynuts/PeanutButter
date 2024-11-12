@@ -132,13 +132,10 @@ namespace PeanutButter.EasyArgs
                 flags,
                 out var ignored
             );
-            if (options.FallbackOnEnvironmentVariables)
-            {
-                collected = new MergeDictionary<string, IHasValue>(
-                    collected,
-                    GrabEnvVars<T>()
-                );
-            }
+            collected = new MergeDictionary<string, IHasValue>(
+                collected,
+                GrabEnvVars<T>(options.FallbackOnEnvironmentVariables)
+            );
 
             var matched = TryMatch<T>(
                 lookup,
@@ -154,32 +151,45 @@ namespace PeanutButter.EasyArgs
                 : ducked;
         }
 
-        private static readonly char[] FuzzyEnvVars =
+        private static readonly string[] FuzzyEnvVars =
         [
-            '.',
-            '-',
-            '_',
-            ':'
+            ".",
+            "-",
+            "_",
+            ":"
         ];
 
-        private static IDictionary<string, IHasValue> GrabEnvVars<T>()
+        private static IDictionary<string, IHasValue> GrabEnvVars<T>(
+            bool forceFromOptions
+        )
         {
-            var propertyNames = new HashSet<string>(
-                typeof(T).GetProperties()
-                    .Select(p => p.Name.ToLower())
-                    .ToArray()
-            );
+            var globalEnvVars = typeof(T).GetCustomAttributes()
+                .Any(o => o is AllowDefaultsFromEnvironment);
             var result = new Dictionary<string, IHasValue>();
-            foreach (DictionaryEntry e in Environment.GetEnvironmentVariables())
+            var props = typeof(T).GetProperties();
+            foreach (var pi in props)
             {
-                var key = $"{e.Key}";
-                var k = $"{e.Key}".RemoveAll(
-                    FuzzyEnvVars
-                ).ToLower();
-                if (propertyNames.Contains(k))
+                var shouldSeek = forceFromOptions ||
+                    globalEnvVars ||
+                    pi.GetCustomAttributes().Any(o => o is AllowDefaultFromEnvironment);
+                if (!shouldSeek)
                 {
-                    result[key] = new StringCollection($"{e.Value}");
+                    continue;
                 }
+
+                var key = FindEnvironmentVariableFor(pi);
+                if (string.IsNullOrEmpty(key))
+                {
+                    continue;
+                }
+
+                var value = Environment.GetEnvironmentVariable(key);
+                if (value is null)
+                {
+                    continue;
+                }
+
+                result[key] = new StringCollection(value);
             }
 
             return result;
@@ -788,11 +798,9 @@ namespace PeanutButter.EasyArgs
         {
             return
             [
-
                 ..options
                     .Where(o => o.LongName is not null)
                     .Select(o => o.LongName)
-
             ];
         }
 
@@ -802,18 +810,16 @@ namespace PeanutButter.EasyArgs
         {
             return
             [
-
                 ..options
                     .Where(o => o.ShortName is not null)
                     .Select(o => o.ShortName)
-
             ];
         }
 
         private static List<CommandlineArgument> GrokOptionsFor<T>()
         {
             var allowsGlobalEnvironmentDefaults = typeof(T).GetCustomAttributes()
-                .Any(o => o is AllowDefaultFromEnvironment);
+                .Any(o => o is AllowDefaultsFromEnvironment);
             return GetAllPropertiesOf<T>()
                 .Where(pi => pi.GetCustomAttributes().OfType<IgnoreAttribute>().IsEmpty())
                 .Aggregate(
@@ -923,11 +929,11 @@ namespace PeanutButter.EasyArgs
                 ?.Value;
         }
 
-        private static string FindEnvironmentVariableFor(PropertyInfo cur)
+        internal static string FindEnvironmentVariableFor(PropertyInfo cur)
         {
             foreach (string key in Environment.GetEnvironmentVariables().Keys)
             {
-                if (key.FuzzyMatches(cur.Name, ".", "_"))
+                if (key.FuzzyMatches(cur.Name, FuzzyEnvVars))
                 {
                     return key;
                 }

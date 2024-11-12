@@ -220,10 +220,10 @@ namespace PeanutButter.EasyArgs
             this.CopyPropertiesTo(result, deep: false);
             result.ShortName = null;
             result.LongName = $"no-{LongName}";
-            result.ConflictsWithKeys = new[]
-            {
+            result.ConflictsWithKeys =
+            [
                 Key
-            };
+            ];
             result.IsNegatedFlag = true;
 
             result.IsRequired = false;
