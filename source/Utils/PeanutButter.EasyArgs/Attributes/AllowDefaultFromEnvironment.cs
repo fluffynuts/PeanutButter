@@ -47,7 +47,7 @@ public
 /// Allows defaults for all options on the options
 /// object to be overridden from environment variables
 /// </summary>
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
     internal
 #else

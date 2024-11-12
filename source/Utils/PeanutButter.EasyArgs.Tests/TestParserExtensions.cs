@@ -1516,6 +1516,12 @@ Report bugs to <no-one-cares@whatevs.org>
                     }
 
                     [AllowDefaultsFromEnvironment]
+                    public interface IOptions
+                    {
+                        int Number { get; set; }
+                    }
+
+                    [AllowDefaultsFromEnvironment]
                     public class AllFromEnv
                     {
                         [Default(1)]
