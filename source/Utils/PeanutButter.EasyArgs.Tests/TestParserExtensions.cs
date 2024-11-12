@@ -1439,6 +1439,57 @@ Report bugs to <no-one-cares@whatevs.org>
                 }
             }
 
+            [TestFixture]
+            public class EnvironmentalOverridesForDefaults
+            {
+                [TestFixture]
+                public class WhenOverrideSpecified
+                {
+                    [TestFixture]
+                    public class AndDefaultFromEnvironmentAllowed
+                    {
+                        [Test]
+                        public void ShouldSetTheValueFromTheEnvironment()
+                        {
+                            // Arrange
+                            using var e1 = new AutoTempEnvironmentVariable(
+                                "SOME_FLAG",
+                                GetRandomFrom(
+                                    new[]
+                                    {
+                                        "1",
+                                        "yes",
+                                        "true"
+                                    }
+                                )
+                            );
+                            var name = GetRandomName();
+                            using var e2 = new AutoTempEnvironmentVariable(
+                                "MOO_COWS",
+                                name
+                            );
+
+                            // Act
+                            var result = new string[0].ParseTo<HasEnvironmentDefaultOption>();
+                            // Assert
+                            Expect(result.SomeFlag)
+                                .To.Be.True();
+                            Expect(result.SomeName)
+                                .To.Equal(name);
+                        }
+
+                        public class HasEnvironmentDefaultOption
+                        {
+                            [AllowDefaultFromEnvironment]
+                            public bool SomeFlag { get; set; }
+
+                            [AllowDefaultFromEnvironment("MOO_COWS")]
+                            public string SomeName { get; set; }
+                        }
+                    }
+                }
+            }
+
             public class HasDefaultNegativeFlag
             {
                 [Default(false)]

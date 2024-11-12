@@ -2462,7 +2462,6 @@ public
         var howMany = GetRandomInt(minValues, maxValues);
         var skipped = new List<T>();
         var provided = 0;
-        var i = 0;
         foreach (var item in items)
         {
             if (GetRandomBoolean())

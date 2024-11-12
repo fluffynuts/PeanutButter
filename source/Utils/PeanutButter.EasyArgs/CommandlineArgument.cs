@@ -216,6 +216,9 @@ namespace PeanutButter.EasyArgs
                 case bool flag:
                     result.Default = flag;
                     break;
+                case string str:
+                    result.Default = str.AsBoolean();
+                    break;
                 default:
                     Console.Error.WriteLine(
                         $"Default value for flag '{LongName}' is not a boolean value - falling back to false"

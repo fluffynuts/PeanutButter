@@ -14,6 +14,7 @@ using Imported.PeanutButter.EasyArgs.Attributes;
 namespace Imported.PeanutButter.EasyArgs
 #else
 using PeanutButter.EasyArgs.Attributes;
+
 namespace PeanutButter.EasyArgs
 #endif
 {
@@ -573,12 +574,23 @@ namespace PeanutButter.EasyArgs
                 var allPossibleConflicts = lookup.Values.Where(
                         arg => arg.ConflictsWithKeys.Contains(opt.Key)
                     )
-                    .Except(new[] { opt })
+                    .Except(
+                        new[]
+                        {
+                            opt
+                        }
+                    )
                     .Distinct()
                     .ToArray();
 
                 var allSpecifiedDirectConflicts = allPossibleConflicts
-                    .Select(a => new[] { a.LongSwitch, a.ShortSwitch })
+                    .Select(
+                        a => new[]
+                        {
+                            a.LongSwitch,
+                            a.ShortSwitch
+                        }
+                    )
                     .Flatten()
                     .Intersect(specifiedSwitches)
                     .ToArray();
@@ -613,7 +625,13 @@ namespace PeanutButter.EasyArgs
         {
             var canConflict = options
                 .Where(o => !o.IsImplicit && o.ConflictsWithKeys.Any())
-                .Select(o => new { o.Key, ConflictsWith = o.ConflictsWithKeys })
+                .Select(
+                    o => new
+                    {
+                        o.Key,
+                        ConflictsWith = o.ConflictsWithKeys
+                    }
+                )
                 .ToArray();
             if (!canConflict.Any())
             {
@@ -733,7 +751,11 @@ namespace PeanutButter.EasyArgs
             }
 
             var firstChar = opt.Key[0].ToString();
-            var potentials = new[] { firstChar.ToLowerInvariant(), firstChar.ToUpperInvariant() };
+            var potentials = new[]
+            {
+                firstChar.ToLowerInvariant(),
+                firstChar.ToUpperInvariant()
+            };
             var potential = potentials.FirstOrDefault(p => !existing.Contains(p));
             if (potential is null)
             {
@@ -790,6 +812,8 @@ namespace PeanutButter.EasyArgs
 
         private static List<CommandlineArgument> GrokOptionsFor<T>()
         {
+            var allowsGlobalEnvironmentDefaults = typeof(T).GetCustomAttributes()
+                .Any(o => o is AllowDefaultFromEnvironment);
             return GetAllPropertiesOf<T>()
                 .Where(pi => pi.GetCustomAttributes().OfType<IgnoreAttribute>().IsEmpty())
                 .Aggregate(
@@ -814,10 +838,11 @@ namespace PeanutButter.EasyArgs
                                 .OfType<DescriptionAttribute>()
                                 .FirstOrDefault()
                                 ?.Value,
-                            Default = attribs
-                                .OfType<DefaultAttribute>()
-                                .FirstOrDefault()
-                                ?.Value,
+                            Default = DetermineDefaultValueFrom(
+                                cur,
+                                attribs,
+                                allowsGlobalEnvironmentDefaults
+                            ),
                             Property = cur,
                             ConflictsWithKeys = attribs.OfType<ConflictsWithAttribute>()
                                 .Select(a => a.Value)
@@ -838,6 +863,46 @@ namespace PeanutButter.EasyArgs
                         return acc;
                     }
                 );
+        }
+
+        private static object DetermineDefaultValueFrom(
+            PropertyInfo cur,
+            Attribute[] attribs,
+            bool allowsGlobalEnvironmentDefaults)
+        {
+            var envAttrib = attribs.FirstOrDefault(
+                o => o is AllowDefaultFromEnvironment
+            ) as AllowDefaultFromEnvironment;
+            if (allowsGlobalEnvironmentDefaults || envAttrib is not null)
+            {
+                var envVar = envAttrib?.EnvironmentVariable
+                    ?? FindEnvironmentVariableFor(cur);
+                if (envVar is not null)
+                {
+                    var envValue = Environment.GetEnvironmentVariable(envVar);
+                    if (envValue is not null)
+                    {
+                        return envValue;
+                    }
+                }
+            }
+
+            return attribs
+                .OfType<DefaultAttribute>()
+                .FirstOrDefault()
+                ?.Value;
+        }
+
+        private static string FindEnvironmentVariableFor(PropertyInfo cur)
+        {
+            foreach (string key in Environment.GetEnvironmentVariables().Keys)
+            {
+                if (key.FuzzyMatches(cur.Name, ".", "_"))
+                {
+                    return key;
+                }
+            }
+            return null;
         }
 
         private static PropertyInfo[] GetAllPropertiesOf<T>()
@@ -929,7 +994,7 @@ namespace PeanutButter.EasyArgs
         {
             if (pi.PropertyType == typeof(bool))
             {
-                var propValue = (bool) pi.GetValue(o);
+                var propValue = (bool)pi.GetValue(o);
                 return new[]
                 {
                     propValue
@@ -942,7 +1007,10 @@ namespace PeanutButter.EasyArgs
             var rawValue = pi.GetValue(o);
 
             var value = Stringify(rawValue);
-            return new[] { name }
+            return new[]
+                {
+                    name
+                }
                 .Concat(value)
                 .ToArray();
         }
@@ -951,18 +1019,27 @@ namespace PeanutButter.EasyArgs
         {
             if (o is null)
             {
-                return new[] { "" };
+                return new[]
+                {
+                    ""
+                };
             }
 
             if (o is string str)
             {
-                return new[] { str };
+                return new[]
+                {
+                    str
+                };
             }
 
             var enumerable = new EnumerableWrapper(o);
             if (!enumerable.IsValid)
             {
-                return new[] { o.ToString() };
+                return new[]
+                {
+                    o.ToString()
+                };
             }
 
             var result = new List<string>();
