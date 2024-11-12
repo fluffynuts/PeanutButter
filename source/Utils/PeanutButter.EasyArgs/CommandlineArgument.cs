@@ -191,6 +191,25 @@ namespace PeanutButter.EasyArgs
         public bool IsNegatedFlag { get; set; }
 
         /// <summary>
+        /// Set to the name of the environment variable
+        /// that would be observed to override / set a
+        /// default value for the option. To enable
+        /// environmental defaults, either decorate
+        /// the option with [AllowDefaultFromEnvironment]
+        /// or decorate the entire options object with
+        /// [AllowDefaultFromEnvironment].
+        /// At the property level, [AllowDefaultFromEnvironment]
+        /// can be given an explicit environment variable name
+        /// to look for; otherwise environment variables are
+        /// matched fuzzily to property names:
+        /// - case insensitive
+        /// - ignoring _ and .
+        /// so, eg, the env var FOO_BAR or FOO.BAR will populate
+        /// a property called FooBar or fooBar, etc.
+        /// </summary>
+        public string EnvironmentDefaultVariable { get; set; }
+
+        /// <summary>
         /// Produces a copy of the current argument, negated
         /// Used when generating --no-{arg} flags
         /// </summary>

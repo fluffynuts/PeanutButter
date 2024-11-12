@@ -15,6 +15,7 @@ using Imported.PeanutButter.EasyArgs.Attributes;
 namespace Imported.PeanutButter.EasyArgs
 #else
 using PeanutButter.EasyArgs.Attributes;
+
 namespace PeanutButter.EasyArgs
 #endif
 {
@@ -150,7 +151,7 @@ namespace PeanutButter.EasyArgs
                 ? OneLine
                 : NoLines;
             var negateMessage = options.Any(o => o.IsFlag && !o.IsImplicit)
-                ? new[] { "", NegateMessage }
+                ? ["", NegateMessage]
                 : NoLines;
             headSpacer.And(head)
                 .And(headSpacer)
@@ -169,7 +170,11 @@ namespace PeanutButter.EasyArgs
             ShowedHelp = true;
         }
 
-        private static readonly string[] OneLine = { "" };
+        private static readonly string[] OneLine =
+        {
+            ""
+        };
+
         private static readonly string[] NoLines = new string[0];
 
         /// <summary>
@@ -179,7 +184,9 @@ namespace PeanutButter.EasyArgs
         /// <param name="parserOptions"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected virtual string[] GenerateHelpHead<T>(ParserOptions parserOptions)
+        protected virtual string[] GenerateHelpHead<T>(
+            ParserOptions parserOptions
+        )
         {
             var configured = FirstSpecified(
                 parserOptions.Description,
@@ -199,10 +206,10 @@ namespace PeanutButter.EasyArgs
             if (string.IsNullOrWhiteSpace(currentApp.Location))
             {
                 // packed, published app - just take the assembly name
-                return new[]
-                {
+                return
+                [
                     $"{currentApp.GetName().Name} {{args}}"
-                };
+                ];
             }
 
             var currentAppPath = new Uri(currentApp.Location).LocalPath;
@@ -221,18 +228,9 @@ namespace PeanutButter.EasyArgs
 
             string[] DefaultDescription()
             {
-                if (isExe)
-                {
-                    return new[]
-                    {
-                        $"Usage: {currentAppFile} {{args}}"
-                    };
-                }
-
-                return new[]
-                {
-                    $"Usage: dotnet {currentAppFile} {{args}}"
-                };
+                return isExe
+                    ? [$"Usage: {currentAppFile} {{args}}"]
+                    : [$"Usage: dotnet {currentAppFile} {{args}}"];
             }
 
             return configured
@@ -269,6 +267,17 @@ namespace PeanutButter.EasyArgs
         protected virtual string[] GenerateArgumentHelp<T>(CommandlineArgument[] options)
         {
             var result = new List<string>();
+            if (options.Any(o => o.EnvironmentDefaultVariable is not null))
+            {
+                result.Add(
+                    """
+                    One or more options can have their default value
+                      set from an environment variable. Where this is
+                      the case, the variable will be mentioned in
+                      [SQUARE_BRACKETS] after the option.
+                    """
+                );
+            }
             var longestLeftCol = options.Select(
                 o =>
                     DashLength +
@@ -295,6 +304,7 @@ namespace PeanutButter.EasyArgs
                                 opt.Description,
                                 opt.IsFlag,
                                 opt.Default,
+                                opt.EnvironmentDefaultVariable,
                                 opt.LongName == "help"
                             ),
                             longestLeftCol,
@@ -313,15 +323,20 @@ namespace PeanutButter.EasyArgs
         /// <param name="description"></param>
         /// <param name="isFlag"></param>
         /// <param name="defaultValue"></param>
+        /// <param name="envVarForDefault"></param>
         /// <param name="isHelpFlag"></param>
         /// <returns></returns>
         protected virtual string FormatDescriptionText(
             string description,
             bool isFlag,
             object defaultValue,
+            string envVarForDefault,
             bool isHelpFlag
         )
         {
+            var postfix = envVarForDefault is null
+                ? ""
+                : $" [{envVarForDefault}]";
             if (isFlag)
             {
                 if (isHelpFlag)
@@ -332,7 +347,7 @@ namespace PeanutButter.EasyArgs
                 var defaultFlag = false;
                 try
                 {
-                    defaultFlag = (bool) defaultValue;
+                    defaultFlag = (bool)defaultValue;
                 }
                 catch
                 {
@@ -340,16 +355,16 @@ namespace PeanutButter.EasyArgs
                 }
 
                 return defaultFlag
-                    ? $"{description} (default: on)"
-                    : description;
+                    ? $"{description} (default: on){postfix}"
+                    : $"{description}{postfix}";
             }
 
             var space = string.IsNullOrWhiteSpace(description)
                 ? ""
                 : " ";
             return defaultValue is null
-                ? description?.Trim() ?? ""
-                : $"{description?.Trim()}{space}({defaultValue})";
+                ? $"{description?.Trim() ?? ""}{postfix}"
+                : $"{description?.Trim()}{space}({defaultValue}){postfix}";
         }
 
         /// <summary>

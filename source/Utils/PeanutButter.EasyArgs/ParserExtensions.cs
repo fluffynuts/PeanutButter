@@ -715,22 +715,23 @@ namespace PeanutButter.EasyArgs
             var shortNames = CollectShortNamesFrom(options);
             var longNames = CollectLongNamesFrom(options);
             result = new Dictionary<string, CommandlineArgument>();
-            options.OrderByDescending(o => o.IsImplicit).ForEach(
-                opt =>
-                {
-                    SetShortNameIfMissing(opt, shortNames);
-                    SetLongNameIfMissing(opt, longNames);
-                    if (!string.IsNullOrWhiteSpace(opt.ShortName))
+            options.OrderByDescending(o => o.IsImplicit)
+                .ForEach(
+                    opt =>
                     {
-                        result[opt.ShortName] = opt;
-                    }
+                        SetShortNameIfMissing(opt, shortNames);
+                        SetLongNameIfMissing(opt, longNames);
+                        if (!string.IsNullOrWhiteSpace(opt.ShortName))
+                        {
+                            result[opt.ShortName] = opt;
+                        }
 
-                    if (!string.IsNullOrWhiteSpace(opt.LongName))
-                    {
-                        result[opt.LongName] = opt;
+                        if (!string.IsNullOrWhiteSpace(opt.LongName))
+                        {
+                            result[opt.LongName] = opt;
+                        }
                     }
-                }
-            );
+                );
             SwitchCache.TryAdd(typeof(T), result.Clone());
             return result;
         }
@@ -838,6 +839,10 @@ namespace PeanutButter.EasyArgs
                                 .OfType<DescriptionAttribute>()
                                 .FirstOrDefault()
                                 ?.Value,
+                            EnvironmentDefaultVariable = DetermineEnvironmentDefaultVarFor(
+                                allowsGlobalEnvironmentDefaults,
+                                cur
+                            ),
                             Default = DetermineDefaultValueFrom(
                                 cur,
                                 attribs,
@@ -865,10 +870,29 @@ namespace PeanutButter.EasyArgs
                 );
         }
 
+        private static string DetermineEnvironmentDefaultVarFor(
+            bool allowsGlobalEnvironmentDefaults,
+            PropertyInfo cur
+        )
+        {
+            var attrib = cur.GetCustomAttributes()
+                .OfType<AllowDefaultFromEnvironment>()
+                .FirstOrDefault();
+            if (attrib?.EnvironmentVariable is not null)
+            {
+                return attrib.EnvironmentVariable;
+            }
+
+            return allowsGlobalEnvironmentDefaults
+                ? FindEnvironmentVariableFor(cur)
+                : null;
+        }
+
         private static object DetermineDefaultValueFrom(
             PropertyInfo cur,
             Attribute[] attribs,
-            bool allowsGlobalEnvironmentDefaults)
+            bool allowsGlobalEnvironmentDefaults
+        )
         {
             var envAttrib = attribs.FirstOrDefault(
                 o => o is AllowDefaultFromEnvironment
@@ -902,6 +926,7 @@ namespace PeanutButter.EasyArgs
                     return key;
                 }
             }
+
             return null;
         }
 
