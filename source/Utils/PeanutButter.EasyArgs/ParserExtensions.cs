@@ -119,16 +119,11 @@ namespace PeanutButter.EasyArgs
             var lookup = GenerateSwitchLookupFor<T>();
             AddImpliedOptionsTo(lookup);
             var flags = new HashSet<string>();
-            var collections = new HashSet<string>();
             foreach (var kvp in lookup)
             {
                 if (kvp.Value.IsFlag)
                 {
                     flags.Add(kvp.Key);
-                }
-                else if (kvp.Value.GetType().IsCollection())
-                {
-                    collections.Add(kvp.Key);
                 }
             }
 
@@ -160,12 +155,12 @@ namespace PeanutButter.EasyArgs
         }
 
         private static readonly char[] FuzzyEnvVars =
-        {
+        [
             '.',
             '-',
             '_',
             ':'
-        };
+        ];
 
         private static IDictionary<string, IHasValue> GrabEnvVars<T>()
         {
@@ -495,10 +490,9 @@ namespace PeanutButter.EasyArgs
             var prop = opt.Key;
             uncollectedArgs.AddRange(
                 input.AllValues.Except(
-                    new[]
-                    {
+                    [
                         input.SingleValue
-                    }
+                    ]
                 )
             );
             if (store.ContainsKey(prop))
@@ -565,7 +559,7 @@ namespace PeanutButter.EasyArgs
                 );
 
                 var negativeConflicts = negation is null
-                    ? new string[0]
+                    ? []
                     : collected.Keys
                         .Where(negation.HasSwitch)
                         .Distinct()
@@ -575,10 +569,9 @@ namespace PeanutButter.EasyArgs
                         arg => arg.ConflictsWithKeys.Contains(opt.Key)
                     )
                     .Except(
-                        new[]
-                        {
+                        [
                             opt
-                        }
+                        ]
                     )
                     .Distinct()
                     .ToArray();
@@ -793,22 +786,28 @@ namespace PeanutButter.EasyArgs
             List<CommandlineArgument> options
         )
         {
-            return new(
-                options
+            return
+            [
+
+                ..options
                     .Where(o => o.LongName is not null)
                     .Select(o => o.LongName)
-            );
+
+            ];
         }
 
         private static HashSet<string> CollectShortNamesFrom(
             List<CommandlineArgument> options
         )
         {
-            return new(
-                options
+            return
+            [
+
+                ..options
                     .Where(o => o.ShortName is not null)
                     .Select(o => o.ShortName)
-            );
+
+            ];
         }
 
         private static List<CommandlineArgument> GrokOptionsFor<T>()
@@ -884,8 +883,15 @@ namespace PeanutButter.EasyArgs
             }
 
             return allowsGlobalEnvironmentDefaults
-                ? FindEnvironmentVariableFor(cur)
+                ? FindEnvironmentVariableFor(cur) ?? DefaultEnvironmentVariableFor(cur)
                 : null;
+        }
+
+        private static string DefaultEnvironmentVariableFor(
+            PropertyInfo cur
+        )
+        {
+            return cur.Name.ToSnakeCase().ToUpper();
         }
 
         private static object DetermineDefaultValueFrom(
@@ -968,7 +974,7 @@ namespace PeanutButter.EasyArgs
                         return acc;
                     }
 
-                    var thisArgIsNotASwitch = (!cur.StartsWith("-") || IsNumeric(cur));
+                    var thisArgIsNotASwitch = !cur.StartsWith("-") || IsNumeric(cur);
                     var lastSwitchIsNotAFlag = !flags.Contains(lastSwitch.TrimStart('-'));
                     if (thisArgIsNotASwitch && lastSwitchIsNotAFlag)
                     {
@@ -1002,7 +1008,7 @@ namespace PeanutButter.EasyArgs
         {
             if (obj is null)
             {
-                return new string[0];
+                return [];
             }
 
             return obj.GetType()
@@ -1020,12 +1026,12 @@ namespace PeanutButter.EasyArgs
             if (pi.PropertyType == typeof(bool))
             {
                 var propValue = (bool)pi.GetValue(o);
-                return new[]
-                {
+                return
+                [
                     propValue
                         ? FindNameFor(pi)
                         : FindNameFor(pi).RegexReplace("^--", "--no-")
-                };
+                ];
             }
 
             var name = FindNameFor(pi);
@@ -1044,27 +1050,27 @@ namespace PeanutButter.EasyArgs
         {
             if (o is null)
             {
-                return new[]
-                {
+                return
+                [
                     ""
-                };
+                ];
             }
 
             if (o is string str)
             {
-                return new[]
-                {
+                return
+                [
                     str
-                };
+                ];
             }
 
             var enumerable = new EnumerableWrapper(o);
             if (!enumerable.IsValid)
             {
-                return new[]
-                {
+                return
+                [
                     o.ToString()
-                };
+                ];
             }
 
             var result = new List<string>();
