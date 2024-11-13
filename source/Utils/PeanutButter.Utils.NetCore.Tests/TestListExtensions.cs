@@ -906,6 +906,7 @@ public class TestListExtensions
                 );
         }
     }
+
     [TestFixture]
     public class ReversedInPlace
     {
@@ -938,6 +939,7 @@ public class TestListExtensions
                     "should return a List<T> for easier consumer access"
                 );
         }
+
         [Test]
         public void ShouldReverseTheOriginalArray()
         {
@@ -962,6 +964,57 @@ public class TestListExtensions
                         1
                     }
                 );
+        }
+    }
+
+    [TestFixture]
+    public class AddIf
+    {
+        [Test]
+        public void ShouldOnlyAddWhenFlagIsTrue()
+        {
+            // Arrange
+            var addOne = GetRandomBoolean();
+            var addTwo = GetRandomBoolean();
+            var addThree = GetRandomBoolean();
+            // Act
+            var list = new List<int>()
+                .AddIf(addOne, 1)
+                .AddIf(addTwo, 2)
+                .AddIf(addThree, 3);
+            // Assert
+            if (addOne)
+            {
+                Expect(list)
+                    .To.Contain(1);
+            }
+            else
+            {
+                Expect(list)
+                    .Not.To.Contain(1);
+            }
+
+            if (addTwo)
+            {
+                Expect(list)
+                    .To.Contain(2);
+            }
+            else
+            {
+                Expect(list)
+                    .Not.To.Contain(2);
+            }
+
+            if (addThree)
+            {
+                Expect(list)
+                    .To.Contain(3);
+            }
+            else
+            {
+                Expect(list)
+                    .Not.To.Contain(3);
+            }
         }
     }
 }

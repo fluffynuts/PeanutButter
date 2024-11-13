@@ -143,7 +143,7 @@ public
     /// <param name="shouldAdd"></param>
     /// <param name="value"></param>
     /// <typeparam name="T"></typeparam>
-    public static void AddIf<T>(
+    public static IList<T> AddIf<T>(
         this IList<T> list,
         bool shouldAdd,
         T value
@@ -153,6 +153,7 @@ public
         {
             list.Add(value);
         }
+        return list;
     }
 
     /// <summary>
