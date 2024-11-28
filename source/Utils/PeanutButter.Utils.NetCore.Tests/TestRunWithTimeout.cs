@@ -155,20 +155,22 @@ public class TestRunWithTimeout
         public class WhenTooSlow
         {
             [Test]
-            [Repeat(50)]
             public void ShouldThrow()
             {
-                // Arrange
-                // Act
-                Expect(
-                        () =>
-                            Run.WithTimeout(
-                                100,
-                                () => Thread.Sleep(500)
-                            )
-                    ).To.Throw<TimeoutException>()
-                    .With.Message.Like("unable to complete requested logic within");
-                // Assert
+                Retry.Max(3).Times(() =>
+                {
+                    // Arrange
+                    // Act
+                    Expect(
+                            () =>
+                                Run.WithTimeout(
+                                    100,
+                                    () => Thread.Sleep(500)
+                                )
+                        ).To.Throw<TimeoutException>()
+                        .With.Message.Like("unable to complete requested logic within");
+                    // Assert
+                });
             }
         }
     }

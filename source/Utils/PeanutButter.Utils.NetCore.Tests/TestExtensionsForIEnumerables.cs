@@ -875,7 +875,7 @@ public class TestExtensionsForIEnumerables
                 var expected = collection[1];
 
                 //---------------Assert Precondition----------------
-                Assert.That(collection.Count(), Is.GreaterThanOrEqualTo(2));
+                Assert.That(collection.Length, Is.GreaterThanOrEqualTo(2));
 
                 //---------------Execute Test ----------------------
                 var item = collection.Second();
@@ -4081,84 +4081,174 @@ public class TestExtensionsForIEnumerables
         public class ContainsAnyOf
         {
             [TestFixture]
-            public class WhenCollectionContainsNoneOfProvidedValues
+            public class ParamsOverload
             {
-                [Test]
-                public void ShouldReturnFalse()
+                [TestFixture]
+                public class WhenCollectionContainsNoneOfProvidedValues
                 {
-                    // Arrange
-                    var collection = new[]
+                    [Test]
+                    public void ShouldReturnFalse()
                     {
-                        1,
-                        2,
-                        3
-                    };
-                    // Act
-                    var result = collection.ContainsAnyOf(
-                        4,
-                        5,
-                        6
-                    );
-                    // Assert
-                    Expect(result)
-                        .To.Be.False();
+                        // Arrange
+                        var collection = new[]
+                        {
+                            1,
+                            2,
+                            3
+                        };
+                        // Act
+                        var result = collection.ContainsAnyOf(
+                            4,
+                            5,
+                            6
+                        );
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
+                }
+
+                [TestFixture]
+                public class WhenCollectionContainsOneProvidedValue
+                {
+                    [Test]
+                    public void ShouldReturnTrue()
+                    {
+                        // Arrange
+                        var collection = GetRandomArray<int>(5, 8);
+                        var seek = GetRandomFrom(collection);
+
+                        // Act
+                        var result = collection.ContainsAnyOf(seek);
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+                }
+
+                [TestFixture]
+                public class WhenCollectionContainsMoreThanOneProvidedValue
+                {
+                    [Test]
+                    public void ShouldReturnTrue()
+                    {
+                        // Arrange
+                        var collection = GetRandomArray<int>(5, 8);
+                        var subset = GetSubSetOf(collection).ToArray();
+
+                        // Act
+                        var result = collection.ContainsAnyOf(
+                            subset
+                        );
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+                }
+
+                [TestFixture]
+                public class WhenCollectionsAreEquivalent
+                {
+                    [Test]
+                    public void ShouldReturnTrue()
+                    {
+                        // Arrange
+                        var collection = GetRandomArray<int>(10, 20);
+                        var copy = collection.Randomize().ToArray();
+                        Expect(copy)
+                            .To.Be.Equivalent.To(collection);
+                        // Act
+                        var result = collection.ContainsAnyOf(copy);
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
                 }
             }
 
             [TestFixture]
-            public class WhenCollectionContainsOneProvidedValue
+            public class CollectionOverload
             {
-                [Test]
-                public void ShouldReturnTrue()
+                [TestFixture]
+                public class WhenCollectionContainsNoneOfProvidedValues
                 {
-                    // Arrange
-                    var collection = GetRandomArray<int>(5, 8);
-                    var seek = GetRandomFrom(collection);
-
-                    // Act
-                    var result = collection.ContainsAnyOf(seek);
-                    // Assert
-                    Expect(result)
-                        .To.Be.True();
+                    [Test]
+                    public void ShouldReturnFalse()
+                    {
+                        // Arrange
+                        var collection = new[]
+                        {
+                            1,
+                            2,
+                            3
+                        };
+                        // Act
+                        var result = collection.ContainsAnyOf([
+                            4,
+                            5,
+                            6
+                        ]);
+                        // Assert
+                        Expect(result)
+                            .To.Be.False();
+                    }
                 }
-            }
 
-            [TestFixture]
-            public class WhenCollectionContainsMoreThanOneProvidedValue
-            {
-                [Test]
-                public void ShouldReturnTrue()
+                [TestFixture]
+                public class WhenCollectionContainsOneProvidedValue
                 {
-                    // Arrange
-                    var collection = GetRandomArray<int>(5, 8);
-                    var subset = GetSubSetOf(collection).ToArray();
+                    [Test]
+                    public void ShouldReturnTrue()
+                    {
+                        // Arrange
+                        var collection = GetRandomArray<int>(5, 8);
+                        var seek = GetRandomFrom(collection);
 
-                    // Act
-                    var result = collection.ContainsAnyOf(
-                        subset
-                    );
-                    // Assert
-                    Expect(result)
-                        .To.Be.True();
+                        // Act
+                        var result = collection.ContainsAnyOf([seek]);
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
                 }
-            }
 
-            [TestFixture]
-            public class WhenCollectionsAreEquivalent
-            {
-                [Test]
-                public void ShouldReturnTrue()
+                [TestFixture]
+                public class WhenCollectionContainsMoreThanOneProvidedValue
                 {
-                    // Arrange
-                    var collection = GetRandomArray<int>(10, 20);
-                    var copy = collection.Randomize().ToArray();
-                    Expect(copy)
-                        .To.Be.Equivalent.To(collection);
-                    // Act
-                    var result = collection.ContainsAnyOf(copy);
-                    // Assert
-                    Expect(result)
-                        .To.Be.True();
+                    [Test]
+                    public void ShouldReturnTrue()
+                    {
+                        // Arrange
+                        var collection = GetRandomArray<int>(5, 8);
+                        var subset = GetSubSetOf(collection).AsHashSet();
+
+                        // Act
+                        var result = collection.ContainsAnyOf(
+                            subset
+                        );
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
+                }
+
+                [TestFixture]
+                public class WhenCollectionsAreEquivalent
+                {
+                    [Test]
+                    public void ShouldReturnTrue()
+                    {
+                        // Arrange
+                        var collection = GetRandomArray<int>(10, 20);
+                        var copy = collection.Randomize().ToList();
+                        Expect(copy)
+                            .To.Be.Equivalent.To(collection);
+                        // Act
+                        var result = collection.ContainsAnyOf(copy);
+                        // Assert
+                        Expect(result)
+                            .To.Be.True();
+                    }
                 }
             }
         }

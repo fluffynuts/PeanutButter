@@ -2133,6 +2133,40 @@ namespace PeanutButter.Utils
             }
             return false;
         }
+
+        /// <summary>
+        /// Returns true if the collection
+        /// contains ANY of the provided values
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="values"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool ContainsAnyOf<T>(
+            this IEnumerable<T> collection,
+            IEnumerable<T> values
+        )
+        {
+            if (collection is null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+
+            if (values is null)
+            {
+                throw new ArgumentNullException(nameof(values));
+            }
+
+            var seek = values as HashSet<T> ?? values.AsHashSet();
+            foreach (var item in collection)
+            {
+                if (seek.Contains(item))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     /// <summary>
