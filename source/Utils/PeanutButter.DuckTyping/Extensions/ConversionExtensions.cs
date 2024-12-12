@@ -81,7 +81,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 return true;
             }
 
-            var converter = ConverterLocator.GetConverter(
+            var converter = ConverterLocator.TryFindConverter(
                 input.GetType(),
                 desiredType
             );

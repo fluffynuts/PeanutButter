@@ -17,8 +17,8 @@ public class TestConverterLocator
         //--------------- Assume ----------------
 
         //--------------- Act ----------------------
-        var result1 = ConverterLocator.GetConverter(typeof(string), typeof(Guid));
-        var result2 = ConverterLocator.GetConverter(typeof(Guid), typeof(string));
+        var result1 = ConverterLocator.TryFindConverter(typeof(string), typeof(Guid));
+        var result2 = ConverterLocator.TryFindConverter(typeof(Guid), typeof(string));
 
         //--------------- Assert -----------------------
         Expect(result1).Not.To.Be.Null();
@@ -36,8 +36,8 @@ public class TestConverterLocator
         //--------------- Assume ----------------
 
         //--------------- Act ----------------------
-        var result1 = ConverterLocator.GetConverter(typeof(int), typeof(string));
-        var result2 = ConverterLocator.GetConverter(typeof(string), typeof(int));
+        var result1 = ConverterLocator.TryFindConverter(typeof(int), typeof(string));
+        var result2 = ConverterLocator.TryFindConverter(typeof(string), typeof(int));
 
         //--------------- Assert -----------------------
         Expect(result1).Not.To.Be.Null();

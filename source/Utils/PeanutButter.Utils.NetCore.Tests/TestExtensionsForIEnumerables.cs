@@ -875,7 +875,8 @@ public class TestExtensionsForIEnumerables
                 var expected = collection[1];
 
                 //---------------Assert Precondition----------------
-                Assert.That(collection.Length, Is.GreaterThanOrEqualTo(2));
+                Expect(collection)
+                    .To.Contain.At.Least(2).Items();
 
                 //---------------Execute Test ----------------------
                 var item = collection.Second();

@@ -5951,6 +5951,55 @@ public class TestRandomValueGen
             long? StepRunTime { get; set; }
         }
     }
+
+    [TestFixture]
+    public class RestrictingValuesForProperty
+    {
+        [Test]
+        public void ShouldUseValuesWhenProvided()
+        {
+            // Arrange
+            var allowed = new HashSet<string>(
+                new[]
+                {
+                    "bob",
+                    "sally",
+                    "margaret"
+                }
+            );
+            // Act
+            RunCycles(() =>
+            {
+                var result = GetRandom<Person>();
+                Expect(allowed)
+                    .To.Contain(result.Name);
+            });
+            // Assert
+        }
+
+        public class Person
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public Numbers OddNumber { get; set; }
+            public Numbers EvenNumber { get; set; }
+        }
+
+        public enum Numbers
+        {
+            One,
+            Two,
+            Three,
+            Four
+        }
+
+        [Restrict(nameof(Person.Name), "bob", "sally", "margaret")]
+        [Restrict(nameof(Person.OddNumber), Numbers.One, Numbers.Three)]
+        [Restrict(nameof(Person.EvenNumber), "Two", "Four")]
+        public class PersonBuilder : GenericBuilder<PersonBuilder, Person>
+        {
+        }
+    }
 }
 
 internal static class Matchers

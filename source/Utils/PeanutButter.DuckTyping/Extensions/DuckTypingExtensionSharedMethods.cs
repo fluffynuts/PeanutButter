@@ -657,7 +657,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static bool CanAutoConvert(Type srcType, Type targetType)
         {
-            return ConverterLocator.GetConverter(srcType, targetType) != null;
+            return ConverterLocator.TryFindConverter(srcType, targetType) != null;
         }
 
         private static Dictionary<string, MethodInfo> Except(
@@ -680,7 +680,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 return null;
             }
 
-            var converter = ConverterLocator.GetConverter(src.GetType(), typeof(T));
+            var converter = ConverterLocator.TryFindConverter(src.GetType(), typeof(T));
             if (converter != null)
             {
                 return (T)converter.Convert(src);

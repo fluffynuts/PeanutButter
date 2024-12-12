@@ -19,7 +19,10 @@ namespace Imported.PeanutButter.DuckTyping.AutoConversion
 namespace PeanutButter.DuckTyping.AutoConversion
 #endif
 {
-    internal static class ConverterLocator
+    /// <summary>
+    /// Locates converters for converting values from one type to another
+    /// </summary>
+    public static class ConverterLocator
     {
         internal static IDictionary<Tuple<Type, Type>, IConverter> Converters =>
             _converters ??= FindConverters();
@@ -193,7 +196,14 @@ namespace PeanutButter.DuckTyping.AutoConversion
 
         private static readonly object ConverterLock = new object();
 
-        public static IConverter GetConverter(Type t1, Type t2)
+        /// <summary>
+        /// Attempts to locate a converter to convert between
+        /// types t1 and t2
+        /// </summary>
+        /// <param name="t1"></param>
+        /// <param name="t2"></param>
+        /// <returns></returns>
+        public static IConverter TryFindConverter(Type t1, Type t2)
         {
             lock (ConverterLock)
             {
@@ -315,6 +325,13 @@ namespace PeanutButter.DuckTyping.AutoConversion
                 .ToArray();
         }
 
+        /// <summary>
+        /// Determines if there is a converter to convert
+        /// between the two provided types
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="toType"></param>
+        /// <returns></returns>
         public static bool HaveConverterFor(Type type, Type toType)
         {
             lock (Converters)

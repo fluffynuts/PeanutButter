@@ -152,7 +152,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 return propValue;
             }
 
-            var converter = ConverterLocator.GetConverter(propType, mimickedProperty.PropertyType);
+            var converter = ConverterLocator.TryFindConverter(propType, mimickedProperty.PropertyType);
             if (converter != null)
             {
                 return ConvertWith(converter, propValue, mimickedProperty.PropertyType);
@@ -221,7 +221,7 @@ namespace PeanutButter.DuckTyping.Shimming
             }
             else
             {
-                var converter = ConverterLocator.GetConverter(
+                var converter = ConverterLocator.TryFindConverter(
                     newValueType,
                     mimickedProperty.PropertyType
                 );
@@ -408,7 +408,7 @@ namespace PeanutButter.DuckTyping.Shimming
                     return arg;
                 }
 
-                var converter = ConverterLocator.GetConverter(argType, parameterTypes[idx]);
+                var converter = ConverterLocator.TryFindConverter(argType, parameterTypes[idx]);
                 return converter.Convert(arg);
             }).ToArray();
         }
@@ -439,7 +439,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 return result;
             }
 
-            var converter = ConverterLocator.GetConverter(resultType, returnType);
+            var converter = ConverterLocator.TryFindConverter(resultType, returnType);
             return converter?.Convert(result)
                 ?? throw new InvalidOperationException(
                     $"Can't convert result from {resultType} to {returnType}"

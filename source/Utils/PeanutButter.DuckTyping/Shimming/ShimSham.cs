@@ -362,7 +362,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 return propValue;
             }
 
-            var converter = ConverterLocator.GetConverter(propValueType, correctType);
+            var converter = ConverterLocator.TryFindConverter(propValueType, correctType);
             if (converter != null)
             {
                 return ConvertWith(converter, propValue, correctType);
@@ -787,7 +787,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 return;
             }
 
-            var converter = ConverterLocator.GetConverter(newValueType, pType);
+            var converter = ConverterLocator.TryFindConverter(newValueType, pType);
             if (converter is null)
             {
                 throw new InvalidOperationException(
