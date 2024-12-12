@@ -14,6 +14,10 @@ namespace PeanutButter.RandomGenerators;
 /// <summary>
 /// Abstract class to require uniqueness on a property or field by name
 /// </summary>
+[AttributeUsage(
+    AttributeTargets.Class,
+    AllowMultiple = true
+)]
 #if BUILD_PEANUTBUTTER_INTERNAL
 internal
 #else
