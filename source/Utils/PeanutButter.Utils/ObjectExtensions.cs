@@ -430,6 +430,30 @@ public
             pi => Tuple.Create(pi.Name, pi.PropertyType),
             pi => pi
         );
+        foreach (var item in targetPropertyCache.ToArray())
+        {
+            if (!item.Value.PropertyType.IsNullableType())
+            {
+                continue;
+            }
+
+            var underlyingType = Nullable.GetUnderlyingType(
+                item.Value.PropertyType
+            );
+            if (underlyingType is null)
+            {
+                continue;
+            }
+
+            var key = Tuple.Create(
+                item.Key.Item1,
+                underlyingType
+            );
+            targetPropertyCache.TryAdd(
+                key,
+                item.Value
+            );
+        }
 
         foreach (var srcPropInfo in srcPropInfos.Where(
                      pi => pi.CanRead &&
@@ -456,6 +480,8 @@ public
             );
         }
     }
+
+    private static readonly Type NullableType = typeof(Nullable<>);
 
     private static readonly ConcurrentDictionary<Type, PropertyInfo[]> PropertyCache = new();
 

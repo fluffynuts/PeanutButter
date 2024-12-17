@@ -1114,6 +1114,7 @@ public class TestObjectExtensions
         [Test]
         public void GivenDestWithSameProperty_CopiesValue()
         {
+            TestCopyFor<Numbers>();
             TestCopyFor<string>();
             TestCopyFor<int>();
             TestCopyFor<byte>();
@@ -1145,7 +1146,67 @@ public class TestObjectExtensions
             var src = new Simple<T>();
             var dst = new Simple<T>();
             while (dst.prop.Equals(src.prop))
+            {
                 dst.Randomize();
+            }
+
+            src.CopyPropertiesTo(dst);
+
+            //---------------Test Result -----------------------
+            Expect(dst.prop)
+                .To.Equal(src.prop);
+        }
+
+        [Test]
+        public void ShouldCopyNullableWithValueToNonNullable()
+        {
+            // Arrange
+            // Act
+            TestNullableCopyFor<Numbers>();
+            TestNullableCopyFor<int>();
+            TestNullableCopyFor<byte>();
+            TestNullableCopyFor<char>();
+            TestNullableCopyFor<long>();
+            TestNullableCopyFor<float>();
+            TestNullableCopyFor<double>();
+            TestNullableCopyFor<decimal>();
+            TestNullableCopyFor<DateTime>();
+            TestNullableCopyFor<bool>();
+            // Assert
+        }
+
+        public class Foo1
+        {
+            public Numbers Numbers { get; set; }
+        }
+
+        public class Foo2
+        {
+            public Numbers? Numbers { get; set; }
+        }
+
+        public enum Numbers
+        {
+            One,
+            Two,
+            Three
+        }
+
+        private static void TestNullableCopyFor<T>()
+            where T : struct
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var src = GetRandom<Simple<T>>();
+            var dst = new NullableSimple<T>();
+            while (dst.prop.Equals(src.prop))
+            {
+                dst.Randomize();
+            }
+
             src.CopyPropertiesTo(dst);
 
             //---------------Test Result -----------------------
@@ -1161,7 +1222,9 @@ public class TestObjectExtensions
             var src = new Complex<int>();
             var dst = new Complex<int>();
             while (dst.prop.prop.Equals(src.prop.prop))
+            {
                 dst.prop.Randomize();
+            }
 
             //---------------Assert Precondition----------------
             Expect(dst)
@@ -1187,7 +1250,9 @@ public class TestObjectExtensions
             var src = new Complex<int>();
             var dst = new Complex<int>();
             while (dst.prop.prop.Equals(src.prop.prop))
+            {
                 dst.prop.Randomize();
+            }
 
             //---------------Assert Precondition----------------
             Expect(dst)
@@ -3684,6 +3749,22 @@ public class TestObjectExtensions
         public void Randomize()
         {
             prop = GetRandom<T>();
+        }
+    }
+
+    public class NullableSimple<T>
+        where T : struct
+    {
+        public T? prop { get; set; }
+
+        public NullableSimple()
+        {
+            Randomize();
+        }
+
+        public void Randomize()
+        {
+            prop = GetRandom<T?>();
         }
     }
 

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using NSubstitute;
-using NUnit.Framework;
 
 namespace PeanutButter.RandomGenerators.Core.Tests;
 
 [TestFixture]
-public partial class TestObjectExtensions
+public class TestObjectExtensions
 {
     [TestFixture]
     public class Randomized

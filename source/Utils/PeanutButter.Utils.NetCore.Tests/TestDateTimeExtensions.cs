@@ -731,7 +731,10 @@ public class TestDateTimeExtensions
     {
         var result = value.ToString();
         while (result.Length < places)
+        {
             result = "0" + result;
+        }
+
         return result;
     }
 

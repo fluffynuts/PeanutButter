@@ -1,9 +1,5 @@
 ﻿using System.Collections.Generic;
-using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
 using PeanutButter.RandomGenerators.Core.Tests.Domain;
-using static NExpect.Expectations;
 
 namespace PeanutButter.RandomGenerators.Core.Tests
 {
