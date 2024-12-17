@@ -1,4 +1,5 @@
 ﻿#if BUILD_PEANUTBUTTER_INTERNAL
+using System;
 using Imported.PeanutButter.Utils;
 
 namespace Imported.PeanutButter.RandomGenerators;
