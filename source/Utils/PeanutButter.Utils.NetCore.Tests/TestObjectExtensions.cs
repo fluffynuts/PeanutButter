@@ -1106,11 +1106,29 @@ public class TestObjectExtensions
 
             //---------------Test Result -----------------------
         }
-    }
 
-    [TestFixture]
-    public class CopyingPropertiesFromOneObjectToAnother
-    {
+        [Test]
+        public void ShouldCopyNullableEnumProp()
+        {
+            // Arrange
+            var src = new HasNullableEnum()
+            {
+                Number = GetRandom<Numbers>()
+            };
+            var target = new HasNullableEnum();
+
+            // Act
+            src.CopyPropertiesTo(target);
+            // Assert
+            Expect(target.Number)
+                .To.Equal(src.Number);
+        }
+
+        public class HasNullableEnum
+        {
+            public Numbers? Number { get; set; }
+        }
+
         [Test]
         public void GivenDestWithSameProperty_CopiesValue()
         {
@@ -3938,6 +3956,7 @@ public class TestObjectExtensions
         public string AccommodationRequiredNotes { get; set; }
     }
 
+    // ReSharper disable once UnusedType.Global
     public class TravelRequest : ITravelRequest
     {
         public Guid Id { get; set; }

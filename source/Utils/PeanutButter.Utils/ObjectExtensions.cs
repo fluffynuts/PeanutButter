@@ -876,12 +876,18 @@ public
 
     private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
     {
-        return Types.PrimitivesAndImmutables.Any(
-            si => si == t ||
-                (t.IsGenericType() &&
-                    t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                    Nullable.GetUnderlyingType(t) == si)
-        );
+        return Types.PrimitivesAndImmutables.Contains(t)
+            || IsNullableOfSimpleType(t);
+    }
+
+    private static bool IsNullableOfSimpleType(Type t)
+    {
+        if (!t.IsGenericType())
+        {
+            return false;
+        }
+        var underlyingType = Nullable.GetUnderlyingType(t);
+        return underlyingType is not null;
     }
 
     /// <summary>

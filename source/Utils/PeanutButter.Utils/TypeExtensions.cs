@@ -1053,8 +1053,7 @@ namespace PeanutButter.Utils
         }
 
         private static readonly HashSet<Type> NumericTypes = new(
-            new[]
-            {
+            [
                 typeof(byte),
                 typeof(short),
                 typeof(int),
@@ -1063,7 +1062,7 @@ namespace PeanutButter.Utils
                 typeof(float),
                 typeof(double),
                 typeof(decimal)
-            }
+            ]
         );
 
 
@@ -2022,8 +2021,7 @@ namespace PeanutButter.Utils
     internal static class Types
     {
         public static readonly HashSet<Type> PrimitivesAndImmutables = new(
-            new[]
-            {
+            [
                 typeof(int),
                 typeof(short),
                 typeof(char),
@@ -2039,7 +2037,7 @@ namespace PeanutButter.Utils
                 typeof(DateTimeOffset),
                 typeof(Guid),
                 typeof(IPAddress)
-            }
+            ]
         );
     }
 

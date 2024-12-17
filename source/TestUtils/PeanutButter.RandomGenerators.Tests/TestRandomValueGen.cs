@@ -5850,10 +5850,6 @@ public class TestRandomValueGen
                     // Act
                     var subset = GetSubSetOf(ints, min, max)
                         .ToArray();
-                    if (subset.Length > max)
-                    {
-                        var foo = 1;
-                    }
 
                     // Assert
                     Expect(subset)

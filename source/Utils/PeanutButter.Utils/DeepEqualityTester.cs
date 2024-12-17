@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 #if BUILD_PEANUTBUTTER_INTERNAL
 using static Imported.PeanutButter.Utils.PyLike;
+
 #else
 using static PeanutButter.Utils.PyLike;
 #endif
@@ -527,21 +528,24 @@ internal
 
     private static bool IsSimpleTypeOrNullableOfSimpleType(Type t)
     {
-        return t is not null &&
-        (
-            Types.PrimitivesAndImmutables.Any(
-                si => si == t ||
-#if NETSTANDARD
-                    (t.IsConstructedGenericType &&
-#else
-                        (t.IsGenericType &&
-#endif
-                        t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                        Nullable.GetUnderlyingType(t) == si)
-            )
-        );
+        return Types.PrimitivesAndImmutables.Contains(t)
+            || IsNullableOfSimpleType(t);
     }
 
+    private static bool IsNullableOfSimpleType(Type t)
+    {
+#if NETSTANDARD
+        if (t.IsConstructedGenericType)
+#else
+        if (!t.IsGenericType())
+#endif
+        {
+            return false;
+        }
+
+        var underlyingType = Nullable.GetUnderlyingType(t);
+        return underlyingType is not null;
+    }
 
     private static bool CanPerformSimpleTypeMatchFor(Type srcPropType)
     {
