@@ -43,7 +43,7 @@ public
     /// <inheritdoc />
     public override void Init(Type entityType)
     {
-        if (PropertyType == null)
+        if (PropertyType is null)
         {
             throw new InvalidOperationException(
                 $@"Inheritors of {
