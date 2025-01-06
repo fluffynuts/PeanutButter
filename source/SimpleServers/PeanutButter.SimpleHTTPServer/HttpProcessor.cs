@@ -157,7 +157,7 @@ namespace PeanutButter.SimpleHTTPServer
             var tokens = request.Split(' ');
             if (tokens.Length != 3)
             {
-                throw new Exception("invalid http request line");
+                throw new Exception($"invalid http request line:\n{request}");
             }
 
             Method = tokens[0].ToUpper();
