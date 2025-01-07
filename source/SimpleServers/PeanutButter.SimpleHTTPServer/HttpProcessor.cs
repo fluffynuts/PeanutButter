@@ -102,31 +102,29 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
     /// <inheritdoc />
     public void ProcessRequest()
     {
-        using (var io = new TcpIoWrapper(TcpClient))
+        using var io = new TcpIoWrapper(TcpClient);
+        try
         {
-            try
-            {
-                _outputStream = io.StreamWriter;
-                ParseRequest();
-                ReadHeaders();
-                HandleRequest(io);
-            }
-            catch (FileNotFoundException)
-            {
-                WriteFailure(HttpStatusCode.NotFound, Statuses.NOTFOUND);
-            }
-            catch (Exception ex)
-            {
-                WriteFailure(
-                    HttpStatusCode.InternalServerError,
-                    $"{Statuses.INTERNALERROR}: {ex.Message}"
-                );
-                Log($"Unable to process request: {ex.Message}");
-            }
-            finally
-            {
-                _outputStream = null;
-            }
+            _outputStream = io.StreamWriter;
+            ParseRequest();
+            ReadHeaders();
+            HandleRequest(io);
+        }
+        catch (FileNotFoundException)
+        {
+            WriteFailure(HttpStatusCode.NotFound, Statuses.NOTFOUND);
+        }
+        catch (Exception ex)
+        {
+            WriteFailure(
+                HttpStatusCode.InternalServerError,
+                $"{Statuses.INTERNALERROR}: {ex.Message}"
+            );
+            Log($"Unable to process request: {ex.Message}");
+        }
+        finally
+        {
+            _outputStream = null;
         }
     }
 

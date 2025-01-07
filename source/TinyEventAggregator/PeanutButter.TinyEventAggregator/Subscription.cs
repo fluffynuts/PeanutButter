@@ -69,18 +69,20 @@ namespace PeanutButter.TinyEventAggregator
         /// <returns></returns>
         public bool OnlyOneCallLeft()
         {
-            lock (this)
+            lock (_lock)
             {
                 return _originalLimit > 0 && RemainingCalls == 1;
             }
         }
+        
+        private readonly object _lock = new();
 
         /// <summary>
         /// Decrements the remaining allowed call count, if applicable
         /// </summary>
         public void DecrementRemainingCallCount()
         {
-            lock (this)
+            lock (_lock)
             {
                 if (_originalLimit > 0)
                 {

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable UnusedMember.Global
 
@@ -31,7 +33,7 @@ namespace PeanutButter.TinyEventAggregator
     public class EventAggregator
         : IEventAggregator
     {
-        private static readonly object Lock = new object();
+        private static readonly object InstanceLock = new();
         private static EventAggregator _instance;
         private readonly List<EventBase> _events;
 
@@ -42,9 +44,9 @@ namespace PeanutButter.TinyEventAggregator
         {
             get
             {
-                lock (Lock)
+                lock (InstanceLock)
                 {
-                    return _instance ?? (_instance = new EventAggregator());
+                    return _instance ??= new EventAggregator();
                 }
             }
         }
@@ -60,16 +62,21 @@ namespace PeanutButter.TinyEventAggregator
         /// <inheritdoc />
         public TEvent GetEvent<TEvent>() where TEvent: EventBase, new()
         {
-            lock (this)
+            lock (_lock)
             {
                 var match = _events.FirstOrDefault(ev => (ev as TEvent) != null);
                 if (match != null)
+                {
                     return match as TEvent;
+                }
+
                 match = Activator.CreateInstance<TEvent>();
                 _events.Add(match);
                 return (TEvent)match;
             }
         }
+        
+        private readonly object _lock = new();
 
         /// <inheritdoc />
         public void Unsuspend()

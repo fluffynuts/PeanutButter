@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils
@@ -48,27 +49,27 @@ namespace PeanutButter.Utils
         /// <inheritdoc />
         public void Dispose()
         {
-            lock (this)
+            using var _ = new AutoLocker(_lock);
+            foreach (var f in _toDelete)
             {
-                foreach (var f in _toDelete)
+                try
                 {
-                    try
-                    {
-                        Retry.Max(50).Times(
-                            () => Delete(f)
-                        );
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine(
-                            $"WARNING: Unable to delete temporary artifact '{f}': {ex}"
-                        );
-                    }
+                    Retry.Max(50).Times(
+                        () => Delete(f)
+                    );
                 }
-
-                _toDelete.Clear();
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(
+                        $"WARNING: Unable to delete temporary artifact '{f}': {ex}"
+                    );
+                }
             }
+
+            _toDelete.Clear();
         }
+
+        private readonly SemaphoreSlim _lock = new(1);
 
         private void Delete(string path)
         {

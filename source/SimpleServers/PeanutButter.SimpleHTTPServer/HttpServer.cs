@@ -561,14 +561,21 @@ public class HttpServer : HttpServerBase, IHttpServer
     }
 
     /// <inheritdoc />
-    public override void HandleRequestWithoutBody(HttpProcessor p, string method)
+    public override void HandleRequestWithoutBody(
+        HttpProcessor p,
+        string method
+    )
     {
         Log($"Incoming {method} request: {p.FullUrl}");
         InvokeHandlersWith(p, null);
     }
 
     /// <inheritdoc />
-    public override void HandleRequestWithBody(HttpProcessor p, MemoryStream inputData, string method)
+    public override void HandleRequestWithBody(
+        HttpProcessor p,
+        MemoryStream inputData,
+        string method
+    )
     {
         Log($"Incoming {method} request: {p.FullUrl}");
         InvokeHandlersWith(p, inputData);
@@ -757,6 +764,7 @@ public class HttpServer : HttpServerBase, IHttpServer
 
             newHandlers.Enqueue(item);
         }
+
         Interlocked.Exchange(ref _handlers, newHandlers);
         return removed;
     }

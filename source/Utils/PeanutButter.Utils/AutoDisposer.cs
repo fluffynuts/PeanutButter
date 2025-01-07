@@ -88,20 +88,20 @@ namespace PeanutButter.Utils
         /// <inheritdoc />
         public void Dispose()
         {
-            lock (this)
+            using var _ = new AutoLocker(_lock);
+            var toDispose = _toDispose.ToArray().Reverse().ToArray();
+            _toDispose.Clear();
+            if (ThreadedDisposal)
             {
-                var toDispose = _toDispose.ToArray().Reverse().ToArray();
-                _toDispose.Clear();
-                if (ThreadedDisposal)
-                {
-                    CleanupInParallel(toDispose);
-                }
-                else
-                {
-                    CleanupInSerial(toDispose);
-                }
+                CleanupInParallel(toDispose);
+            }
+            else
+            {
+                CleanupInSerial(toDispose);
             }
         }
+
+        private readonly SemaphoreSlim _lock = new(1);
 
         private void CleanupInSerial(IDisposable[] toDispose)
         {

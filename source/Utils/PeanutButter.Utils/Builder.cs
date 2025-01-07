@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 // ReSharper disable StaticMemberInGenericType
 
@@ -79,8 +80,7 @@ namespace PeanutButter.Utils
             EntityType.GetConstructors()
                 .Any(ctor => ctor.GetParameters().Length == 0);
 
-        private readonly List<ActionRef<TEntity>> _transforms
-            = new List<ActionRef<TEntity>>();
+        private readonly List<ActionRef<TEntity>> _transforms = new();
 
         /// <summary>
         /// Creates an instance of this builder; used for fluent
@@ -146,7 +146,8 @@ namespace PeanutButter.Utils
 
         private TEntity ThrowUnconstructable(
             string info,
-            Exception ex = null)
+            Exception ex = null
+        )
         {
             throw new NotImplementedException(
                 $"{info}\nPlease override {nameof(ConstructEntity)} in {typeof(TBuilder)} to handle construction of {EntityType}",
@@ -187,26 +188,27 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public virtual TEntity Build()
         {
-            lock (this)
-            {
-                var snapshot = _transforms.ToArray();
-                _transforms.Clear();
-                var entity = ConstructEntity();
-                var initialTransforms = snapshot.Concat(
-                    _transforms
-                ).ToArray();
-                _transforms.Clear();
-                RunTransforms(ref entity, initialTransforms);
-                _transforms.AddRange(snapshot);
-                return entity;
-            }
+            using var _ = new AutoLocker(_lock);
+            var snapshot = _transforms.ToArray();
+            _transforms.Clear();
+            var entity = ConstructEntity();
+            var initialTransforms = snapshot.Concat(
+                _transforms
+            ).ToArray();
+            _transforms.Clear();
+            RunTransforms(ref entity, initialTransforms);
+            _transforms.AddRange(snapshot);
+            return entity;
         }
+
+        private readonly SemaphoreSlim _lock = new(1);
 
         private void RunTransforms(
             ref TEntity entity,
             ActionRef<TEntity>[] transforms,
             // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-            int depth = 0)
+            int depth = 0
+        )
         {
             if (depth > 15)
             {

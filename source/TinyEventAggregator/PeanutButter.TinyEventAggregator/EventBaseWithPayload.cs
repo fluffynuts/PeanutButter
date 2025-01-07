@@ -22,12 +22,13 @@ namespace PeanutButter.TinyEventAggregator
         {
             get
             {
-                lock (this)
+                lock (_lock)
                 {
                     return _subscriptions.Count;
                 }
             }
         }
+        private readonly object _lock = new();
 
         /// <summary>
         /// Fired when a subscription is added for this event
@@ -62,7 +63,7 @@ namespace PeanutButter.TinyEventAggregator
             [CallerMemberName] string requestingMethod = "(unknown)",
             [CallerLineNumber] int subscribingSourceLine = -1)
         {
-            lock (this)
+            lock (_lock)
             {
                 var token = PerformSubscription(callback, 0);
                 Debug.WriteLine(
@@ -74,7 +75,11 @@ namespace PeanutButter.TinyEventAggregator
         private void RaiseSubscriptionAddedEventHandler(SubscriptionToken token)
         {
             var handler = OnSubscriptionAdded;
-            if (handler == null) return;
+            if (handler == null)
+            {
+                return;
+            }
+
             try
             {
                 handler(this, new SubscriptionsChangedEventArgs(token));
@@ -99,7 +104,7 @@ namespace PeanutButter.TinyEventAggregator
             [CallerMemberName] string requestingMethod = "(unknown)",
             [CallerLineNumber] int subscribingSourceLine = -1)
         {
-            lock (this)
+            lock (_lock)
             {
                 var token = PerformSubscription(action, 1);
                 Debug.WriteLine(
@@ -124,7 +129,7 @@ namespace PeanutButter.TinyEventAggregator
             [CallerMemberName] string requestingMethod = "(unknown)",
             [CallerLineNumber] int subscribingSourceLine = -1)
         {
-            lock (this)
+            lock (_lock)
             {
                 var token = PerformSubscription(action, limit);
                 Debug.WriteLine(
@@ -135,8 +140,12 @@ namespace PeanutButter.TinyEventAggregator
 
         private SubscriptionToken PerformSubscription(Action<TPayload> action, int limit)
         {
-            if (action == null) throw new ArgumentNullException(nameof(action));
-            lock (this)
+            if (action == null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            lock (_lock)
             {
                 var subscription = new Subscription<TPayload>(action, limit);
                 _subscriptions.Add(subscription);
@@ -158,7 +167,7 @@ namespace PeanutButter.TinyEventAggregator
             [CallerMemberName] string requestingMethod = "(unknown)",
             [CallerLineNumber] int publishingSourceLine = -1)
         {
-            lock (this)
+            lock (_lock)
             {
                 WaitForSuspension();
                 var subscriptions = _subscriptions.ToArray();
@@ -219,12 +228,18 @@ namespace PeanutButter.TinyEventAggregator
             [CallerMemberName] string requestingMethod = "(unknown)",
             [CallerLineNumber] int unsubscribingSourceLine = -1)
         {
-            if (token == null) throw new ArgumentNullException(nameof(token));
-            lock (this)
+            if (token == null)
+            {
+                throw new ArgumentNullException(nameof(token));
+            }
+
+            lock (_lock)
             {
                 var match = _subscriptions.FirstOrDefault(s => s.Token == token);
                 if (match == null)
+                {
                     return;
+                }
 
                 Debug.WriteLine(
                     $"Unsubscribing [{match.Token}] from event [{_eventName}] ({sourceFile}:{requestingMethod}:{unsubscribingSourceLine})"
@@ -237,7 +252,11 @@ namespace PeanutButter.TinyEventAggregator
         private void RaiseSubscriptionRemovedEventHandler(SubscriptionToken token)
         {
             var handler = OnSubscriptionRemoved;
-            if (handler == null) return;
+            if (handler == null)
+            {
+                return;
+            }
+
             try
             {
                 handler(this, new SubscriptionsChangedEventArgs(token));
