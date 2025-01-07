@@ -118,7 +118,8 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
         {
             WriteFailure(
                 HttpStatusCode.InternalServerError,
-                $"{Statuses.INTERNALERROR}: {ex.Message}"
+                $"{Statuses.INTERNALERROR}: {ex.Message}",
+                body: ex.StackTrace
             );
             Log($"Unable to process request: {ex.Message}");
         }
