@@ -65,7 +65,6 @@ namespace PeanutButter.SimpleTcpServer
 
         // ReSharper disable once MemberCanBePrivate.Global
 
-
         /// <summary>
         /// Port which this server has bound to
         /// </summary>
