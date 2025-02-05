@@ -7,6 +7,10 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 
+// ReSharper disable UnusedMemberInSuper.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable EventNeverSubscribedTo.Global
+
 // ReSharper disable InconsistentNaming
 
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -171,6 +175,53 @@ namespace PeanutButter.Utils
             Func<string, bool> matcher,
             int timeoutMilliseconds
         );
+
+        /// <summary>
+        /// Which output mode to use (buffered collections
+        /// or events). Note that changes to this property
+        /// will not be observed after the process has started
+        /// </summary>
+        public OutputModes OutputMode { get; }
+
+        /// <summary>
+        /// Raised when receiving data on stdout from
+        /// the process
+        /// </summary>
+        public event EventHandler<string> OnStdOut;
+
+        /// <summary>
+        /// Raised when receiving data on stderr from
+        /// the process
+        /// </summary>
+        public event EventHandler<string> OnStdErr;
+    }
+
+    /// <summary>
+    /// The two possible modes for consuming
+    /// outputs from the process
+    /// </summary>
+    public enum OutputModes
+    {
+        /// <summary>
+        /// I/O is done via looping on one or more of
+        /// the lazy collections
+        /// - StandardError
+        /// - StandardOutput
+        /// - StandardOutputAndErrorInterleaved
+        /// => simply `foreach` on them - the loop
+        /// will complete when the process exits
+        /// This is the default, since it's the easiest
+        /// to consume.
+        /// </summary>
+        BufferedCollections,
+
+        /// <summary>
+        /// I/O is done via raised events. The buffered
+        /// collections will _not_ be updated. This is
+        /// useful for streams of data which would consume
+        /// a lot of memory (eg piping from a mysqldump)
+        /// </summary>
+        Events
     }
 
     /// <summary>
@@ -235,6 +286,22 @@ namespace PeanutButter.Utils
         /// <param name="env"></param>
         /// <returns></returns>
         IUnstartedProcessIO WithEnvironment(IDictionary<string, string> env);
+
+        /// <summary>
+        /// Starts the process with an action to receive stdout data
+        /// as it streams, instead of buffering to a collection
+        /// </summary>
+        /// <param name="receiver"></param>
+        /// <returns></returns>
+        IUnstartedProcessIO WithStdOutReceiver(Action<string> receiver);
+
+        /// <summary>
+        /// Starts the process with an action to receive stderr data
+        /// as it streams, instead of buffering to a collection
+        /// </summary>
+        /// <param name="receiver"></param>
+        /// <returns></returns>
+        IUnstartedProcessIO WithStdErrReceiver(Action<string> receiver);
     }
 
     /// <inheritdoc />
@@ -288,6 +355,19 @@ namespace PeanutButter.Utils
         /// <inheritdoc />
         public Process Process => _process;
 
+        /// <inheritdoc />
+        public OutputModes OutputMode
+        {
+            get;
+            private set;
+        }
+
+        /// <inheritdoc />
+        public event EventHandler<string> OnStdOut;
+
+        /// <inheritdoc />
+        public event EventHandler<string> OnStdErr;
+
         private Process _process;
         private bool _disposed;
         private ManualResetEventSlim _stdOutDataAvailable;
@@ -306,9 +386,27 @@ namespace PeanutButter.Utils
         public ProcessIO(
             string filename,
             params string[] arguments
+        ) : this(OutputModes.BufferedCollections, null, null, filename, arguments)
+        {
+        }
+
+        private ProcessIO(
+            OutputModes outputMode,
+            IEnumerable<Action<string>> stdoutReceivers,
+            IEnumerable<Action<string>> stderrReceivers,
+            string filename,
+            params string[] arguments
         )
         {
-            StartInFolder(Environment.CurrentDirectory, filename, arguments, null);
+            StartInFolder(
+                outputMode,
+                stdoutReceivers,
+                stderrReceivers,
+                Environment.CurrentDirectory,
+                filename,
+                arguments,
+                null
+            );
         }
 
         private ProcessIO()
@@ -329,6 +427,8 @@ namespace PeanutButter.Utils
         public class UnstartedProcessIO : ProcessIO, IUnstartedProcessIO
         {
             private readonly Dictionary<string, string> _environment = new Dictionary<string, string>();
+            private List<Action<string>> _stderrReceivers = new();
+            private List<Action<string>> _stdoutReceivers = new();
 
             /// <inheritdoc />
             internal UnstartedProcessIO(string workingDirectory)
@@ -369,7 +469,13 @@ namespace PeanutButter.Utils
             // ReSharper disable once MemberHidesStaticFromOuterClass
             public new IProcessIO Start(string filename, params string[] arguments)
             {
+                var outputMode = _stderrReceivers.Any() || _stdoutReceivers.Any()
+                    ? OutputModes.Events
+                    : OutputModes.BufferedCollections;
                 return StartInFolder(
+                    outputMode,
+                    _stdoutReceivers,
+                    _stderrReceivers,
                     WorkingDirectory,
                     filename,
                     arguments,
@@ -410,6 +516,22 @@ namespace PeanutButter.Utils
                     (acc, cur) => acc.WithEnvironmentVariable(cur.Key, cur.Value)
                 ) ?? this;
             }
+
+            /// <inheritdoc />
+            // ReSharper disable once MemberHidesStaticFromOuterClass
+            public new IUnstartedProcessIO WithStdOutReceiver(Action<string> receiver)
+            {
+                _stdoutReceivers.Add(receiver);
+                return this;
+            }
+
+            /// <inheritdoc />
+            // ReSharper disable once MemberHidesStaticFromOuterClass
+            public new IUnstartedProcessIO WithStdErrReceiver(Action<string> receiver)
+            {
+                _stderrReceivers.Add(receiver);
+                return this;
+            }
         }
 
         /// <summary>
@@ -432,12 +554,49 @@ namespace PeanutButter.Utils
         /// <returns></returns>
         public static IProcessIO Start(string filename, params string[] args)
         {
+            return Start(
+                OutputModes.BufferedCollections,
+                null,
+                null,
+                filename,
+                args
+            );
+        }
+
+
+        /// <summary>
+        /// Starts a ProcessIO instance for the given filename and args in the current
+        /// working directory
+        /// </summary>
+        /// <param name="outputMode"></param>
+        /// <param name="stderrReceiver"></param>
+        /// <param name="filename"></param>
+        /// <param name="args"></param>
+        /// <param name="stdoutReceiver"></param>
+        /// <returns></returns>
+        public static IProcessIO Start(
+            OutputModes outputMode,
+            IEnumerable<Action<string>> stdoutReceiver,
+            IEnumerable<Action<string>> stderrReceiver,
+            string filename,
+            params string[] args
+        )
+        {
 #pragma warning disable 618
-            return new ProcessIO(filename, args);
+            return new ProcessIO(
+                outputMode,
+                stdoutReceiver,
+                stderrReceiver,
+                filename,
+                args
+            );
 #pragma warning restore 618
         }
 
         private ProcessIO StartInFolder(
+            OutputModes outputMode,
+            IEnumerable<Action<string>> stdoutReceivers,
+            IEnumerable<Action<string>> stderrReceivers,
             string workingDirectory,
             string filename,
             string[] arguments,
@@ -449,10 +608,24 @@ namespace PeanutButter.Utils
                 throw new InvalidOperationException($"Process already started: {_process.Id}");
             }
 
+            OutputMode = outputMode;
             var processEnvironment = GenerateProcessEnvironmentFor(environment);
 
             try
             {
+                if (OutputMode == OutputModes.Events)
+                {
+                    foreach (var handler in stdoutReceivers)
+                    {
+                        OnStdOut += (_, s) => handler(s);
+                    }
+
+                    foreach (var handler in stderrReceivers)
+                    {
+                        OnStdErr += (_, s) => handler(s);
+                    }
+                }
+
                 _process = new Process()
                 {
                     StartInfo =
@@ -478,8 +651,12 @@ namespace PeanutButter.Utils
                 _interleavedDataAvailable = new();
 
                 _process.Exited += OnProcessExit;
-                _process.OutputDataReceived += OnOutputReceived;
-                _process.ErrorDataReceived += OnErrReceived;
+                _process.OutputDataReceived += OutputMode == OutputModes.BufferedCollections
+                    ? BufferedCollectionOnOutputReceived
+                    : EventingOnOutputReceived;
+                _process.ErrorDataReceived += OutputMode == OutputModes.BufferedCollections
+                    ? BufferedCollectionOnErrReceived
+                    : EventingOnErrReceived;
                 _process.Start();
                 _process.BeginErrorReadLine();
                 _process.BeginOutputReadLine();
@@ -497,7 +674,31 @@ namespace PeanutButter.Utils
             return this;
         }
 
-        private void OnErrReceived(object sender, DataReceivedEventArgs e)
+        private void EventingOnErrReceived(object sender, DataReceivedEventArgs e)
+        {
+            RaiseOutputEvent(e, OnStdErr);
+        }
+
+        private void EventingOnOutputReceived(
+            object sender,
+            DataReceivedEventArgs e
+        )
+        {
+            RaiseOutputEvent(e, OnStdOut);
+        }
+
+        private void RaiseOutputEvent(DataReceivedEventArgs e, EventHandler<string> ev)
+        {
+            if (ev is not null && e?.Data is not null)
+            {
+                lock (_ioLock)
+                {
+                    ev(this, e.Data);
+                }
+            }
+        }
+
+        private void BufferedCollectionOnErrReceived(object sender, DataReceivedEventArgs e)
         {
             lock (_ioLock)
             {
@@ -528,10 +729,9 @@ namespace PeanutButter.Utils
         private readonly ConcurrentQueue<string> _interleavedBuffer = new();
         private readonly ConcurrentQueue<string> _stdOutBuffer = new();
         private readonly ConcurrentQueue<string> _stdErrBuffer = new();
-
         private readonly object _ioLock = new();
 
-        private void OnOutputReceived(
+        private void BufferedCollectionOnOutputReceived(
             object sender,
             DataReceivedEventArgs e
         )
@@ -971,8 +1171,8 @@ namespace PeanutButter.Utils
             string value
         )
         {
-            var result = new UnstartedProcessIO(Environment.CurrentDirectory);
-            return result.WithEnvironmentVariable(name, value);
+            return StartInCwd()
+                .WithEnvironmentVariable(name, value);
         }
 
         /// <summary>
@@ -984,8 +1184,41 @@ namespace PeanutButter.Utils
             IDictionary<string, string> environment
         )
         {
-            var result = new UnstartedProcessIO(Environment.CurrentDirectory);
-            return result.WithEnvironment(environment);
+            return StartInCwd()
+                .WithEnvironment(environment);
+        }
+
+        /// <summary>
+        /// Start the process with the eventing output
+        /// mode, specifying a stdout receiver
+        /// </summary>
+        /// <param name="receiver"></param>
+        /// <returns></returns>
+        public static IUnstartedProcessIO WithStdOutReceiver(
+            Action<string> receiver
+        )
+        {
+            return StartInCwd()
+                .WithStdOutReceiver(receiver);
+        }
+
+        /// <summary>
+        /// Start the process with the eventing output
+        /// mode, specifying a stderr receiver
+        /// </summary>
+        /// <param name="receiver"></param>
+        /// <returns></returns>
+        public static IUnstartedProcessIO WithStdErrReceiver(
+            Action<string> receiver
+        )
+        {
+            return StartInCwd()
+                .WithStdErrReceiver(receiver);
+        }
+
+        private static IUnstartedProcessIO StartInCwd()
+        {
+            return new UnstartedProcessIO(Environment.CurrentDirectory);
         }
     }
 
@@ -999,6 +1232,7 @@ namespace PeanutButter.Utils
         /// The full commandline used when attempting to start the process
         /// </summary>
         public string Commandline { get; }
+
         /// <summary>
         /// Whatever IO could be captured from the process
         /// </summary>
@@ -1008,7 +1242,7 @@ namespace PeanutButter.Utils
             string commandline,
             string[] io,
             Exception startException
-        ): base($"Unable to start process with commandline:\n{commandline}:\n{string.Join("\n", io)}", startException)
+        ) : base($"Unable to start process with commandline:\n{commandline}:\n{string.Join("\n", io)}", startException)
         {
             Commandline = commandline;
             Io = io;
