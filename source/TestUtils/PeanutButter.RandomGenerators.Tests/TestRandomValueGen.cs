@@ -1120,8 +1120,12 @@ public class TestRandomValueGen
             //---------------Execute Test ----------------------
             for (var i = 0; i < runs; i++)
             {
-                var result = GetRandomArray(factory);
+                var result = GetRandomArray(factory, 3, 8);
                 //---------------Test Result -----------------------
+                Expect(result)
+                    .To.Contain.At.Least(3).Items()
+                    .And
+                    .To.Contain.At.Most(8).Items();
                 Expect(result)
                     .To.Equal(generatedValues);
                 generatedValues.Clear();
@@ -1134,8 +1138,8 @@ public class TestRandomValueGen
             //---------------Set up test pack-------------------
             var minItems = GetRandomInt(5);
             var maxItems = GetRandomInt(
-                11,
-                20
+                minItems,
+                50
             );
 
             //---------------Assert Precondition----------------
@@ -1147,7 +1151,10 @@ public class TestRandomValueGen
             );
 
             //---------------Test Result -----------------------
-            result.ForEach(o => Console.WriteLine(o.ToString()));
+            Expect(result)
+                .To.Contain.At.Least(minItems).Items()
+                .And
+                .To.Contain.At.Most(maxItems).Items();
             Expect(result)
                 .Not.To.Be.Empty();
             Expect(result)
@@ -1168,6 +1175,87 @@ public class TestRandomValueGen
                 result,
                 "Date"
             );
+        }
+    }
+
+    [TestFixture]
+    public class GetRandomDistinctArray
+    {
+        [Test]
+        public void GivenFactoryFunction_ShouldInvokeItToCreateDistinctItems()
+        {
+            //---------------Set up test pack-------------------
+            const int runs = NORMAL_RANDOM_TEST_CYCLES;
+            var generatedValues = new List<int>();
+            int? lastValue = null;
+            Func<int> factory = () =>
+            {
+                if (lastValue is not null)
+                {
+                    var repeat = lastValue.Value;
+                    generatedValues.Add(repeat);
+                    lastValue = null;
+                    return repeat;
+                }
+
+                var thisValue = GetRandomInt();
+                lastValue = thisValue;
+                generatedValues.Add(thisValue);
+                return thisValue;
+            };
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            for (var i = 0; i < runs; i++)
+            {
+                var result = GetRandomDistinctArray(factory, 4);
+                //---------------Test Result -----------------------
+                Expect(generatedValues)
+                    .Not.To.Be.Distinct();
+                var expected = generatedValues.Distinct().ToArray();
+                Expect(result)
+                    .To.Be.Equivalent.To(expected);
+                generatedValues.Clear();
+            }
+        }
+
+        [Test]
+        [Repeat(NORMAL_RANDOM_TEST_CYCLES)]
+        public void GenericInvoke_ShouldUseNinjaSuperPowersToCreateDistinctArray()
+        {
+            //---------------Set up test pack-------------------
+            var minItems = GetRandomInt(5);
+            var maxItems = GetRandomInt(
+                minItems,
+                50
+            );
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            var result = GetRandomArray<SomePOCO>(
+                minItems,
+                maxItems
+            );
+
+            //---------------Test Result -----------------------
+            Expect(result)
+                .To.Contain.At.Least(minItems).Items()
+                .And
+                .To.Contain.At.Most(maxItems).Items();
+            Expect(result)
+                .Not.To.Be.Empty();
+            Expect(result)
+                .To.Contain.All
+                .Matched.By(o => o is not null);
+            Expect(result)
+                .To.Contain.All
+                .Matched.By(o => o.GetType() == typeof(SomePOCO));
+            foreach (var item in result)
+            {
+                Expect(result)
+                    .To.Contain.Exactly(1)
+                    .Deep.Equal.To(item);
+            }
         }
     }
 
@@ -5964,12 +6052,14 @@ public class TestRandomValueGen
                 }
             );
             // Act
-            RunCycles(() =>
-            {
-                var result = GetRandom<Person>();
-                Expect(allowed)
-                    .To.Contain(result.Name);
-            });
+            RunCycles(
+                () =>
+                {
+                    var result = GetRandom<Person>();
+                    Expect(allowed)
+                        .To.Contain(result.Name);
+                }
+            );
             // Assert
         }
 

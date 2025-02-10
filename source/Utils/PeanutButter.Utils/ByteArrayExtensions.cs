@@ -50,8 +50,8 @@ namespace PeanutButter.Utils
             var md5 = System.Security.Cryptography.MD5.Create();
             var hash = md5.ComputeHash(data);
 
-            var characters = hash.Select(t => t.ToString("X2")).ToList();
-            return string.Join(string.Empty, characters.ToArray());
+            var characters = hash.Select(t => t.ToString("X2")).ToArray();
+            return string.Join(string.Empty, characters);
         }
 
         /// <summary>
