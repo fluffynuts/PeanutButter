@@ -2660,14 +2660,6 @@ public
         generator ??= GetRandom<T>;
 
         var howMany = GetRandomInt(minValues, maxValues);
-        Console.Error.WriteLine(
-            new
-            {
-                minValues,
-                maxValues,
-                howMany
-            }.Stringify()
-        );
         for (var i = 0; i < howMany; i++)
         {
             yield return generator();
@@ -2711,15 +2703,6 @@ public
         generator ??= GetRandom<T>;
 
         var howMany = GetRandomInt(minValues, maxValues);
-
-        Console.Error.WriteLine(
-            new
-            {
-                minValues,
-                maxValues,
-                howMany
-            }.Stringify()
-        );
 
         var hashes = new HashSet<string>();
         for (var i = 0; i < howMany; i++)
