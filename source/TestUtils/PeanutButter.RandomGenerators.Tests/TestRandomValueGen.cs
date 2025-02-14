@@ -752,6 +752,42 @@ public class TestRandomValueGen
                 Is.LessThan(30)
             );
         }
+
+        [Test]
+        public void ShouldNotReturnUnwantedValues()
+        {
+            // Arrange
+            var unwanted = GetRandomEnum<TestEnum>();
+            var collected = new List<TestEnum>();
+            // Act
+            for (var i = 0; i < NORMAL_RANDOM_TEST_CYCLES; i++)
+            {
+                collected.Add(
+                    GetRandomEnum<TestEnum>(unwanted)
+                );
+            }
+            // Assert
+            Expect(collected)
+                .Not.To.Contain(unwanted);
+        }
+
+        [Test]
+        public void ShouldNotReturnValuesFailingValidation()
+        {
+            // Arrange
+            var unwanted = GetRandomEnum<TestEnum>();
+            var collected = new List<TestEnum>();
+            // Act
+            for (var i = 0; i < NORMAL_RANDOM_TEST_CYCLES; i++)
+            {
+                collected.Add(
+                    GetRandomEnum<TestEnum>(e => e != unwanted)
+                );
+            }
+            // Assert
+            Expect(collected)
+                .Not.To.Contain(unwanted);
+        }
     }
 
     [TestFixture]

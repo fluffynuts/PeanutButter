@@ -2202,7 +2202,9 @@ public
     }
 
     /// <summary>
-    /// Gets a random enum value from the specified enum type
+    /// Gets a random enum value from the specified enum type.
+    /// You may optionally specify enum values that you don't
+    /// want in the output
     /// </summary>
     /// <typeparam name="T">Type of enum to use as a source</typeparam>
     /// <returns>Random enum value from the enum type</returns>
@@ -2210,18 +2212,53 @@ public
     /// Thrown when GetRandomEnum is called on a
     /// non-enum type (since there is no generic constraint for enum types, yet)
     /// </exception>
-    public static T GetRandomEnum<T>() where T : struct, IConvertible
+    public static T GetRandomEnum<T>(
+        params T[] excludingValues
+    ) where T : struct, IConvertible
+    {
+        return GetRandomEnum<T>(
+            e => !excludingValues.Contains(e)
+        );
+    }
+
+    /// <summary>
+    /// Gets a random enum value from the specified enum type
+    /// with validation for a required value
+    /// </summary>
+    /// <typeparam name="T">Type of enum to use as a source</typeparam>
+    /// <returns>Random enum value from the enum type</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when GetRandomEnum is called on a
+    /// non-enum type (since there is no generic constraint for enum types, yet)
+    /// </exception>
+    public static T GetRandomEnum<T>(
+        Func<T, bool> validator
+    )
     {
         var type = typeof(T);
         if (!type.IsEnum())
         {
             throw new ArgumentException(
-                $"GetRandomEnum cannot be called on something other than an enum ('{type.Name}')",
+                $"""
+                 GetRandomEnum cannot be called on something other than an enum ('{type.Name}')
+                 """,
                 nameof(T)
             );
         }
 
-        var possible = Enum.GetValues(type).Cast<T>();
+        var possible = Enum.GetValues(type)
+            .Cast<T>()
+            .Where(validator)
+            .ToArray();
+        if (possible.IsEmpty())
+        {
+            throw new ArgumentException(
+                $"""
+                 Unable to select random value of type {typeof(T)}: no values remain after excluding unwanted ones"
+                 """
+            );
+        }
+
         return GetRandomFrom(possible);
     }
 
