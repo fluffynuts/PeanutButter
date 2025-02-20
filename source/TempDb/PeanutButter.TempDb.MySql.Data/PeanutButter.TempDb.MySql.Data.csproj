@@ -28,7 +28,7 @@
     <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="MySql.Data" Version="8.0.31" />
+    <PackageReference Include="MySql.Data" Version="9.2.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PeanutButter.TempDb.MySql.Base\PeanutButter.TempDb.MySql.Base.csproj" />
