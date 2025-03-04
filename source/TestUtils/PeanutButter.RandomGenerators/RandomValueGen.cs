@@ -2203,6 +2203,21 @@ public
 
     /// <summary>
     /// Gets a random enum value from the specified enum type.
+    /// </summary>
+    /// <typeparam name="T">Type of enum to use as a source</typeparam>
+    /// <returns>Random enum value from the enum type</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when GetRandomEnum is called on a
+    /// non-enum type (since there is no generic constraint for enum types, yet)
+    /// </exception>
+    public static T GetRandomEnum<T>() 
+        where T : struct, IConvertible
+    {
+        return GetRandomEnum<T>([]);
+    }
+
+    /// <summary>
+    /// Gets a random enum value from the specified enum type.
     /// You may optionally specify enum values that you don't
     /// want in the output
     /// </summary>
