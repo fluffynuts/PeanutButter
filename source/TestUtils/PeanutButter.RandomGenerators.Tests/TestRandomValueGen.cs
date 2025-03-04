@@ -754,6 +754,38 @@ public class TestRandomValueGen
         }
 
         [Test]
+        public void ShouldObserveDiscriminator()
+        {
+            // Arrange
+            var results = new List<TestEnum>();
+            var type = typeof(TestEnum);
+            // Act
+            RunCycles(() => results.Add(
+                (TestEnum)GetRandomEnum(type, e => (TestEnum)e != TestEnum.Two)
+            ));
+            // Assert
+            Expect(results)
+                .To.Contain.None
+                .Equal.To(TestEnum.Two);
+        }
+
+        [Test]
+        public void ShouldObserveExclusions()
+        {
+            // Arrange
+            var results = new List<TestEnum>();
+            var type = typeof(TestEnum);
+            // Act
+            RunCycles(() => results.Add(
+                (TestEnum)GetRandomEnum(type, TestEnum.Two)
+            ));
+            // Assert
+            Expect(results)
+                .To.Contain.None
+                .Equal.To(TestEnum.Two);
+        }
+
+        [Test]
         public void ShouldNotReturnUnwantedValues()
         {
             // Arrange
@@ -766,6 +798,7 @@ public class TestRandomValueGen
                     GetRandomEnum<TestEnum>(unwanted)
                 );
             }
+
             // Assert
             Expect(collected)
                 .Not.To.Contain(unwanted);
@@ -784,6 +817,7 @@ public class TestRandomValueGen
                     GetRandomEnum<TestEnum>(e => e != unwanted)
                 );
             }
+
             // Assert
             Expect(collected)
                 .Not.To.Contain(unwanted);

@@ -2275,6 +2275,60 @@ public
         Type enumType
     )
     {
+        return GetRandomEnum(enumType, _ => true);
+    }
+
+    /// <summary>
+    /// Gets a random enum value from the specified enum type,
+    /// providing a method for excluding based on a function
+    /// </summary>
+    /// <param name="enumType">Type of enum to use as a source</param>
+    /// <param name="discriminator"></param>
+    /// <returns>Random enum value from the enum type</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when GetRandomEnum is called on a
+    /// non-enum type (since there is no generic constraint for enum types, yet)
+    /// </exception>
+    public static object GetRandomEnum(
+        Type enumType,
+        Func<object, bool> discriminator
+    )
+    {
+        ValidateTypeIsEnum(enumType);
+
+        var possible = Enum.GetValues(enumType).Cast<object>()
+            .Where(discriminator ?? (_ => true))
+            .ToArray();
+        return GetRandomFrom(possible);
+    }
+
+    private static void ValidateTypeIsEnum(Type enumType)
+    {
+        if (!enumType.IsEnum())
+        {
+            throw new ArgumentException(
+                $"GetRandomEnum cannot be called on something other than an enum ('{enumType.Name}')",
+                nameof(enumType)
+            );
+        }
+    }
+
+    /// <summary>
+    /// Gets a random enum value from the specified enum type,
+    /// providing a method for excluding based on a function
+    /// </summary>
+    /// <param name="enumType">Type of enum to use as a source</param>
+    /// <param name="excluding"></param>
+    /// <returns>Random enum value from the enum type</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when GetRandomEnum is called on a
+    /// non-enum type (since there is no generic constraint for enum types, yet)
+    /// </exception>
+    public static object GetRandomEnum(
+        Type enumType,
+        params object[] excluding
+    )
+    {
         if (!enumType.IsEnum())
         {
             throw new ArgumentException(
@@ -2283,8 +2337,9 @@ public
             );
         }
 
-        var possible = Enum.GetValues(enumType).Cast<object>();
-        return GetRandomFrom(possible);
+        var possible = Enum.GetValues(enumType).Cast<object>()
+            .ToArray();
+        return GetRandomFrom(possible, excluding);
     }
 
     /// <summary>
