@@ -874,4 +874,46 @@ public class TestDictionaryExtensions
         }
     }
 
+    [TestFixture]
+    public class Inverted
+    {
+        [Test]
+        public void ShouldReturnEmptyForEmpty()
+        {
+            // Arrange
+            var input = new Dictionary<string, string>();
+            // Act
+            var result = input.Inverted();
+            // Assert
+            Expect(result)
+                .To.Be.Empty();
+            Expect(result)
+                .Not.To.Be(input);
+        }
+
+        [Test]
+        public void ShouldReturnInvertedDictionary()
+        {
+            // Arrange
+            var input = new Dictionary<int, string>()
+            {
+                [0] = "zero",
+                [1] = "one",
+                [2] = "two"
+            };
+
+            var expected = new Dictionary<string, int>()
+            {
+                ["zero"] = 0,
+                ["one"] = 1,
+                ["two"] = 2
+            };
+
+            // Act
+            var result = input.Inverted();
+            // Assert
+            Expect(result)
+                .To.Be.Equivalent.To(expected);
+        }
+    }
 }

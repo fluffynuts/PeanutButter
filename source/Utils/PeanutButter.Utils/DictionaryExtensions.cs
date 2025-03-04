@@ -75,9 +75,51 @@ namespace PeanutButter.Utils
             )
         {
             return dict.ToDictionary(
-                o => (TKey) o.Key,
-                o => (TValue) o.Value
+                o => (TKey)o.Key,
+                o => (TValue)o.Value
             );
+        }
+
+        /// <summary>
+        /// Produces a new dictionary where the key and value have been
+        /// inverted, ie the values become keys. This will only work
+        /// if the values are distinct.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        public static IDictionary<TKey, TValue> Inverted<TKey, TValue>(
+            this IDictionary<TValue, TKey> src
+        )
+        {
+            return src.Inverted(keyComparer: null);
+        }
+
+        /// <summary>
+        /// Produces a new dictionary where the key and value have been
+        /// inverted, ie the values become keys. This will only work
+        /// if the values are distinct.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="keyComparer"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        public static IDictionary<TKey, TValue> Inverted<TKey, TValue>(
+            this IDictionary<TValue, TKey> src,
+            IEqualityComparer<TKey> keyComparer
+        )
+        {
+            var result = keyComparer is null
+                ? new Dictionary<TKey, TValue>()
+                : new Dictionary<TKey, TValue>(keyComparer);
+            foreach (var item in src)
+            {
+                result.Add(item.Value, item.Key);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -90,7 +132,13 @@ namespace PeanutButter.Utils
         )
         {
             return nameValueCollection.AllKeys
-                .Select(k => new { key = k, value = nameValueCollection[k] })
+                .Select(
+                    k => new
+                    {
+                        key = k,
+                        value = nameValueCollection[k]
+                    }
+                )
                 .ToDictionary(
                     o => o.key,
                     o => o.value
@@ -347,7 +395,7 @@ namespace PeanutButter.Utils
                     return generated = generator();
                 }
             );
-            
+
             if (concurrentDictionary.TryGetValue(key, out var result))
             {
                 if (skipCaching?.Invoke(result) ?? false)
@@ -444,8 +492,16 @@ namespace PeanutButter.Utils
         )
         {
             var dictionaries = withPrecedence == MergeWithPrecedence.PreferFirstSeen
-                ? new[] { second, first }
-                : new[] { first, second };
+                ? new[]
+                {
+                    second,
+                    first
+                }
+                : new[]
+                {
+                    first,
+                    second
+                };
             var result = new Dictionary<TKey, TValue>();
             foreach (var dict in dictionaries)
             {
