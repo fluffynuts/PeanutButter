@@ -795,6 +795,7 @@ public class TestRandomValueGen
             for (var i = 0; i < NORMAL_RANDOM_TEST_CYCLES; i++)
             {
                 collected.Add(
+                    // ReSharper disable once RedundantTypeArgumentsOfMethod
                     GetRandomEnum<TestEnum>(unwanted)
                 );
             }
