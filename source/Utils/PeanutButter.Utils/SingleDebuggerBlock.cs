@@ -26,6 +26,7 @@ namespace PeanutButter.Utils;
 public class SingleDebuggerBlock : IDisposable
 {
     private readonly SemaphoreSlim _lock;
+    private static readonly Dictionary<string, SemaphoreSlim> Locks = new();
 
     /// <summary>
     /// Constructs the block with the provided identifier
@@ -33,15 +34,21 @@ public class SingleDebuggerBlock : IDisposable
     /// <param name="identifier"></param>
     public SingleDebuggerBlock(string identifier)
     {
-        _lock = Locks.FindOrAdd(
-            identifier,
-            () =>
+        lock (Locks)
+        {
+            if (Locks.TryGetValue(identifier, out var lck))
             {
-                var result = new SemaphoreSlim(1);
-                result.Wait();
-                return result;
+                _lock = lck;
+                _lock.Wait();
             }
-        );
+            else
+            {
+                _lock = new SemaphoreSlim(1);
+                Locks[identifier] = _lock;
+                _lock.Wait();
+            }
+        }
+
         WaitForDebuggerToAttach(identifier);
     }
 
@@ -65,8 +72,6 @@ public class SingleDebuggerBlock : IDisposable
             Thread.Sleep(100);
         }
     }
-
-    private static readonly ConcurrentDictionary<string, SemaphoreSlim> Locks = new();
 
     /// <inheritdoc />
     public void Dispose()
