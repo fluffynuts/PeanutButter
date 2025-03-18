@@ -1540,6 +1540,51 @@ Report bugs to <no-one-cares@whatevs.org>
             }
         }
 
+        [TestFixture]
+        public class DefaultValuesForEnumProperties
+        {
+            [Test]
+            public void ShouldParseStringValue()
+            {
+                // Arrange
+                var args = new[]
+                {
+                    "--type",
+                    nameof(VehicleTypes.Car)
+                };
+                // Act
+                var result = args.ParseTo<IVehicle>();
+                // Assert
+                Expect(result.Type)
+                    .To.Equal(VehicleTypes.Car);
+            }
+
+            [Test]
+            public void ShouldParseDefaultValueFromString()
+            {
+                // Arrange
+                var args = new string[0];
+                // Act
+                var result = args.ParseTo<IVehicle>();
+                // Assert
+                Expect(result.Type)
+                    .To.Equal(VehicleTypes.Bike);
+            }
+
+            public interface IVehicle
+            {
+                [Default(nameof(VehicleTypes.Bike))]
+                VehicleTypes Type { get; set; }
+            }
+
+            public enum VehicleTypes
+            {
+                None,
+                Car,
+                Bike,
+                Plane
+            }
+        }
 
         public class HasDecimal
         {
