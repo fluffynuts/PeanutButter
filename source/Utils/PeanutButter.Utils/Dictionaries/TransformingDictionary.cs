@@ -20,6 +20,17 @@ public class TransformingDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     private readonly IDictionary<TKey, TValue> _underlyingData;
 
     /// <summary>
+    /// Construct the transforming dictionary without an external
+    /// data store - this may be useful for, eg, sanitising data
+    /// </summary>
+    /// <param name="mutator"></param>
+    public TransformingDictionary(
+        Func<KeyValuePair<TKey, TValue>, TValue> mutator
+    ) : this(mutator, new Dictionary<TKey, TValue>())
+    {
+    }
+
+    /// <summary>
     /// Construct the TransformingDictionary with the underlying
     /// data
     /// </summary>

@@ -330,6 +330,21 @@ public class TestTransformingDictionary
         }
     }
 
+    [Test]
+    public void ShouldBeConstructableWithoutExternalDataStore()
+    {
+        // Arrange
+        var sut = new TransformingDictionary<string, int?>(
+            kvp => kvp.Value ?? 0
+        ) as IDictionary<string, int?>;
+        // Act
+        sut["Zero"] = null;
+        // Assert
+        Expect(sut)
+            .To.Contain.Key("Zero")
+            .With.Value(0);
+    }
+
     private static Func<KeyValuePair<string, string>, string> Prefix(
         string prefix
     )
