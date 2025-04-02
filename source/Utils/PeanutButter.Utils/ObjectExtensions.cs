@@ -379,9 +379,15 @@ public
     /// </summary>
     /// <param name="src">Source object</param>
     /// <param name="dst">Target object</param>
-    public static void CopyPropertiesTo(this object src, object dst)
+    public static T CopyPropertiesTo<T>(
+        this object src,
+        T dst
+    )
     {
-        src.CopyPropertiesTo(dst, true);
+        return src.CopyPropertiesTo(
+            dst,
+            true
+        );
     }
 
 
@@ -392,9 +398,17 @@ public
     /// <param name="src">Source object</param>
     /// <param name="dst">Target object</param>
     /// <param name="ignoreProperties">Optional list of properties to ignore by name</param>
-    public static void CopyPropertiesTo(this object src, object dst, params string[] ignoreProperties)
+    public static T CopyPropertiesTo<T>(
+        this object src,
+        T dst,
+        params string[] ignoreProperties
+    )
     {
-        src.CopyPropertiesTo(dst, true, ignoreProperties);
+        return src.CopyPropertiesTo(
+            dst,
+            true,
+            ignoreProperties
+        );
     }
 
     /// <summary>
@@ -403,13 +417,18 @@ public
     /// </summary>
     /// <param name="src">Source object</param>
     /// <param name="dst">Target object</param>
-    /// <param name="deep">Flag as to whether or not the process should copy deep (ie, traverse into child objects)</param>
+    /// <param name="deep">Flag: whether the process should copy deep (ie, traverse into child objects)</param>
     /// <param name="ignoreProperties"></param>
-    public static void CopyPropertiesTo(this object src, object dst, bool deep, params string[] ignoreProperties)
+    public static T CopyPropertiesTo<T>(
+        this object src,
+        T dst,
+        bool deep,
+        params string[] ignoreProperties
+    )
     {
         if (src is null || dst is null)
         {
-            return;
+            return dst;
         }
 
         var srcType = src.GetType();
@@ -479,6 +498,7 @@ public
                     acc || cur(deep, srcPropInfo, matchingTarget, dst, srcVal)
             );
         }
+        return dst;
     }
 
     private static readonly Type NullableType = typeof(Nullable<>);
@@ -886,6 +906,7 @@ public
         {
             return false;
         }
+
         var underlyingType = Nullable.GetUnderlyingType(t);
         return underlyingType is not null;
     }

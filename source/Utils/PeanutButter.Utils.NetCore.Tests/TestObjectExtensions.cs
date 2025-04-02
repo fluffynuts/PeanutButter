@@ -4338,6 +4338,26 @@ public class TestObjectExtensions
         }
     }
 
+    [TestFixture]
+    public class CopyPropertiesTo
+    {
+        [Test]
+        public void ShouldReturnTheTarget()
+        {
+            // Arrange
+            var src = GetRandom<SystemDataObject>();
+            var target = new SystemDataObject();
+            // Act
+            var result = src.CopyPropertiesTo(target);
+            // Assert
+            Expect(result)
+                .To.Be(target)
+                .And
+                .To.Deep.Equal(src);
+        }
+        
+    }
+
     public class DoubleDecoratedDataObject
     {
         public int Id { get; set; }
