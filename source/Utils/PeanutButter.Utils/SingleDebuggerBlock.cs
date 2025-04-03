@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+
 // ReSharper disable UnusedType.Global
 
 namespace PeanutButter.Utils;
@@ -25,6 +26,53 @@ namespace PeanutButter.Utils;
 /// </summary>
 public class SingleDebuggerBlock : IDisposable
 {
+    /// <summary>
+    /// Creates a proper single debugger block when the
+    /// environment variable with the provided name is
+    /// set to a truthy value (eg "1", "yes", "true"),
+    /// otherwise provides a null-disposable which doesn't
+    /// interrupt flow
+    /// </summary>
+    /// <param name="environmentVariable"></param>
+    /// <param name="identifier"></param>
+    /// <returns></returns>
+    public static IDisposable BlockIfEnvironmentVariableFlagSet(
+        string environmentVariable,
+        string identifier
+    )
+    {
+        return BlockIf(
+            Environment.GetEnvironmentVariable(environmentVariable).AsBoolean(),
+            identifier
+        );
+    }
+
+    /// <summary>
+    /// Creates a proper single debugger block when the
+    /// flag parameter is true, otherwise provides a
+    /// null-disposable which doesn't  interrupt flow
+    /// </summary>
+    /// <param name="flag"></param>
+    /// <param name="identifier"></param>
+    /// <returns></returns>
+    public static IDisposable BlockIf(
+        bool flag,
+        string identifier
+    )
+    {
+        return flag
+            ? new SingleDebuggerBlock(identifier)
+            : new NullDisposable();
+    }
+
+    private class NullDisposable : IDisposable
+    {
+        public void Dispose()
+        {
+            // does nothing, on purpose
+        }
+    }
+
     private readonly SemaphoreSlim _lock;
     private static readonly Dictionary<string, SemaphoreSlim> Locks = new();
 
@@ -63,8 +111,8 @@ public class SingleDebuggerBlock : IDisposable
             {
                 Console.Error.WriteLine(
                     $"""
-                    Waiting for debugger to attach for block: '{identifier}'
-                    """
+                     Waiting for debugger to attach for block: '{identifier}'
+                     """
                 );
                 haveWarned = true;
             }
