@@ -4184,11 +4184,13 @@ public class TestExtensionsForIEnumerables
                             3
                         };
                         // Act
-                        var result = collection.ContainsAnyOf([
-                            4,
-                            5,
-                            6
-                        ]);
+                        var result = collection.ContainsAnyOf(
+                            [
+                                4,
+                                5,
+                                6
+                            ]
+                        );
                         // Assert
                         Expect(result)
                             .To.Be.False();
@@ -4250,6 +4252,137 @@ public class TestExtensionsForIEnumerables
                         Expect(result)
                             .To.Be.True();
                     }
+                }
+            }
+        }
+
+        [TestFixture]
+        public class AsFrequencyDistribution
+        {
+            [TestFixture]
+            public class GivenEmptyCollection
+            {
+                [Test]
+                public void ShouldReturnEmpty()
+                {
+                    // Arrange
+                    // Act
+                    var result = new int[0].AsFrequencyDistribution();
+                    // Assert
+                    Expect(result)
+                        .To.Be.Empty();
+                }
+            }
+
+            [TestFixture]
+            public class GivenCollectionOfOne
+            {
+                [Test]
+                public void ShouldReturnCollectionOfOne()
+                {
+                    // Arrange
+                    var data = new[]
+                    {
+                        true
+                    };
+                    // Act
+                    var result = data.AsFrequencyDistribution();
+                    // Assert
+                    Expect(data)
+                        .To.Contain.Only(1)
+                        .Item();
+                    Expect(result)
+                        .To.Contain.Key(true)
+                        .With.Value(1);
+                }
+            }
+
+            [TestFixture]
+            public class GivenVariedCollection
+            {
+                [Test]
+                public void ShouldGenerateFrequencyDistribution()
+                {
+                    // Arrange
+                    var data = GetRandomArray<bool>(100, 200);
+                    if (data.All(o => o))
+                    {
+                        data = data.And(false);
+                    }
+                    else if (data.All(o => !o))
+                    {
+                        data = data.And(true);
+                    }
+
+                    var trueCount = data.Count(o => o);
+                    var falseCount = data.Length - trueCount;
+                    // Act
+                    var result = data.AsFrequencyDistribution();
+                    // Assert
+                    Expect(result)
+                        .To.Contain.Only(2)
+                        .Items();
+                    Expect(result)
+                        .To.Contain.Key(true)
+                        .With.Value(trueCount);
+                    Expect(result)
+                        .To.Contain.Key(false)
+                        .With.Value(falseCount);
+                }
+            }
+
+            [TestFixture]
+            public class CollectionsWithNulls
+            {
+                [Test]
+                public void ShouldOmitWhenNoNullKeyProvided()
+                {
+                    // Arrange
+                    var data = new int?[]
+                    {
+                        1,
+                        null,
+                        2
+                    };
+                    // Act
+                    var result = data.AsFrequencyDistribution();
+                    // Assert
+                    Expect(result)
+                        .To.Contain.Only(2).Items();
+                    Expect(result)
+                        .To.Contain.Key(1)
+                        .With.Value(1);
+                    Expect(result)
+                        .To.Contain.Key(2)
+                        .With.Value(1);
+                }
+
+                [Test]
+                public void ShouldUseNullKeyWhenProvided()
+                {
+                    // Arrange
+                    var collection = new[]
+                    {
+                        "foo",
+                        null,
+                        "bar",
+                        "foo"
+                    };
+
+                    // Act
+                    var result = collection.AsFrequencyDistribution(
+                        nullKey: "(null)"
+                    );
+                    // Assert
+                    Expect(result)
+                        .To.Contain.Key("(null)")
+                        .With.Value(1);
+                    Expect(result)
+                        .To.Contain.Key("bar")
+                        .With.Value(1);
+                    Expect(result)
+                        .To.Contain.Key("foo")
+                        .With.Value(2);
                 }
             }
         }

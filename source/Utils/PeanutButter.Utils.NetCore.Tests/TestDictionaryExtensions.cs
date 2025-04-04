@@ -916,4 +916,77 @@ public class TestDictionaryExtensions
                 .To.Be.Equivalent.To(expected);
         }
     }
+
+    [TestFixture]
+    public class AddOrUpdate
+    {
+        [Test]
+        public void ShouldAddNewValue()
+        {
+            // Arrange
+            var dict = new Dictionary<string, string>();
+            // Act
+            dict.AddOrUpdate(
+                "foo",
+                () => "bar",
+                s =>
+                {
+                    Assert.Fail("should not attempt update");
+                    return s;
+                }
+            );
+            // Assert
+            Expect(dict)
+                .To.Contain.Only(1).Item()
+                .And
+                .To.Contain.Key("foo")
+                .With.Value("bar");
+        }
+
+        [Test]
+        public void ShouldReplaceExistingValue()
+        {
+            // Arrange
+            var dict = new Dictionary<string, int>()
+            {
+                ["count"] = 1
+            };
+
+            // Act
+            dict.AddOrUpdate(
+                "count",
+                () => -1,
+                i => i + 1
+            );
+            // Assert
+            Expect(dict)
+                .To.Contain.Only(1).Item()
+                .And
+                .To.Contain.Key("count")
+                .With.Value(2);
+        }
+
+        [Test]
+        public void ShouldWorkOnConcurrentDictionary()
+        {
+            // Arrange
+            var dict = new ConcurrentDictionary<string, int>()
+            {
+                ["count"] = 1
+            };
+
+            // Act
+            dict.AddOrUpdate(
+                "count",
+                () => -1,
+                i => i + 1
+            );
+            // Assert
+            Expect(dict)
+                .To.Contain.Only(1).Item()
+                .And
+                .To.Contain.Key("count")
+                .With.Value(2);
+        }
+    }
 }
