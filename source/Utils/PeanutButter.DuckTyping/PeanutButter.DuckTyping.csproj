@@ -33,6 +33,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="..\PeanutButter.Utils\ArrayExtensions.cs" Link="Imported\ArrayExtensions.cs"/>
+        <Compile Include="..\PeanutButter.Utils\DateTimeExtensions.cs" Link="Imported\DateTimeExtensions.cs"/>
         <Compile Include="..\PeanutButter.Utils\DecimalDecorator.cs" Link="Imported\DecimalDecorator.cs"/>
         <Compile Include="..\PeanutButter.Utils\DeepEqualityTester.cs" Link="Imported\DeepEqualityTester.cs"/>
         <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs" Link="Imported\CaseWarpingDictionaryWrapper.cs"/>

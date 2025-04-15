@@ -1592,6 +1592,32 @@ Report bugs to <no-one-cares@whatevs.org>
         }
     }
 
+    [TestFixture]
+    public class DateTimeHandling
+    {
+        [Test]
+        public void ShouldParseYYYMMDD()
+        {
+            // Arrange
+            var date = GetRandomDate();
+            var args = new[]
+            {
+                "--date-time",
+                $"{date.Year}/{date.Month}/{date.Day}"
+            };
+            // Act
+            var result = args.ParseTo<HasDateTime>();
+            // Assert
+            Expect(result.DateTime)
+                .To.Equal(date.Date);
+        }
+
+        public class HasDateTime
+        {
+            public DateTime DateTime { get; set; }
+        }
+    }
+
     public interface IArgs
     {
         [ShortName('p')]

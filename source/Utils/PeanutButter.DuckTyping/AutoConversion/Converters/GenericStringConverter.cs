@@ -24,8 +24,18 @@ internal class GenericStringConverter<T>
         };
         var parsed = (bool)_tryParse.Invoke(null, parameters);
         return parsed
-            ? (T)parameters[1]
+            ? TweakResult(parameters[1])
             : default;
+    }
+
+    private T TweakResult(object result)
+    {
+        // some types may require a little manual manipulation
+        if (result is DateTime { Kind: DateTimeKind.Unspecified } dt)
+        {
+            result = dt.WithKind(DateTimeKind.Local);
+        }
+        return (T)result;
     }
 
     public virtual string Convert(T value)
