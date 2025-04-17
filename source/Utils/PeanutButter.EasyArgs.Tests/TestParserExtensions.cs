@@ -1612,9 +1612,35 @@ Report bugs to <no-one-cares@whatevs.org>
                 .To.Equal(date.Date);
         }
 
+        [Test]
+        public void ShouldUseDefaultWhenNotSpecified()
+        {
+            // Arrange
+            var args = new string[0];
+            // Act
+            var result = args.ParseTo<HasDateTime>();
+            // Assert
+            Expect(result.DateTime)
+                .To.Equal(DateTime.Now.AddDays(-7).Date);
+        }
+
         public class HasDateTime
         {
+            [DefaultOneWeekAgo]
             public DateTime DateTime { get; set; }
+        }
+    }
+
+    public class DefaultOneWeekAgoAttribute : DefaultAttribute
+    {
+        public DefaultOneWeekAgoAttribute()
+            : base(DetermineStartOfDayOneWeekAgo())
+        {
+        }
+
+        private static DateTime DetermineStartOfDayOneWeekAgo()
+        {
+            return DateTime.Now.AddDays(-7).Date;
         }
     }
 
