@@ -15,6 +15,22 @@ using PeanutButter.SimpleTcpServer;
 namespace PeanutButter.SimpleHTTPServer
 {
     /// <summary>
+    /// Version of the HTTP protocol.
+    /// </summary>
+    public enum HttpVersion
+    {
+        /// <summary>
+        /// HTTP/1.0
+        /// </summary>
+        Version10 = 0,
+
+        /// <summary>
+        /// HTTP/1.1
+        /// </summary>
+        Version11,
+    } 
+    
+    /// <summary>
     /// Describes the base functionality in a simple http-server
     /// </summary>
     public interface IHttpServerBase: IDisposable
@@ -59,6 +75,12 @@ namespace PeanutButter.SimpleHTTPServer
         /// Flag exposing listening state
         /// </summary>
         bool IsListening { get; }
+        
+        /// <summary>
+        /// HTTP version reported by the server in responses
+        /// Note that this does not change behavior of the server, only the exact format of the response
+        /// </summary>
+        HttpVersion Version { get; set; }
 
         /// <summary>
         /// Handles a request that does not contain a body (as of the HTTP spec).
@@ -102,6 +124,9 @@ namespace PeanutButter.SimpleHTTPServer
         /// Log action used for requests
         /// </summary>
         public Action<RequestLogItem> RequestLogAction { get; set; } = null;
+        
+        /// <inheritdoc />
+        public HttpVersion Version { get; set; }
 
         /// <inheritdoc />
         protected HttpServerBase(int port) : base(port)

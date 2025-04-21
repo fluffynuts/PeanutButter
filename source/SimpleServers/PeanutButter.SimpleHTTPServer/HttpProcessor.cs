@@ -456,8 +456,9 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
     /// <param name="message"></param>
     public void WriteStatusHeader(HttpStatusCode code, string message = null)
     {
+        var minorVersion = Server.Version == HttpVersion.Version11 ? 1 : 0;
         LogRequest(code, message);
-        WriteResponseLine($"HTTP/1.0 {(int)code} {message ?? code.ToString()}");
+        WriteResponseLine($"HTTP/1.{minorVersion} {(int)code} {message ?? code.ToString()}");
     }
 
     private void LogRequest(HttpStatusCode code, string message)

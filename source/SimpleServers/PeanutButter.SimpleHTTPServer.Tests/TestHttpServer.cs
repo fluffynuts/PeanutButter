@@ -109,6 +109,36 @@ public class TestHttpServer
                 .To.Equal(doc);
         }
     }
+    
+    [TestCase(HttpVersion.Version11, ExpectedResult = 1)]
+    [TestCase(HttpVersion.Version10, ExpectedResult = 0)]
+    public int ShouldRespondWithSelectedVersion(HttpVersion selectedVersion)
+    {
+        //---------------Set up test pack-------------------
+        var doc = $"<html><head></head><body><p>{GetRandomAlphaNumericString()}</p></body></html>";
+        const string theDocName = "index.html";
+        using var server = GlobalSetup.Pool.Borrow();
+        server.Instance.Version = selectedVersion;
+        server.Instance.AddHtmlDocumentHandler(
+            (p, _) => p.Path == "/" + theDocName
+                ? doc
+                : null
+        );
+        //---------------Assert Precondition----------------
+
+        //---------------Execute Test ----------------------
+        var result = DownloadResultFrom(
+            server.Instance,
+            HttpMethods.Get,
+            theDocName,
+            null,
+            out _,
+            out var frameworkHttpVersion
+        ).ToUtf8String();
+
+        //---------------Test Result -----------------------
+        return frameworkHttpVersion.Minor;
+    }
 
     [Test]
     public async Task ShouldBeAbleToRemoveHandler()
@@ -203,30 +233,34 @@ public class TestHttpServer
                 HttpMethods.Get,
                 "/html1",
                 null,
-                out var htmlContentType1
+                out var htmlContentType1,
+                out _
             );
             DownloadResultFrom(
                 server,
                 HttpMethods.Get,
                 "/html2",
                 null,
-                out var htmlContentType2
+                out var htmlContentType2,
+                out _
             );
-            DownloadResultFrom(server, HttpMethods.Get, "/json", null, out var jsonContentType);
-            DownloadResultFrom(server, HttpMethods.Get, "/text", null, out var textContentType);
+            DownloadResultFrom(server, HttpMethods.Get, "/json", null, out var jsonContentType, out _);
+            DownloadResultFrom(server, HttpMethods.Get, "/text", null, out var textContentType, out _);
             DownloadResultFrom(
                 server,
                 HttpMethods.Get,
                 "/xml1",
                 null,
-                out var xmlContentType1
+                out var xmlContentType1,
+                out _
             );
             DownloadResultFrom(
                 server,
                 HttpMethods.Get,
                 "/xml2",
                 null,
-                out var xmlContentType2
+                out var xmlContentType2,
+                out _
             );
 
             // Assert
@@ -829,7 +863,8 @@ public class TestHttpServer
                         invalid,
                         path,
                         null,
-                        out contentType
+                        out contentType,
+                        out _
                     )
                 )
                 .To.Throw<HttpException>();
@@ -838,7 +873,8 @@ public class TestHttpServer
                 valid,
                 path,
                 null,
-                out contentType
+                out contentType,
+                out _
             );
 
             //---------------Test Result -----------------------
@@ -1238,7 +1274,8 @@ public class TestHttpServer
             method,
             path,
             addHeaders,
-            out contentType
+            out contentType,
+            out _
         );
     }
 
@@ -1247,7 +1284,8 @@ public class TestHttpServer
         HttpMethods method,
         string path,
         Dictionary<string, string> addHeaders,
-        out string contentType
+        out string contentType,
+        out Version versionInResponse
     )
     {
         var message = new HttpRequestMessage()
@@ -1263,6 +1301,7 @@ public class TestHttpServer
         }
 
         var response = HttpClient.Send(message);
+        versionInResponse = response.Version;
         contentType = response.Content.Headers.ContentType?.MediaType;
         using var s = response.Content.ReadAsStream();
         if (response.StatusCode != HttpStatusCode.OK)
@@ -1329,7 +1368,7 @@ public class TestHttpServer
         out string contentType
     )
     {
-        return DownloadResultFrom(server, HttpMethods.Get, path, addHeaders, out contentType);
+        return DownloadResultFrom(server, HttpMethods.Get, path, addHeaders, out contentType, out _);
     }
 
     public class SimpleData
