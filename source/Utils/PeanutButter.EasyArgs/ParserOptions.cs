@@ -142,8 +142,7 @@ namespace PeanutButter.EasyArgs
                 ? OneLine
                 : NoLines;
             var body = GenerateArgumentHelp<T>(
-                options.Where(
-                    o => !o.IsImplicit || o.Key == CommandlineArgument.HELP_FLAG_KEY
+                options.Where(o => !o.IsImplicit || o.Key == CommandlineArgument.HELP_FLAG_KEY
                 ).ToArray()
             );
             var footer = GenerateHelpFooter<T>(this);
@@ -278,21 +277,20 @@ namespace PeanutButter.EasyArgs
                     """
                 );
             }
-            var longestLeftCol = options.Select(
-                o =>
-                    DashLength +
-                    SHORT_NAME_LENGTH +
-                    CommaAndSpaceLength +
-                    DashLength + DashLength +
-                    o.LongName.Length +
-                    SingleSpaceLength +
-                    LeftBracketLength +
-                    o.Type.Length +
-                    RightBracketLength +
-                    COLUMN_PADDING_LENGTH
+
+            var longestLeftCol = options.Select(o =>
+                DashLength +
+                SHORT_NAME_LENGTH +
+                CommaAndSpaceLength +
+                DashLength + DashLength +
+                o.LongName.Length +
+                SingleSpaceLength +
+                LeftBracketLength +
+                o.Type.Length +
+                RightBracketLength +
+                COLUMN_PADDING_LENGTH
             ).Max();
-            options.ForEach(
-                opt =>
+            options.ForEach(opt =>
                 {
                     result.Add(
                         FormatOptionHelp(
@@ -428,7 +426,10 @@ namespace PeanutButter.EasyArgs
                     left = new String(' ', left.Length);
                 }
 
-                result.Add(GrabWords(left, rightWords, maxLineWidth));
+                var prefix = result.Any()
+                    ? "  "
+                    : "";
+                result.Add(GrabWords(left, rightWords, maxLineWidth, prefix));
             }
 
             return result.JoinWith("\n");
@@ -466,7 +467,8 @@ namespace PeanutButter.EasyArgs
         private string GrabWords(
             string left,
             List<string> words,
-            int maxLineWidth
+            int maxLineWidth,
+            string prefix
         )
         {
             if (!words.Any())
@@ -480,7 +482,7 @@ namespace PeanutButter.EasyArgs
             };
             var haveAddedWord = false;
             var totalLength = result.JoinWith(" ").Length;
-            while (words.Any() && totalLength + words.First().Length + 1 < maxLineWidth)
+            while (words.Any() && totalLength + words.First().Length + 1 < maxLineWidth - prefix.Length)
             {
                 haveAddedWord = true;
                 result.Add(words[0]);
@@ -493,7 +495,7 @@ namespace PeanutButter.EasyArgs
                 result.Add(words.Shift());
             }
 
-            return result.JoinWith(" ");
+            return $"{prefix}{result.JoinWith(" ")}";
         }
 
         /// <summary>

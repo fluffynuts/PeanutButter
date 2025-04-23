@@ -1593,6 +1593,35 @@ Report bugs to <no-one-cares@whatevs.org>
     }
 
     [TestFixture]
+    [Explicit("The results are to be visually inspected")]
+    public class VisualTests
+    {
+        [Test]
+        public void ShouldIndentAllButFirstLineOfDescription()
+        {
+            // Arrange
+            var args = new[] { "--help" };
+            // Act
+            args.ParseTo<IOptions>(new ParserOptions()
+            {
+                ExitWhenShowingHelp = false
+            });
+            // Assert
+        }
+
+        public interface IOptions
+        {
+            [Description("Bacon ipsum dolor amet meatloaf chuck drumstick ham pork loin. Kevin flank short loin pastrami leberkas pancetta. Chislic fatback strip steak pork chop turducken chicken salami ")]
+            public int Big { get; set; }
+
+            [Description(
+                "Tenderloin turkey bacon, ham ribeye meatball doner leberkas jowl cow spare ribs porchetta shank landjaeger. Strip steak meatball sausage biltong rump capicola, chicken sirloin bacon chislic doner hamburger short ribs."
+            )]
+            public string Name { get; set; }
+        }
+    }
+
+    [TestFixture]
     public class DateTimeHandling
     {
         [Test]
