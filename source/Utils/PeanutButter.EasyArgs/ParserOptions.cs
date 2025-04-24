@@ -174,7 +174,7 @@ namespace PeanutButter.EasyArgs
             ""
         };
 
-        private static readonly string[] NoLines = new string[0];
+        private static readonly string[] NoLines = [];
 
         /// <summary>
         /// Generates the help header from attributes or defaults to something

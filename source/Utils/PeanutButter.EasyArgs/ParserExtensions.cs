@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -132,6 +131,7 @@ namespace PeanutButter.EasyArgs
                 flags,
                 out var ignored
             );
+            ResolveCompactArguments<T>(collected);
             collected = new MergeDictionary<string, IHasValue>(
                 collected,
                 GrabEnvVars<T>(options.FallbackOnEnvironmentVariables)
@@ -149,6 +149,83 @@ namespace PeanutButter.EasyArgs
             return typeof(T).IsConcrete()
                 ? CreateTopMostCopyOf(ducked)
                 : ducked;
+        }
+
+        private static void ResolveCompactArguments<T>(
+            IDictionary<string, IHasValue> collected
+        )
+        {
+            var options = GrokOptionsFor<T>();
+            var shortNames = options
+                .Where(o => !string.IsNullOrWhiteSpace(o.ShortName))
+                .ToDictionary(
+                    o => o.ShortName,
+                    o => o
+                );
+            var toRemove = new List<string>();
+            var finalToMerge = new Dictionary<string, IHasValue>();
+            foreach (var item in collected)
+            {
+                if (!item.Key.StartsWith("-"))
+                {
+                    continue;
+                }
+
+                if (item.Key.StartsWith("--"))
+                {
+                    continue;
+                }
+
+                var key = item.Key.TrimStart('-');
+                var toMerge = new Dictionary<string, IHasValue>();
+                var fuzzyMatch = FindFuzzyMatch(item, options);
+                if (fuzzyMatch is not null)
+                {
+                    continue;
+                }
+
+                var chars = key.Select(c => $"{c}").ToArray();
+                foreach (var c in chars)
+                {
+                    if (!shortNames.TryGetValue(c, out var arg))
+                    {
+                        toMerge.Clear();
+                        break; // no match, give up
+                    }
+
+                    if (arg.Property.PropertyType == typeof(bool))
+                    {
+                        toMerge[$"-{c}"] = new StringCollection();
+                        continue;
+                    }
+                }
+
+                if (toMerge.IsEmpty())
+                {
+                    continue;
+                }
+
+                toRemove.Add(item.Key);
+                toMerge.MergeInto(finalToMerge);
+            }
+
+            foreach (var item in toRemove)
+            {
+                collected.Remove(item);
+            }
+
+            finalToMerge.MergeInto(collected);
+        }
+
+        private static CommandlineArgument FindFuzzyMatch(
+            KeyValuePair<string, IHasValue> item,
+            List<CommandlineArgument> options
+        )
+        {
+            return options.FirstOrDefault(opt =>
+                item.Key == opt.ShortName ||
+                item.Key == opt.LongName
+            );
         }
 
         private static readonly string[] FuzzyEnvVars =
@@ -202,8 +279,7 @@ namespace PeanutButter.EasyArgs
             // and copy top-most props to the clean result
             var cleanObj = Activator.CreateInstance<T>();
             typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .ForEach(
-                    pi =>
+                .ForEach(pi =>
                     {
                         cleanObj.SetPropertyValue(
                             pi.Name,
@@ -275,8 +351,7 @@ namespace PeanutButter.EasyArgs
                 .Distinct()
                 .Where(o => o.IsFlag)
                 .ToArray();
-            flags.ForEach(
-                f =>
+            flags.ForEach(f =>
                 {
                     var negated = f.CloneNegated();
                     negated.IsImplicit = true;
@@ -432,8 +507,7 @@ namespace PeanutButter.EasyArgs
             var hasMin = commandlineArguments.Values.Distinct()
                 .Where(o => o.MinValue is not null && specified.Contains(o.Key))
                 .ToArray();
-            hasMin.ForEach(
-                opt =>
+            hasMin.ForEach(opt =>
                 {
                     var stringValue = result[opt.Key] as string;
                     var dd = new DecimalDecorator(stringValue);
@@ -479,8 +553,7 @@ namespace PeanutButter.EasyArgs
                 .Distinct()
                 .Where(o => o.IsRequired && !specified.Contains(o.Key))
                 .ToArray();
-            missing.ForEach(
-                opt =>
+            missing.ForEach(opt =>
                 {
                     options.ReportMissingRequiredOption(opt);
                     errored.Add(opt.Key);
@@ -564,8 +637,7 @@ namespace PeanutButter.EasyArgs
                     .Distinct()
                     .ToArray();
 
-                var negation = lookup.Values.FirstOrDefault(
-                    arg => arg.Key == opt.Key && arg != opt
+                var negation = lookup.Values.FirstOrDefault(arg => arg.Key == opt.Key && arg != opt
                 );
 
                 var negativeConflicts = negation is null
@@ -575,8 +647,7 @@ namespace PeanutButter.EasyArgs
                         .Distinct()
                         .ToArray();
 
-                var allPossibleConflicts = lookup.Values.Where(
-                        arg => arg.ConflictsWithKeys.Contains(opt.Key)
+                var allPossibleConflicts = lookup.Values.Where(arg => arg.ConflictsWithKeys.Contains(opt.Key)
                     )
                     .Except(
                         [
@@ -587,8 +658,7 @@ namespace PeanutButter.EasyArgs
                     .ToArray();
 
                 var allSpecifiedDirectConflicts = allPossibleConflicts
-                    .Select(
-                        a => new[]
+                    .Select(a => new[]
                         {
                             a.LongSwitch,
                             a.ShortSwitch
@@ -602,11 +672,9 @@ namespace PeanutButter.EasyArgs
                     .Distinct()
                     .ToArray();
 
-                allConflicts.ForEach(
-                    conflict =>
+                allConflicts.ForEach(conflict =>
                     {
-                        specifiedSwitches.ForEach(
-                            sw =>
+                        specifiedSwitches.ForEach(sw =>
                             {
                                 options.ReportConflict(sw, conflict);
                             }
@@ -628,8 +696,7 @@ namespace PeanutButter.EasyArgs
         {
             var canConflict = options
                 .Where(o => !o.IsImplicit && o.ConflictsWithKeys.Any())
-                .Select(
-                    o => new
+                .Select(o => new
                     {
                         o.Key,
                         ConflictsWith = o.ConflictsWithKeys
@@ -643,11 +710,9 @@ namespace PeanutButter.EasyArgs
 
             var errored = false;
             var reported = new HashSet<StringPair>();
-            canConflict.ForEach(
-                o =>
+            canConflict.ForEach(o =>
                 {
-                    o.ConflictsWith.ForEach(
-                        conflict =>
+                    o.ConflictsWith.ForEach(conflict =>
                         {
                             if (result.ContainsKey(o.Key) && result.ContainsKey(conflict))
                             {
@@ -686,8 +751,7 @@ namespace PeanutButter.EasyArgs
             CommandlineArgument[] options
         )
         {
-            options.ForEach(
-                opt =>
+            options.ForEach(opt =>
                 {
                     if (result.ContainsKey(opt.Key))
                     {
@@ -719,8 +783,7 @@ namespace PeanutButter.EasyArgs
             var longNames = CollectLongNamesFrom(options);
             result = new Dictionary<string, CommandlineArgument>();
             options.OrderByDescending(o => o.IsImplicit)
-                .ForEach(
-                    opt =>
+                .ForEach(opt =>
                     {
                         SetShortNameIfMissing(opt, shortNames);
                         SetLongNameIfMissing(opt, longNames);
@@ -816,63 +879,71 @@ namespace PeanutButter.EasyArgs
             ];
         }
 
+        private static readonly ConcurrentDictionary<Type, List<CommandlineArgument>> GrokCache = new();
+
         private static List<CommandlineArgument> GrokOptionsFor<T>()
         {
-            var allowsGlobalEnvironmentDefaults = typeof(T).GetCustomAttributes()
-                .Any(o => o is AllowDefaultsFromEnvironment);
-            return GetAllPropertiesOf<T>()
-                .Where(pi => pi.GetCustomAttributes().OfType<IgnoreAttribute>().IsEmpty())
-                .Aggregate(
-                    new List<CommandlineArgument>(),
-                    (acc, cur) =>
-                    {
-                        var attribs = cur.GetCustomAttributes().ToArray();
-                        var option = new CommandlineArgument()
-                        {
-                            ShortName = attribs
-                                .OfType<ShortNameAttribute>()
-                                .FirstOrDefault()
-                                ?.Value,
-                            DisableShortNameGeneration = attribs
-                                .OfType<DisableGeneratedShortNameAttribute>()
-                                .Any(),
-                            LongName = attribs
-                                .OfType<LongNameAttribute>()
-                                .FirstOrDefault()
-                                ?.Value,
-                            Description = attribs
-                                .OfType<DescriptionAttribute>()
-                                .FirstOrDefault()
-                                ?.Value,
-                            EnvironmentDefaultVariable = DetermineEnvironmentDefaultVarFor(
-                                allowsGlobalEnvironmentDefaults,
-                                cur
-                            ),
-                            Default = DetermineDefaultValueFrom(
-                                cur,
-                                attribs,
-                                allowsGlobalEnvironmentDefaults
-                            ),
-                            Property = cur,
-                            ConflictsWithKeys = attribs.OfType<ConflictsWithAttribute>()
-                                .Select(a => a.Value)
-                                .ToArray(),
-                            IsImplicit = false,
-                            IsRequired = attribs.OfType<RequiredAttribute>().Any(),
-                            MinValue = attribs.OfType<MinAttribute>()
-                                .FirstOrDefault()?.Value,
-                            MaxValue = attribs.OfType<MaxAttribute>()
-                                .FirstOrDefault()?.Value,
-                            VerifyFileExists = attribs.OfType<ExistingFileAttribute>()
-                                .FirstOrDefault() is not null,
-                            VerifyFolderExists = attribs.OfType<ExistingFolderAttribute>()
-                                .FirstOrDefault() is not null
-                        };
+            return GrokCache.FindOrAdd(
+                typeof(T),
+                () =>
+                {
+                    var allowsGlobalEnvironmentDefaults = typeof(T).GetCustomAttributes()
+                        .Any(o => o is AllowDefaultsFromEnvironment);
+                    return GetAllPropertiesOf<T>()
+                        .Where(pi => pi.GetCustomAttributes().OfType<IgnoreAttribute>().IsEmpty())
+                        .Aggregate(
+                            new List<CommandlineArgument>(),
+                            (acc, cur) =>
+                            {
+                                var attribs = cur.GetCustomAttributes().ToArray();
+                                var option = new CommandlineArgument()
+                                {
+                                    ShortName = attribs
+                                        .OfType<ShortNameAttribute>()
+                                        .FirstOrDefault()
+                                        ?.Value,
+                                    DisableShortNameGeneration = attribs
+                                        .OfType<DisableGeneratedShortNameAttribute>()
+                                        .Any(),
+                                    LongName = attribs
+                                        .OfType<LongNameAttribute>()
+                                        .FirstOrDefault()
+                                        ?.Value,
+                                    Description = attribs
+                                        .OfType<DescriptionAttribute>()
+                                        .FirstOrDefault()
+                                        ?.Value,
+                                    EnvironmentDefaultVariable = DetermineEnvironmentDefaultVarFor(
+                                        allowsGlobalEnvironmentDefaults,
+                                        cur
+                                    ),
+                                    Default = DetermineDefaultValueFrom(
+                                        cur,
+                                        attribs,
+                                        allowsGlobalEnvironmentDefaults
+                                    ),
+                                    Property = cur,
+                                    ConflictsWithKeys = attribs.OfType<ConflictsWithAttribute>()
+                                        .Select(a => a.Value)
+                                        .ToArray(),
+                                    IsImplicit = false,
+                                    IsRequired = attribs.OfType<RequiredAttribute>().Any(),
+                                    MinValue = attribs.OfType<MinAttribute>()
+                                        .FirstOrDefault()?.Value,
+                                    MaxValue = attribs.OfType<MaxAttribute>()
+                                        .FirstOrDefault()?.Value,
+                                    VerifyFileExists = attribs.OfType<ExistingFileAttribute>()
+                                        .FirstOrDefault() is not null,
+                                    VerifyFolderExists = attribs.OfType<ExistingFolderAttribute>()
+                                        .FirstOrDefault() is not null
+                                };
 
-                        acc.Add(option);
-                        return acc;
-                    }
-                );
+                                acc.Add(option);
+                                return acc;
+                            }
+                        );
+                }
+            );
         }
 
         private static string DetermineEnvironmentDefaultVarFor(
@@ -906,8 +977,7 @@ namespace PeanutButter.EasyArgs
             bool allowsGlobalEnvironmentDefaults
         )
         {
-            var envAttrib = attribs.FirstOrDefault(
-                o => o is AllowDefaultFromEnvironment
+            var envAttrib = attribs.FirstOrDefault(o => o is AllowDefaultFromEnvironment
             ) as AllowDefaultFromEnvironment;
             if (allowsGlobalEnvironmentDefaults || envAttrib is not null)
             {

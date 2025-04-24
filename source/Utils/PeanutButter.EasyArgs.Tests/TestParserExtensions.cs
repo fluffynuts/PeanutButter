@@ -313,8 +313,7 @@ public class TestParserExtensions
             .To.Contain.Only(1).Item(() => lines.JoinWith("\n"));
         Expect(lines)
             .To.Contain.Only(1)
-            .Matched.By(
-                line => line.Contains("--listen-port specified more than once but only accepts one value")
+            .Matched.By(line => line.Contains("--listen-port specified more than once but only accepts one value")
             );
     }
 
@@ -339,8 +338,7 @@ public class TestParserExtensions
             .To.Contain.Only(1).Item(() => lines.JoinWith("\n"));
         Expect(lines)
             .To.Contain.Only(1)
-            .Matched.By(
-                line => line.Contains("unknown option: --port")
+            .Matched.By(line => line.Contains("unknown option: --port")
             );
     }
 
@@ -973,8 +971,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 // Assert
                 Expect(lines)
                     .To.Contain.Exactly(1)
-                    .Matched.By(
-                        l => l.EndsWith(
+                    .Matched.By(l => l.EndsWith(
                             "set the SERVER environment variable appropriately"
                         )
                     );
@@ -1000,8 +997,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 // Assert
                 Expect(lines)
                     .To.Contain.Exactly(1)
-                    .Matched.By(
-                        l => l.EndsWith(
+                    .Matched.By(l => l.EndsWith(
                             "set the REMOTE_HOST environment variable appropriately"
                         )
                     );
@@ -1161,10 +1157,9 @@ Report bugs to <no-one-cares@whatevs.org>
                     .To.Equal(ExitCodes.ARGUMENT_ERROR);
                 Expect(output)
                     .To.Contain.Exactly(1)
-                    .Matched.By(
-                        l => l.Contains("--some-number") &&
-                            l.Contains("should be at least 5") &&
-                            l.Contains("received: 4")
+                    .Matched.By(l => l.Contains("--some-number") &&
+                        l.Contains("should be at least 5") &&
+                        l.Contains("received: 4")
                     );
             }
 
@@ -1194,10 +1189,9 @@ Report bugs to <no-one-cares@whatevs.org>
                     .To.Equal(ExitCodes.ARGUMENT_ERROR);
                 Expect(output)
                     .To.Contain.Exactly(1)
-                    .Matched.By(
-                        l => l.Contains("--some-number") &&
-                            l.Contains("should be at most 10") &&
-                            l.Contains("received: 14")
+                    .Matched.By(l => l.Contains("--some-number") &&
+                        l.Contains("should be at most 10") &&
+                        l.Contains("received: 14")
                     );
             }
         }
@@ -1261,9 +1255,8 @@ Report bugs to <no-one-cares@whatevs.org>
             // Assert
             Expect(captured)
                 .Not.To.Contain.Any
-                .Matched.By(
-                    s => s.Contains("--ignored") ||
-                        s.Contains("-i ")
+                .Matched.By(s => s.Contains("--ignored") ||
+                    s.Contains("-i ")
                 );
         }
 
@@ -1600,18 +1593,25 @@ Report bugs to <no-one-cares@whatevs.org>
         public void ShouldIndentAllButFirstLineOfDescription()
         {
             // Arrange
-            var args = new[] { "--help" };
-            // Act
-            args.ParseTo<IOptions>(new ParserOptions()
+            var args = new[]
             {
-                ExitWhenShowingHelp = false
-            });
+                "--help"
+            };
+            // Act
+            args.ParseTo<IOptions>(
+                new ParserOptions()
+                {
+                    ExitWhenShowingHelp = false
+                }
+            );
             // Assert
         }
 
         public interface IOptions
         {
-            [Description("Bacon ipsum dolor amet meatloaf chuck drumstick ham pork loin. Kevin flank short loin pastrami leberkas pancetta. Chislic fatback strip steak pork chop turducken chicken salami ")]
+            [Description(
+                "Bacon ipsum dolor amet meatloaf chuck drumstick ham pork loin. Kevin flank short loin pastrami leberkas pancetta. Chislic fatback strip steak pork chop turducken chicken salami "
+            )]
             public int Big { get; set; }
 
             [Description(
@@ -1657,6 +1657,45 @@ Report bugs to <no-one-cares@whatevs.org>
         {
             [DefaultOneWeekAgo]
             public DateTime DateTime { get; set; }
+        }
+    }
+
+    [TestFixture]
+    public class CompactArgs
+    {
+        [Test]
+        public void ShouldUnderstandMultipleSingleLetterArgs()
+        {
+            // Arrange
+            var args = new[]
+            {
+                "-abc"
+            };
+            var opts = new ParserOptions()
+            {
+                ExitOnError = false,
+                ExitWhenShowingHelp = false,
+                LineWriter = Console.WriteLine
+            };
+            // Act
+            var result = args.ParseTo<Options>(opts);
+            // Assert
+            Expect(result.A)
+                .To.Be.True();
+            Expect(result.B)
+                .To.Be.True();
+            Expect(result.C)
+                .To.Be.True();
+            Expect(result.D)
+                .To.Be.False();
+        }
+
+        public class Options
+        {
+            public bool A { get; set; }
+            public bool B { get; set; }
+            public bool C { get; set; }
+            public bool D { get; set; }
         }
     }
 
