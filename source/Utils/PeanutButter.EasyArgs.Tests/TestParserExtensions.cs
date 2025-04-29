@@ -1671,14 +1671,8 @@ Report bugs to <no-one-cares@whatevs.org>
             {
                 "-abc"
             };
-            var opts = new ParserOptions()
-            {
-                ExitOnError = false,
-                ExitWhenShowingHelp = false,
-                LineWriter = Console.WriteLine
-            };
             // Act
-            var result = args.ParseTo<Options>(opts);
+            var result = args.ParseTo<Options>(TestingOptions);
             // Assert
             Expect(result.A)
                 .To.Be.True();
@@ -1696,6 +1690,31 @@ Report bugs to <no-one-cares@whatevs.org>
             public bool B { get; set; }
             public bool C { get; set; }
             public bool D { get; set; }
+            public int Port { get; set; }
+        }
+
+        private static readonly ParserOptions TestingOptions = new()
+        {
+            ExitOnError = false,
+            ExitWhenShowingHelp = false,
+            LineWriter = Console.WriteLine
+        };
+
+        [Test]
+        public void ShouldUnderstandUnspacedNumericArgs()
+        {
+            // Arrange
+            var expected = GetRandomInt(1000, 2000);
+            var args = new[]
+            {
+                $"-p{expected}",
+            };
+
+            // Act
+            var result = args.ParseTo<Options>(TestingOptions);
+            // Assert
+            Expect(result.Port)
+                .To.Equal(expected);
         }
     }
 

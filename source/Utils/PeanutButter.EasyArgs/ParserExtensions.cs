@@ -131,7 +131,11 @@ namespace PeanutButter.EasyArgs
                 flags,
                 out var ignored
             );
-            ResolveCompactArguments<T>(collected);
+            if (options.EnableExtendedParsing)
+            {
+                ResolveCompactArguments<T>(collected);
+            }
+
             collected = new MergeDictionary<string, IHasValue>(
                 collected,
                 GrabEnvVars<T>(options.FallbackOnEnvironmentVariables)

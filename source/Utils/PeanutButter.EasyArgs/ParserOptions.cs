@@ -61,6 +61,16 @@ namespace PeanutButter.EasyArgs
         public bool IgnoreUnknownSwitches { get; set; }
 
         /// <summary>
+        /// When enabled, some condensed versions of argument
+        /// handling are enabled, including running together
+        /// short flag arguments, eg
+        ///   -n -a -b => -nab
+        /// specifying numeric values without spaces, eg
+        ///   -l 1234 => -l1234
+        /// </summary>
+        public bool EnableExtendedParsing { get; set; } = true;
+
+        /// <summary>
         /// Reports that multiple values were found for a single-value argument
         /// </summary>
         /// <param name="arg"></param>
