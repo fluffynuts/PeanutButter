@@ -472,6 +472,16 @@ namespace PeanutButter.EasyArgs
             {
                 if (options.ShowHelpOnArgumentError)
                 {
+                    if (Environment.GetEnvironmentVariable("EASYARGS_DEBUG").AsBoolean())
+                    {
+                        var s = errored.Count == 1
+                            ? ""
+                            : "s";
+                        options.LineWriter(
+                            $"Invalid commandline argument{s} specified:\n  -{errored.JoinWith("\n  -")}"
+                        );
+                    }
+
                     PrintHelpFor<T>(options);
                 }
 
@@ -633,9 +643,8 @@ namespace PeanutButter.EasyArgs
             var value = opt.Default ?? true;
             if (acc.TryGetValue(prop, out var existing) &&
                 existing != value &&
-                !errored.Contains(opt.Key))
+                errored.Add(opt.Key))
             {
-                errored.Add(opt.Key);
                 var specifiedSwitches = collected.Keys
                     .Where(opt.HasSwitch)
                     .Distinct()
