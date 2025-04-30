@@ -52,8 +52,14 @@ namespace PeanutButter.EasyArgs
         /// <summary>
         /// The type of argument for help display (typically "text" or "number")
         /// </summary>
-        public string Type =>
-            _type ??= GrokType();
+        public string Type => string.IsNullOrWhiteSpace(_type)
+            ? _type = GrokType()
+            : _type;
+        
+        /// <summary>
+        /// Exposes the property name for debugging
+        /// </summary>
+        public string PropertyName => Property?.Name;
 
         /// <summary>
         /// Minimum value for a numeric argument
@@ -245,6 +251,7 @@ namespace PeanutButter.EasyArgs
                     );
                     break;
             }
+
             return result;
         }
     }

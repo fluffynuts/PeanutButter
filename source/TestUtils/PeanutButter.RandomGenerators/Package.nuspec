@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.RandomGenerators</id>
-    <version>3.0.364</version>
+    <version>3.0.365</version>
     <title>PeanutButter.RandomGenerators</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
@@ -22,12 +22,12 @@
     <copyright>Copyright  2014</copyright>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="PeanutButter.Utils" version="3.0.364" />
-        <dependency id="PeanutButter.DuckTyping" version="3.0.364" />
+        <dependency id="PeanutButter.Utils" version="3.0.365" />
+        <dependency id="PeanutButter.DuckTyping" version="3.0.365" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="PeanutButter.Utils" version="3.0.364" />
-        <dependency id="PeanutButter.DuckTyping" version="3.0.364" />
+        <dependency id="PeanutButter.Utils" version="3.0.365" />
+        <dependency id="PeanutButter.DuckTyping" version="3.0.365" />
       </group>
     </dependencies>
     <references></references>

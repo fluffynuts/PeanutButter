@@ -132,6 +132,7 @@ namespace PeanutButter.EasyArgs
                 flags,
                 out var ignored
             );
+            
             if (options.EnableExtendedParsing)
             {
                 ResolveCompactArguments<T>(collected);
@@ -297,7 +298,7 @@ namespace PeanutButter.EasyArgs
                     continue;
                 }
 
-                result[key] = new StringCollection(value);
+                result[pi.Name] = new StringCollection(value);
             }
 
             return result;
@@ -734,11 +735,10 @@ namespace PeanutButter.EasyArgs
                 DebugPrint(() =>
                     new
                     {
+                        label = "Duplicate flag arg",
                         opt,
                         acc,
-                        prop,
-                        lookup
-                        
+                        prop
                     }.Stringify()
                 );
                 errored.Add(opt.Key);
