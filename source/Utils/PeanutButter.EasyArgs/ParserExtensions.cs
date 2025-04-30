@@ -438,6 +438,15 @@ namespace PeanutButter.EasyArgs
                     cur
                 ) =>
                 {
+                    DebugPrint(() =>
+                        "--------------\n" + new
+                        {
+                            uncollectedArgs,
+                            errored,
+                            acc,
+                            cur
+                        }.Stringify() + "\n----------------"
+                    );
                     if (cur.Key == "")
                     {
                         uncollectedArgs.AddRange(cur.Value.AllValues);
@@ -446,6 +455,7 @@ namespace PeanutButter.EasyArgs
 
                     if (!TryFindOption(cur.Key, lookup, errored, options, out var opt))
                     {
+                        DebugPrint(() => "unknown option");
                         uncollectedArgs.Add(cur.Key);
                         uncollectedArgs.AddRange(cur.Value.AllValues);
                         return acc;
@@ -455,12 +465,14 @@ namespace PeanutButter.EasyArgs
                     var prop = opt.Key;
                     if (opt.AllowMultipleValues)
                     {
+                        DebugPrint("collecting multiple values");
                         acc[prop] = input.AllValues;
                     }
                     else if (opt.IsFlag)
                     {
                         if (opt.IsHelpFlag)
                         {
+                            DebugPrint("--help specified");
                             options.DisplayHelp<T>(
                                 lookup.Values
                                     .Distinct()
@@ -470,6 +482,7 @@ namespace PeanutButter.EasyArgs
                         }
                         else
                         {
+                            DebugPrint("attempting to store flag");
                             StoreFlag(
                                 options,
                                 opt,
@@ -483,6 +496,7 @@ namespace PeanutButter.EasyArgs
                     }
                     else
                     {
+                        DebugPrint("attempting to store single value");
                         StoreSingleValue(
                             opt,
                             input,
@@ -497,20 +511,28 @@ namespace PeanutButter.EasyArgs
                 }
             );
 
+            DebugPrint("Verifying required options");
             VerifyRequiredOptions(result, lookup, options, errored);
+            DebugPrint(() =>
+                "--------------\n" + new
+                {
+                    uncollectedArgs,
+                    errored,
+                    result
+                }.Stringify() + "\n----------------"
+            );
             if (errored.Any())
             {
                 if (options.ShowHelpOnArgumentError)
                 {
-                    if (Environment.GetEnvironmentVariable("EASYARGS_DEBUG").AsBoolean())
-                    {
-                        var s = errored.Count == 1
-                            ? ""
-                            : "s";
-                        options.LineWriter(
-                            $"Invalid commandline argument{s} specified:\n  -{errored.JoinWith("\n  -")}"
-                        );
-                    }
+                    DebugPrint(() =>
+                        {
+                            var s = errored.Count == 1
+                                ? ""
+                                : "s";
+                            return $"Invalid commandline argument{s} specified:\n  * {errored.JoinWith("\n  * ")}";
+                        }
+                    );
 
                     PrintHelpFor<T>(options);
                 }
@@ -538,6 +560,29 @@ namespace PeanutButter.EasyArgs
 
             unmatched = uncollectedArgs.ToArray();
             return result;
+        }
+
+        private static void DebugPrint(
+            string str
+        )
+        {
+            DebugPrint(() => str);
+        }
+
+        private static void DebugPrint(
+            Func<string> generator
+        )
+        {
+            if (!Environment.GetEnvironmentVariable("EASYARGS_DEBUG").AsBoolean())
+            {
+                return;
+            }
+
+            Console.WriteLine(
+                $"""
+                 {generator()}
+                 """
+            );
         }
 
         private static void VerifyNumericRanges(

@@ -568,7 +568,10 @@ public class TestParserExtensions
             );
         }
 
-        public void Deconstruct(out int? exitCode, out string[] lines)
+        public void Deconstruct(
+            out int? exitCode,
+            out string[] lines
+        )
         {
             exitCode = ExitCode;
             lines = Lines;
@@ -1715,6 +1718,31 @@ Report bugs to <no-one-cares@whatevs.org>
             // Assert
             Expect(result.Port)
                 .To.Equal(expected);
+        }
+    }
+
+    [TestFixture]
+    public class Live
+    {
+        [Test]
+        public void StrangeBehavior()
+        {
+            // Arrange
+            var args = new[]
+            {
+                "--ignore-ssl-errors"
+            };
+            // Act
+            var result = args.ParseTo<IOptions>();
+            // Assert
+            Expect(result.IgnoreSslErrors)
+                .To.Be.True();
+        }
+
+        public interface IOptions
+        {
+            [Description("Ignore ssl errors, useful for testing against a dev server from another machine")]
+            bool IgnoreSslErrors { get; set; }
         }
     }
 
