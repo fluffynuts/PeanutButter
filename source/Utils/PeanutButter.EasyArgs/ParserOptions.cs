@@ -71,6 +71,18 @@ namespace PeanutButter.EasyArgs
         public bool EnableExtendedParsing { get; set; } = true;
 
         /// <summary>
+        /// When unable to determine the number of columns available
+        /// to the console, fall back on this value
+        /// </summary>
+        public int ConsoleColumns
+        {
+            get => _consoleColumns;
+            set => _consoleColumns = Math.Max(value, 50);
+        }
+
+        private int _consoleColumns = 100;
+
+        /// <summary>
         /// Reports that multiple values were found for a single-value argument
         /// </summary>
         /// <param name="arg"></param>
@@ -509,8 +521,8 @@ namespace PeanutButter.EasyArgs
         }
 
         /// <summary>
-        /// Provides the window width for the console (falling back on 80
-        /// when that fails)
+        /// Provides the window width for the console (falling back on
+        /// the value of ConsoleColumns (default: 100) when that fails)
         /// </summary>
         public virtual int ConsoleWidth => TryReadConsoleWidth();
 
@@ -555,10 +567,16 @@ namespace PeanutButter.EasyArgs
             }
             catch
             {
-                return 80;
+                var envVar = Environment.GetEnvironmentVariable("COLUMNS");
+                if (envVar is not null && int.TryParse(envVar, out var cols))
+                {
+                    return cols;
+                }
+
+                return ConsoleColumns;
             }
         }
-
+        
         /// <summary>
         /// Generates the help footer from a [MoreInfo] attribute
         /// </summary>
