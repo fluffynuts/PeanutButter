@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Imported.PeanutButter.DuckTyping.Extensions;
 using Imported.PeanutButter.Utils;
 using Imported.PeanutButter.Utils.Dictionaries;
@@ -160,15 +161,30 @@ namespace PeanutButter.EasyArgs
         )
         {
             var options = GrokOptionsFor<T>();
-            var shortNames = options
+            var shortNamedOptions = options
                 .Where(o => !string.IsNullOrWhiteSpace(o.ShortName))
                 .ToDictionary(
                     o => o.ShortName,
                     o => o
                 );
+            var shortNames = shortNamedOptions
+                .Select(o => $"-{o.Key}")
+                .AsHashSet();
+            var longNames = options
+                .Where(o => !string.IsNullOrWhiteSpace(o.LongName))
+                .Select(o => $"--{o.LongName}")
+                .AsHashSet();
             var toRemove = new List<string>();
             var finalToMerge = new Dictionary<string, IHasValue>();
-            foreach (var item in collected)
+            var toTest = collected
+                .Where(o =>
+                    !longNames.Contains(o.Key) &&
+                    !shortNames.Contains(o.Key)
+                ).ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value
+                );
+            foreach (var item in toTest)
             {
                 if (!item.Key.StartsWith("-"))
                 {
@@ -189,9 +205,10 @@ namespace PeanutButter.EasyArgs
                 }
 
                 var chars = key.Select(c => $"{c}").ToArray();
-                foreach (var c in chars)
+                for (var i = 0; i < chars.Length; i++)
                 {
-                    if (!shortNames.TryGetValue(c, out var arg))
+                    var c = chars[i];
+                    if (!shortNamedOptions.TryGetValue(c, out var arg))
                     {
                         toMerge.Clear();
                         break; // no match, give up
@@ -201,6 +218,14 @@ namespace PeanutButter.EasyArgs
                     {
                         toMerge[$"-{c}"] = new StringCollection();
                         continue;
+                    }
+
+                    if (arg.Property.PropertyType.IsNumericType())
+                    {
+                        toMerge[$"-{c}"] = new StringCollection(
+                            chars.Skip(i + 1).JoinWith("")
+                        );
+                        break;
                     }
                 }
 
@@ -220,6 +245,8 @@ namespace PeanutButter.EasyArgs
 
             finalToMerge.MergeInto(collected);
         }
+
+        private static readonly Regex ShortArgMatcher = new("^-[a-zA-Z]$");
 
         private static CommandlineArgument FindFuzzyMatch(
             KeyValuePair<string, IHasValue> item,
@@ -406,7 +433,10 @@ namespace PeanutButter.EasyArgs
             var errored = new HashSet<string>();
             var result = collected.Aggregate(
                 new Dictionary<string, object>(),
-                (acc, cur) =>
+                (
+                    acc,
+                    cur
+                ) =>
                 {
                     if (cur.Key == "")
                     {
@@ -906,7 +936,10 @@ namespace PeanutButter.EasyArgs
                         .Where(pi => pi.GetCustomAttributes().OfType<IgnoreAttribute>().IsEmpty())
                         .Aggregate(
                             new List<CommandlineArgument>(),
-                            (acc, cur) =>
+                            (
+                                acc,
+                                cur
+                            ) =>
                             {
                                 var attribs = cur.GetCustomAttributes().ToArray();
                                 var option = new CommandlineArgument()
@@ -1049,7 +1082,10 @@ namespace PeanutButter.EasyArgs
             var ignoredCollection = new List<string>();
             var result = args.Aggregate(
                 new Dictionary<string, IHasValue>(),
-                (acc, cur) =>
+                (
+                    acc,
+                    cur
+                ) =>
                 {
                     if (afterDoubleDash)
                     {
