@@ -111,6 +111,7 @@ namespace PeanutButter.EasyArgs
         /// <summary>
         /// The corresponding PropertyInfo for this argument
         /// </summary>
+        [SkipStringify]
         public PropertyInfo Property { get; set; }
 
         /// <summary>
@@ -150,7 +151,7 @@ namespace PeanutButter.EasyArgs
             => _allowMultipleValues ??= Property?.PropertyType?.IsCollection() ?? false;
 
         /// <summary>
-        /// Whether or not this argument is a flag
+        /// Whether this argument is a flag
         /// </summary>
         public bool IsFlag
         {
@@ -167,12 +168,12 @@ namespace PeanutButter.EasyArgs
         public const string HELP_FLAG_KEY = "$help$";
 
         /// <summary>
-        /// Whether or not this specific argument is the help one
+        /// Whether this specific argument is the help one
         /// </summary>
         public bool IsHelpFlag => Key == HELP_FLAG_KEY;
 
         /// <summary>
-        /// Whether or not this argument is required
+        /// Whether this argument is required
         /// </summary>
         public bool IsRequired { get; set; }
 
@@ -202,7 +203,7 @@ namespace PeanutButter.EasyArgs
         /// can be given an explicit environment variable name
         /// to look for; otherwise environment variables are
         /// matched fuzzily to property names:
-        /// - case insensitive
+        /// - case-insensitive
         /// - ignoring _ and .
         /// so, eg, the env var FOO_BAR or FOO.BAR will populate
         /// a property called FooBar or fooBar, etc.
