@@ -614,6 +614,7 @@ namespace PeanutButter.EasyArgs
                             opt.MinValue,
                             value
                         );
+                        DebugPrint(() => $"error: value too small\n{opt.Key} -> {value}");
                         errored.Add(opt.Key);
                     }
 
@@ -624,6 +625,7 @@ namespace PeanutButter.EasyArgs
                             opt.MaxValue,
                             value
                         );
+                        DebugPrint(() => $"error: value too large\n{opt.Key} -> {value}");
                         errored.Add(opt.Key);
                     }
                 }
@@ -645,6 +647,13 @@ namespace PeanutButter.EasyArgs
             missing.ForEach(opt =>
                 {
                     options.ReportMissingRequiredOption(opt);
+                    DebugPrint(() => new
+                        {
+                            label = "missing required",
+                            opt,
+                            specified
+                        }.Stringify()
+                    );
                     errored.Add(opt.Key);
                 }
             );
@@ -669,9 +678,9 @@ namespace PeanutButter.EasyArgs
             );
             if (store.ContainsKey(prop))
             {
-                if (!errored.Contains(opt.Key))
+                if (errored.Add(opt.Key))
                 {
-                    errored.Add(opt.Key);
+                    DebugPrint($"multiple values for single-value option {opt.LongName}");
                     options.ReportMultipleValuesForSingleValueArgument($"--{opt.LongName}");
                 }
             }
@@ -684,6 +693,7 @@ namespace PeanutButter.EasyArgs
             {
                 if (!File.Exists(input.SingleValue))
                 {
+                    DebugPrint($"{opt.LongName}: file not found: {input.SingleValue}");
                     errored.Add(opt.Key);
                     options.ReportMissingFile($"--{opt.LongName}", input.SingleValue);
                 }
@@ -697,6 +707,7 @@ namespace PeanutButter.EasyArgs
             {
                 if (!Directory.Exists(input.SingleValue))
                 {
+                    DebugPrint($"{opt.LongName}: folder not found: {input.SingleValue}");
                     errored.Add(opt.Key);
                     options.ReportMissingFile($"--{opt.LongName}", input.SingleValue);
                 }
@@ -718,8 +729,9 @@ namespace PeanutButter.EasyArgs
             var value = opt.Default ?? true;
             if (acc.TryGetValue(prop, out var existing) &&
                 existing != value &&
-                errored.Add(opt.Key))
+                !errored.Contains(opt.Key))
             {
+                errored.Add(opt.Key);
                 var specifiedSwitches = collected.Keys
                     .Where(opt.HasSwitch)
                     .Distinct()
