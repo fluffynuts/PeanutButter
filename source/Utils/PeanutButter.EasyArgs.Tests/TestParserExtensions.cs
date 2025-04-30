@@ -906,12 +906,11 @@ Report bugs to <no-one-cares@whatevs.org>
                     using var _ = new AutoTempEnvironmentVariable(
                         varName,
                         GetRandomFrom(
-                            new[]
-                            {
+                            [
                                 "1",
                                 "true",
                                 "yes"
-                            }
+                            ]
                         )
                     );
                     var args = new string[0];

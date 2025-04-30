@@ -273,7 +273,7 @@ namespace PeanutButter.EasyArgs
 
         private static IDictionary<string, IHasValue> GrabEnvVars<T>(
             bool forceFromOptions,
-            IDictionary<string, IHasValue> existingValues
+            IDictionary<string, IHasValue> collected
         )
         {
             var globalEnvVars = typeof(T).GetCustomAttributes()
@@ -326,7 +326,7 @@ namespace PeanutButter.EasyArgs
                 {
                     foreach (var name in possibleNames)
                     {
-                        if (!result.ContainsKey(name))
+                        if (collected.ContainsKey(name))
                         {
                             exists = true;
                             break;
