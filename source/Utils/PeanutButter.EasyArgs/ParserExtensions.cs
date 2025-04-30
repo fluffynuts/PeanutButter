@@ -731,13 +731,25 @@ namespace PeanutButter.EasyArgs
                 existing != value &&
                 !errored.Contains(opt.Key))
             {
+                DebugPrint(() =>
+                    new
+                    {
+                        opt,
+                        acc,
+                        prop,
+                        lookup
+                        
+                    }.Stringify()
+                );
                 errored.Add(opt.Key);
                 var specifiedSwitches = collected.Keys
                     .Where(opt.HasSwitch)
                     .Distinct()
                     .ToArray();
 
-                var negation = lookup.Values.FirstOrDefault(arg => arg.Key == opt.Key && arg != opt
+                var negation = lookup.Values.FirstOrDefault(arg =>
+                    arg.Key == opt.Key &&
+                    arg != opt
                 );
 
                 var negativeConflicts = negation is null
@@ -747,13 +759,10 @@ namespace PeanutButter.EasyArgs
                         .Distinct()
                         .ToArray();
 
-                var allPossibleConflicts = lookup.Values.Where(arg => arg.ConflictsWithKeys.Contains(opt.Key)
+                var allPossibleConflicts = lookup.Values.Where(arg =>
+                        arg.ConflictsWithKeys.Contains(opt.Key)
                     )
-                    .Except(
-                        [
-                            opt
-                        ]
-                    )
+                    .Except([opt])
                     .Distinct()
                     .ToArray();
 
