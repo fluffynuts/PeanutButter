@@ -132,7 +132,7 @@ namespace PeanutButter.EasyArgs
                 flags,
                 out var ignored
             );
-            
+
             if (options.EnableExtendedParsing)
             {
                 ResolveCompactArguments<T>(collected);
@@ -140,7 +140,10 @@ namespace PeanutButter.EasyArgs
 
             collected = new MergeDictionary<string, IHasValue>(
                 collected,
-                GrabEnvVars<T>(options.FallbackOnEnvironmentVariables)
+                GrabEnvVars<T>(
+                    options.FallbackOnEnvironmentVariables,
+                    collected
+                )
             );
 
             var matched = TryMatch<T>(
@@ -269,13 +272,33 @@ namespace PeanutButter.EasyArgs
         ];
 
         private static IDictionary<string, IHasValue> GrabEnvVars<T>(
-            bool forceFromOptions
+            bool forceFromOptions,
+            IDictionary<string, IHasValue> existingValues
         )
         {
             var globalEnvVars = typeof(T).GetCustomAttributes()
                 .Any(o => o is AllowDefaultsFromEnvironment);
             var result = new Dictionary<string, IHasValue>();
             var props = typeof(T).GetProperties();
+            var opts = GrokOptionsFor<T>();
+            var optLookup = new Dictionary<string, List<string>>();
+            foreach (var opt in opts)
+            {
+                var names = new List<string>();
+                if (!string.IsNullOrWhiteSpace(opt.LongName))
+                {
+                    names.Add(opt.LongName);
+                }
+
+                if (!string.IsNullOrWhiteSpace(opt.ShortName))
+                {
+                    names.Add(opt.ShortName);
+                }
+                
+                names.Add(opt.PropertyName);
+                optLookup[opt.PropertyName] = names;
+            }
+
             foreach (var pi in props)
             {
                 var shouldSeek = forceFromOptions ||
@@ -298,7 +321,23 @@ namespace PeanutButter.EasyArgs
                     continue;
                 }
 
-                result[pi.Name] = new StringCollection(value);
+                var exists = false;
+                if (optLookup.TryGetValue(pi.Name, out var possibleNames))
+                {
+                    foreach (var name in possibleNames)
+                    {
+                        if (!result.ContainsKey(name))
+                        {
+                            exists = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!exists)
+                {
+                    result[pi.Name] = new StringCollection(value);
+                }
             }
 
             return result;

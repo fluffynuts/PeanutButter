@@ -1739,6 +1739,34 @@ Report bugs to <no-one-cares@whatevs.org>
                 .To.Be.True();
         }
 
+        [Test]
+        public void ShouldNotOverrideCliWithEnv()
+        {
+            // Arrange
+            using var _ = new AutoTempEnvironmentVariable(
+                "IGNORE_SSL_ERRORS",
+                "0"
+            );
+            var args = new[]
+            {
+                "--ignore-ssl-errors"
+            };
+            var exited = false;
+            // Act
+            var result = args.ParseTo<IOptions>(
+                new ParserOptions()
+                {
+                    FallbackOnEnvironmentVariables = true,
+                    ExitAction = _ => exited = true
+                }
+            );
+            // Assert
+            Expect(exited)
+                .To.Be.False();
+            Expect(result.IgnoreSslErrors)
+                .To.Be.True();
+        }
+
         public interface IOptions
         {
             [Description("Ignore ssl errors, useful for testing against a dev server from another machine")]
