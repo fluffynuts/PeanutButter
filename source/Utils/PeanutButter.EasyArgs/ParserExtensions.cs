@@ -142,7 +142,8 @@ namespace PeanutButter.EasyArgs
                 collected,
                 GrabEnvVars<T>(
                     options.FallbackOnEnvironmentVariables,
-                    collected
+                    collected,
+                    lookup
                 )
             );
 
@@ -273,7 +274,8 @@ namespace PeanutButter.EasyArgs
 
         private static IDictionary<string, IHasValue> GrabEnvVars<T>(
             bool forceFromOptions,
-            IDictionary<string, IHasValue> collected
+            IDictionary<string, IHasValue> collected,
+            IDictionary<string, CommandlineArgument> lookup
         )
         {
             var globalEnvVars = typeof(T).GetCustomAttributes()
@@ -294,7 +296,7 @@ namespace PeanutButter.EasyArgs
                 {
                     names.Add(opt.ShortName);
                 }
-                
+
                 names.Add(opt.PropertyName);
                 optLookup[opt.PropertyName] = names;
             }
@@ -305,6 +307,27 @@ namespace PeanutButter.EasyArgs
                     globalEnvVars ||
                     pi.GetCustomAttributes().Any(o => o is AllowDefaultFromEnvironment);
                 if (!shouldSeek)
+                {
+                    continue;
+                }
+
+                var alreadySpecified = false;
+                if (lookup.TryGetValueFuzzy(pi.Name, out var lookupArg))
+                {
+                    foreach (var item in collected)
+                    {
+                        if (lookup.TryGetValueFuzzy(item.Key, out var collectedArg))
+                        {
+                            alreadySpecified = lookupArg == collectedArg;
+                            if (alreadySpecified)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (alreadySpecified)
                 {
                     continue;
                 }
@@ -321,23 +344,7 @@ namespace PeanutButter.EasyArgs
                     continue;
                 }
 
-                var exists = false;
-                if (optLookup.TryGetValue(pi.Name, out var possibleNames))
-                {
-                    foreach (var name in possibleNames)
-                    {
-                        if (collected.ContainsKey(name))
-                        {
-                            exists = true;
-                            break;
-                        }
-                    }
-                }
-                
-                if (!exists)
-                {
-                    result[pi.Name] = new StringCollection(value);
-                }
+                result[pi.Name] = new StringCollection(value);
             }
 
             return result;
