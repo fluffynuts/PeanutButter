@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,6 +13,7 @@ using Imported.PeanutButter.DuckTyping.AutoConversion.Converters;
 using Imported.PeanutButter.DuckTyping.Comparers;
 using Imported.PeanutButter.DuckTyping.Exceptions;
 using Imported.PeanutButter.DuckTyping.Extensions;
+
 #else
 using PeanutButter.DuckTyping.AutoConversion;
 using PeanutButter.DuckTyping.AutoConversion.Converters;
@@ -63,7 +65,12 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="interfaceToMimic">Interface type to mimick</param>
         /// <param name="isFuzzy">Flag allowing or preventing approximation</param>
         /// <param name="allowReadonlyDefaultMembers">allows properties with no backing to be read as the default value for that type</param>
-        public ShimSham(object[] toWrap, Type interfaceToMimic, bool isFuzzy, bool allowReadonlyDefaultMembers)
+        public ShimSham(
+            object[] toWrap,
+            Type interfaceToMimic,
+            bool isFuzzy,
+            bool allowReadonlyDefaultMembers
+        )
             : this(toWrap, interfaceToMimic, isFuzzy, allowReadonlyDefaultMembers, new DefaultPropertyInfoFetcher())
         {
         }
@@ -77,7 +84,12 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <exception cref="ArgumentNullException">Thrown if the mimick interface or property info fetch are null</exception>
         /// <param name="allowReadonlyDefaultMembers">allows properties with no backing to be read as the default value for that type</param>
         // ReSharper disable once UnusedMember.Global
-        public ShimSham(object toWrap, Type interfaceToMimic, bool isFuzzy, bool allowReadonlyDefaultMembers)
+        public ShimSham(
+            object toWrap,
+            Type interfaceToMimic,
+            bool isFuzzy,
+            bool allowReadonlyDefaultMembers
+        )
             : this(
                 new[]
                 {
@@ -134,9 +146,8 @@ namespace PeanutButter.DuckTyping.Shimming
                 interfaceToMimic.GetAllImplementedInterfaces()
                     .And(interfaceToMimic)
                     .Distinct()
-                    .Select(
-                        i => _propertyInfoFetcher
-                            .GetProperties(i, bindingFlags)
+                    .Select(i => _propertyInfoFetcher
+                        .GetProperties(i, bindingFlags)
                     )
                     .SelectMany(c => c)
                     .ToArray()
@@ -216,7 +227,10 @@ namespace PeanutButter.DuckTyping.Shimming
             );
         }
 
-        private bool ReadBackingFieldValue(string propertyName, out object o)
+        private bool ReadBackingFieldValue(
+            string propertyName,
+            out object o
+        )
         {
             var fieldInfo = FindPrivateBackingFieldFor(propertyName);
             if (fieldInfo is not null)
@@ -231,7 +245,10 @@ namespace PeanutButter.DuckTyping.Shimming
             return false;
         }
 
-        private bool ReadPropertyDirectly(string propertyName, out object value)
+        private bool ReadPropertyDirectly(
+            string propertyName,
+            out object value
+        )
         {
             var itemType = _wrappedTypes[0];
             if (PropertyInfos.TryGetValue(itemType, out var props))
@@ -254,7 +271,10 @@ namespace PeanutButter.DuckTyping.Shimming
         }
 
         /// <inheritdoc />
-        public void SetPropertyValue(string propertyName, object newValue)
+        public void SetPropertyValue(
+            string propertyName,
+            object newValue
+        )
         {
             var propCode = propertyName.GetHashCode();
             if (_wrappingADuck)
@@ -304,7 +324,10 @@ namespace PeanutButter.DuckTyping.Shimming
             _shimmedProperties[propCode] = instance;
         }
 
-        private void WriteDuckedProperty(string propertyName, object newValue)
+        private void WriteDuckedProperty(
+            string propertyName,
+            object newValue
+        )
         {
             if (_wrappingADictionaryDuck)
             {
@@ -405,7 +428,11 @@ namespace PeanutButter.DuckTyping.Shimming
             return instance;
         }
 
-        private bool CannotShim(int propCode, object propValue, Type targetType)
+        private bool CannotShim(
+            int propCode,
+            object propValue,
+            Type targetType
+        )
         {
             if (_unshimmableProperties.Contains(propCode))
             {
@@ -423,13 +450,19 @@ namespace PeanutButter.DuckTyping.Shimming
 
 
         /// <inheritdoc />
-        public void CallThroughVoid(string methodName, params object[] parameters)
+        public void CallThroughVoid(
+            string methodName,
+            params object[] parameters
+        )
         {
             CallThrough(methodName, parameters);
         }
 
         /// <inheritdoc />
-        public object CallThrough(string methodName, object[] arguments)
+        public object CallThrough(
+            string methodName,
+            object[] arguments
+        )
         {
             if (_wrappingADuck)
             {
@@ -536,14 +569,20 @@ namespace PeanutButter.DuckTyping.Shimming
             return Reorder(parameters, dstTypes);
         }
 
-        private object[] Reorder(object[] parameters, Type[] dstTypes)
+        private object[] Reorder(
+            object[] parameters,
+            Type[] dstTypes
+        )
         {
             return dstTypes
                 .Select(type => FindBestMatchFor(type, parameters))
                 .ToArray();
         }
 
-        private static object FindBestMatchFor(Type type, object[] parameters)
+        private static object FindBestMatchFor(
+            Type type,
+            object[] parameters
+        )
         {
             return parameters.FirstOrDefault(p => p.GetType() == type);
         }
@@ -607,7 +646,10 @@ namespace PeanutButter.DuckTyping.Shimming
                 : MethodInfos[wrappedType].MethodInfos;
         }
 
-        private void StaticallyCachePropertyInfosFor(object[] cacheAll, bool cacheFieldInfosToo)
+        private void StaticallyCachePropertyInfosFor(
+            object[] cacheAll,
+            bool cacheFieldInfosToo
+        )
         {
             lock (PropertyInfos)
             {
@@ -641,7 +683,7 @@ namespace PeanutButter.DuckTyping.Shimming
         }
 
         private void ExamineObjectForDuckiness()
-            
+
         {
             for (var i = 0; i < _wrapped.Length; i++)
             {
@@ -657,6 +699,7 @@ namespace PeanutButter.DuckTyping.Shimming
                 {
                     return;
                 }
+
                 var shimTarget = shimField.GetValue(_wrapped[i]);
                 _wrappingADictionaryDuck = shimTarget is DictionaryShimSham;
             }
@@ -720,7 +763,10 @@ namespace PeanutButter.DuckTyping.Shimming
             };
         }
 
-        private void SetFieldValue(string propertyName, object newValue)
+        private void SetFieldValue(
+            string propertyName,
+            object newValue
+        )
         {
             var fieldInfo = FindPrivateBackingFieldFor(propertyName);
             // FIXME: find the correct wrapped object to invoke on
@@ -773,12 +819,17 @@ namespace PeanutButter.DuckTyping.Shimming
             return action;
         }
 
+        private static bool DebugEnabled = Environment.GetEnvironmentVariable(
+            "DEBUG_DUCKTYPING"
+        ).AsBoolean();
+
         private void TrySetValue(
             object newValue,
             Type newValueType,
             PropertyInfoCacheItem propInfo
         )
         {
+            CheckForImpendingStackOverflow();
             var pType = propInfo.PropertyType;
             var setter = propInfo.Setter;
             if (pType.IsAssignableFrom(newValueType))
@@ -797,6 +848,51 @@ namespace PeanutButter.DuckTyping.Shimming
 
             var converted = ConvertWith(converter, newValue, pType);
             setter(converted);
+        }
+
+        private static void CheckForImpendingStackOverflow()
+        {
+            if (!DebugEnabled)
+            {
+                return;
+            }
+
+            var s = new StackTrace();
+            if (HaveReEnteredTooManyTimes(s.GetFrames()))
+            {
+                throw new InvalidOperationException(
+                    """
+                    Looks like we're heading for a stack overflow
+                    """
+                );
+            }
+        }
+
+        private static bool HaveReEnteredTooManyTimes(
+            StackFrame[] frames
+        )
+        {
+            var level = frames.Aggregate(
+                0,
+                (
+                    acc,
+                    cur
+                ) =>
+                {
+                    var thisMethod = cur.GetMethod();
+                    var thisType = thisMethod.DeclaringType;
+                    if (
+                        thisType == typeof(ShimSham) &
+                        thisMethod.Name == nameof(TrySetValue)
+                    )
+                    {
+                        return acc + 1;
+                    }
+
+                    return acc;
+                }
+            );
+            return level >= 10;
         }
 
         private Func<object> CreateGetterExpressionFor(PropertyInfo propertyInfo)
