@@ -177,6 +177,7 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <inheritdoc />
         public object GetPropertyValue(string propertyName)
         {
+            CheckForImpendingStackOverflow();
             var propCode = propertyName.GetHashCode();
             if (_wrappingADuck)
             {
@@ -276,6 +277,7 @@ namespace PeanutButter.DuckTyping.Shimming
             object newValue
         )
         {
+            CheckForImpendingStackOverflow();
             var propCode = propertyName.GetHashCode();
             if (_wrappingADuck)
             {
@@ -829,7 +831,6 @@ namespace PeanutButter.DuckTyping.Shimming
             PropertyInfoCacheItem propInfo
         )
         {
-            CheckForImpendingStackOverflow();
             var pType = propInfo.PropertyType;
             var setter = propInfo.Setter;
             if (pType.IsAssignableFrom(newValueType))
