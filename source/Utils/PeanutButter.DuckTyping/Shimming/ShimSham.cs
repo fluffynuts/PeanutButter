@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Imported.PeanutButter.Utils;
 #if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
 using Imported.PeanutButter.DuckTyping.AutoConversion;
@@ -851,7 +852,9 @@ namespace PeanutButter.DuckTyping.Shimming
             setter(converted);
         }
 
-        private static void CheckForImpendingStackOverflow()
+        private static void CheckForImpendingStackOverflow(
+            [CallerMemberName] string method = null
+        )
         {
             if (!DebugEnabled)
             {
@@ -859,7 +862,10 @@ namespace PeanutButter.DuckTyping.Shimming
             }
 
             var s = new StackTrace();
-            if (HaveReEnteredTooManyTimes(s.GetFrames()))
+            if (HaveReEnteredTooManyTimes(
+                    s.GetFrames(),
+                    method
+                ))
             {
                 throw new InvalidOperationException(
                     """
@@ -870,7 +876,8 @@ namespace PeanutButter.DuckTyping.Shimming
         }
 
         private static bool HaveReEnteredTooManyTimes(
-            StackFrame[] frames
+            StackFrame[] frames,
+            string method
         )
         {
             var level = frames.Aggregate(
@@ -883,8 +890,8 @@ namespace PeanutButter.DuckTyping.Shimming
                     var thisMethod = cur.GetMethod();
                     var thisType = thisMethod.DeclaringType;
                     if (
-                        thisType == typeof(ShimSham) &
-                        thisMethod.Name == nameof(TrySetValue)
+                        thisType == typeof(ShimSham) &&
+                        thisMethod.Name == method
                     )
                     {
                         return acc + 1;
