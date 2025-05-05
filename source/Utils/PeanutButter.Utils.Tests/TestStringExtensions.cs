@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
+
 // ReSharper disable UnusedMember.Global
 
 // ReSharper disable PossibleMultipleEnumeration
@@ -3575,11 +3576,82 @@ function foo() {
                 var expected = allParts.JoinWith(Delimiter);
 
                 // Act
-                var result = start.AppendPath(Delimiter,parts);
+                var result = start.AppendPath(Delimiter, parts);
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
             }
+        }
+    }
+
+    [TestFixture]
+    public class CondenseWhitespace
+    {
+        [Test]
+        public void ShouldCondenseDoubleSpace()
+        {
+            // Arrange
+            var input = "foo  bar ";
+            var expected = "foo bar ";
+            // Act
+            var result = input.CondenseWhitespace();
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
+
+        [Test]
+        public void ShouldCondenseMultipleMultiSpace()
+        {
+            // Arrange
+            var input = "a   b  c   d";
+            var expected = "a b c d";
+            // Act
+            var result = input.CondenseWhitespace();
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
+
+        [TestCase("\r")]
+        [TestCase("\t")]
+        [TestCase("\n")]
+        public void ShouldCondense_(
+            string part
+        )
+        {
+            // Arrange
+            var input = $"{part}a  {part}b c  {part}d";
+            var expected = " a b c d";
+            // Act
+            var result = input.CondenseWhitespace();
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
+
+        [Test]
+        [Explicit("use to evaluate speed if changing the algorythm")]
+        [Repeat(10)]
+        public void Performance()
+        {
+            // Arrange
+            var input = " foo  to\tthe bar\r\n quux";
+            var expected = " foo to the bar quux";
+            var collected = new List<string>();
+            // Act
+            var time = Benchmark.Time(() =>
+            {
+                for (var i = 0; i < 1000_000; i++)
+                {
+                    collected.Add(input.CondenseWhitespace());
+                }
+            });
+            // Assert
+            Console.WriteLine(time);
+            Expect(collected)
+                .To.Contain.All
+                .Equal.To(expected, $"\"{expected[0]}\"");
         }
     }
 }

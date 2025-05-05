@@ -2215,4 +2215,39 @@ internal
             ? $"{joined}{delimiter}"
             : joined;
     }
+
+    /// <summary>
+    /// Condenses all whitespace in a string to single spaces
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    public static string CondenseWhitespace(
+        this string str
+    )
+    {
+        return str.CondenseWhitespace(" ");
+    }
+
+    /// <summary>
+    /// Condenses all whitespace in a string to the provided
+    /// replacement
+    /// </summary>
+    /// <param name="str"></param>
+    /// <param name="replaceWith"></param>
+    /// <returns></returns>
+    public static string CondenseWhitespace(
+        this string str,
+        string replaceWith
+    )
+    {
+        var result = (str ?? "")
+            .RegexReplaceAll(" ", TabsAndLineEndings)
+            .RegexReplaceAll(" ", TwoSpaces); //(" {2,}", " ");
+        return replaceWith == " "
+            ? result
+            : result.Replace(" ", replaceWith);
+    }
+    
+    private static readonly Regex TabsAndLineEndings = new("[\\t\\r\\n]");
+    private static readonly Regex TwoSpaces =  new(" {2,}");
 }
