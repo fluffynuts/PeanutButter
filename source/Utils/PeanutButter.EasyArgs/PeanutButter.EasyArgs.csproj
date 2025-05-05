@@ -66,6 +66,7 @@
         <Compile Include="..\PeanutButter.DuckTyping\Shimming\ShimSham.cs" Link="Imported\Shimming\ShimSham.cs"/>
         <Compile Include="..\PeanutButter.DuckTyping\Shimming\ShimShamBase.cs" Link="Imported\Shimming\ShimShamBase.cs"/>
         <Compile Include="..\PeanutButter.DuckTyping\Shimming\TypeMaker.cs" Link="Imported\Shimming\TypeMaker.cs"/>
+        <Compile Include="..\PeanutButter.Utils\AutoLocker.cs" Link="Imported\AutoLocker.cs"/>
         <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs" Link="Imported\Dictionaries\CaseWarpingDictionaryWrapper.cs"/>
         <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingConnectionStringSettingCollection.cs" Link="Imported\Dictionaries\DictionaryWrappingConnectionStringSettingCollection.cs"/>
         <Compile Include="..\PeanutButter.Utils\StringExtensions.cs" Link="Imported\StringExtensions.cs"/>

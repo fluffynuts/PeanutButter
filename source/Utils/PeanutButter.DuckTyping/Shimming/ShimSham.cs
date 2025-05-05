@@ -415,17 +415,17 @@ namespace PeanutButter.DuckTyping.Shimming
                 duckType,
                 asDict == null
                     // ReSharper disable once RedundantExplicitArrayCreation
-                    ? new object[]
-                    {
-                        new object[]
+                    ?
+                    [
+                        new[]
                         {
                             propValue
                         }
-                    }
-                    : new object[]
-                    {
+                    ]
+                    :
+                    [
                         asDict
-                    }
+                    ]
             );
             _shimmedProperties[propertyName.GetHashCode()] = instance;
             return instance;

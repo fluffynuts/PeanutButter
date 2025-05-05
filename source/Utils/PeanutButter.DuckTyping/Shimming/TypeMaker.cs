@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading;
 #if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
 using Imported.PeanutButter.DuckTyping.Comparers;
 using Imported.PeanutButter.DuckTyping.Extensions;
@@ -176,6 +177,8 @@ namespace PeanutButter.DuckTyping.Shimming
             var moduleName = "__PeanutButter_DuckTyped_Gen__";
             return DynamicAssemblyBuilder.DefineDynamicModule(moduleName);
         }
+        
+        private static readonly SemaphoreSlim TypeLock = new(1);
 
         private Type MakeTypeImplementing(
             Type type,
@@ -183,6 +186,7 @@ namespace PeanutButter.DuckTyping.Shimming
             bool allowDefaultsForReadonlyMembers,
             bool forceConcreteClass = false)
         {
+            using var _ = new AutoLocker(TypeLock);
             if (!type.IsInterface && !forceConcreteClass)
             {
                 if (!type.AllPublicInstancePropertiesAndMethodsAreVirtualOrAbstractAndNonFinal())
