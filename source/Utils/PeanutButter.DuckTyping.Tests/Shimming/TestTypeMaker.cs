@@ -96,10 +96,25 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             Expect(instance).To.Be.An.Instance.Of<ISample1>();
         }
 
+        [Test]
+        public void ParameterlessConstructorShouldBeUseful()
+        {
+            // Arrange
+            var expectedId = GetRandomInt(100, 200);
+            var sut = Create();
+            // Act
+            var type = sut.MakeTypeImplementing<ISample2>();
+            var instance1 = Activator.CreateInstance(type) as ISample2;
+            instance1.Id = expectedId;
+            // Assert
+            Expect(instance1.Id)
+                .To.Equal(expectedId);
+        }
+
         public interface ISample2
         {
-            int Id { get; }
-            string Name { get; }
+            int Id { get; set; }
+            string Name { get; set; }
         }
 
         [Test]
