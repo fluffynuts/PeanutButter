@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Shimming;
@@ -114,10 +115,67 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         [Test]
         public void SelfWrapping()
         {
+            // Sometimes, this is what I see from GetRandom<T>
+            // -> I haven't figured out _exactly_ why sometimes
+            //    we get a dictionary wrapper, and sometimes we
+            //    get the self-wrapper
             // Arrange
-            
+            var sut = new Sample2();
+            var id = GetRandomInt(100);
+            var name = GetRandomName();
             // Act
+            sut.Id = id;
+            sut.Name = name;
             // Assert
+            Expect(sut.Id)
+                .To.Equal(id);
+            Expect(sut.Name)
+                .To.Equal(name);
+        }
+
+        /// <summary>
+        /// Mimics the generated type's parameterless constructor
+        /// with a ShimSham field
+        /// </summary>
+        [IsADuck]
+        public class Sample2 : ISample2
+        {
+            public int Id
+            {
+                get => GetPropertyValue<int>();
+                set => SetPropertyValue(value);
+            }
+
+            public string Name
+            {
+                get => GetPropertyValue<string>();
+                set => SetPropertyValue(value);
+            }
+            
+            private int _Id;
+            private string _Name;
+
+            private readonly IShimSham _shim;
+
+            public Sample2()
+            {
+                _shim = new ShimSham(this, typeof(ISample2), false, true);
+            }
+
+            private T GetPropertyValue<T>(
+                [CallerMemberName] string name = null
+            )
+            {
+                return (T)_shim.GetPropertyValue(name);
+            }
+
+            private void SetPropertyValue<T>(
+                T value,
+                [CallerMemberName] string name = null
+            )
+            {
+                _shim.SetPropertyValue(name, value);
+            }
         }
 
         public interface ISample2
@@ -133,7 +191,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Arrange -------------------
             var sut = Create();
             var type = sut.MakeTypeImplementing<ISample2>();
-            var instance = (ISample2) CreateInstanceOf(type);
+            var instance = (ISample2)CreateInstanceOf(type);
             var expectedId = RandomValueGen.GetRandomInt();
             var expectedName = RandomValueGen.GetRandomString();
 
@@ -188,7 +246,16 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             var result = sut.MakeTypeImplementing<ISample1>();
-            var instance = (ISample1) CreateInstanceOf(result, new object[] { new[] { toWrap } });
+            var instance = (ISample1)CreateInstanceOf(
+                result,
+                new object[]
+                {
+                    new[]
+                    {
+                        toWrap
+                    }
+                }
+            );
             instance.SetPropertyValue("Name", expected);
 
             //--------------- Assert -----------------------
@@ -239,7 +306,16 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = CreateInstanceOf(type, new object[] { new[] { toWrap } });
+            var instance = CreateInstanceOf(
+                type,
+                new object[]
+                {
+                    new[]
+                    {
+                        toWrap
+                    }
+                }
+            );
 
             //--------------- Assert -----------------------
             instance.SetPropertyValue("Sample", expected);
@@ -265,7 +341,16 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = (ISample4) CreateInstanceOf(type, new object[] { new[] { toWrap } });
+            var instance = (ISample4)CreateInstanceOf(
+                type,
+                new object[]
+                {
+                    new[]
+                    {
+                        toWrap
+                    }
+                }
+            );
 
             //--------------- Assert -----------------------
             Expect(() => instance.Sample = expected)
@@ -315,7 +400,16 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             var type = sut.MakeTypeImplementing<IVoidVoid>();
-            var instance = (IVoidVoid) CreateInstanceOf(type, new object[] { new[] { toWrap } });
+            var instance = (IVoidVoid)CreateInstanceOf(
+                type,
+                new object[]
+                {
+                    new[]
+                    {
+                        toWrap
+                    }
+                }
+            );
             instance.Moo();
 
             //--------------- Assert -----------------------
@@ -324,7 +418,10 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
         public interface IVoidArgs
         {
-            void Moo(string pitch, int howMany);
+            void Moo(
+                string pitch,
+                int howMany
+            );
         }
 
         [Test]
@@ -348,7 +445,10 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             public string Pitch { get; private set; }
             public int HowMany { get; private set; }
 
-            public void Moo(string pitch, int howMany)
+            public void Moo(
+                string pitch,
+                int howMany
+            )
             {
                 Pitch = pitch;
                 HowMany = howMany;
@@ -370,7 +470,16 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
             //--------------- Act ----------------------
             var type = sut.MakeTypeImplementing<IVoidArgs>();
-            var instance = (IVoidArgs) CreateInstanceOf(type, new object[] { new[] { toWrap } });
+            var instance = (IVoidArgs)CreateInstanceOf(
+                type,
+                new object[]
+                {
+                    new[]
+                    {
+                        toWrap
+                    }
+                }
+            );
             instance.Moo(expectedPitch, expectedCount);
 
             //--------------- Assert -----------------------
@@ -380,7 +489,10 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
         public interface IArgsNonVoid
         {
-            int Add(int a, int b);
+            int Add(
+                int a,
+                int b
+            );
         }
 
         [Test]
@@ -401,7 +513,10 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
 
         public class ArgsNonVoidImpl
         {
-            public int Add(int a, int b)
+            public int Add(
+                int a,
+                int b
+            )
             {
                 return a + b;
             }
@@ -421,7 +536,16 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = (IArgsNonVoid) CreateInstanceOf(type, new object[] { new[] { toWrap } });
+            var instance = (IArgsNonVoid)CreateInstanceOf(
+                type,
+                new object[]
+                {
+                    new[]
+                    {
+                        toWrap
+                    }
+                }
+            );
             var result = instance.Add(first, second);
 
             //--------------- Assert -----------------------
@@ -491,7 +615,16 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
             //--------------- Assume ----------------
 
             //--------------- Act ----------------------
-            var instance = (ISample4) CreateInstanceOf(type, new object[] { new[] { toWrap } });
+            var instance = (ISample4)CreateInstanceOf(
+                type,
+                new object[]
+                {
+                    new[]
+                    {
+                        toWrap
+                    }
+                }
+            );
             instance.Sample = expected;
 
             //--------------- Assert -----------------------
@@ -533,7 +666,7 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
                 .FirstOrDefault();
             Expect(attr).Not.To.Be.Null();
             Expect(attr).To.Be.An.Instance.Of<LabelAttribute>();
-            Expect(((LabelAttribute) attr)?.Label).To.Equal("moo");
+            Expect(((LabelAttribute)attr)?.Label).To.Equal("moo");
         }
 
         [Test]
@@ -577,7 +710,10 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
         }
 
 
-        private object CreateInstanceOf(Type type, params object[] constructorArgs)
+        private object CreateInstanceOf(
+            Type type,
+            params object[] constructorArgs
+        )
         {
             return Activator.CreateInstance(type, constructorArgs);
         }
