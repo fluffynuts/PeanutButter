@@ -111,6 +111,15 @@ namespace PeanutButter.DuckTyping.Tests.Shimming
                 .To.Equal(expectedId);
         }
 
+        [Test]
+        public void SelfWrapping()
+        {
+            // Arrange
+            
+            // Act
+            // Assert
+        }
+
         public interface ISample2
         {
             int Id { get; set; }
