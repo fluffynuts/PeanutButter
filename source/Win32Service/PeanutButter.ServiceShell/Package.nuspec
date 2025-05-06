@@ -1,7 +1,7 @@
 <package>
   <metadata>
     <id>PeanutButter.ServiceShell</id>
-    <version>3.0.374</version>
+    <version>3.0.375</version>
     <title>PeanutButter.ServiceShell</title>
     <authors>Davyd McColl</authors>
     <owners>Davyd McColl</owners>
@@ -37,16 +37,16 @@
     <copyright>Copyright  2014</copyright>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="PeanutButter.WindowsServiceManagement" version="3.0.374" />
+        <dependency id="PeanutButter.WindowsServiceManagement" version="3.0.375" />
         <dependency id="log4net" version="2.0.15" />
         <dependency id="System.ServiceProcess.ServiceController" version="8.0.0" />
-        <dependency id="PeanutButter.EasyArgs" version="3.0.374" />
+        <dependency id="PeanutButter.EasyArgs" version="3.0.375" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="PeanutButter.WindowsServiceManagement" version="3.0.374" />
+        <dependency id="PeanutButter.WindowsServiceManagement" version="3.0.375" />
         <dependency id="log4net" version="2.0.15" />
         <dependency id="System.ServiceProcess.ServiceController" version="8.0.0" />
-        <dependency id="PeanutButter.EasyArgs" version="3.0.374" />
+        <dependency id="PeanutButter.EasyArgs" version="3.0.375" />
       </group>
     </dependencies>
     <references></references>
