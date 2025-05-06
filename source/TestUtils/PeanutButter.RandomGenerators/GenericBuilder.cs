@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using PeanutButter.DuckTyping.Shimming;
 
 // ReSharper disable StaticMemberInGenericType
 // ReSharper disable MemberCanBePrivate.Global
@@ -144,8 +145,7 @@ public
             )
             .Where(pi => !Types.PrimitivesAndImmutables.Contains(pi.Type))
             .ToArray();
-        complexProps.ForEach(
-            p =>
+        complexProps.ForEach(p =>
             {
                 var propertyType = p.Type;
                 var value = TryBuildInstanceOf(propertyType);
@@ -232,8 +232,7 @@ public
         Action<TEntity> action
     )
     {
-        DefaultPropMods.Add(
-            (
+        DefaultPropMods.Add((
                 ref TEntity e
             ) => action(e)
         );
@@ -251,8 +250,7 @@ public
         var collection = _currentlyBuilding
             ? BuildTimePropMods
             : PropMods;
-        collection.Add(
-            (
+        collection.Add((
                 ref TEntity e
             ) => action(e)
         );
@@ -302,9 +300,9 @@ public
             CacheUnconstructable(type);
 #if NETSTANDARD
 #else
-                Trace.WriteLine(
-                    $"Unable to construct entity of type {type.Name}: {ex.Message}"
-                );
+            Trace.WriteLine(
+                $"Unable to construct entity of type {type.Name}: {ex.Message}"
+            );
 #endif
             throw CreateUnconstructableException();
         }
@@ -450,12 +448,10 @@ public
         }
 
         var method = dictionaryExtensions.GetMethods(BindingFlags.Public | BindingFlags.Static)
-            .Where(
-                mi => mi.Name == DUCK_METHOD &&
-                    mi.IsGenericMethod
+            .Where(mi => mi.Name == DUCK_METHOD &&
+                mi.IsGenericMethod
             )
-            .FirstOrDefault(
-                mi =>
+            .FirstOrDefault(mi =>
                 {
                     var parameters = mi.GetParameters();
                     return parameters.Length == 1 &&
@@ -473,10 +469,9 @@ public
         var specificMethod = method.MakeGenericMethod(typeof(TEntity));
         return (TEntity)specificMethod.Invoke(
             null,
-            new object[]
-            {
+            [
                 new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
-            }
+            ]
         );
     }
 
@@ -555,19 +550,19 @@ public
             TryToMakeConstructorParametersFor(type)
         );
 #else
-            var handle = Activator.CreateInstance(
-                AppDomain.CurrentDomain,
-                type.Assembly.FullName,
-                // ReSharper disable once AssignNullToNotNullAttribute
-                type.FullName,
-                false,
-                0,
-                null,
-                TryToMakeConstructorParametersFor(type),
-                null,
-                null
-            );
-            return (TInterface) handle.Unwrap();
+        var handle = Activator.CreateInstance(
+            AppDomain.CurrentDomain,
+            type.Assembly.FullName,
+            // ReSharper disable once AssignNullToNotNullAttribute
+            type.FullName,
+            false,
+            0,
+            null,
+            TryToMakeConstructorParametersFor(type),
+            null,
+            null
+        );
+        return (TInterface)handle.Unwrap();
 #endif
     }
 
@@ -575,6 +570,15 @@ public
         Type type
     )
     {
+        var isDuck = type.GetCustomAttributes()
+            .OfType<IsADuckAttribute>()
+            .Any();
+        if (isDuck)
+        {
+            // create a dictionary-backed duck
+            return [new Dictionary<string, object>()];
+        }
+
         var parameters = type.GetConstructors()
             .Where(c => c.IsPublic)
             .Select(c => c.GetParameters())
@@ -694,8 +698,7 @@ public
     )
     {
         var interfaceType = typeof(TInterface);
-        return assemblies.SelectMany(
-                a =>
+        return assemblies.SelectMany(a =>
                 {
                     try
                     {
@@ -709,11 +712,10 @@ public
                     }
                 }
             )
-            .FirstOrDefault(
-                t => interfaceType.IsAssignableFrom(t) &&
-                    t.IsClass &&
-                    !t.IsAbstract &&
-                    t.HasDefaultConstructor()
+            .FirstOrDefault(t => interfaceType.IsAssignableFrom(t) &&
+                t.IsClass &&
+                !t.IsAbstract &&
+                t.HasDefaultConstructor()
             );
     }
 
@@ -762,8 +764,7 @@ public
 
             if (_defaultDateTimeKind != DateTimeKind.Unspecified)
             {
-                EntityPropInfo.ForEach(
-                    pi =>
+                EntityPropInfo.ForEach(pi =>
                     {
                         if (pi.Type != typeof(DateTime))
                         {
@@ -837,8 +838,7 @@ public
                 ConstructingType.GetFields(BindingFlags.Public | BindingFlags.Instance)
                     .Select(fi => new PropertyOrField(fi))
             )
-            .OrderBy(
-                o =>
+            .OrderBy(o =>
                 {
                     // order first & last names at the top, if there
                     // are any, so that logins, emails, full names
@@ -893,8 +893,7 @@ public
 
                 _randomPropSettersField =
                     new ConcurrentDictionary<string, ActionRef<TEntity, int>>();
-                entityProps.ForEach(
-                    prop =>
+                entityProps.ForEach(prop =>
                     {
                         SetSetterForType(prop);
                     }
@@ -1053,8 +1052,7 @@ public
 
         if (MayBePhone(pi))
         {
-            return SimpleString(
-                () => GetRandomNumericString(
+            return SimpleString(() => GetRandomNumericString(
                     10,
                     10
                 )
@@ -1490,8 +1488,7 @@ public
                     .Select(f => new PropertyOrField(f))
             ).Union(
                 typeof(TEntity).GetProperties()
-                    .Select(
-                        p => new PropertyOrField(p)
+                    .Select(p => new PropertyOrField(p)
                     )
             )
             .ToArray();
@@ -1669,16 +1666,14 @@ public
     /// <returns>The current instance of the builder</returns>
     public virtual TBuilder WithFilledCollections()
     {
-        return WithProp(
-            (
+        return WithProp((
                 ref TEntity o
             ) =>
             {
                 // TODO: fix potential stack-overflows in cyclic classes by creating proper
                 //  cyclic references instead of gen1 -> gen2 -> genN (boom!)
                 var collectionProperties = EntityPropInfo
-                    .Where(
-                        pi => IsCollectionType(
+                    .Where(pi => IsCollectionType(
                             pi,
                             pi.Type
                         )
@@ -1735,8 +1730,7 @@ public
             () => GetRandom(innerType),
             1
         );
-        data.ForEach(
-            item => method.Invoke(
+        data.ForEach(item => method.Invoke(
                 collectionInstance,
                 new[]
                 {
@@ -2071,9 +2065,7 @@ public
                     ))
                 {
                     var asObject = entity as object;
-                    specificSetters.ForEach(
-                        setter => TryDo(
-                            () => setter(
+                    specificSetters.ForEach(setter => TryDo(() => setter(
                                 prop,
                                 ref asObject
                             )
@@ -2128,8 +2120,7 @@ public
                 ) =>
                 {
                     cur.Init(typeof(TEntity));
-                    cur.PropertyNames?.ForEach(
-                        propName =>
+                    cur.PropertyNames?.ForEach(propName =>
                         {
                             if (!acc.ContainsKey(propName))
                             {

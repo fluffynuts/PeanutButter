@@ -1735,7 +1735,10 @@ public class TestDuckTypingExtensions
             public int Id { get; }
             public string Name { get; }
 
-            public Animal(int id, string name)
+            public Animal(
+                int id,
+                string name
+            )
             {
                 Id = id;
                 Name = name;
@@ -1761,7 +1764,10 @@ public class TestDuckTypingExtensions
             return null;
         }
 
-        public bool CanConvert(Type t1, Type t2)
+        public bool CanConvert(
+            Type t1,
+            Type t2
+        )
         {
             return (t1 == T1 || t1 == T2) &&
                 (t2 == T1 || t2 == T2) &&
@@ -1855,8 +1861,7 @@ public class TestDuckTypingExtensions
         // ReSharper disable once IsExpressionAlwaysTrue
         Expect(result is ITravelRequestDetails)
             .To.Be.True();
-        Expect(
-                () =>
+        Expect(() =>
                 {
                     result.Initiated = expectedDuck.Initiated;
                     result.DepartingFrom = expectedDuck.DepartingFrom;
@@ -1937,8 +1942,7 @@ public class TestDuckTypingExtensions
         //--------------- Assert -----------------------
         Expect(result)
             .Not.To.Be.Null();
-        Expect(
-                () =>
+        Expect(() =>
                 {
                     result.Initiated = expectedDuck.Initiated;
                     result.DepartingFrom = expectedDuck.DepartingFrom;
@@ -2003,7 +2007,10 @@ public class TestDuckTypingExtensions
             throw new NotImplementedException();
         }
 
-        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+        public void CopyTo(
+            KeyValuePair<TKey, TValue>[] array,
+            int arrayIndex
+        )
         {
             throw new NotImplementedException();
         }
@@ -2021,7 +2028,10 @@ public class TestDuckTypingExtensions
             throw new NotImplementedException();
         }
 
-        public void Add(TKey key, TValue value)
+        public void Add(
+            TKey key,
+            TValue value
+        )
         {
             throw new NotImplementedException();
         }
@@ -2031,7 +2041,10 @@ public class TestDuckTypingExtensions
             throw new NotImplementedException();
         }
 
-        public bool TryGetValue(TKey key, out TValue value)
+        public bool TryGetValue(
+            TKey key,
+            out TValue value
+        )
         {
             throw new NotImplementedException();
         }
@@ -2617,8 +2630,7 @@ public class TestDuckTypingExtensions
             // Pre-Assert
 
             // Act
-            Expect(
-                    () => data.FuzzyDuckAs<IConfig2>(
+            Expect(() => data.FuzzyDuckAs<IConfig2>(
                         s => "Config." + s,
                         s => s.RegexReplace("Config.", ""),
                         true
@@ -3521,7 +3533,11 @@ public class TestDuckTypingExtensions
             // Arrange
             var dict = new Dictionary<string, object>()
             {
-                ["Add"] = new Func<int, int, int>((a, b) => a + b)
+                ["Add"] = new Func<int, int, int>((
+                        a,
+                        b
+                    ) => a + b
+                )
             };
 
             // Act
@@ -3539,7 +3555,11 @@ public class TestDuckTypingExtensions
             // Arrange
             var dict = new Dictionary<string, object>()
             {
-                ["Add"] = new Func<long, long, long>((a, b) => a + b)
+                ["Add"] = new Func<long, long, long>((
+                        a,
+                        b
+                    ) => a + b
+                )
             };
 
             Expect(typeof(int).IsAssignableOrUpCastableTo(typeof(long)))
@@ -3584,7 +3604,10 @@ public class TestDuckTypingExtensions
 
         public interface ICalculator
         {
-            int Add(int a, int b);
+            int Add(
+                int a,
+                int b
+            );
         }
 
         public interface IStore
@@ -3746,9 +3769,8 @@ public class TestDuckTypingExtensions
         {
             // Arrange
             var actual = Substitute.For<IAddInts>()
-                .With(
-                    o => o.Add(Arg.Any<int>(), Arg.Any<int>())
-                        .Returns(ci => (int)ci.Args()[0] + (int)ci.Args()[1])
+                .With(o => o.Add(Arg.Any<int>(), Arg.Any<int>())
+                    .Returns(ci => (int)ci.Args()[0] + (int)ci.Args()[1])
                 );
             Expect(actual.Add(1, 2))
                 .To.Equal(3);
@@ -3823,7 +3845,10 @@ public class TestDuckTypingExtensions
         [TestCase("false", false)]
         [TestCase("False", false)]
         [TestCase("0", false)]
-        public void ShouldParseNullableBooleans_(string stringValue, bool expected)
+        public void ShouldParseNullableBooleans_(
+            string stringValue,
+            bool expected
+        )
         {
             // Arrange
             var data = new
@@ -3845,7 +3870,10 @@ public class TestDuckTypingExtensions
         [TestCase("false", false)]
         [TestCase("False", false)]
         [TestCase("0", false)]
-        public void ShouldParseBooleans_(string stringValue, bool expected)
+        public void ShouldParseBooleans_(
+            string stringValue,
+            bool expected
+        )
         {
             // Arrange
             var data = new
@@ -3901,22 +3929,34 @@ public class TestDuckTypingExtensions
 
         public interface IAddInts
         {
-            int Add(int a, int b);
+            int Add(
+                int a,
+                int b
+            );
         }
 
         public interface IAddStrings
         {
-            string Add(string a, string b);
+            string Add(
+                string a,
+                string b
+            );
         }
 
         public interface IAddStringsAndInts
         {
-            string Add(string a, int b);
+            string Add(
+                string a,
+                int b
+            );
         }
 
         public interface IAddIntsAndStrings
         {
-            string Add(int a, string b);
+            string Add(
+                int a,
+                string b
+            );
         }
 
         public interface IAdder : IAddInts, IAddStrings, IAddIntsAndStrings
@@ -3925,22 +3965,32 @@ public class TestDuckTypingExtensions
 
         public class Adder : IAdder
         {
-            public int Add(int a, int b)
+            public int Add(
+                int a,
+                int b
+            )
             {
                 return a + b;
             }
 
-            public string Add(string a, string b)
+            public string Add(
+                string a,
+                string b
+            )
             {
                 return a + b;
             }
 
-            public string Add(int a, string b)
+            public string Add(
+                int a,
+                string b
+            )
             {
                 return $"{a}{b}";
             }
         }
     }
+
 
     public class TravelRequestDetails : ITravelRequestDetails
     {
@@ -4001,7 +4051,10 @@ public class TestDuckTypingExtensions
             /* does nothing */
         }
 
-        public ActivityParameters(Guid actorId, Guid taskId)
+        public ActivityParameters(
+            Guid actorId,
+            Guid taskId
+        )
         {
             ActorId = actorId;
             TaskId = taskId;
@@ -4012,7 +4065,11 @@ public class TestDuckTypingExtensions
     {
         public T Payload { get; set; }
 
-        public ActivityParameters(Guid actorId, Guid taskId, T payload)
+        public ActivityParameters(
+            Guid actorId,
+            Guid taskId,
+            T payload
+        )
             : base(actorId, taskId)
         {
             Payload = payload;

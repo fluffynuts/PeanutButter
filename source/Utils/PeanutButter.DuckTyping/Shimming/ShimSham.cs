@@ -207,6 +207,74 @@ namespace PeanutButter.DuckTyping.Shimming
             return DuckIfRequired(propInfo, propertyName);
         }
 
+        private object DuckIfRequired(
+            PropertyInfoCacheItem propertyInfoCacheItem,
+            string propertyName
+        )
+        {
+            if (_shimmedProperties.TryGetValue(propertyName.GetHashCode(), out var existingShim))
+            {
+                return existingShim;
+            }
+
+            var getter = propertyInfoCacheItem.Getter;
+            var propValue = getter();
+
+            var correctType = _localMimicPropertyTypes[propertyName];
+            if (propValue == null)
+            {
+                return GetDefaultValueFor(correctType);
+            }
+
+            var propValueType = propertyInfoCacheItem.PropertyType;
+            if (correctType.IsAssignableFrom(propValueType))
+            {
+                return propValue;
+            }
+
+            var converter = ConverterLocator.TryFindConverter(propValueType, correctType);
+            if (converter != null)
+            {
+                return ConvertWith(converter, propValue, correctType);
+            }
+
+            if (EnumConverter.TryConvert(propValueType, correctType, propValue, out var result))
+            {
+                return result;
+            }
+
+            if (correctType.ShouldTreatAsPrimitive())
+            {
+                return GetDefaultValueFor(correctType);
+            }
+
+            if (CannotShim(propertyName.GetHashCode(), propValue, correctType))
+            {
+                return null;
+            }
+
+            var duckType = MakeTypeToImplement(correctType, _isFuzzy);
+            var asDict = propValue.TryConvertToDictionary();
+            var instance = Activator.CreateInstance(
+                duckType,
+                asDict == null
+                    // ReSharper disable once RedundantExplicitArrayCreation
+                    ?
+                    [
+                        new[]
+                        {
+                            propValue
+                        }
+                    ]
+                    :
+                    [
+                        asDict
+                    ]
+            );
+            _shimmedProperties[propertyName.GetHashCode()] = instance;
+            return instance;
+        }
+
         private object ReadDuckedProperty(string propertyName)
         {
             if (_wrappingADictionaryDuck)
@@ -361,74 +429,6 @@ namespace PeanutButter.DuckTyping.Shimming
             throw new InvalidOperationException(
                 $"Unable to set property '{propertyName}' on ducked type '{_wrappedTypes[0]}'"
             );
-        }
-
-        private object DuckIfRequired(
-            PropertyInfoCacheItem propertyInfoCacheItem,
-            string propertyName
-        )
-        {
-            if (_shimmedProperties.TryGetValue(propertyName.GetHashCode(), out var existingShim))
-            {
-                return existingShim;
-            }
-
-            var getter = propertyInfoCacheItem.Getter;
-            var propValue = getter();
-
-            var correctType = _localMimicPropertyTypes[propertyName];
-            if (propValue == null)
-            {
-                return GetDefaultValueFor(correctType);
-            }
-
-            var propValueType = propertyInfoCacheItem.PropertyType;
-            if (correctType.IsAssignableFrom(propValueType))
-            {
-                return propValue;
-            }
-
-            var converter = ConverterLocator.TryFindConverter(propValueType, correctType);
-            if (converter != null)
-            {
-                return ConvertWith(converter, propValue, correctType);
-            }
-
-            if (EnumConverter.TryConvert(propValueType, correctType, propValue, out var result))
-            {
-                return result;
-            }
-
-            if (correctType.ShouldTreatAsPrimitive())
-            {
-                return GetDefaultValueFor(correctType);
-            }
-
-            if (CannotShim(propertyName.GetHashCode(), propValue, correctType))
-            {
-                return null;
-            }
-
-            var duckType = MakeTypeToImplement(correctType, _isFuzzy);
-            var asDict = propValue.TryConvertToDictionary();
-            var instance = Activator.CreateInstance(
-                duckType,
-                asDict == null
-                    // ReSharper disable once RedundantExplicitArrayCreation
-                    ?
-                    [
-                        new[]
-                        {
-                            propValue
-                        }
-                    ]
-                    :
-                    [
-                        asDict
-                    ]
-            );
-            _shimmedProperties[propertyName.GetHashCode()] = instance;
-            return instance;
         }
 
         private bool CannotShim(
@@ -686,7 +686,6 @@ namespace PeanutButter.DuckTyping.Shimming
         }
 
         private void ExamineObjectForDuckiness()
-
         {
             for (var i = 0; i < _wrapped.Length; i++)
             {
@@ -822,10 +821,6 @@ namespace PeanutButter.DuckTyping.Shimming
             return action;
         }
 
-        private static bool DebugEnabled = Environment.GetEnvironmentVariable(
-            "DEBUG_DUCKTYPING"
-        ).AsBoolean();
-
         private void TrySetValue(
             object newValue,
             Type newValueType,
@@ -851,6 +846,10 @@ namespace PeanutButter.DuckTyping.Shimming
             var converted = ConvertWith(converter, newValue, pType);
             setter(converted);
         }
+
+        private static readonly bool DebugEnabled = Environment.GetEnvironmentVariable(
+            "DEBUG_DUCKTYPING"
+        ).AsBoolean();
 
         private static void CheckForImpendingStackOverflow(
             [CallerMemberName] string method = null

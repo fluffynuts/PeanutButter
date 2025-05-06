@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Imported.PeanutButter.Utils;
 using Imported.PeanutButter.Utils.Dictionaries;
 #if BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL
@@ -32,7 +34,7 @@ namespace PeanutButter.DuckTyping.Shimming
 #else
     public
 #endif
-    class DictionaryShimSham : ShimShamBase, IShimSham
+        class DictionaryShimSham : ShimShamBase, IShimSham
     {
         private readonly Type _typeToMimic;
         private readonly IDictionary<string, object> _data;
@@ -48,8 +50,8 @@ namespace PeanutButter.DuckTyping.Shimming
         // ReSharper disable once UnusedMember.Global
         public DictionaryShimSham(
             IDictionary<string, object> toWrap,
-            Type typeToMimic)
-            : this(new[] { toWrap }, typeToMimic)
+            Type typeToMimic
+        ) : this([toWrap], typeToMimic)
         {
         }
 
@@ -60,7 +62,8 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="typeToMimic">Interface that must be mimicked</param>
         public DictionaryShimSham(
             IDictionary<string, object>[] toWrap,
-            Type typeToMimic)
+            Type typeToMimic
+        )
         {
             _typeToMimic = typeToMimic;
             var incoming = (toWrap?.ToArray() ?? new Dictionary<string, object>[0])
@@ -78,10 +81,13 @@ namespace PeanutButter.DuckTyping.Shimming
                 .And(typeToMimic)
                 .SelectMany(interfaceType => interfaceType.GetProperties())
                 .Distinct(new PropertyInfoComparer())
-                .ToDictionary(pi => pi.Name, pi => pi,
+                .ToDictionary(
+                    pi => pi.Name,
+                    pi => pi,
                     _isFuzzy
                         ? Comparers.Comparers.FuzzyComparer
-                        : Comparers.Comparers.NonFuzzyComparer);
+                        : Comparers.Comparers.NonFuzzyComparer
+                );
             ShimShimmableProperties();
         }
 
@@ -106,8 +112,20 @@ namespace PeanutButter.DuckTyping.Shimming
                 var asDict = toWrap as IDictionary<string, object>;
                 // ReSharper disable RedundantExplicitArrayCreation
                 var firstArg = asDict == null
-                    ? new object[] { new object[] { toWrap } }
-                    : new object[] { new IDictionary<string, object>[] { asDict } };
+                    ? new object[]
+                    {
+                        new object[]
+                        {
+                            toWrap
+                        }
+                    }
+                    : new object[]
+                    {
+                        new IDictionary<string, object>[]
+                        {
+                            asDict
+                        }
+                    };
                 // ReSharper restore RedundantExplicitArrayCreation
                 _shimmedProperties[kvp.Key] = Activator.CreateInstance(type, firstArg);
             }
@@ -123,6 +141,7 @@ namespace PeanutButter.DuckTyping.Shimming
         /// match the underlying type</returns>
         public object GetPropertyValue(string propertyName)
         {
+            CheckForImpendingStackOverflow();
             CheckPropertyExists(propertyName);
             if (_shimmedProperties.TryGetValue(propertyName, out var propValue))
             {
@@ -180,6 +199,61 @@ namespace PeanutButter.DuckTyping.Shimming
             );
         }
 
+        private static readonly bool DebugEnabled = Environment.GetEnvironmentVariable(
+            "DEBUG_DUCKTYPING"
+        ).AsBoolean();
+
+        private static void CheckForImpendingStackOverflow(
+            [CallerMemberName] string method = null
+        )
+        {
+            if (!DebugEnabled)
+            {
+                return;
+            }
+
+            var s = new StackTrace();
+            if (HaveReEnteredTooManyTimes(
+                    s.GetFrames(),
+                    method
+                ))
+            {
+                throw new InvalidOperationException(
+                    """
+                    Looks like we're heading for a stack overflow
+                    """
+                );
+            }
+        }
+
+        private static bool HaveReEnteredTooManyTimes(
+            StackFrame[] frames,
+            string method
+        )
+        {
+            var level = frames.Aggregate(
+                0,
+                (
+                    acc,
+                    cur
+                ) =>
+                {
+                    var thisMethod = cur.GetMethod();
+                    var thisType = thisMethod.DeclaringType;
+                    if (
+                        thisType == typeof(ShimSham) &&
+                        thisMethod.Name == method
+                    )
+                    {
+                        return acc + 1;
+                    }
+
+                    return acc;
+                }
+            );
+            return level >= 10;
+        }
+
         private readonly Dictionary<string, string> _keyResolutionCache = new Dictionary<string, string>();
 
         private string FuzzyFindKeyFor(string propertyName)
@@ -206,8 +280,12 @@ namespace PeanutButter.DuckTyping.Shimming
         /// </summary>
         /// <param name="propertyName">Name of the property to set</param>
         /// <param name="newValue">Value to set. The value may be converted to match the underlying type when required.</param>
-        public void SetPropertyValue(string propertyName, object newValue)
+        public void SetPropertyValue(
+            string propertyName,
+            object newValue
+        )
         {
+            CheckForImpendingStackOverflow();
             CheckPropertyExists(propertyName);
             var mimickedProperty = GetMimickedProperty(propertyName);
             var newValueType = newValue?.GetType();
@@ -290,7 +368,10 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="methodName">Name of the method to not call through to</param>
         /// <param name="arguments">Parameters to ignore</param>
         /// <exception cref="NotImplementedException">Exception which is always thrown</exception>
-        public void CallThroughVoid(string methodName, params object[] arguments)
+        public void CallThroughVoid(
+            string methodName,
+            params object[] arguments
+        )
         {
             if (!_data.TryGetValue(methodName, out var func) ||
                 func is null ||
@@ -299,7 +380,7 @@ namespace PeanutButter.DuckTyping.Shimming
                     arguments,
                     out var parameterTypes
                 )
-            )
+               )
             {
                 // TODO: this should be caught at duck-time
                 throw new MethodNotFoundException(_typeToMimic, methodName);
@@ -316,7 +397,10 @@ namespace PeanutButter.DuckTyping.Shimming
         /// <param name="methodName">Name of the method to not call through to</param>
         /// <param name="arguments">Parameters to ignore</param>
         /// <exception cref="NotImplementedException">Exception which is always thrown</exception>
-        public object CallThrough(string methodName, object[] arguments)
+        public object CallThrough(
+            string methodName,
+            object[] arguments
+        )
         {
             if (!_data.TryGetValue(methodName, out var func) ||
                 func is null ||
@@ -326,13 +410,13 @@ namespace PeanutButter.DuckTyping.Shimming
                     out var parameterTypes,
                     out _
                 )
-            )
+               )
             {
                 // TODO: this should be caught at duck-time
                 throw new NotImplementedException(
                     func is null
-                    ? $"{_typeToMimic.Name}.{methodName} not implemented in underlying dictionary"
-                    : $"{_typeToMimic.Name}.{methodName} not fully in underlying dictionary: arguments must be in order and args and return type must either have identical type or be easily convertable"
+                        ? $"{_typeToMimic.Name}.{methodName} not implemented in underlying dictionary"
+                        : $"{_typeToMimic.Name}.{methodName} not fully in underlying dictionary: arguments must be in order and args and return type must either have identical type or be easily convertable"
                 );
             }
 
@@ -352,38 +436,39 @@ namespace PeanutButter.DuckTyping.Shimming
             var method = _typeToMimic.GetMethods()
                 .Where(mi => mi.Name == methodName)
                 .FirstOrDefault(mi =>
-                {
-                    var parameterTypes = mi.GetParameters().Select(p => p.ParameterType).ToArray();
-                    if (parameterTypes.Length != argumentTypes.Length)
                     {
-                        return false;
+                        var parameterTypes = mi.GetParameters().Select(p => p.ParameterType).ToArray();
+                        if (parameterTypes.Length != argumentTypes.Length)
+                        {
+                            return false;
+                        }
+
+                        var idx = -1;
+                        foreach (var pt in parameterTypes)
+                        {
+                            idx++;
+                            var argType = argumentTypes[idx];
+                            if (pt == argType)
+                            {
+                                continue;
+                            }
+
+                            if (argType.IsAssignableOrUpCastableTo(pt))
+                            {
+                                continue;
+                            }
+
+                            if (argType is null && pt.IsNullableType())
+                            {
+                                continue;
+                            }
+
+                            return false;
+                        }
+
+                        return true;
                     }
-
-                    var idx = -1;
-                    foreach (var pt in parameterTypes)
-                    {
-                        idx++;
-                        var argType = argumentTypes[idx];
-                        if (pt == argType)
-                        {
-                            continue;
-                        }
-
-                        if (argType.IsAssignableOrUpCastableTo(pt))
-                        {
-                            continue;
-                        }
-
-                        if (argType is null && pt.IsNullableType())
-                        {
-                            continue;
-                        }
-
-                        return false;
-                    }
-
-                    return true;
-                });
+                );
             return method?.ReturnType
                 ?? throw new InvalidOperationException(
                     $"Can't determine return type for {methodName} with provided parameters"
@@ -392,25 +477,30 @@ namespace PeanutButter.DuckTyping.Shimming
 
         private object[] PrepareArguments(
             object[] arguments,
-            Type[] parameterTypes)
+            Type[] parameterTypes
+        )
         {
-            return arguments.Select((arg, idx) =>
-            {
-                var argType = arg?.GetType();
-                if (arg is null ||
-                    arg.GetType() == parameterTypes[idx])
+            return arguments.Select((
+                    arg,
+                    idx
+                ) =>
                 {
-                    return arg;
-                }
+                    var argType = arg?.GetType();
+                    if (arg is null ||
+                        arg.GetType() == parameterTypes[idx])
+                    {
+                        return arg;
+                    }
 
-                if (parameterTypes[idx].IsAssignableFrom(argType))
-                {
-                    return arg;
-                }
+                    if (parameterTypes[idx].IsAssignableFrom(argType))
+                    {
+                        return arg;
+                    }
 
-                var converter = ConverterLocator.TryFindConverter(argType, parameterTypes[idx]);
-                return converter.Convert(arg);
-            }).ToArray();
+                    var converter = ConverterLocator.TryFindConverter(argType, parameterTypes[idx]);
+                    return converter.Convert(arg);
+                }
+            ).ToArray();
         }
 
         private object InvokeNonVoidFunc(
@@ -469,7 +559,8 @@ namespace PeanutButter.DuckTyping.Shimming
                 if (parameterCount > FuncGenerics.Length)
                 {
                     throw new NotSupportedException(
-                        $"methods with more than {FuncGenerics.Length} parameters are not supported");
+                        $"methods with more than {FuncGenerics.Length} parameters are not supported"
+                    );
                 }
 
                 return false;
@@ -480,7 +571,10 @@ namespace PeanutButter.DuckTyping.Shimming
             returnType = genericParameters.Last();
             var zipped = arguments.Zip(
                 parameterTypes,
-                (argument, parameterType) =>
+                (
+                        argument,
+                        parameterType
+                    ) =>
                     new
                     {
                         argumentType = argument?.GetType(),
@@ -489,7 +583,10 @@ namespace PeanutButter.DuckTyping.Shimming
             );
             return zipped.Aggregate(
                 true,
-                (acc, cur) =>
+                (
+                    acc,
+                    cur
+                ) =>
                 {
                     if (!acc)
                     {
@@ -509,7 +606,8 @@ namespace PeanutButter.DuckTyping.Shimming
 
                     return cur.argumentType == cur.parameterType ||
                         ConverterLocator.HaveConverterFor(cur.argumentType, cur.parameterType);
-                });
+                }
+            );
         }
 
         private bool VoidFunctionAccepts(
@@ -534,7 +632,8 @@ namespace PeanutButter.DuckTyping.Shimming
                 if (parameterCount > ActionGenerics.Length)
                 {
                     throw new NotSupportedException(
-                        $"methods with more than {ActionGenerics.Length} parameters are not supported");
+                        $"methods with more than {ActionGenerics.Length} parameters are not supported"
+                    );
                 }
 
                 return false;
@@ -543,7 +642,10 @@ namespace PeanutButter.DuckTyping.Shimming
             parameterTypes = actionType.GetGenericArguments();
             var zipped = arguments.Zip(
                 parameterTypes,
-                (argument, parameterType) =>
+                (
+                        argument,
+                        parameterType
+                    ) =>
                     new
                     {
                         argumentType = argument?.GetType(),
@@ -552,7 +654,10 @@ namespace PeanutButter.DuckTyping.Shimming
             );
             return zipped.Aggregate(
                 true,
-                (acc, cur) =>
+                (
+                    acc,
+                    cur
+                ) =>
                 {
                     if (!acc)
                     {
@@ -572,7 +677,8 @@ namespace PeanutButter.DuckTyping.Shimming
 
                     return cur.argumentType == cur.parameterType ||
                         ConverterLocator.HaveConverterFor(cur.argumentType, cur.parameterType);
-                });
+                }
+            );
         }
 
 

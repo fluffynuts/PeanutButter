@@ -3631,7 +3631,7 @@ function foo() {
         }
 
         [Test]
-        [Explicit("use to evaluate speed if changing the algorythm")]
+        [Explicit("use to evaluate speed if changing the algorithm")]
         [Repeat(10)]
         public void Performance()
         {

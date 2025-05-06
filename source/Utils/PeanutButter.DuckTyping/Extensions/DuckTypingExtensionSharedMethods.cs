@@ -88,11 +88,7 @@ namespace PeanutButter.DuckTyping.Extensions
             var specific = genericMethod.MakeGenericMethod(toType);
             return specific.Invoke(
                 null,
-                new[]
-                {
-                    src,
-                    throwOnError
-                }
+                [src, throwOnError]
             );
         }
 
@@ -116,13 +112,7 @@ namespace PeanutButter.DuckTyping.Extensions
 
             return (T)Activator.CreateInstance(
                 type,
-                new object[]
-                {
-                    new[]
-                    {
-                        src
-                    }
-                }
+                [new[] { src } ]
             );
         }
 
