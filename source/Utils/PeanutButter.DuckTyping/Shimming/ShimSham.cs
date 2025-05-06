@@ -126,7 +126,8 @@ namespace PeanutButter.DuckTyping.Shimming
                 throw new ArgumentNullException(nameof(interfaceToMimic));
             }
 
-            _propertyInfoFetcher = propertyInfoFetcher ?? throw new ArgumentNullException(nameof(propertyInfoFetcher));
+            _propertyInfoFetcher = propertyInfoFetcher
+                ?? throw new ArgumentNullException(nameof(propertyInfoFetcher));
             _isFuzzy = isFuzzy;
             _wrapped = toWrap;
             _allowReadonlyDefaultsForMissingMembers = allowReadonlyDefaultsForMissingMembers;
@@ -801,6 +802,13 @@ namespace PeanutButter.DuckTyping.Shimming
 
         private Action<object> CreateSetterExpressionFor(PropertyInfo propertyInfo)
         {
+            var declarerIsDuck = propertyInfo.DeclaringType?.GetCustomAttributes()
+                .OfType<IsADuckAttribute>().Any() ?? false;
+            if (declarerIsDuck && HaveOnlyOneWrappedObjectWhichIsShimless())
+            {
+                return CreateFieldSetterFor(propertyInfo);
+            }
+
             var methodInfo = propertyInfo.GetSetMethod();
             if (methodInfo == null)
             {
@@ -820,6 +828,55 @@ namespace PeanutButter.DuckTyping.Shimming
             var action = lambda.Compile();
             return action;
         }
+
+        private Action<object> CreateFieldSetterFor(
+            PropertyInfo propertyInfo
+        )
+        {
+            var fieldName = $"_{propertyInfo.Name}";
+            var fields = FetchFieldsForDeclarerOf(propertyInfo);
+            if (!fields.TryGetValue(fieldName, out var field))
+            {
+                return _ => throw new InvalidOperationException(
+                    $"No backing field {fieldName} for property {propertyInfo.Name}"
+                );
+            }
+
+            var target = _wrapped.FirstOrDefault(o =>
+                o.GetType() == propertyInfo.DeclaringType
+            );
+            if (target is null)
+            {
+                return _ => throw new InvalidOperationException(
+                    $"No wrapped object has type {propertyInfo.DeclaringType}"
+                );
+            }
+            // TODO: test if the duck is us
+
+            return o =>
+            {
+                field.SetValue(target, o);
+            };
+        }
+        
+        private Dictionary<string, FieldInfo> FetchFieldsForDeclarerOf(
+            PropertyInfo propInfo
+        )
+        {
+            if (propInfo.DeclaringType is null)
+            {
+                return null;
+            }
+
+            return FieldInfoCache.FindOrAdd(
+                propInfo.DeclaringType,
+                () => propInfo.DeclaringType.GetFields(
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public
+                ).ToDictionary(f => f.Name, f => f)
+            );
+        }
+
+        private readonly Dictionary<Type, Dictionary<string, FieldInfo>> FieldInfoCache = new();
 
         private void TrySetValue(
             object newValue,
@@ -904,6 +961,14 @@ namespace PeanutButter.DuckTyping.Shimming
 
         private Func<object> CreateGetterExpressionFor(PropertyInfo propertyInfo)
         {
+            var declarerIsDuck = propertyInfo.DeclaringType?.GetCustomAttributes()
+                .OfType<IsADuckAttribute>()
+                .Any() ?? false;
+            if (declarerIsDuck && HaveOnlyOneWrappedObjectWhichIsShimless())
+            {
+                return CreateFieldGetterFor(propertyInfo);
+            }
+
             var methodInfo = propertyInfo.GetGetMethod();
             if (methodInfo == null)
             {
@@ -919,6 +984,49 @@ namespace PeanutButter.DuckTyping.Shimming
 
             var action = lambda.Compile();
             return action;
+        }
+
+        private bool HaveOnlyOneWrappedObjectWhichIsShimless()
+        {
+            if (_wrapped.Length > 1)
+            {
+                return false;
+            }
+            var t = _wrapped[0].GetType();
+            var f = t.GetField("_shim", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (f is null)
+            {
+                return false;
+            }
+
+            return f.GetValue(_wrapped[0]) is null;
+        }
+
+        private Func<object> CreateFieldGetterFor(
+            PropertyInfo propertyInfo
+        )
+        {
+            var fieldName = $"_{propertyInfo.Name}";
+            var fields = FetchFieldsForDeclarerOf(propertyInfo);
+            if (!fields.TryGetValue(fieldName, out var field))
+            {
+                return () => throw new InvalidOperationException(
+                    $"No backing field {fieldName} for property {propertyInfo.Name}"
+                );
+            }
+
+            var target = _wrapped.FirstOrDefault(o =>
+                o.GetType() == propertyInfo.DeclaringType
+            );
+            if (target is null)
+            {
+                return () => throw new InvalidOperationException(
+                    $"No wrapped object has type {propertyInfo.DeclaringType}"
+                );
+            }
+            // TODO: test if the duck is us
+
+            return () => field.GetValue(target);
         }
     }
 }
