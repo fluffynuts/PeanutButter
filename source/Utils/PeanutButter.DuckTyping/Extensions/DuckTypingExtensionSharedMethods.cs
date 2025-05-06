@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 #if NETSTANDARD
@@ -51,10 +52,9 @@ namespace PeanutButter.DuckTyping.Extensions
         {
             return typeof(DuckTypingObjectExtensions)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(
-                    mi => mi.Name == name &&
-                        mi.IsGenericMethod &&
-                        IsCorrectSignature(mi)
+                .FirstOrDefault(mi => mi.Name == name &&
+                    mi.IsGenericMethod &&
+                    IsCorrectSignature(mi)
                 );
         }
 
@@ -104,7 +104,7 @@ namespace PeanutButter.DuckTyping.Extensions
                 src = src.ToCaseInsensitiveDictionary();
             }
 
-            var type = CreateDuckTypeFor<T>(
+            var type = FindOrCreateDuckTypeFor<T>(
                 allowFuzzy,
                 allowDefaultValueForMissingProperties,
                 forceConcrete
@@ -112,7 +112,12 @@ namespace PeanutButter.DuckTyping.Extensions
 
             return (T)Activator.CreateInstance(
                 type,
-                [new[] { src } ]
+                [
+                    new[]
+                    {
+                        src
+                    }
+                ]
             );
         }
 
@@ -123,7 +128,7 @@ namespace PeanutButter.DuckTyping.Extensions
             bool forceConcrete
         )
         {
-            var type = CreateDuckTypeFor<T>(
+            var type = FindOrCreateDuckTypeFor<T>(
                 allowFuzzy,
                 allowDefaultValueForMissingProperties,
                 forceConcrete
@@ -289,7 +294,10 @@ namespace PeanutButter.DuckTyping.Extensions
             public Type KeyType { get; }
             public Type ValueType { get; }
 
-            public KeyValueTypes(Type keyType, Type valueType)
+            public KeyValueTypes(
+                Type keyType,
+                Type valueType
+            )
             {
                 KeyType = keyType;
                 ValueType = valueType;
@@ -422,7 +430,12 @@ namespace PeanutButter.DuckTyping.Extensions
             return !errors.Any();
         }
 
-        internal static bool InternalCanDuckAs(this object src, Type fromType, bool allowFuzzy, bool throwOnError)
+        internal static bool InternalCanDuckAs(
+            this object src,
+            Type fromType,
+            bool allowFuzzy,
+            bool throwOnError
+        )
         {
             var asDictionary = TryConvertToDictionary(src);
             if (asDictionary != null)
@@ -440,7 +453,11 @@ namespace PeanutButter.DuckTyping.Extensions
                 );
         }
 
-        internal static bool InternalCanDuckAs<T>(this object src, bool allowFuzzy, bool throwOnError)
+        internal static bool InternalCanDuckAs<T>(
+            this object src,
+            bool allowFuzzy,
+            bool throwOnError
+        )
         {
             var asDictionary = TryConvertToDictionary(src);
             if (asDictionary != null)
@@ -536,11 +553,10 @@ namespace PeanutButter.DuckTyping.Extensions
                 return;
             }
 
-            var accessMismatches = mismatches.Where(
-                    kvp =>
+            var accessMismatches = mismatches.Where(kvp =>
 //                    srcPrimitives.Keys.Contains(kvp.Key) && 
-                        !srcPrimitives[kvp.Key]
-                            .IsNoMoreRestrictiveThan(expectedPrimitives[kvp.Key])
+                    !srcPrimitives[kvp.Key]
+                        .IsNoMoreRestrictiveThan(expectedPrimitives[kvp.Key])
                 )
                 .ToArray();
             if (accessMismatches.Any())
@@ -580,9 +596,8 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var parts =
-                mismatches.Select(
-                    kvp =>
-                        $"{kvp.Key}: {kvp.Value.PropertyType.Name} -> {expectedPrimitives[kvp.Key].PropertyType.Name}"
+                mismatches.Select(kvp =>
+                    $"{kvp.Key}: {kvp.Value.PropertyType.Name} -> {expectedPrimitives[kvp.Key].PropertyType.Name}"
                 );
             return string.Join(", ", parts);
         }
@@ -593,8 +608,8 @@ namespace PeanutButter.DuckTyping.Extensions
         )
         {
             var legends =
-                accessMismatches.Select(
-                    kvp => $"{kvp.Key} {GetSetFor(expectedPrimitives[kvp.Key])} -> {GetSetFor(kvp.Value)}"
+                accessMismatches.Select(kvp =>
+                    $"{kvp.Key} {GetSetFor(expectedPrimitives[kvp.Key])} -> {GetSetFor(kvp.Value)}"
                 );
             return string.Join(", ", legends);
         }
@@ -645,7 +660,10 @@ namespace PeanutButter.DuckTyping.Extensions
             return true;
         }
 
-        private static bool CanAutoConvert(Type srcType, Type targetType)
+        private static bool CanAutoConvert(
+            Type srcType,
+            Type targetType
+        )
         {
             return ConverterLocator.TryFindConverter(srcType, targetType) != null;
         }
@@ -718,7 +736,10 @@ namespace PeanutButter.DuckTyping.Extensions
             return FindOrCreateDuckTypeFor<T>(key, isFuzzy);
         }
 
-        private static Type FindOrCreateDuckTypeFor<T>(Type key, bool isFuzzy)
+        private static Type FindOrCreateDuckTypeFor<T>(
+            Type key,
+            bool isFuzzy
+        )
         {
             lock (DuckTypes)
             {
@@ -736,30 +757,44 @@ namespace PeanutButter.DuckTyping.Extensions
 
         private static Type GetTypeFrom<T>(TypeLookup match)
         {
-            return match.Type ?? (match.Type = CreateDuckTypeFor<T>(false, false));
+            return match.Type ?? (match.Type = FindOrCreateDuckTypeFor<T>(false, false));
         }
 
         private static Type GetFuzzyTypeFrom<T>(TypeLookup match)
         {
-            return match.FuzzyType ?? (match.FuzzyType = CreateDuckTypeFor<T>(true, false));
+            return match.FuzzyType ?? (match.FuzzyType = FindOrCreateDuckTypeFor<T>(true, false));
         }
 
 
-        private static Type CreateDuckTypeFor<T>(
+        private static Type FindOrCreateDuckTypeFor<T>(
             bool isFuzzy,
             bool allowDefaultsForMissingProperties,
             bool forceConcreteType = false
         )
         {
-            var typeMaker = new TypeMaker();
-            if (!isFuzzy)
-            {
-                return typeMaker.MakeTypeImplementing<T>(forceConcrete: forceConcreteType);
-            }
+            var key = Tuple.Create(
+                isFuzzy,
+                allowDefaultsForMissingProperties,
+                forceConcreteType,
+                typeof(T)
+            );
+            return TypeCache.FindOrAdd(
+                key,
+                () =>
+                {
+                    var typeMaker = new TypeMaker();
+                    if (!isFuzzy)
+                    {
+                        return typeMaker.MakeTypeImplementing<T>(forceConcrete: forceConcreteType);
+                    }
 
-            return allowDefaultsForMissingProperties
-                ? typeMaker.MakeFuzzyDefaultingTypeImplementing<T>(forceConcreteType)
-                : typeMaker.MakeFuzzyTypeImplementing<T>(forceConcreteType);
+                    return allowDefaultsForMissingProperties
+                        ? typeMaker.MakeFuzzyDefaultingTypeImplementing<T>(forceConcreteType)
+                        : typeMaker.MakeFuzzyTypeImplementing<T>(forceConcreteType);
+                }
+            );
         }
+
+        private static readonly ConcurrentDictionary<Tuple<bool, bool, bool, Type>, Type> TypeCache = new();
     }
 }
