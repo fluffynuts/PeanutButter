@@ -220,6 +220,28 @@ namespace PeanutButter.Utils.Tests
                         .To.Equal(data);
                 }
             }
+
+            [Test]
+            public void GivenTwoStringsAndStringData_ShouldUseStringsForFolderAndFileName()
+            {
+                //---------------Set up test pack-------------------
+                var baseFolder = DetermineExecutingAssemblyFolder();
+                var fileName = GetRandomString(5, 10) + "." + GetRandomString(3, 3);
+                var data = GetRandomString();
+                var expectedPath = Path.Combine(baseFolder, fileName);
+
+                //---------------Assert Precondition----------------
+
+                //---------------Execute Test ----------------------
+                using (new AutoTempFile(baseFolder, fileName, data))
+                {
+                    //---------------Test Result -----------------------
+                    Expect(expectedPath)
+                        .To.Be.A.File();
+                    Expect(File.ReadAllText(expectedPath))
+                        .To.Equal(data);
+                }
+            }
         }
 
         [TestFixture]
