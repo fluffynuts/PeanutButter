@@ -302,6 +302,15 @@ namespace PeanutButter.Utils
         /// <param name="receiver"></param>
         /// <returns></returns>
         IUnstartedProcessIO WithStdErrReceiver(Action<string> receiver);
+        
+        /// <summary>
+        /// Allows stdout and stderr to be passed through to the
+        /// calling shell, effectively shorthand for
+        ///   .WithStdOutReceiver(Console.WriteLine)
+        ///   .WithStdErrReceiver(Console.Error.WriteLine)
+        /// </summary>
+        /// <returns></returns>
+        IUnstartedProcessIO WithPassthroughIo();
     }
 
     /// <inheritdoc />
@@ -530,6 +539,15 @@ namespace PeanutButter.Utils
             public new IUnstartedProcessIO WithStdErrReceiver(Action<string> receiver)
             {
                 _stderrReceivers.Add(receiver);
+                return this;
+            }
+
+            /// <inheritdoc />
+            // ReSharper disable once MemberHidesStaticFromOuterClass
+            public new IUnstartedProcessIO WithPassthroughIo()
+            {
+                _stderrReceivers.Add(Console.Error.WriteLine);
+                _stdoutReceivers.Add(Console.WriteLine);
                 return this;
             }
         }
@@ -1200,6 +1218,16 @@ namespace PeanutButter.Utils
         {
             return StartInCwd()
                 .WithStdOutReceiver(receiver);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static IUnstartedProcessIO WithPassthroughIo()
+        {
+            return StartInCwd()
+                .WithPassthroughIo();
         }
 
         /// <summary>

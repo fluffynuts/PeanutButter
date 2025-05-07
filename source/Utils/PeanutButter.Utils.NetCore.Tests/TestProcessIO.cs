@@ -24,10 +24,9 @@ public class TestProcessIO
             io.WaitForExit();
             var lines = io.StandardOutput.ToArray().Select(l => l.Trim());
             Expect(lines).To.Equal(
-                new[]
-                {
+                [
                     "moo"
-                }
+                ]
             );
         }
 
@@ -48,10 +47,9 @@ public class TestProcessIO
             var lines = io.StandardError.ToArray().Select(l => l.Trim());
             // Assert
             Expect(lines).To.Equal(
-                new[]
-                {
+                [
                     "moo"
-                }
+                ]
             );
         }
 
@@ -71,10 +69,9 @@ public class TestProcessIO
 
             Expect(lines)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         expected
-                    }
+                    ]
                 );
         }
 
@@ -122,11 +119,10 @@ public class TestProcessIO
             var lines = io.StandardOutput.ToArray().Trim();
             Expect(lines)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         folder.Path,
                         expected
-                    }
+                    ]
                 );
         }
 
@@ -156,11 +152,10 @@ public class TestProcessIO
             var lines = io.StandardOutput.ToArray().Trim();
             Expect(lines)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         folder.Path,
                         expected
-                    }
+                    ]
                 );
         }
 
@@ -187,11 +182,10 @@ public class TestProcessIO
             var lines = io.StandardOutput.ToArray().Trim();
             Expect(lines)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         folder.Path,
                         expected
-                    }
+                    ]
                 );
         }
 
@@ -316,10 +310,9 @@ rl.on(""line"", function(line) {
             // Assert
             Expect(result1)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         "line: 4"
-                    }
+                    ]
                 );
         }
     }
