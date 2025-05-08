@@ -1319,6 +1319,8 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             {
                 throw new Exception($"MySql process {proc.ProcessId} has not shut down!");
             }
+            
+            TryDo(() => EnsureFolderDoesNotExist(DataDir));
 
             if (Platform.IsUnixy)
             {
