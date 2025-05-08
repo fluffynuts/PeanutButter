@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using PeanutButter.Utils;
 
@@ -30,7 +32,11 @@ namespace PeanutButter.TempDb.MySql.Data
 
         private static readonly MethodInfo GetPoolMethod
             = PoolManagerType.GetMethods(PublicStatic)
-                .Single(mi => mi.Name == "GetPool");
+                .SingleOrDefault(mi => mi.Name == "GetPool");
+
+        private static readonly MethodInfo GetPoolAsyncMethod
+            = PoolManagerType.GetMethods(PublicStatic)
+                .SingleOrDefault(mi => mi.Name == "GetPoolAsync");
 
         private static readonly BindingFlags PrivateInstance =
             BindingFlags.NonPublic | BindingFlags.Instance;
@@ -44,10 +50,14 @@ namespace PeanutButter.TempDb.MySql.Data
             PoolFields.Single(fi => fi.Name.ToLower().Contains("available"));
 
         private static readonly FieldInfo InUseField =
-            PoolFields.Single(fi => fi.Name.ToLower().Contains("inusepool"));
+            PoolFields.Single(
+                fi => fi.Name.ToLower().Contains("inusepool") &&
+                    !fi.Name.ToLower().Contains("semaphore")
+            );
 
         private static readonly FieldInfo IdleField =
-            PoolFields.Single(fi => fi.Name.ToLower().Contains("idlepool"));
+            PoolFields.Single(fi => fi.Name.ToLower().Contains("idlepool") &&
+                !fi.Name.ToLower().Contains("semaphore"));
 
         /// <summary>
         /// Provides pool stats for MySql.Data Connection Pools via reflection
@@ -58,14 +68,17 @@ namespace PeanutButter.TempDb.MySql.Data
             /// Max connections
             /// </summary>
             public int MaxConnections { get; }
+
             /// <summary>
             /// Total available connections
             /// </summary>
             public int TotalAvailable { get; }
+
             /// <summary>
             /// Total connections in use
             /// </summary>
             public int TotalInUse { get; }
+
             /// <summary>
             /// Total idle connections
             /// </summary>
@@ -82,7 +95,8 @@ namespace PeanutButter.TempDb.MySql.Data
                 int maxConnections,
                 int totalAvailable,
                 int totalInUse,
-                int totalIdle)
+                int totalIdle
+            )
             {
                 MaxConnections = maxConnections;
                 TotalAvailable = totalAvailable;
@@ -96,15 +110,38 @@ namespace PeanutButter.TempDb.MySql.Data
         /// </summary>
         /// <param name="connectionString"></param>
         /// <returns></returns>
-        public PoolStats GetPoolStatsViaReflection(string connectionString)
+        public PoolStats GetPoolStatsViaReflection(
+            string connectionString
+        )
         {
             var builder = new MySqlConnectionStringBuilder(connectionString);
-            var pool = GetPoolMethod.Invoke(null, new object[] { builder });
+            object pool;
+            if (GetPoolMethod is not null)
+            {
+                pool = GetPoolMethod.Invoke(
+                    null,
+                    [builder]
+                );
+            }
+            else if (GetPoolAsyncMethod is not null)
+            {
+                var cancellationTokenSource = new CancellationTokenSource();
+                var cancellationToken = cancellationTokenSource.Token;
+                var execAsync = false;
+                var task = (Task)GetPoolAsyncMethod.Invoke(
+                    null, [builder, execAsync, cancellationToken]);
+                task.ConfigureAwait(false);
+                pool = task.Get<object>("Result");
+            }
+            else
+            {
+                return new PoolStats(-1, -1, -1, -1);
+            }
 
-            var maxConnections = (uint) MaxSizeField.GetValue(pool);
-            var totalAvailable = (int) AvailableField.GetValue(pool);
-            var inUsePool = (System.Collections.ICollection) InUseField.GetValue(pool);
-            var idlePool = (System.Collections.ICollection) IdleField.GetValue(pool);
+            var maxConnections = (uint)MaxSizeField.GetValue(pool);
+            var totalAvailable = (int)AvailableField.GetValue(pool);
+            var inUsePool = (System.Collections.ICollection)InUseField.GetValue(pool);
+            var idlePool = (System.Collections.ICollection)IdleField.GetValue(pool);
             return new PoolStats((int)maxConnections, totalAvailable, inUsePool.Count, idlePool.Count);
         }
     }
