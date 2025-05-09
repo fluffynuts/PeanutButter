@@ -1816,7 +1816,7 @@ where `variable` = '__tempdb_id__';";
                 }
             );
 
-            if (LooksLikePortConflict(_serverProcess.StandardOutputAndErrorInterleavedSnapshot.ToArray()) &&
+            if (LooksLikePortConflict(_serverProcess?.StandardOutputAndErrorInterleavedSnapshot.ToArray()) &&
                 ++_conflictingPortRetries < 5)
             {
                 KeepTemporaryDatabaseArtifactsForDiagnostics = false;
@@ -1836,6 +1836,7 @@ stderr: {stderr}"
             string[] processIoLines
         )
         {
+            processIoLines ??= [];
             foreach (var source in new[]
                      {
                          processIoLines,
