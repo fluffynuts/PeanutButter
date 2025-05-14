@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Imported.PeanutButter.DuckTyping.Extensions;
 using Imported.PeanutButter.Utils;
@@ -1174,9 +1175,26 @@ namespace PeanutButter.EasyArgs
 
             return obj.GetType()
                 .GetProperties()
+                .Where(pi => pi.GetCustomAttributes().OfType<SkipOnGenerationAttribute>().None())
                 .Select(pi => GenerateArgsPairFor(pi, obj))
+                .Where(o => o?.Length is > 0)
                 .SelectMany(o => o)
                 .ToArray();
+        }
+
+        /// <summary>
+        /// Generates the commandline arguments that would
+        /// re-constitute this options object
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static string GenerateCommandline(
+            this object obj
+        )
+        {
+            return obj.GenerateArgs()
+                .Select(s => s.QuoteIfSpaced())
+                .JoinWith(" ");
         }
 
         private static string[] GenerateArgsPairFor(
@@ -1184,21 +1202,27 @@ namespace PeanutButter.EasyArgs
             object o
         )
         {
+            var propValue = pi.GetValue(o);
+            if (propValue is null)
+            {
+                return [];
+            }
+
             if (pi.PropertyType == typeof(bool))
             {
-                var propValue = (bool)pi.GetValue(o);
+                // ReSharper disable once PossibleNullReferenceException
+                var boolValue = (bool)propValue;
                 return
                 [
-                    propValue
+                    boolValue
                         ? FindNameFor(pi)
                         : FindNameFor(pi).RegexReplace("^--", "--no-")
                 ];
             }
 
             var name = FindNameFor(pi);
-            var rawValue = pi.GetValue(o);
 
-            var value = Stringify(rawValue);
+            var value = Stringify(propValue);
             return new[]
                 {
                     name

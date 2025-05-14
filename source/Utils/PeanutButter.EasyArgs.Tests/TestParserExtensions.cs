@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using NExpect;
 using PeanutButter.EasyArgs.Attributes;
@@ -58,7 +59,9 @@ public class TestParserExtensions
     [TestCase("--otherproperty")]
     [TestCase("--otherProperty")]
     [TestCase("--OtherProperty")]
-    public void ShouldFallBackToMatchingPropertyNameForLongName(string arg)
+    public void ShouldFallBackToMatchingPropertyNameForLongName(
+        string arg
+    )
     {
         // Arrange
         var expected = GetRandomInt(1, 32768);
@@ -313,7 +316,8 @@ public class TestParserExtensions
             .To.Contain.Only(1).Item(() => lines.JoinWith("\n"));
         Expect(lines)
             .To.Contain.Only(1)
-            .Matched.By(line => line.Contains("--listen-port specified more than once but only accepts one value")
+            .Matched.By(
+                line => line.Contains("--listen-port specified more than once but only accepts one value")
             );
     }
 
@@ -338,7 +342,8 @@ public class TestParserExtensions
             .To.Contain.Only(1).Item(() => lines.JoinWith("\n"));
         Expect(lines)
             .To.Contain.Only(1)
-            .Matched.By(line => line.Contains("unknown option: --port")
+            .Matched.By(
+                line => line.Contains("unknown option: --port")
             );
     }
 
@@ -554,7 +559,9 @@ public class TestParserExtensions
         public string[] Lines => _lines.ToArray();
         private readonly List<string> _lines = new();
 
-        public void AddText(string str)
+        public void AddText(
+            string str
+        )
         {
             _lines.AddRange(
                 str.Split(
@@ -973,7 +980,8 @@ Report bugs to <no-one-cares@whatevs.org>
                 // Assert
                 Expect(lines)
                     .To.Contain.Exactly(1)
-                    .Matched.By(l => l.EndsWith(
+                    .Matched.By(
+                        l => l.EndsWith(
                             "set the SERVER environment variable appropriately"
                         )
                     );
@@ -999,7 +1007,8 @@ Report bugs to <no-one-cares@whatevs.org>
                 // Assert
                 Expect(lines)
                     .To.Contain.Exactly(1)
-                    .Matched.By(l => l.EndsWith(
+                    .Matched.By(
+                        l => l.EndsWith(
                             "set the REMOTE_HOST environment variable appropriately"
                         )
                     );
@@ -1111,6 +1120,58 @@ Report bugs to <no-one-cares@whatevs.org>
                 .To.Equal(expected);
         }
 
+        [Test]
+        public void ShouldIgnoreNullablePropertiesWhichAreNull()
+        {
+            // Arrange
+            var opts = GetRandom<OneNullableOption>()
+                .With(o => o.Option2 = null);
+            // Act
+            var result = opts.GenerateCommandline();
+            // Assert
+            Expect(result)
+                .To.Contain("--opt1")
+                .Then($"{opts.Option1}")
+                .And
+                .Not.To.Contain("--opt2");
+        }
+
+        [TestCase(nameof(SkipOnGenerationAttribute))]
+        public void ShouldIgnorePropertiesDecoratedWith_(
+            string attribName
+        )
+        {
+            // Arrange
+            var opts = GetRandom<OneSkippedOption>();
+            // Act
+            var result = opts.GenerateCommandline();
+            // Assert
+            Expect(result)
+                .To.Contain("--opt1")
+                .Then($"{opts.Option1}")
+                .And
+                .Not.To.Contain("--opt2");
+        }
+
+        public class OneSkippedOption
+        {
+            [LongName("opt1")]
+            public int Option1 { get; set; }
+
+            [LongName("opt2")]
+            [SkipOnGeneration]
+            public int Option2 { get; set; }
+        }
+
+        public class OneNullableOption
+        {
+            [LongName("opt1")]
+            public int Option1 { get; set; }
+
+            [LongName("opt2")]
+            public int? Option2 { get; set; }
+        }
+
         public class OneOption
         {
             public int TheOption { get; set; }
@@ -1159,9 +1220,10 @@ Report bugs to <no-one-cares@whatevs.org>
                     .To.Equal(ExitCodes.ARGUMENT_ERROR);
                 Expect(output)
                     .To.Contain.Exactly(1)
-                    .Matched.By(l => l.Contains("--some-number") &&
-                        l.Contains("should be at least 5") &&
-                        l.Contains("received: 4")
+                    .Matched.By(
+                        l => l.Contains("--some-number") &&
+                            l.Contains("should be at least 5") &&
+                            l.Contains("received: 4")
                     );
             }
 
@@ -1191,9 +1253,10 @@ Report bugs to <no-one-cares@whatevs.org>
                     .To.Equal(ExitCodes.ARGUMENT_ERROR);
                 Expect(output)
                     .To.Contain.Exactly(1)
-                    .Matched.By(l => l.Contains("--some-number") &&
-                        l.Contains("should be at most 10") &&
-                        l.Contains("received: 14")
+                    .Matched.By(
+                        l => l.Contains("--some-number") &&
+                            l.Contains("should be at most 10") &&
+                            l.Contains("received: 14")
                     );
             }
         }
@@ -1257,8 +1320,9 @@ Report bugs to <no-one-cares@whatevs.org>
             // Assert
             Expect(captured)
                 .Not.To.Contain.Any
-                .Matched.By(s => s.Contains("--ignored") ||
-                    s.Contains("-i ")
+                .Matched.By(
+                    s => s.Contains("--ignored") ||
+                        s.Contains("-i ")
                 );
         }
 
