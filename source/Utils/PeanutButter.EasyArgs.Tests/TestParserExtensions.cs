@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using NExpect;
 using PeanutButter.EasyArgs.Attributes;
@@ -1151,6 +1150,47 @@ Report bugs to <no-one-cares@whatevs.org>
                 .Then($"{opts.Option1}")
                 .And
                 .Not.To.Contain("--opt2");
+        }
+
+        [Test]
+        public void ShouldReconstructFromShortArgs()
+        {
+            // Arrange
+            var expected = GetRandom<OneNullableOption>()
+                .With(o => o.Option2 = GetRandomInt());
+            // Act
+            var args = expected.GenerateShortArgs();
+            var result = args.ParseTo<OneNullableOption>();
+            // Assert
+            Expect(result)
+                .To.Deep.Equal(expected);
+        }
+
+        [Test]
+        public void ShouldSkipOptionsWhichHaveDefaultValue()
+        {
+            // Arrange
+            var args = new string[0];
+            // Act
+            var opts = args.ParseTo<HasOptionsWithDefaults>();
+            var result1 = opts.GenerateLongArgs();
+            var result2 = opts.GenerateShortArgs();
+            // Assert
+            Expect(result1)
+                .To.Be.Empty();
+            Expect(result2)
+                .To.Be.Empty();
+        }
+
+        public class HasOptionsWithDefaults
+        {
+            public const int DEFAULT_ID = 1;
+            public const string DEFAULT_NAME = "Bob";
+            [Default(DEFAULT_ID)]
+            public int Id { get; set; }
+
+            [Default(DEFAULT_NAME)]
+            public string Name { get; set; }
         }
 
         public class OneSkippedOption
