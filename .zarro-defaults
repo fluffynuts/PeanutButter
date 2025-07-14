@@ -9,7 +9,7 @@
 !TEMPDB_PORT_HINT=
 BUILD_TOOLS_FOLDER=build-tools
 TEST_EXCLUDE=PeanutButter.RandomGenerators.Core.Tests.Domain,NugetPackageVersionIncrementer.Tests,**/_deprecated_/**
-DOTNET_CORE=0
+DOTNET_CORE=1
 DOTNET_TEST_PARALLEL=1
 COVERAGE_INCLUDE=*,PeanutButter.*
 COVERAGE_EXCLUDE_ASSEMBLIES=PeanutButter.RandomGenerators.Core.Tests.Domain

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net8.0;net462</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <Configurations>Debug;Release;Debug-X</Configurations>
     <Platforms>AnyCPU</Platforms>
@@ -30,6 +30,4 @@
     <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
     <ProjectReference Include="..\..\Utils\PeanutButter.EasyArgs\PeanutButter.EasyArgs.csproj" />
   </ItemGroup>
-
-  <Import Project="..\..\MonoForFramework.targets" />
 </Project>
