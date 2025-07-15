@@ -69,6 +69,7 @@ namespace NugetPackageVersionIncrementer
             paths.ForEach(_nuspecFinder.FindNuspecsUnder);
             var utils = _nuspecFinder.NuspecPaths
                 .OrderBy(p => Path.GetFileName(Path.GetDirectoryName(p)))
+                .Where(p => !p.Contains("_deprecated_"))
                 .Select(p => _nuspecUtilFactory.LoadNuspecAt(p))
                 .ToArray();
             return utils;
