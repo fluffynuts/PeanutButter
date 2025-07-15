@@ -51,34 +51,23 @@ import { Stream } from "stream";
   gulp.task("build-binary-nuget-packages", async () => {
     const projects = await findPackableProjects();
     const tasks = [] as AsyncVoidVoid[];
-    const ctx = new ExecStepContext({
-      prefixes: {
-        wait: "🕒",
-        ok: "🚀",
-        fail: "❌"
-      }
-    });
     for (const project of projects) {
       const nuspec = await tryFindPackageNuspecFor(project);
       if (!nuspec) {
         throw new Error(`Can't find associated Package.nuspec for: '${project}'`);
       }
       tasks.push(async () => {
-        await ctx.exec(
-          path.basename(project).replace(/\.csproj$/, ""),
-          async () => {
-            const packResult = await pack({
-              target: project,
-              configuration: "Release",
-              output: nugetReleaseDir,
-              nuspec: "Package.nuspec",
-              noBuild: true
-            });
-            if (system.isError(packResult)) {
-              console.error(packResult);
-              throw packResult;
-            }
-          });
+        const packResult = await pack({
+          target: project,
+          configuration: "Release",
+          output: nugetReleaseDir,
+          nuspec: "Package.nuspec",
+          noBuild: true
+        });
+        if (system.isError(packResult)) {
+          console.error(packResult);
+          throw packResult;
+        }
       });
     }
     await runInParallel(
