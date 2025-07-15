@@ -570,9 +570,9 @@ public
         Type type
     )
     {
-        var isDuck = type.GetCustomAttributes()
-            .OfType<IsADuckAttribute>()
-            .Any();
+        var isDuck = type
+            .GetCustomAttributes()
+            .Any(a => a.GetType().Name == nameof(IsADuckAttribute));
         if (isDuck)
         {
             // create a dictionary-backed duck
@@ -1661,7 +1661,7 @@ public
     /// Attempts to fill collections with random data. May fail with stack-overflows
     /// on complex, cyclic-referencing objects. Not enabled by default on random builds,
     /// use with caution -- may lead to a stack overflow with collections which contain
-    /// items whose types which have collections with items whose types... and so on. 
+    /// items whose types which have collections with items whose types... and so on.
     /// </summary>
     /// <returns>The current instance of the builder</returns>
     public virtual TBuilder WithFilledCollections()
