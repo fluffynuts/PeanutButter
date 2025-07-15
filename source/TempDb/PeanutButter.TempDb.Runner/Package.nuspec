@@ -1,10 +1,10 @@
 <package>
   <metadata>
     <id>PeanutButter.TempDb.Runner</id>
-    <version>3.0.384</version>
+    <version>3.0.385</version>
     <title>PeanutButter.TempDb</title>
     <authors>Davyd McColl</authors>
-    <owners/>
+    <owners />
     <description>
       CLI runner for PeanutButter TempDb instances: mysql, localdb and sqlite.
       The aim is to provide a way for other environments which can easily
@@ -13,7 +13,7 @@
       selection and service executable location (where appropriate) as
       well as cleaning up after completion.
     </description>
-    <releaseNotes/>
+    <releaseNotes />
     <summary>
       * Run with --engine argument to spin up
       * Process will emit the connection string to use
@@ -21,86 +21,86 @@
     </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/fluffynuts/PeanutButter</projectUrl>
-    <repository type="git" url="https://github.com/fluffynuts/PeanutButter"/>
+    <repository type="git" url="https://github.com/fluffynuts/PeanutButter" />
     <icon>icon.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">BSD-3-Clause</license>
     <copyright>Copyright 2015</copyright>
     <dependencies>
-      <group targetFramework="net462"/>
-      <group targetFramework="net8.0"/>
+      <group targetFramework="net462" />
+      <group targetFramework="net8.0" />
     </dependencies>
-    <references/>
-    <tags/>
+    <references />
+    <tags />
   </metadata>
   <files>
-    <file src="icon.png" target=""/>
-    <file src="bin/Release/net8.0/BouncyCastle.Cryptography.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/Google.Protobuf.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/K4os.Compression.LZ4.Streams.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/K4os.Compression.LZ4.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/K4os.Hash.xxHash.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/MySql.Data.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/Newtonsoft.Json.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.EasyArgs.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.EasyArgs.pdb" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.EasyArgs.xml" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.FileSystem.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.FileSystem.pdb" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.FileSystem.xml" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.INI.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.INI.pdb" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.INI.xml" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.LocalDb.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.LocalDb.pdb" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.MySql.Base.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.MySql.Base.pdb" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.MySql.Data.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.MySql.Data.dll.config" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.MySql.Data.pdb" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.Runner" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.Runner.deps.json" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.Runner.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.Runner.pdb" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.Runner.runtimeconfig.json" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.Sqlite.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.Sqlite.dll.config" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.Sqlite.pdb" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.TempDb.pdb" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.Utils.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.Utils.pdb" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/PeanutButter.Utils.xml" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/System.Configuration.ConfigurationManager.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/System.Data.SQLite.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/System.Data.SqlClient.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/System.Diagnostics.EventLog.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/System.IO.Pipelines.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/System.Security.Cryptography.ProtectedData.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/System.Security.Permissions.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/System.Text.Encodings.Web.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/System.Text.Json.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/System.Windows.Extensions.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/ZstdSharp.dll" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/runtimes/browser/lib/net8.0/System.Text.Encodings.Web.dll" target="lib/net8.0/runtimes/browser/lib/net8.0"/>
-    <file src="bin/Release/net8.0/runtimes/linux-x64/native/SQLite.Interop.dll" target="lib/net8.0/runtimes/linux-x64/native"/>
-    <file src="bin/Release/net8.0/runtimes/osx-x64/native/SQLite.Interop.dll" target="lib/net8.0/runtimes/osx-x64/native"/>
-    <file src="bin/Release/net8.0/runtimes/unix/lib/netcoreapp2.1/System.Data.SqlClient.dll" target="lib/net8.0/runtimes/unix/lib/netcoreapp2.1"/>
-    <file src="bin/Release/net8.0/runtimes/win-arm64/native/sni.dll" target="lib/net8.0/runtimes/win-arm64/native"/>
-    <file src="bin/Release/net8.0/runtimes/win-x64/native/SQLite.Interop.dll" target="lib/net8.0/runtimes/win-x64/native"/>
-    <file src="bin/Release/net8.0/runtimes/win-x64/native/comerr64.dll" target="lib/net8.0/runtimes/win-x64/native"/>
-    <file src="bin/Release/net8.0/runtimes/win-x64/native/gssapi64.dll" target="lib/net8.0/runtimes/win-x64/native"/>
-    <file src="bin/Release/net8.0/runtimes/win-x64/native/k5sprt64.dll" target="lib/net8.0/runtimes/win-x64/native"/>
-    <file src="bin/Release/net8.0/runtimes/win-x64/native/krb5_64.dll" target="lib/net8.0/runtimes/win-x64/native"/>
-    <file src="bin/Release/net8.0/runtimes/win-x64/native/krbcc64.dll" target="lib/net8.0/runtimes/win-x64/native"/>
-    <file src="bin/Release/net8.0/runtimes/win-x64/native/sni.dll" target="lib/net8.0/runtimes/win-x64/native"/>
-    <file src="bin/Release/net8.0/runtimes/win-x86/native/SQLite.Interop.dll" target="lib/net8.0/runtimes/win-x86/native"/>
-    <file src="bin/Release/net8.0/runtimes/win-x86/native/sni.dll" target="lib/net8.0/runtimes/win-x86/native"/>
-    <file src="bin/Release/net8.0/runtimes/win/lib/net8.0/System.Diagnostics.EventLog.Messages.dll" target="lib/net8.0/runtimes/win/lib/net8.0"/>
-    <file src="bin/Release/net8.0/runtimes/win/lib/net8.0/System.Diagnostics.EventLog.dll" target="lib/net8.0/runtimes/win/lib/net8.0"/>
-    <file src="bin/Release/net8.0/runtimes/win/lib/net8.0/System.Windows.Extensions.dll" target="lib/net8.0/runtimes/win/lib/net8.0"/>
-    <file src="bin/Release/net8.0/runtimes/win/lib/netcoreapp2.1/System.Data.SqlClient.dll" target="lib/net8.0/runtimes/win/lib/netcoreapp2.1"/>
-    <file src="bin/Release/net8.0/start-tempdb.bat" target="lib/net8.0"/>
-    <file src="bin/Release/net8.0/start-tempdb.sh" target="lib/net8.0"/>
+    <file src="icon.png" target="" />
+    <file src="bin/Release/net8.0/BouncyCastle.Cryptography.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/Google.Protobuf.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/K4os.Compression.LZ4.Streams.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/K4os.Compression.LZ4.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/K4os.Hash.xxHash.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/MySql.Data.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/Newtonsoft.Json.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.EasyArgs.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.EasyArgs.pdb" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.EasyArgs.xml" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.FileSystem.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.FileSystem.pdb" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.FileSystem.xml" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.INI.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.INI.pdb" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.INI.xml" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.LocalDb.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.LocalDb.pdb" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.MySql.Base.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.MySql.Base.pdb" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.MySql.Data.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.MySql.Data.dll.config" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.MySql.Data.pdb" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.Runner" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.Runner.deps.json" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.Runner.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.Runner.pdb" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.Runner.runtimeconfig.json" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.Sqlite.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.Sqlite.dll.config" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.Sqlite.pdb" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.TempDb.pdb" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.Utils.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.Utils.pdb" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/PeanutButter.Utils.xml" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/System.Configuration.ConfigurationManager.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/System.Data.SQLite.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/System.Data.SqlClient.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/System.Diagnostics.EventLog.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/System.IO.Pipelines.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/System.Security.Cryptography.ProtectedData.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/System.Security.Permissions.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/System.Text.Encodings.Web.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/System.Text.Json.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/System.Windows.Extensions.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/ZstdSharp.dll" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/runtimes/browser/lib/net8.0/System.Text.Encodings.Web.dll" target="lib/net8.0/runtimes/browser/lib/net8.0" />
+    <file src="bin/Release/net8.0/runtimes/linux-x64/native/SQLite.Interop.dll" target="lib/net8.0/runtimes/linux-x64/native" />
+    <file src="bin/Release/net8.0/runtimes/osx-x64/native/SQLite.Interop.dll" target="lib/net8.0/runtimes/osx-x64/native" />
+    <file src="bin/Release/net8.0/runtimes/unix/lib/netcoreapp2.1/System.Data.SqlClient.dll" target="lib/net8.0/runtimes/unix/lib/netcoreapp2.1" />
+    <file src="bin/Release/net8.0/runtimes/win-arm64/native/sni.dll" target="lib/net8.0/runtimes/win-arm64/native" />
+    <file src="bin/Release/net8.0/runtimes/win-x64/native/SQLite.Interop.dll" target="lib/net8.0/runtimes/win-x64/native" />
+    <file src="bin/Release/net8.0/runtimes/win-x64/native/comerr64.dll" target="lib/net8.0/runtimes/win-x64/native" />
+    <file src="bin/Release/net8.0/runtimes/win-x64/native/gssapi64.dll" target="lib/net8.0/runtimes/win-x64/native" />
+    <file src="bin/Release/net8.0/runtimes/win-x64/native/k5sprt64.dll" target="lib/net8.0/runtimes/win-x64/native" />
+    <file src="bin/Release/net8.0/runtimes/win-x64/native/krb5_64.dll" target="lib/net8.0/runtimes/win-x64/native" />
+    <file src="bin/Release/net8.0/runtimes/win-x64/native/krbcc64.dll" target="lib/net8.0/runtimes/win-x64/native" />
+    <file src="bin/Release/net8.0/runtimes/win-x64/native/sni.dll" target="lib/net8.0/runtimes/win-x64/native" />
+    <file src="bin/Release/net8.0/runtimes/win-x86/native/SQLite.Interop.dll" target="lib/net8.0/runtimes/win-x86/native" />
+    <file src="bin/Release/net8.0/runtimes/win-x86/native/sni.dll" target="lib/net8.0/runtimes/win-x86/native" />
+    <file src="bin/Release/net8.0/runtimes/win/lib/net8.0/System.Diagnostics.EventLog.Messages.dll" target="lib/net8.0/runtimes/win/lib/net8.0" />
+    <file src="bin/Release/net8.0/runtimes/win/lib/net8.0/System.Diagnostics.EventLog.dll" target="lib/net8.0/runtimes/win/lib/net8.0" />
+    <file src="bin/Release/net8.0/runtimes/win/lib/net8.0/System.Windows.Extensions.dll" target="lib/net8.0/runtimes/win/lib/net8.0" />
+    <file src="bin/Release/net8.0/runtimes/win/lib/netcoreapp2.1/System.Data.SqlClient.dll" target="lib/net8.0/runtimes/win/lib/netcoreapp2.1" />
+    <file src="bin/Release/net8.0/start-tempdb.bat" target="lib/net8.0" />
+    <file src="bin/Release/net8.0/start-tempdb.sh" target="lib/net8.0" />
   </files>
 </package>
