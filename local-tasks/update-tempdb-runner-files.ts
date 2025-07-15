@@ -40,7 +40,7 @@
                                 }
                             )
                                 .map(p => p.replace(projectFullPath, ""))
-                                .map(p => p.replace(/^\\/, ""));
+                                .map(p => p.replace(/^\\/, "").replace(/^\//, ""));
                         if (files.filter(p => p.match(/\.dll$/)).length === 0) {
                             throw new Error(`No assemblies found under ${ releaseFolder }`);
                         }

@@ -6,6 +6,10 @@
         <Platforms>AnyCPU</Platforms>
         <NoWarn>MSB3277</NoWarn>
         <LangVersion>latest</LangVersion>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
         <DefineConstants>NETSTANDARD</DefineConstants>

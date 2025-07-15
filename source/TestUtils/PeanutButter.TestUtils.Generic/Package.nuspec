@@ -10,7 +10,7 @@
     </description>
     <releaseNotes></releaseNotes>
     <summary>
-      Includes 
+      Includes
       * PropertyAssert for asserting property value equality by name in tests so that you can TestCase out multiple property set/get ops
       * ConstructorTestUtils for quick, easy testing of DI constructors
       * EnumerableExtensions for comparing items inside different collections which have different
@@ -36,10 +36,12 @@
       <group targetFramework="net462">
         <dependency id="PeanutButter.Utils" version="3.0.384" />
         <dependency id="NSubstitute" version="5.1.0" />
+        <dependency id="NUnit" version="4.0.1"/>
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="PeanutButter.Utils" version="3.0.384" />
-        <dependency id="NSubstitute" version="5.1.0" />
+<!--         <dependency id="PeanutButter.Utils" version="3.0.384" /> -->
+<!--         <dependency id="NSubstitute" version="5.1.0" /> -->
+<!--         <PackageReference Include="NUnit" Version="4.0.1"/> -->
       </group>
     </dependencies>
     <references></references>

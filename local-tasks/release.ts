@@ -1,5 +1,6 @@
 /// <reference path="../node_modules/zarro/types.d.ts" />
 import { Stream } from "stream";
+import { readTextFile, readTextFileLines } from "yafs";
 
 (function () {
   const
@@ -18,6 +19,7 @@ import { Stream } from "stream";
     gutil = requireModule<GulpUtil>("gulp-util"),
     { envFlag } = requireModule<EnvHelpers>("env-helpers"),
     runInParallel = requireModule<RunInParallel>("run-in-parallel"),
+    resolveNugetApiKey = requireModule<ResolveNugetApiKey>("resolve-nuget-api-key"),
     os = require("os"),
     isWindows = os.platform() === "win32",
     usingDotnetCore = env.resolveFlag("DOTNET_CORE");
@@ -142,24 +144,6 @@ import { Stream } from "stream";
     }
   }
 
-  // function pushNugetPackagesWithNugetExe(skipDuplicates: boolean) {
-  //   return processPathsWith(
-  //     "pushing",
-  //     "🚀",
-  //     (filePath: string): string[] => {
-  //       const result = [ "push", filePath, "-NonInteractive", "-Source", "nuget.org", "-Timeout", "900" ];
-  //       if (skipDuplicates) {
-  //         result.push("-SkipDuplicate");
-  //       }
-  //       result.push("-ApiKey");
-  //       result.push(findNugetApiKey());
-  //       return result;
-  //     }
-  //   );
-  // }
-
-  let apiKey = "";
-
   function findNugetApiKey(): string {
     const result = findNugetApiKeyForHost("nuget.org") || findGlobalNugetApiKey();
     if (!result) {
@@ -222,10 +206,14 @@ import { Stream } from "stream";
           noBuild: true
         });
         if (system.isError(packResult)) {
+          console.error(packResult);
           throw packResult;
         }
       });
     }
+    // for (const task of tasks) {
+    //   await task();
+    // }
     await runInParallel(
       env.resolveNumber(env.MAX_CONCURRENCY),
       ...tasks
@@ -241,9 +229,58 @@ import { Stream } from "stream";
     runSequence("build-binary-nuget-packages", "test-packages-exist", done);
   });
 
-  gulp.task("test-packages-exist", () => {
+  gulp.task("test-packages-exist", async () => {
+    const nuspecs = await ls(".", {
+      recurse: true,
+      match: /Package.nuspec$/,
+      exclude: /node_modules/
+    });
+    const missing = [] as string[];
+    for (const nuspec of nuspecs) {
+      if (nuspec.includes("_deprecated_")) {
+        continue;
+      }
+      const version = await parseVersionFrom(nuspec);
+      const container = path.dirname(nuspec);
+      const projects = await ls(container, {
+        match: /\.csproj$/,
+        recurse: false
+      });
+      const project = projects[0];
+      if (!project) {
+        console.warn(`no project in ${container}`);
+        continue;
+      }
+      const
+        filename = path.basename(project),
+        seek = filename.replace(/\.csproj$/, `.${version}.nupkg`),
+        fullSeek = path.join(nugetReleaseDir, seek);
+
+      if (!await fileExists(fullSeek)) {
+        missing.push(seek);
+      }
+    }
+    if (missing.length) {
+      const s = missing.length === 1 ? "" : "s";
+      const details = `- ${missing.join("\n  - ")}`;
+      throw new Error(`WARNING:
+  There are ${missing.length} missing package artifacts:
+  ${details}`);
+    }
     return Promise.resolve("wip");
   });
+
+  async function parseVersionFrom(nuspec: string) {
+    const contents = await readTextFileLines(nuspec);
+    for (const line of contents) {
+      const m = line.match(/\s*<version>(?<version>[0-9.]+)<\/version>/);
+      if (!m) {
+        continue;
+      }
+      return m.groups["version"];
+    }
+    throw new Error(`can't find version tag in ${nuspec}`);
+  }
 
   gulp.task("clean-nuget-releasedir", function () {
     return del(nugetReleaseDir);
@@ -289,14 +326,37 @@ import { Stream } from "stream";
     runSequence("commit-release", "tag-and-push", done);
   });
 
-  gulp.task("push-packages", () => {
-    return gulp.src([ nugetReleaseDir + "/*.nupkg", "!" + nugetReleaseDir + "/*.symbols.nupkg", "!**/packages/**/*.nupkg" ])
-      .pipe(pushNugetPackagesWithDotNet(false));
+  gulp.task("push-packages", async () => {
+    await pushPackages(false);
   });
 
-  gulp.task("re-push-packages", "Attempt re-push of all packages, skipping those already found at nuget.org", () => {
-    return gulp.src([ nugetReleaseDir + "/*.nupkg", "!" + nugetReleaseDir + "/*.symbols.nupkg", "!**/packages/**/*.nupkg" ])
-      .pipe(pushNugetPackagesWithDotNet(true));
+  async function listReleasePackages() {
+    const built = await ls(nugetReleaseDir, {
+      match: /\.nupkg$/,
+      fullPaths: true
+    });
+    return built.filter(p => !p.endsWith(".symbols.nupkg"));
+  }
+
+  async function pushPackages(skipDuplicates: boolean) {
+    const tasks = [] as AsyncVoidVoid[];
+    for (const pkg of await listReleasePackages()) {
+      tasks.push(async () => {
+        await nugetPush({
+          target: pkg,
+          apiKey: await resolveNugetApiKey("nuget.org"),
+          skipDuplicates: false
+        });
+      });
+    }
+    await runInParallel(2, ...tasks);
+  }
+
+  gulp.task(
+    "re-push-packages",
+    "Attempt re-push of all packages, skipping those already found at nuget.org",
+    async () => {
+    await pushPackages(true);
   });
 
   gulp.task("_test_", async () => {
@@ -321,6 +381,7 @@ import { Stream } from "stream";
     const result = [] as string[];
     for (const project of allProjects) {
       if (project.includes("_deprecated_")) {
+        console.warn(`ignoring ${project}`);
         continue;
       }
       const nuspec = await tryFindPackageNuspecFor(project);
@@ -328,7 +389,7 @@ import { Stream } from "stream";
         result.push(project);
       }
     }
-    return result;
+    return result.sort();
   }
 
   const nuspecCache = {} as Dictionary<string>;
