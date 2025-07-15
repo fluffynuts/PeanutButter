@@ -572,6 +572,11 @@ internal static class StringifierStringExtensions
 /// or field should be ignored in the output.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-public class SkipStringifyAttribute : Attribute
+#if BUILD_PEANUTBUTTER_INTERNAL
+internal
+#else
+public
+#endif
+class SkipStringifyAttribute : Attribute
 {
 }
