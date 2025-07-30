@@ -342,7 +342,13 @@ public
 
     private static void AttemptToLoadAssemblyAlongside<T>(string fileName)
     {
-        var codeBase = new Uri(typeof(T).Assembly.Location).LocalPath;
+        var assemblyLocation = typeof(T).Assembly.Location;
+        if (string.IsNullOrWhiteSpace(assemblyLocation))
+        {
+            return;
+        }
+
+        var codeBase = new Uri(assemblyLocation).LocalPath;
         if (!File.Exists(codeBase))
         {
             return;
