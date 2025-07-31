@@ -1825,6 +1825,50 @@ Report bugs to <no-one-cares@whatevs.org>
     }
 
     [TestFixture]
+    public class ArgumentParsing
+    {
+        [Test]
+        public void ShouldParseRelativeDate()
+        {
+            // Arrange
+            var days = 2;
+            var expected = DateTime.Now.AddDays(-days);
+            string[] args = [ "--since", $"{days} days ago" ];
+
+            // Act
+            var result = args.ParseTo<IHasSince>();
+            // Assert
+            Expect(result.Since)
+                .To.Approximately.Equal(expected);
+        }
+
+        [Test]
+        public void ShouldParseRelativeNullableDate()
+        {
+            // Arrange
+            var days = 2;
+            var expected = DateTime.Now.AddDays(-days);
+            string[] args = [ "--since", $"{days} days ago" ];
+
+            // Act
+            var result = args.ParseTo<IHasNullableSince>();
+            // Assert
+            Expect(result.Since)
+                .To.Approximately.Equal(expected);
+        }
+
+        public interface IHasSince
+        {
+            public DateTime Since { get; set; }
+        }
+
+        public interface IHasNullableSince
+        {
+            public DateTime? Since { get; set; }
+        }
+    }
+
+    [TestFixture]
     public class Live
     {
         [Test]

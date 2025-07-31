@@ -4,11 +4,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Imported.PeanutButter.DuckTyping.Extensions;
-using Imported.PeanutButter.Utils;
 using Imported.PeanutButter.Utils.Dictionaries;
+using Imported.PeanutButter.Utils;
+using DecimalDecorator = Imported.PeanutButter.Utils.DecimalDecorator;
+using EnumerableWrapper = Imported.PeanutButter.Utils.EnumerableWrapper;
+using ExtensionsForIEnumerables = Imported.PeanutButter.Utils.ExtensionsForIEnumerables;
+using ObjectExtensions = Imported.PeanutButter.Utils.ObjectExtensions;
+using StringExtensions = Imported.PeanutButter.Utils.StringExtensions;
+using TypeExtensions = Imported.PeanutButter.Utils.TypeExtensions;
 
 #if BUILD_PEANUTBUTTER_EASYARGS_INTERNAL
 using Imported.PeanutButter.EasyArgs.Attributes;
@@ -173,12 +178,10 @@ public
                 o => o
             );
         var shortNames = shortNamedOptions
-            .Select(o => $"-{o.Key}")
-            .AsHashSet();
+            .Select(o => $"-{o.Key}").AsHashSet();
         var longNames = options
             .Where(o => !string.IsNullOrWhiteSpace(o.LongName))
-            .Select(o => $"--{o.LongName}")
-            .AsHashSet();
+            .Select(o => $"--{o.LongName}").AsHashSet();
         var toRemove = new List<string>();
         var finalToMerge = new Dictionary<string, IHasValue>();
         var toTest = collected
@@ -360,9 +363,8 @@ public
         // props which will be cast away, so we re-generate
         // and copy top-most props to the clean result
         var cleanObj = Activator.CreateInstance<T>();
-        typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .ForEach(
-                pi =>
+        typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance).ForEach(
+            pi =>
                 {
                     cleanObj.SetPropertyValue(
                         pi.Name,
@@ -705,6 +707,15 @@ public
             }
         }
 
+        var optType = opt.Property.PropertyType.ResolveNullableUnderlyingType();
+        if (optType == typeof(DateTime))
+        {
+            var parser = new DateTimeParser();
+            var asDate = parser.Parse(input.SingleValue);
+            store[prop] = asDate;
+            return;
+        }
+
         store[prop] = input.SingleValue;
     }
 
@@ -757,8 +768,7 @@ public
                         a.LongSwitch,
                         a.ShortSwitch
                     }
-                )
-                .Flatten()
+                ).Flatten()
                 .Intersect(specifiedSwitches)
                 .ToArray();
 
@@ -882,9 +892,8 @@ public
         var shortNames = CollectShortNamesFrom(options);
         var longNames = CollectLongNamesFrom(options);
         result = new Dictionary<string, CommandlineArgument>();
-        options.OrderByDescending(o => o.IsImplicit)
-            .ForEach(
-                opt =>
+        options.OrderByDescending(o => o.IsImplicit).ForEach(
+            opt =>
                 {
                     SetShortNameIfMissing(opt, shortNames);
                     SetLongNameIfMissing(opt, longNames);
@@ -944,8 +953,7 @@ public
             return;
         }
 
-        var potential = opt.Key
-            .ToKebabCase()
+        var potential = opt.Key.ToKebabCase()
             .ToLowerInvariant();
         if (existing.Contains(potential))
         {
@@ -1211,7 +1219,7 @@ public
         bool preferLongNames
     )
     {
-        return preferLongNames 
+        return preferLongNames
             ? obj.GenerateLongArgs()
             : obj.GenerateShortArgs();
     }
@@ -1277,8 +1285,7 @@ public
     )
     {
         return obj.GenerateLongArgs()
-            .Select(s => s.QuoteIfSpaced())
-            .JoinWith(" ");
+            .Select(s => s.QuoteIfSpaced()).JoinWith(" ");
     }
 
     private static string[] GenerateLongArgsPairFor(
@@ -1292,7 +1299,7 @@ public
         {
             return [];
         }
-        
+
         var attrib = pi.GetCustomAttribute<DefaultAttribute>();
         if (propValue.Equals(attrib?.Value))
         {

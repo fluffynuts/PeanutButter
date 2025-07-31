@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <!-- 
+        <!--
         Note that the net6.0 and net8.0 targets are only here to support
         building PeanutButter.TempDb.Runner, which doesn't seem to want
         to target the netstandard assembly that everyone else does :|
@@ -67,6 +67,7 @@
         <Compile Include="..\PeanutButter.DuckTyping\Shimming\ShimShamBase.cs" Link="Imported\Shimming\ShimShamBase.cs"/>
         <Compile Include="..\PeanutButter.DuckTyping\Shimming\TypeMaker.cs" Link="Imported\Shimming\TypeMaker.cs"/>
         <Compile Include="..\PeanutButter.Utils\AutoLocker.cs" Link="Imported\AutoLocker.cs"/>
+        <Compile Include="..\PeanutButter.Utils\DateTimeParser.cs" Link="Imported\DateTimeParser.cs"/>
         <Compile Include="..\PeanutButter.Utils\Dictionaries\CaseWarpingDictionaryWrapper.cs" Link="Imported\Dictionaries\CaseWarpingDictionaryWrapper.cs"/>
         <Compile Include="..\PeanutButter.Utils\Dictionaries\DictionaryWrappingConnectionStringSettingCollection.cs" Link="Imported\Dictionaries\DictionaryWrappingConnectionStringSettingCollection.cs"/>
         <Compile Include="..\PeanutButter.Utils\StringExtensions.cs" Link="Imported\StringExtensions.cs"/>
@@ -98,11 +99,6 @@
         <PackageReference Include="System.Reflection.Emit" Version="4.7.0" Condition="$(TargetFramework) == 'netstandard2.0'"/>
         <PackageReference Include="System.Reflection.Emit" Version="4.7.0" Condition="$(TargetFramework) == 'net6.0'"/>
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.1" Condition="$(TargetFramework) == 'net6.0'"/>
-    </ItemGroup>
-
-    <ItemGroup><!--    <Reference Include="System.Configuration.ConfigurationManager" Condition="$(TargetFramework) == 'netstandard2.0'"/>-->
-
-        <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
