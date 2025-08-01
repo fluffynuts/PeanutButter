@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace PeanutButter.Utils;
 
@@ -33,6 +34,16 @@ public interface IRateLimiter
     /// </summary>
     /// <param name="action"></param>
     void Run(Action action);
+
+    /// <summary>
+    /// Runs the asynchronous code, rate-limited
+    /// - calls which come in within the sliding minute
+    ///   are performed until the configured rate per
+    ///   minute is reached, and extra calls are discarded
+    /// </summary>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    Task RunAsync(Func<Task> action);
 
     /// <summary>
     /// Resets the sliding window of known calls
@@ -101,20 +112,38 @@ public class RateLimiter : IRateLimiter
         Action action
     )
     {
+        if (CanRunNow())
+        {
+            action();
+        }
+    }
+
+    private bool CanRunNow()
+    {
         lock (_record)
         {
             if (_record.Count >= MaxCallsPerPeriod)
             {
-                return;
+                return false;
             }
 
             // the actual value doesn't really matter
             // -> we're just leaning on the functionality
             //    of the sliding window
             _record.Add(true);
+            return true;
         }
+    }
 
-        action();
+    /// <inheritdoc />
+    public async Task RunAsync(
+        Func<Task> action
+    )
+    {
+        if (CanRunNow())
+        {
+            await action();
+        }
     }
 
     /// <inheritdoc />
