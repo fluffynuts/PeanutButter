@@ -104,7 +104,7 @@ public
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="maxItems"></param>
     /// <param name="timeToLive"></param>
@@ -211,7 +211,7 @@ public
         lock (_items)
         {
             var first = _items.FirstOrDefault(o => o.Value.Equals(item));
-            return first is not null && 
+            return first is not null &&
                 _items.Remove(first);
         }
     }
@@ -223,6 +223,7 @@ public
         {
             lock (_items)
             {
+                Trim();
                 return _items.Count;
             }
         }

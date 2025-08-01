@@ -6,7 +6,6 @@ using System.Threading;
 #endif
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using NUnit.Framework;
 using static PeanutButter.Utils.PyLike;
 
 namespace PeanutButter.Utils.Tests;
