@@ -16,9 +16,9 @@
         <PackageReference Include="NExpect.Matchers.AspNetCore" Version="2.0.116" />
         <PackageReference Include="NExpect.Matchers.NSubstitute" Version="2.0.116" />
         <PackageReference Include="NSubstitute" Version="5.1.0" />
-        <PackageReference Include="NUnit" Version="4.0.1" />
-        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-        <PackageReference Include="NUnit.Analyzers" Version="3.10.0">
+        <PackageReference Include="NUnit" Version="4.3.2" />
+        <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
+        <PackageReference Include="NUnit.Analyzers" Version="4.9.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

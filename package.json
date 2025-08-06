@@ -26,6 +26,7 @@
     "build-nuget-packages": "zarro @",
     "test-zarro": "zarro test-zarro",
     "upgrade-nexpect": "cross-env UPGRADE_PACKAGES=/NExpect\\.*/ zarro upgrade-packages",
+    "upgrade-nunit": "cross-env UPGRADE_PACKAGES=/NUnit\\.*/ zarro upgrade-packages",
     "experiment": "zarro @"
   },
   "devDependencies": {
