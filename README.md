@@ -120,6 +120,6 @@ testing, so you'll soon find that they work as expected.
 ![Jetbrains Logo](logo_JetBrains_4.png)
 </center>
 The work on PeanutButter would have been a lot more effort without
-ReSharper from JetBrains. The good people at JetBrains have provided
+Rider from JetBrains. The good people at JetBrains have provided
 free licensing for all of their products for open-source projects like
 this one. To learn more about JetBrains products, please [visit them](http://jetbrains.com)

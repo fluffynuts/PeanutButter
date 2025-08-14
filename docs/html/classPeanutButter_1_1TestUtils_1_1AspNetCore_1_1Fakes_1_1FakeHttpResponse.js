@@ -1,0 +1,25 @@
+var classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse =
+[
+    [ "AddOnCompletedHandler", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a1c5f8a101f575ca256afbada2e21cf12", null ],
+    [ "AddOnStartingHandler", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a9afa67337bae1a8540c27eb392a7fa8a", null ],
+    [ "AddRedirectHandler", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a9558c7593a496a258d9c19d467329e3d", null ],
+    [ "CompleteAsync", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a652a34b7c3c8b5506ab3ac3f9f977bc1", null ],
+    [ "OnCompleted", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a29ac956a66caf83850fce2387ad11710", null ],
+    [ "OnStarting", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a164306971651898f4d0c50237b40079e", null ],
+    [ "Redirect", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#ae81509d0a08d9cd0265a0f5f643a5980", null ],
+    [ "SetContextAccessor", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a79ec22794b9b65bc49197876cd4bbca7", null ],
+    [ "SetCookies", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a6bbcfe602acb0daf6ee92e551ef8a999", null ],
+    [ "SetHasStarted", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#afb40aadb8f0b8d58d244317a1364fef6", null ],
+    [ "SetHeaders", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a339071c41f4104cde4b22762febea7de", null ],
+    [ "StartAsync", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a2c2bc04d738ba0f2d2d9f75b6571706c", null ],
+    [ "DEFAULT_CONTENT_TYPE", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a305a3436b341888b5c2af19d618b80db", null ],
+    [ "Body", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a4f6541cd8e4a11799778037ebb5d7860", null ],
+    [ "BodyWriter", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a89c79189e227b35afc0ab76432bd016b", null ],
+    [ "ContentLength", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a1fb08a5fa314922fe2dabefcdbb5487f", null ],
+    [ "ContentType", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a25d18beff5abb2e2a964f838faaefe8b", null ],
+    [ "Cookies", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#ab27c656bcdf03a8c7431d398979a59cd", null ],
+    [ "HasStarted", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a837698de9bf0f4e348fa93d330c4aa90", null ],
+    [ "Headers", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a8e76820a4554a11c6d35ee4ea776af9a", null ],
+    [ "HttpContext", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#ae226026ad3e11cdcd2c5b0866f3a2b18", null ],
+    [ "StatusCode", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpResponse.html#a908df9c2baddf697b89c35afa1990daf", null ]
+];

@@ -1,0 +1,4 @@
+var classPeanutButter_1_1WindowsServiceManagement_1_1Exceptions_1_1WindowsServiceUtilException =
+[
+    [ "WindowsServiceUtilException", "classPeanutButter_1_1WindowsServiceManagement_1_1Exceptions_1_1WindowsServiceUtilException.html#a802b3d8f857225dc21d123a031c2c111", null ]
+];

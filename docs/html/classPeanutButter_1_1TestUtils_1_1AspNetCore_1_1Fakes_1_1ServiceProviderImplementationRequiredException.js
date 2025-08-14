@@ -1,0 +1,4 @@
+var classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1ServiceProviderImplementationRequiredException =
+[
+    [ "ServiceProviderImplementationRequiredException", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1ServiceProviderImplementationRequiredException.html#a2d9f5ab2de7685037f5cdc41fefc1bf5", null ]
+];

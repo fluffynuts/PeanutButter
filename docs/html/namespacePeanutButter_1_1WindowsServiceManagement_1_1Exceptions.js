@@ -1,0 +1,5 @@
+var namespacePeanutButter_1_1WindowsServiceManagement_1_1Exceptions =
+[
+    [ "ServiceOperationException", "classPeanutButter_1_1WindowsServiceManagement_1_1Exceptions_1_1ServiceOperationException.html", "classPeanutButter_1_1WindowsServiceManagement_1_1Exceptions_1_1ServiceOperationException" ],
+    [ "WindowsServiceUtilException", "classPeanutButter_1_1WindowsServiceManagement_1_1Exceptions_1_1WindowsServiceUtilException.html", "classPeanutButter_1_1WindowsServiceManagement_1_1Exceptions_1_1WindowsServiceUtilException" ]
+];

@@ -27,14 +27,19 @@
     "test-zarro": "zarro test-zarro",
     "upgrade-nexpect": "cross-env UPGRADE_PACKAGES=/NExpect\\.*/ zarro upgrade-packages",
     "upgrade-nunit": "cross-env UPGRADE_PACKAGES=/NUnit\\.*/ zarro upgrade-packages",
-    "experiment": "zarro @"
+    "experiment": "zarro @",
+    "generate-docs": "zarro @"
   },
   "devDependencies": {
+    "dotnet-cli": "^1.4.0",
+    "exec-step": "^0.18.0",
     "gulp-edit-xml": "^3.1.1",
     "npm-run-all": "^4.1.5",
     "p-queue": "^6.3.0",
+    "system-wrapper": "^1.7.0",
     "typescript": "^5.2.2",
-    "yafs": "^1.37.0",
-    "zarro": "^1.198.0"
+    "which": "^5.0.0",
+    "yafs": "^1.48.0",
+    "zarro": "^1.202.0"
   }
 }

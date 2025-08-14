@@ -1,0 +1,4 @@
+var classPeanutButter_1_1WindowsServiceManagement_1_1Exceptions_1_1ServiceOperationException =
+[
+    [ "ServiceOperationException", "classPeanutButter_1_1WindowsServiceManagement_1_1Exceptions_1_1ServiceOperationException.html#a385253840f3dd2c5ef29af48c82415ea", null ]
+];

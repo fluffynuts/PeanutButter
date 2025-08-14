@@ -1,0 +1,28 @@
+var classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest =
+[
+    [ "FakeHttpRequest", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a661ac410a741cb491fe63bd8da9c3c06", null ],
+    [ "ReadFormAsync", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#adbad1d8e65c545591ab028b082ea1a7b", null ],
+    [ "SetContext", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#aa44b114c382add1f8239cf13db3d1534", null ],
+    [ "SetContextAccessor", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a552bbca8c701150dc5e8438fce95dd41", null ],
+    [ "SetHeaders", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a6957920293a57429433f1eec63d2cd9f", null ],
+    [ "SetUrl", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#ae72ac2af8a593a6783b6b4a385dc04a2", null ],
+    [ "SetUrl", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#aad2fd289891995e46af3e5601704465a", null ],
+    [ "Body", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a7f2dfbf6be798630830664ad198b3f83", null ],
+    [ "ContentIsJson", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a59ba0c7f605f440c3bbac1bec32116a2", null ],
+    [ "ContentLength", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#ac718829d067b53312bd4aff2af7b558b", null ],
+    [ "ContentType", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a58f62ef259f5abb96760c8b27b72bcce", null ],
+    [ "Cookies", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a5ba2e96f5652eac4c0caabfedd479694", null ],
+    [ "Form", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#aadbc6b93f2ac2cc7d4f186492767e537", null ],
+    [ "HasFormContentType", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#aa080273b5a92cbbb403f8980aab7e73b", null ],
+    [ "Headers", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a21ae5acf35dd41622a9e240ecc0a7fff", null ],
+    [ "Host", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a5e2e44f67056436d6d98f70a88d4c84d", null ],
+    [ "HttpContext", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a0a55a6861e709cc182a5cfa294c5762c", null ],
+    [ "IsHttps", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a08899a4615774b19acb715379bf10519", null ],
+    [ "Method", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#aa5cc47a729812043ba558756e8a055b3", null ],
+    [ "Path", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a865e8b11d2a55e8ce55f14ca04a0e398", null ],
+    [ "PathBase", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#ab747680b795d52ed146777ce70553db8", null ],
+    [ "Protocol", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a397e6dad6279da4d3afca716024d2b3e", null ],
+    [ "Query", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a2091b7c305c6dca28e41744028e30a9d", null ],
+    [ "QueryString", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#a3961c15508dbe6d66c3e4363e6477dd0", null ],
+    [ "Scheme", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpRequest.html#af6e674d9bcb8ab74b09b7700bb4e8d5f", null ]
+];

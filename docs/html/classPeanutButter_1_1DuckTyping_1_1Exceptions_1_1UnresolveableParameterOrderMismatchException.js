@@ -1,0 +1,4 @@
+var classPeanutButter_1_1DuckTyping_1_1Exceptions_1_1UnresolveableParameterOrderMismatchException =
+[
+    [ "UnresolveableParameterOrderMismatchException", "classPeanutButter_1_1DuckTyping_1_1Exceptions_1_1UnresolveableParameterOrderMismatchException.html#a9308f8920a9cb12e2a836eba7c59a5d9", null ]
+];
