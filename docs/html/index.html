@@ -95,13 +95,94 @@ $(function(){initNavTree('index.html','',''); });
 <p>PeanutButter is a collection of projects which provide useful bits of functionality that I've often had to re-use.</p>
 <h1 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
 Quick links</h1>
+<p>This is by no means a comprehensive list of functionality that is available - it's just some of the things I use the most, that may be helpful to others.</p>
 <h3 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
 Utilities</h3>
 <ul>
 <li>Extension methods<ul>
-<li><a href="classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html">ExtensionsForIEnumerables</a> </li>
+<li><a href="classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html">collections</a><ul>
+<li>FindOrAdd for dictionaries</li>
+<li>And - fluent arrays, eg foo.And(new [ 1, 2, 3 ]);</li>
+<li>AsTextList and derivatives for dumping data neatly to the console or a textarea</li>
+<li>Trim() on a collection of strings</li>
+<li>JS-like methods (Map, Filter - working with array types)</li>
 </ul>
 </li>
+<li><a href="classPeanutButter_1_1DuckTyping_1_1Extensions_1_1DuckTypingObjectExtensions.html">duck-typing</a><ul>
+<li>wrap any object in a well-defined interface and have your data &amp; methods forwarded</li>
+<li>works well on dictionaries too</li>
+<li>useful for converting your app configuration to a well-defined object to pass around</li>
+<li>can be used to "shield" a more complex type from a consumer only interested in a subset of the functionality</li>
+</ul>
+</li>
+<li><a href="classPeanutButter_1_1Utils_1_1ObjectExtensions.html">objects</a><ul>
+<li>deep equality testing</li>
+<li>reflection conveniences (eg o.Get&lt;T&gt;("PropertyName") / o.Set("PropertyName", "value")</li>
+<li>o.DeepClone&lt;T&gt;()</li>
+</ul>
+</li>
+<li><a href="classPeanutButter_1_1Utils_1_1Stringifier.html">.Stringify()</a> to dump an object in "json-like" notation (good for logs / diagnostics)</li>
+<li><a href="classPeanutButter_1_1Utils_1_1SlidingWindow-1-g.html">SlidingWindow</a>: keep a running collection based on item count or max-age</li>
+<li><a href="classPeanutButter_1_1Utils_1_1SingleItemCache-1-g.html">SingleItemCache</a>: simple, easy way to implement localised caching for a value, eg an application setting which is queried a lot from a database</li>
+<li>Disposables to make life easier:<ul>
+<li><a href="classPeanutButter_1_1Utils_1_1AutoTempFile.html">AutoTempFile</a> - deletes the temp file when disposed</li>
+<li><a href="classPeanutButter_1_1Utils_1_1AutoTempFolder.html">AutoTempFolder</a> - deletes the temp folder and contents when disposed</li>
+<li><a href="classPeanutButter_1_1Utils_1_1AutoLocker.html">AutoLocker</a> - locks the semaphore / mutex for the duration of the non-disposed lifetime</li>
+<li><a href="classPeanutButter_1_1Utils_1_1AutoResetter-1-g.html">AutoResetter</a> - perform an action at instantiation, and undo it at disposal</li>
+<li><a href="classPeanutButter_1_1Utils_1_1AutoTempEnvironmentVariable.html">AutoTempEnvironmentVariable</a> - set an environment variable for the duration of the non-disposed lifetime</li>
+<li><a href="lassPeanutButter_1_1Utils_1_1AutoBarrier.html">AutoBarrier</a> - only exit the disposal block when all participants have joined</li>
+</ul>
+</li>
+<li><a href="classPeanutButter_1_1Utils_1_1CircularList-1-g.html">CircularList</a> - enumerate forever, cyclically, through a list</li>
+<li>Dictionaries!<ul>
+<li><a href="classPeanutButter_1_1Utils_1_1Dictionaries_1_1DefaultDictionary-2-g.html">DefaultDictionary</a> (provide fallback value for missing keys)</li>
+<li>Wrapper dictionaries for <a href="classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingConnectionStringSettingCollection.html">ConnectionStringSettingCollections</a>, <a href="classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingNameValueCollection.html">NameValueCollections</a></li>
+<li><a href="classPeanutButter_1_1Utils_1_1Dictionaries_1_1MergeDictionary-2-g.html">MergeDictionary</a> - left-wise merge of underlying dictionaries with rewrite support</li>
+<li><a href="classPeanutButter_1_1Utils_1_1Dictionaries_1_1RedirectingDictionary-1-g.html">RedirectingDictionary</a> - provide name redirection over an existing dictionary</li>
+<li><a href="classPeanutButter_1_1Utils_1_1Dictionaries_1_1TransformingDictionary-2-g.html">TransformingDictionary</a> - passes values through a transformation layer on access</li>
+<li><a href="classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary-2-g.html">ValidatingDictionary</a> - provides a dictionary which can be configured to validate keys and values</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Test utilities<ul>
+<li><a href="classPeanutButter_1_1RandomGenerators_1_1RandomValueGen.html">RandomValueGen</a> (suggest: import statically for less noise)<ul>
+<li>GetRandom(Int|Bool|String|Array&lt;T&gt;|Decimal|Date|Float|&lt;T&gt;)<ul>
+<li>GetRandom&lt;T&gt; can be guided via local implementations of GenericBuilder&lt;TBuilder, TEntity&gt;</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="namespacePeanutButter_1_1SimpleHTTPServer.html">SimpleHTTPServer</a><ul>
+<li>spin up a local HTTP server with low-level control<ul>
+<li>useful for testing code that needs to have http comms validated or stubbed</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Temporary database resources<ul>
+<li><a href="namespacePeanutButter_1_1TempRedis.html">TempRedis</a></li>
+<li>Temporary database instances<ul>
+<li><a href="namespacePeanutButter_1_1TempDb_1_1MySql_1_1Data.html">TempDBMySqlData</a></li>
+<li><a href="namespacePeanutButter_1_1TempDb_1_1MySql_1_1Connector.html">TempDBMySqlConnector</a></li>
+<li><a href="namespacePeanutButter_1_1TempDb_1_1LocalDb.html">TempDBLocalDb</a></li>
+<li><a href="namespacePeanutButter_1_1TempDb_1_1Sqlite.html">TempDBSqlite</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="namespacePeanutButter_1_1TestUtils_1_1AspNetCore.html">Builders for faked asp.net types (http request/response, actions, etc)</a></li>
+</ul>
+</li>
+<li><a href="namespacePeanutButter_1_1EasyArgs.html">EasyArgs</a><ul>
+<li>parses commandlines to an interface, can be guided with attributes on the interface</li>
+</ul>
+</li>
+<li><a href="namespacePeanutButter_1_1ServiceShell.html">ServiceShell</a><ul>
+<li>low-friction scaffolding for polling win32 services</li>
+</ul>
+</li>
+<li><a href="namespacePeanutButter_1_1INI.html">INI reader/writer with comment preservation</a> </li>
 </ul>
 </div></div><!-- PageDoc -->
 <a href="doxygen_crawl.html"></a>
