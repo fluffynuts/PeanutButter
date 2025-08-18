@@ -123,3 +123,4 @@ The work on PeanutButter would have been a lot more effort without
 Rider from JetBrains. The good people at JetBrains have provided
 free licensing for all of their products for open-source projects like
 this one. To learn more about JetBrains products, please [visit them](http://jetbrains.com)
+
