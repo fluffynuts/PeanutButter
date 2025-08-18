@@ -24,9 +24,25 @@
         await system("doxygen", [], {
           suppressOutput: true
         });
-        
+        await addBaseRedirectFile();
       })
   });
+
+  async function addBaseRedirectFile() {
+    await writeTextFile(
+      "docs/index.html",
+      `
+<html>
+<head>
+  <meta http-equiv="refresh" content="0; url=html/index.html" />
+</head>
+<body>
+  You are being redirected. If you don't get to PeanutButter documentation soon enough, <a href="html/index.html">Click here</a>
+</body>
+</html>
+      `.trim()
+    )
+  }
 
   async function updateDoxyfileWithProjectFolders(
     folders: string[]

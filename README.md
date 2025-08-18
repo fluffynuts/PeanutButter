@@ -21,6 +21,8 @@ PeanutButter
 ![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.TempDb.Sqlite?label=TempDb.Sqlite)
 ![Nuget downloads badge](https://img.shields.io/nuget/dt/PeanutButter.DuckTyping?label=DuckTyping)
 
+[Go to documentation](http://fluffynuts.github.io/PeanutButter/html/index.html)
+
 "Some tastiness to add to your dev sandwich"
 
 PeanutButter is a collection of projects which provide useful
