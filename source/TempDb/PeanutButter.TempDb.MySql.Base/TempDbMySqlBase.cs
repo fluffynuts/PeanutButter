@@ -1602,7 +1602,7 @@ Please report this, attaching a zip file of '{DatabasePath}'"
 
         public string DataDir =>
             _dataDir ??= (
-                MySqlVersion.Version.Major >= 8
+                MySqlVersion?.Version?.Major >= 8
                     ? Path.Combine(DatabasePath, "data") // mysql 8 wants a clean dir to init in
                     : DatabasePath
             );

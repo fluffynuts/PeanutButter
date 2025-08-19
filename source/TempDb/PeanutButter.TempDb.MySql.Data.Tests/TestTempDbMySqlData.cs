@@ -25,1518 +25,1552 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable AccessToDisposedClosure
 
-namespace PeanutButter.TempDb.MySql.Data.Tests
+namespace PeanutButter.TempDb.MySql.Data.Tests;
+
+[TestFixture]
+public class TestTempDbMySqlData
 {
-    [TestFixture]
-    public class TestTempDbMySqlData
+    public const int DEFAULT_TIMEOUT = 90000;
+    public const int LONG_TIMEOUT = 180000;
+    public const int DEFAULT_RETRIES = 3;
+
+    [Test]
+    public void ShouldImplement_ITempDB()
     {
-        public const int DEFAULT_TIMEOUT = 90000;
-        public const int LONG_TIMEOUT = 180000;
-        public const int DEFAULT_RETRIES = 3;
+        // Arrange
+        var sut = typeof(TempDBMySql);
 
+        // Pre-Assert
+        // Act
+        Expect(sut).To.Implement<ITempDB>();
+        // Assert
+    }
+
+    [Test]
+    public void ShouldBeDisposable()
+    {
+        // Arrange
+        var sut = typeof(TempDBMySql);
+
+        // Pre-Assert
+        // Act
+        Expect(sut).To.Implement<IDisposable>();
+        // Assert
+    }
+
+    [Test]
+    public void ShouldBeAbleToEnableVerboseLogging()
+    {
+        // Arrange
+        using var __ = new AutoTempEnvironmentVariable(
+            "TEMPDB_DUMP_CONFIG",
+            "1"
+        );
+        using var _ = new AutoTempFile(
+            EnvironmentVariables.VERBOSE,
+            "1"
+        );
+
+        // Act
+        using var db = Create();
+        // Assert
+        Expect(db.ServerProcessCommand)
+            .To.Contain("--log-error-verbosity");
+    }
+
+    [Test]
+    [Explicit("Discovery and reminder of comparible nature of Version objects")]
+    public void ComparingVersionObjects()
+    {
+        // Arrange
+        var v1 = new Version(1, 0, 1);
+        var v2 = new Version(1, 0, 2);
+        // Act
+        // Assert
+        Expect(v2 > v1)
+            .To.Be.True();
+        Expect(v2)
+            .To.Be.Greater.Than(v1);
+    }
+
+    [Test]
+    public void ShouldOnlyDisableMonitorWhenNecessary()
+    {
+        // Arrange
+        // Act
+        using var db = Create();
+        // Assert
+        if (Platform.IsWindows)
+        {
+            Expect(db.ServerCommandline)
+                .To.Contain("--no-monitor");
+        }
+        else
+        {
+            Expect(db.ServerCommandline)
+                .Not.To.Contain("--no-monitor");
+        }
+    }
+
+    [TestFixture]
+    public class SnapshottingAndReusing : AutoDestroyTempDbOnTimeout
+    {
         [Test]
-        public void ShouldImplement_ITempDB()
+        [Retry(DEFAULT_RETRIES)]
+        public void ShouldBeAbleToSnapshotAndReuseDatabaseFilesAuto()
         {
-            // Arrange
-            var sut = typeof(TempDBMySql);
-
-            // Pre-Assert
-            // Act
-            Expect(sut).To.Implement<ITempDB>();
-            // Assert
-        }
-
-        [Test]
-        public void ShouldBeDisposable()
-        {
-            // Arrange
-            var sut = typeof(TempDBMySql);
-
-            // Pre-Assert
-            // Act
-            Expect(sut).To.Implement<IDisposable>();
-            // Assert
-        }
-
-        [Test]
-        public void ShouldBeAbleToEnableVerboseLogging()
-        {
-            // Arrange
-            using var __ = new AutoTempEnvironmentVariable(
-                "TEMPDB_DUMP_CONFIG",
-                "1"
-            );
-            using var _ = new AutoTempFile(
-                EnvironmentVariables.VERBOSE,
-                "1"
-            );
-
-            // Act
-            using var db = Create();
-            // Assert
-            Expect(db.ServerProcessCommand)
-                .To.Contain("--log-error-verbosity");
-        }
-
-        [Test]
-        [Explicit("Discovery and reminder of comparible nature of Version objects")]
-        public void ComparingVersionObjects()
-        {
-            // Arrange
-            var v1 = new Version(1, 0, 1);
-            var v2 = new Version(1, 0, 2);
-            // Act
-            // Assert
-            Expect(v2 > v1)
-                .To.Be.True();
-            Expect(v2)
-                .To.Be.Greater.Than(v1);
-        }
-
-        [Test]
-        public void ShouldOnlyDisableMonitorWhenNecessary()
-        {
-            // Arrange
-            // Act
-            using var db = Create();
-            // Assert
-            if (Platform.IsWindows)
-            {
-                Expect(db.ServerCommandline)
-                    .To.Contain("--no-monitor");
-            }
-            else
-            {
-                Expect(db.ServerCommandline)
-                    .Not.To.Contain("--no-monitor");
-            }
-        }
-
-        [TestFixture]
-        public class SnapshottingAndReusing : AutoDestroyTempDbOnTimeout
-        {
-            [Test]
-            [Retry(DEFAULT_RETRIES)]
-            public void ShouldBeAbleToSnapshotAndReuseDatabaseFilesAuto()
-            {
-                Assert.That(
-                    () =>
-                    {
-                        // Arrange
-                        string snapshotPath;
-                        using (var db1 = Create())
-                        {
-                            using var conn1 = db1.OpenConnection();
-                            conn1.Execute(
-                                "create table people (id int primary key not null auto_increment, name text);"
-                            );
-                            conn1.Execute("insert into people(name) values('bob');");
-                            snapshotPath = db1.Snapshot();
-                            Expect(snapshotPath)
-                                .Not.To.Equal(db1.DatabasePath);
-                        }
-
-                        Expect(snapshotPath)
-                            .To.Be.A.Folder();
-                        Console.Error.WriteLine(
-                            new
-                            {
-                                snapshotPath
-                            }.Stringify()
-                        );
-
-                        // Act
-                        using var sut = Create(templatePath: snapshotPath);
-                        using var conn2 = sut.OpenConnection();
-                        var result = conn2.Query<Person>("select * from people");
-                        // Assert
-                        Expect(result)
-                            .To.Contain.Only(1)
-                            .Matched.By(o => o.Id > 0 && o.Name == "bob");
-                    },
-                    Throws.Nothing
-                );
-            }
-
-            [Test]
-            [Retry(DEFAULT_RETRIES)]
-            public void ShouldBeAbleToSnapshotAndReuseDatabaseFilesSpecified()
-            {
-                Assert.That(
-                    () =>
-                    {
-                        // Arrange
-                        using var tempFolder = new AutoTempFolder();
-                        string snapshotPath;
-                        using (var db1 = Create())
-                        {
-                            using var conn1 = db1.OpenConnection();
-                            conn1.Execute(
-                                "create table people (id int primary key not null auto_increment, name text);"
-                            );
-                            conn1.Execute("insert into people(name) values('bob');");
-                            snapshotPath = db1.Snapshot(tempFolder.Path);
-                        }
-
-                        Expect(snapshotPath)
-                            .To.Be.A.Folder();
-                        Expect(snapshotPath)
-                            .To.Equal(tempFolder.Path);
-                        Console.Error.WriteLine(
-                            new
-                            {
-                                snapshotPath
-                            }.Stringify()
-                        );
-
-                        // Act
-                        using var sut = Create(templatePath: snapshotPath);
-                        using var conn2 = sut.OpenConnection();
-                        var result = conn2.Query<Person>("select * from people");
-                        // Assert
-                        Expect(result)
-                            .To.Contain.Only(1)
-                            .Matched.By(o => o.Id > 0 && o.Name == "bob");
-                    },
-                    Throws.Nothing
-                );
-            }
-
-            public class Person
-            {
-                public int Id { get; set; }
-                public string Name { get; set; }
-            }
-        }
-
-        [Test]
-        public void ShouldBeAbleToSwitchToNewSchemaRequiringEscaping()
-        {
-            // Arrange
-            using var db = Create();
-            // Act
-            Expect(() => db.SwitchToSchema("yumbi-test-FOO_BAR_QUUX"))
-                .Not.To.Throw();
-            // Assert
-        }
-
-        [TestFixture]
-        public class WhenProvidedPathToMySqlD : AutoDestroyTempDbOnTimeout
-        {
-            [TestCaseSource(nameof(MySqlPathFinders))]
-            public void Construction_ShouldCreateSchemaAndSwitchToIt(
-                string mysqld
-            )
-            {
-                // Arrange
-                var expectedId = GetRandomInt();
-                var expectedName = GetRandomAlphaNumericString(5);
-                // Pre-Assert
-                // Act
-                using var db = Create(mysqld);
-                var util = new MySqlConnectionStringUtil(db.ConnectionString);
-                Expect(util.Database).Not.To.Be.Null.Or.Empty();
-                using (var connection = db.OpenConnection())
-                using (var command = connection.CreateCommand())
+            Assert.That(
+                () =>
                 {
-                    command.CommandText = new[]
+                    // Arrange
+                    string snapshotPath;
+                    using (var db1 = Create())
                     {
-                        "create table cows (id int, name varchar(128));",
-                        $"insert into cows (id, name) values ({expectedId}, '{expectedName}');"
-                    }.JoinWith("\n");
-                    command.ExecuteNonQuery();
-                }
-
-                using (var connection = db.OpenConnection())
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "select id, name from cows;";
-                    using (var reader = command.ExecuteReader())
-                    {
-                        Expect(reader.HasRows).To.Be.True();
-                        Expect(reader.Read()).To.Be.True();
-                        Expect(reader["id"]).To.Equal(expectedId);
-                        Expect(reader["name"]).To.Equal(expectedName);
-                        Expect(reader.Read()).To.Be.False();
-                        // Assert
+                        using var conn1 = db1.OpenConnection();
+                        conn1.Execute(
+                            "create table people (id int primary key not null auto_increment, name text);"
+                        );
+                        conn1.Execute("insert into people(name) values('bob');");
+                        snapshotPath = db1.Snapshot();
+                        Expect(snapshotPath)
+                            .Not.To.Equal(db1.DatabasePath);
                     }
-                }
-            }
 
-            [Test]
-            [TestCaseSource(nameof(MySqlPathFinders))]
-            public void ShouldBeAbleToSwitchSchemas(
-                string mysqld
-            )
-            {
-                using var sut = Create(mysqld);
-                // Arrange
-                var expected = GetRandomAlphaString(5, 10);
-                // Pre-assert
-                var builder = new MySqlConnectionStringUtil(sut.ConnectionString);
-                Expect(builder.Database).To.Equal("tempdb");
-                // Act
-                sut.SwitchToSchema(expected);
-                // Assert
-                builder = new MySqlConnectionStringUtil(sut.ConnectionString);
-                Expect(builder.Database).To.Equal(expected);
-            }
-
-            [Test]
-            [TestCaseSource(nameof(MySqlPathFinders))]
-            public void ShouldBeAbleToSwitchBackAndForthWithoutLoss(
-                string mysqld
-            )
-            {
-                using var sut = Create(mysqld);
-                // Arrange
-                var schema1 =
-                    "create table cows (id int, name varchar(100)); insert into cows (id, name) values (1, 'Daisy');";
-                var schema2 =
-                    "create table bovines (id int, name varchar(100)); insert into bovines (id, name) values (42, 'Douglas');";
-                var schema2Name = GetRandomAlphaString(4);
-                Execute(sut, schema1);
-
-                // Pre-assert
-                var inSchema1 = Query(sut, "select * from cows;");
-                Expect(inSchema1).To.Contain.Exactly(1).Item();
-                Expect(inSchema1[0]["id"]).To.Equal(1);
-                Expect(inSchema1[0]["name"]).To.Equal("Daisy");
-
-                // Act
-                sut.SwitchToSchema(schema2Name);
-                Expect(() => Query(sut, "select * from cows;"))
-                    .To.Throw()
-                    .With.Property(o => o.GetType().Name)
-                    .Containing("MySqlException");
-                Execute(sut, schema2);
-                var results = Query(sut, "select * from bovines;");
-
-                // Assert
-                Expect(results).To.Contain.Exactly(1).Item();
-                Expect(results[0]["id"]).To.Equal(42);
-                Expect(results[0]["name"]).To.Equal("Douglas");
-
-                sut.SwitchToSchema("tempdb");
-                var testAgain = Query(sut, "select * from cows;");
-                Expect(testAgain).To.Contain.Exactly(1).Item();
-                Expect(testAgain[0]).To.Deep.Equal(inSchema1[0]);
-            }
-
-            [TestCaseSource(nameof(MySqlPathFinders))]
-            public void ShouldBeAbleToCreateATable_InsertData_QueryData(
-                string mysqld
-            )
-            {
-                using var sut = Create(mysqld);
-                // Arrange
-                // Act
-                using (var connection = sut.OpenConnection())
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = new[]
-                    {
-                        "create schema moocakes;",
-                        "use moocakes;",
-                        "create table `users` (id int, name varchar(100));",
-                        "insert into `users` (id, name) values (1, 'Daisy the cow');"
-                    }.JoinWith("\n");
-                    command.ExecuteNonQuery();
-                }
-
-                using (var connection = sut.OpenConnection())
-                {
-                    // Assert
-                    var users = connection.Query<User>(
-                        "use moocakes; select * from users where id > @id; ",
+                    Expect(snapshotPath)
+                        .To.Be.A.Folder();
+                    Console.Error.WriteLine(
                         new
                         {
-                            id = 0
-                        }
+                            snapshotPath
+                        }.Stringify()
                     );
-                    Expect(users).To.Contain.Only(1).Matched.By(
-                        u =>
-                            u.Id == 1 && u.Name == "Daisy the cow"
+
+                    // Act
+                    using var sut = Create(templatePath: snapshotPath);
+                    using var conn2 = sut.OpenConnection();
+                    var result = conn2.Query<Person>("select * from people");
+                    // Assert
+                    Expect(result)
+                        .To.Contain.Only(1)
+                        .Matched.By(o => o.Id > 0 && o.Name == "bob");
+                },
+                Throws.Nothing
+            );
+        }
+
+        [Test]
+        [Retry(DEFAULT_RETRIES)]
+        public void ShouldBeAbleToSnapshotAndReuseDatabaseFilesSpecified()
+        {
+            Assert.That(
+                () =>
+                {
+                    // Arrange
+                    using var tempFolder = new AutoTempFolder();
+                    string snapshotPath;
+                    using (var db1 = Create())
+                    {
+                        using var conn1 = db1.OpenConnection();
+                        conn1.Execute(
+                            "create table people (id int primary key not null auto_increment, name text);"
+                        );
+                        conn1.Execute("insert into people(name) values('bob');");
+                        snapshotPath = db1.Snapshot(tempFolder.Path);
+                    }
+
+                    Expect(snapshotPath)
+                        .To.Be.A.Folder();
+                    Expect(snapshotPath)
+                        .To.Equal(tempFolder.Path);
+                    Console.Error.WriteLine(
+                        new
+                        {
+                            snapshotPath
+                        }.Stringify()
                     );
-                }
+
+                    // Act
+                    using var sut = Create(templatePath: snapshotPath);
+                    using var conn2 = sut.OpenConnection();
+                    var result = conn2.Query<Person>("select * from people");
+                    // Assert
+                    Expect(result)
+                        .To.Contain.Only(1)
+                        .Matched.By(o => o.Id > 0 && o.Name == "bob");
+                },
+                Throws.Nothing
+            );
+        }
+
+        public class Person
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+    }
+
+    [Test]
+    public void ShouldBeAbleToSwitchToNewSchemaRequiringEscaping()
+    {
+        // Arrange
+        using var db = Create();
+        // Act
+        Expect(() => db.SwitchToSchema("yumbi-test-FOO_BAR_QUUX"))
+            .Not.To.Throw();
+        // Assert
+    }
+
+    [TestFixture]
+    public class WhenProvidedPathToMySqlD : AutoDestroyTempDbOnTimeout
+    {
+        [TestCaseSource(nameof(MySqlPathFinders))]
+        public void Construction_ShouldCreateSchemaAndSwitchToIt(
+            string mysqld
+        )
+        {
+            // Arrange
+            var expectedId = GetRandomInt();
+            var expectedName = GetRandomAlphaNumericString(5);
+            // Pre-Assert
+            // Act
+            using var db = Create(mysqld);
+            var util = new MySqlConnectionStringUtil(db.ConnectionString);
+            Expect(util.Database).Not.To.Be.Null.Or.Empty();
+            using (var connection = db.OpenConnection())
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = new[]
+                {
+                    "create table cows (id int, name varchar(128));",
+                    $"insert into cows (id, name) values ({expectedId}, '{expectedName}');"
+                }.JoinWith("\n");
+                command.ExecuteNonQuery();
             }
 
-            public static string[] MySqlPathFinders()
+            using (var connection = db.OpenConnection())
+            using (var command = connection.CreateCommand())
             {
-                // add mysql installs at the following folders
-                // to test, eg 5.6 vs 5.7 & effect of spaces in the path
-                return new[]
-                    {
-                        null, // will try to seek out the mysql installation
-                        "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
-                        "C:\\apps\\mysql-5.7.36-winx64\\bin\\mysqld.exe",
-                        "C:\\apps\\mysql-5.7.36-win32\\bin\\mysqld.exe",
-                        "C:\\apps\\mysql-5.7-grant\\bin\\mysqld.exe",
-                        "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
-                        "C:\\apps\\mysql-8.0\\bin\\mysqld.exe",
-                        "C:\\apps\\spaced folder\\mysql-5.7.36-winx64\\bin\\mysqld.exe",
-                        "C:\\apps\\spaced folder\\mysql-5.7.36-win32\\bin\\mysqld.exe",
-                        "C:\\apps\\spaced folder\\mysql-5.7-grant\\bin\\mysqld.exe",
-                        "C:\\apps\\spaced folder\\mysql-8.0\\bin\\mysqld.exe",
-                    }.Where(
-                        p =>
-                        {
-                            if (p == null)
-                            {
-                                return true;
-                            }
-
-                            var exists = Directory.Exists(p) || File.Exists(p);
-                            if (!exists)
-                            {
-                                Console.Error.WriteLine(
-                                    $"WARN: specific test path for mysql not found: {p}"
-                                );
-                            }
-
-                            return exists;
-                        }
-                    )
-                    .Randomize()
-                    .Take(3)
-                    .ToArray();
+                command.CommandText = "select id, name from cows;";
+                using (var reader = command.ExecuteReader())
+                {
+                    Expect(reader.HasRows).To.Be.True();
+                    Expect(reader.Read()).To.Be.True();
+                    Expect(reader["id"]).To.Equal(expectedId);
+                    Expect(reader["name"]).To.Equal(expectedName);
+                    Expect(reader.Read()).To.Be.False();
+                    // Assert
+                }
             }
         }
 
-        [TestFixture]
-        public class WhenInstalledAsWindowsService : AutoDestroyTempDbOnTimeout
+        [Test]
+        [TestCaseSource(nameof(MySqlPathFinders))]
+        public void ShouldBeAbleToSwitchSchemas(
+            string mysqld
+        )
         {
-            [Test]
-            public void ShouldBeAbleToStartNewInstance()
+            using var sut = Create(mysqld);
+            // Arrange
+            var expected = GetRandomAlphaString(5, 10);
+            // Pre-assert
+            var builder = new MySqlConnectionStringUtil(sut.ConnectionString);
+            Expect(builder.Database).To.Equal("tempdb");
+            // Act
+            sut.SwitchToSchema(expected);
+            // Assert
+            builder = new MySqlConnectionStringUtil(sut.ConnectionString);
+            Expect(builder.Database).To.Equal(expected);
+        }
+
+        [Test]
+        [TestCaseSource(nameof(MySqlPathFinders))]
+        public void ShouldBeAbleToSwitchBackAndForthWithoutLoss(
+            string mysqld
+        )
+        {
+            using var sut = Create(mysqld);
+            // Arrange
+            var schema1 =
+                "create table cows (id int, name varchar(100)); insert into cows (id, name) values (1, 'Daisy');";
+            var schema2 =
+                "create table bovines (id int, name varchar(100)); insert into bovines (id, name) values (42, 'Douglas');";
+            var schema2Name = GetRandomAlphaString(4);
+            Execute(sut, schema1);
+
+            // Pre-assert
+            var inSchema1 = Query(sut, "select * from cows;");
+            Expect(inSchema1).To.Contain.Exactly(1).Item();
+            Expect(inSchema1[0]["id"]).To.Equal(1);
+            Expect(inSchema1[0]["name"]).To.Equal("Daisy");
+
+            // Act
+            sut.SwitchToSchema(schema2Name);
+            Expect(() => Query(sut, "select * from cows;"))
+                .To.Throw()
+                .With.Property(o => o.GetType().Name)
+                .Containing("MySqlException");
+            Execute(sut, schema2);
+            var results = Query(sut, "select * from bovines;");
+
+            // Assert
+            Expect(results).To.Contain.Exactly(1).Item();
+            Expect(results[0]["id"]).To.Equal(42);
+            Expect(results[0]["name"]).To.Equal("Douglas");
+
+            sut.SwitchToSchema("tempdb");
+            var testAgain = Query(sut, "select * from cows;");
+            Expect(testAgain).To.Contain.Exactly(1).Item();
+            Expect(testAgain[0]).To.Deep.Equal(inSchema1[0]);
+        }
+
+        [TestCaseSource(nameof(MySqlPathFinders))]
+        public void ShouldBeAbleToCreateATable_InsertData_QueryData(
+            string mysqld
+        )
+        {
+            using var sut = Create(mysqld);
+            // Arrange
+            // Act
+            using (var connection = sut.OpenConnection())
+            using (var command = connection.CreateCommand())
             {
-                // Arrange
-                Expect(
-                    () =>
-                    {
-                        using var db = Create();
-                        Expect(db.ConfigFilePath)
-                            .To.Exist();
-                        var config = File.ReadAllText(db.ConfigFilePath);
-                        var ini = INIFile.FromString(config);
-                        Expect(ini)
-                            .To.Have.Section("mysqld");
-                        using (db.OpenConnection())
-                        {
-                            // Act
-                            // Assert
-                        }
-                    }
-                ).Not.To.Throw();
+                command.CommandText = new[]
+                {
+                    "create schema moocakes;",
+                    "use moocakes;",
+                    "create table `users` (id int, name varchar(100));",
+                    "insert into `users` (id, name) values (1, 'Daisy the cow');"
+                }.JoinWith("\n");
+                command.ExecuteNonQuery();
             }
 
-            [Test]
-            public void ShouldBeAbleToRestart()
+            using (var connection = sut.OpenConnection())
             {
-                // Arrange
-                Expect(
-                    () =>
+                // Assert
+                var users = connection.Query<User>(
+                    "use moocakes; select * from users where id > @id; ",
+                    new
                     {
-                        using var db = Create();
-                        Expect(db.ConfigFilePath)
-                            .To.Exist();
-                        var config = File.ReadAllText(db.ConfigFilePath);
-                        var ini = INIFile.FromString(config);
-                        Expect(ini)
-                            .To.Have.Section("mysqld");
-                        using (db.OpenConnection())
-                        {
-                            // Act
-                            // Assert
-                        }
-
-                        var originalPid = db.ServerProcessId;
-                        db.Restart();
-
-                        using (db.OpenConnection())
-                        {
-                        }
-
-                        Expect(db.ServerProcessId)
-                            .Not.To.Equal(originalPid);
+                        id = 0
                     }
-                ).Not.To.Throw();
+                );
+                Expect(users).To.Contain.Only(1).Matched.By(
+                    u =>
+                        u.Id == 1 && u.Name == "Daisy the cow"
+                );
             }
+        }
 
-            [Test]
-            public void ShouldReportErrorsFromErrorFile()
-            {
-                // Arrange
-                // Act
-                Expect(
-                        () =>
+        public static string[] MySqlPathFinders()
+        {
+            // add mysql installs at the following folders
+            // to test, eg 5.6 vs 5.7 & effect of spaces in the path
+            return new[]
+                {
+                    null, // will try to seek out the mysql installation
+                    "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
+                    "C:\\apps\\mysql-5.7.36-winx64\\bin\\mysqld.exe",
+                    "C:\\apps\\mysql-5.7.36-win32\\bin\\mysqld.exe",
+                    "C:\\apps\\mysql-5.7-grant\\bin\\mysqld.exe",
+                    "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
+                    "C:\\apps\\mysql-8.0\\bin\\mysqld.exe",
+                    "C:\\apps\\spaced folder\\mysql-5.7.36-winx64\\bin\\mysqld.exe",
+                    "C:\\apps\\spaced folder\\mysql-5.7.36-win32\\bin\\mysqld.exe",
+                    "C:\\apps\\spaced folder\\mysql-5.7-grant\\bin\\mysqld.exe",
+                    "C:\\apps\\spaced folder\\mysql-8.0\\bin\\mysqld.exe",
+                }.Where(
+                    p =>
+                    {
+                        if (p == null)
                         {
-                            using var db = new TempDBMySql(
-                                new TempDbMySqlServerSettings()
-                                {
-                                    Options =
-                                    {
-                                        LogAction = Console.Error.WriteLine,
-                                        EnableVerboseLogging = true,
-                                    },
-                                    CustomConfiguration =
-                                    {
-                                        ["mysqld"] =
-                                        {
-                                            ["default-character-set"] = "utf8mb4"
-                                        }
-                                    }
-                                }
+                            return true;
+                        }
+
+                        var exists = Directory.Exists(p) || File.Exists(p);
+                        if (!exists)
+                        {
+                            Console.Error.WriteLine(
+                                $"WARN: specific test path for mysql not found: {p}"
                             );
                         }
-                    ).To.Throw<UnableToInitializeMySqlException>()
-                    .With.Message.Containing("unknown variable");
-                // Assert
-            }
 
-            [SetUp]
-            public void Setup()
-            {
-                SkipIfOnWindowsButNoMySqlInstalled();
-                SkipIfNotOnWindowsAndNotInPath();
-            }
+                        return exists;
+                    }
+                )
+                .Randomize()
+                .Take(3)
+                .ToArray();
+        }
+    }
+
+    [TestFixture]
+    public class WhenInstalledAsWindowsService : AutoDestroyTempDbOnTimeout
+    {
+        [Test]
+        public void ShouldBeAbleToStartNewInstance()
+        {
+            // Arrange
+            Expect(
+                () =>
+                {
+                    using var db = Create();
+                    Expect(db.ConfigFilePath)
+                        .To.Exist();
+                    var config = File.ReadAllText(db.ConfigFilePath);
+                    var ini = INIFile.FromString(config);
+                    Expect(ini)
+                        .To.Have.Section("mysqld");
+                    using (db.OpenConnection())
+                    {
+                        // Act
+                        // Assert
+                    }
+                }
+            ).Not.To.Throw();
         }
 
-        [TestFixture]
-        public class Cleanup : AutoDestroyTempDbOnTimeout
+        [Test]
+        public void ShouldBeAbleToRestart()
         {
-            [Test]
-            public void ShouldCleanUpResourcesWhenDisposed()
-            {
-                // Arrange
-                using var tempFolder = new AutoTempFolder();
-                using (new AutoResetter<string>(
-                           () =>
-                           {
-                               var original = TempDbHints.PreferredBasePath;
-                               TempDbHints.PreferredBasePath = tempFolder.Path;
-                               return original;
-                           },
-                           original =>
-                           {
-                               TempDbHints.PreferredBasePath = original;
-                           }
-                       ))
+            // Arrange
+            Expect(
+                () =>
                 {
-                    // Act
-                    DbConnection conn;
-                    using (var db = Create())
+                    using var db = Create();
+                    Expect(db.ConfigFilePath)
+                        .To.Exist();
+                    var config = File.ReadAllText(db.ConfigFilePath);
+                    var ini = INIFile.FromString(config);
+                    Expect(ini)
+                        .To.Have.Section("mysqld");
+                    using (db.OpenConnection())
                     {
-                        conn = db.OpenConnection();
-                        var cmd = conn.CreateCommand();
-                        cmd.CommandText = "select * from information_schema.tables limit 1";
-                        using var reader = cmd.ExecuteReader();
+                        // Act
+                        // Assert
                     }
 
-                    Expect(() => conn.ExecuteReader("select * from information_schema.tables limit 1;"))
-                        .To.Throw();
+                    var originalPid = db.ServerProcessId;
+                    db.Restart();
 
-                    // Assert
-                    var entries = Directory.EnumerateDirectories(
-                        tempFolder.Path
-                    );
-                    Expect(entries).To.Be.Empty();
+                    using (db.OpenConnection())
+                    {
+                    }
+
+                    Expect(db.ServerProcessId)
+                        .Not.To.Equal(originalPid);
                 }
-            }
+            ).Not.To.Throw();
         }
 
-        [TestFixture]
-        public class FindingInPath : AutoDestroyTempDbOnTimeout
+        [Test]
+        public void ShouldReportErrorsFromErrorFile()
         {
-            [Test]
-            public void ShouldBeAbleToFindInPath_WhenIsInPath()
-            {
-                if (Find.InPath("mysqld") is null)
-                {
-                    Assert.Ignore("mysqld must be in the PATH to run this test");
-                }
-
-                // Arrange
-                Expect(
+            // Arrange
+            // Act
+            Expect(
                     () =>
                     {
-                        using var db1 = Create();
-                        using var db2 = Create();
-                        using (db1.OpenConnection())
-                        {
-                            // Act
-                            // Assert
-                        }
-
-                        using (db2.OpenConnection())
-                        {
-                            // Act
-                            // Assert
-                        }
-                    }
-                ).Not.To.Throw();
-            }
-
-            private string _envPath;
-
-            [SetUp]
-            public void Setup()
-            {
-                if (Platform.IsUnixy)
-                {
-                    // allow this test to be run on a unixy platform where
-                    //  mysqld is actually in the path
-                    return;
-                }
-
-                _envPath = Environment.GetEnvironmentVariable("PATH");
-                if (_envPath == null)
-                {
-                    throw new InvalidOperationException("How can you have no PATH variable?");
-                }
-
-                var search = new[]
-                {
-                    "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin",
-                    "C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin"
-                };
-                foreach (var item in search)
-                {
-                    if (Directory.Exists(item))
-                    {
-                        var modified = $"{item};{_envPath}";
-                        Environment.SetEnvironmentVariable("PATH", modified);
-                        return;
-                    }
-                }
-            }
-
-            [TearDown]
-            public void TearDown()
-            {
-                Environment.SetEnvironmentVariable("PATH", _envPath);
-            }
-        }
-
-        [TestFixture]
-        public class LoggingProcessStartup : AutoDestroyTempDbOnTimeout
-        {
-            [Test]
-            public void ShouldLogProcessStartupInfoToFileInDataDir()
-            {
-                // Arrange
-                var expected = GetRandomString(5);
-                Environment.SetEnvironmentVariable("LOG_PROCESS_STARTUP_TEST", expected);
-                // Act
-                using var db = new TempDBMySql();
-                var logFile = Path.Combine(db.DataDir, "startup-info.log");
-                // Assert
-                Expect(logFile)
-                    .To.Exist();
-                var contents = File.ReadAllLines(logFile);
-                Expect(contents)
-                    .To.Contain.Exactly(1)
-                    .Matched.By(
-                        s => s.StartsWith("CLI:", StringComparison.OrdinalIgnoreCase) &&
-                            s.Contains("mysqld.exe", StringComparison.OrdinalIgnoreCase)
-                    );
-                Expect(contents)
-                    .To.Contain.Exactly(1)
-                    .Matched.By(s => s.StartsWith("Environment"));
-                Expect(contents)
-                    .To.Contain.Exactly(1)
-                    .Matched.By(
-                        s =>
-                        {
-                            var trimmed = s.Trim();
-                            return trimmed.StartsWith("LOG_PROCESS_STARTUP_TEST") &&
-                                trimmed.EndsWith(expected);
-                        }
-                    );
-            }
-
-            [SetUp]
-            public void Setup()
-            {
-                SkipIfNotOnWindows();
-                SkipIfOnWindowsButNoMySqlInstalled();
-            }
-        }
-
-        [TestFixture]
-        public class ConnectionStringSettings : AutoDestroyTempDbOnTimeout
-        {
-            [Test]
-            public void ShouldDisableSsl()
-            {
-                // Arrange
-                var sut = new TempDBMySql(
-                    new TempDbMySqlServerSettings()
-                    {
-                        Options =
-                        {
-                            LogAction = s => Console.Error.WriteLine($"debug: {s}"),
-                        }
-                    }
-                );
-                // Act
-                var connectionString = sut.ConnectionString;
-                var builder = new MySqlConnectionStringBuilder(connectionString);
-                // Assert
-                Expect(builder.SslMode)
-                    .To.Equal(MySqlSslMode.Disabled);
-                Expect(builder.AllowPublicKeyRetrieval)
-                    // required for the case of resurrecting a shared template
-                    .To.Be.True();
-            }
-        }
-
-        [TestFixture]
-        public class Reset : AutoDestroyTempDbOnTimeout
-        {
-            [Test]
-            public void ShouldResetConnections()
-            {
-                // Arrange
-                using var db = new TempDBMySql();
-                using var conn1 = db.OpenConnection();
-                using var cmd1 = conn1.CreateCommand();
-                cmd1.CommandText = "select * from information_schema.TABLES limit 1";
-                using var reader1 = cmd1.ExecuteReader();
-                Expect(reader1.HasRows)
-                    .To.Be.True();
-                // Act
-                Expect(() => db.CloseAllConnections())
-                    .Not.To.Throw();
-                using var conn2 = db.OpenConnection();
-                using var cmd2 = conn2.CreateCommand();
-                cmd2.CommandText = "select * from information_schema.TABLES limit 1";
-                using var reader2 = cmd2.ExecuteReader();
-
-                // Assert
-                Expect(reader2.HasRows)
-                    .To.Be.True();
-            }
-        }
-
-        [TestFixture]
-        public class StayingAlive : AutoDestroyTempDbOnTimeout
-        {
-            [Test]
-            [Explicit("flaky since allowing longer to test connect at startup")]
-            public void ShouldResurrectADerpedServerWhilstNotDisposed()
-            {
-                // Arrange
-                using var db = new TempDBMySql(
-                    new TempDbMySqlServerSettings()
-                    {
-                        Options =
-                        {
-                            MaxTimeToConnectAtStartInSeconds = 0
-                        }
-                    }
-                );
-                // Act
-                using (var conn = db.OpenConnection())
-                {
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        cmd.CommandText = @"create schema moo_cakes;";
-                        cmd.ExecuteNonQuery();
-                        db.SwitchToSchema("moo_cakes");
-                    }
-                }
-
-
-                using (var conn = db.OpenConnection())
-                using (var cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = "create table cows (id int, name text);";
-                    cmd.ExecuteNonQuery();
-                    cmd.CommandText = "insert into cows (id, name) values (1, 'daisy');";
-                    cmd.ExecuteNonQuery();
-                }
-
-
-                var originalId = db.ServerProcessId.Value;
-                var process = Process.GetProcessById(db.ServerProcessId.Value);
-                process.Kill();
-
-                var reconnected = false;
-                var maxWait = DateTime.Now.AddMilliseconds(
-                    5000
-                );
-                while (DateTime.Now < maxWait)
-                {
-                    try
-                    {
-                        using var conn2 = db.OpenConnection();
-                        using var cmd2 = conn2.CreateCommand();
-                        cmd2.CommandText = "select * from moo_cakes.cows;";
-                        using (var reader = cmd2.ExecuteReader())
-                        {
-                            Expect(reader.Read())
-                                .To.Be.True();
-                        }
-
-                        reconnected = true;
-                        break;
-                    }
-                    catch
-                    {
-                        Console.Error.WriteLine("-- mysql process not yet resurrected --");
-                        /* suppressed */
-                    }
-
-                    Thread.Sleep(50);
-                }
-
-                // Assert
-                Expect(reconnected)
-                    .To.Be.True(
-                        "Should have been able to reconnect to mysql server"
-                    );
-                var resurrectedPid = db.ServerProcessId.Value;
-
-                Expect(resurrectedPid)
-                    .To.Be.Greater.Than(0);
-                Expect(() => Process.GetProcessById(originalId))
-                    .To.Throw<ArgumentException>()
-                    .With.Message.Containing(
-                        "not running",
-                        "Server should be dead after disposal"
-                    );
-            }
-        }
-
-        [TestFixture]
-        public class PortHint : AutoDestroyTempDbOnTimeout
-        {
-            [TestFixture]
-            public class ConfiguredFromApi : AutoDestroyTempDbOnTimeout
-            {
-                [Test]
-                [Retry(3)]
-                public void ShouldListenOnHintedPortWhenAvailable()
-                {
-                    Assert.That(
-                        () =>
-                        {
-                            // Arrange
-                            PortFinder.ResetUsedHistory();
-                            var port = PortFinder.FindOpenPort();
-                            using var db = new TempDBMySql(CreateForPort(port));
-                            // Act
-                            var configuredPort = GrokPortFrom(db.ConnectionString);
-                            // Assert
-                            Expect(configuredPort - port)
-                                .To.Be.Greater.Than.Or.Equal.To(0)
-                                .And
-                                .To.Be.Less.Than.Or.Equal.To(10);
-                        },
-                        Throws.Nothing
-                    );
-                }
-
-                [Test]
-                [Retry(3)]
-                public void ShouldIncrementPortWhenHintedPortIsNotAvailable()
-                {
-                    // Arrange
-                    if (Environment.GetEnvironmentVariable(EnvironmentVariables.PORT_HINT) is null)
-                    {
-                        Assert.Ignore("Requires TEMPDB_PORT_HINT env var to be set");
-                    }
-
-                    Assert.That(
-                        () =>
-                        {
-                            PortFinder.ResetUsedHistory();
-                            var port = PortFinder.FindOpenPort();
-                            while (PortFinder.PortIsActivelyInUse(port + 1))
+                        using var db = new TempDBMySql(
+                            new TempDbMySqlServerSettings()
                             {
-                                port = PortFinder.FindOpenPort();
-                            }
-
-                            using var outer = new TempDBMySql(CreateForPort(port));
-                            using var inner = new TempDBMySql(CreateForPort(port));
-                            // Act
-                            var outerPort = GrokPortFrom(outer.ConnectionString);
-                            var innerPort = GrokPortFrom(inner.ConnectionString);
-                            // Assert
-                            Expect(outerPort - port)
-                                .To.Be.Greater.Than.Or.Equal.To(1)
-                                .And
-                                .To.Be.Less.Than.Or.Equal.To(10);
-                            Expect(innerPort - outerPort)
-                                .To.Be.Greater.Than.Or.Equal.To(1)
-                                .And
-                                .To.Be.Less.Than.Or.Equal.To(10);
-                        },
-                        Throws.Nothing
-                    );
-                }
-            }
-
-            [TestFixture]
-            public class ConfiguredFromEnvironment : AutoDestroyTempDbOnTimeout
-            {
-                [Test]
-                [Retry(3)]
-                public void ShouldListenOnHintedPortWhenAvailable()
-                {
-                    // Arrange
-                    Assert.That(
-                        () =>
-                        {
-                            PortFinder.ResetUsedHistory();
-                            var port = PortFinder.FindOpenPort();
-                            using (new AutoResetter<string>(
-                                       () => SetPortHintEnvVar(port),
-                                       RestorePortHintEnvVar
-                                   ))
-                            {
-                                var settings = new TempDbMySqlServerSettings()
+                                Options =
                                 {
-                                    Options =
+                                    LogAction = Console.Error.WriteLine,
+                                    EnableVerboseLogging = true,
+                                },
+                                CustomConfiguration =
+                                {
+                                    ["mysqld"] =
                                     {
-                                        EnableVerboseLogging = true
+                                        ["default-character-set"] = "utf8mb4"
                                     }
-                                };
-                                using (var db = new TempDBMySql(settings))
-                                {
-                                    // Act
-                                    var configuredPort = GrokPortFrom(db.ConnectionString);
-                                    // Assert
-                                    Expect(configuredPort - port)
-                                        .To.Be.Greater.Than.Or.Equal.To(0)
-                                        .And
-                                        .To.Be.Less.Than.Or.Equal.To(10);
                                 }
                             }
-                        },
-                        Throws.Nothing
-                    );
+                        );
+                    }
+                ).To.Throw<UnableToInitializeMySqlException>()
+                .With.Message.Containing("unknown variable");
+            // Assert
+        }
+
+        [SetUp]
+        public void Setup()
+        {
+            SkipIfOnWindowsButNoMySqlInstalled();
+            SkipIfNotOnWindowsAndNotInPath();
+        }
+    }
+
+    [TestFixture]
+    public class Cleanup : AutoDestroyTempDbOnTimeout
+    {
+        [Test]
+        public void ShouldCleanUpResourcesWhenDisposed()
+        {
+            // Arrange
+            using var tempFolder = new AutoTempFolder();
+            using (new AutoResetter<string>(
+                       () =>
+                       {
+                           var original = TempDbHints.PreferredBasePath;
+                           TempDbHints.PreferredBasePath = tempFolder.Path;
+                           return original;
+                       },
+                       original =>
+                       {
+                           TempDbHints.PreferredBasePath = original;
+                       }
+                   ))
+            {
+                // Act
+                DbConnection conn;
+                using (var db = Create())
+                {
+                    conn = db.OpenConnection();
+                    var cmd = conn.CreateCommand();
+                    cmd.CommandText = "select * from information_schema.tables limit 1";
+                    using var reader = cmd.ExecuteReader();
                 }
 
-                private void RestorePortHintEnvVar(
-                    string prior
-                )
-                {
-                    Environment.SetEnvironmentVariable(
-                        EnvironmentVariables.PORT_HINT,
-                        prior
-                    );
-                }
+                Expect(() => conn.ExecuteReader("select * from information_schema.tables limit 1;"))
+                    .To.Throw();
 
-                private string SetPortHintEnvVar(
-                    int port
-                )
-                {
-                    var existing = Environment.GetEnvironmentVariable(
-                        EnvironmentVariables.PORT_HINT
-                    );
-                    Environment.SetEnvironmentVariable(
-                        EnvironmentVariables.PORT_HINT,
-                        port.ToString()
-                    );
-                    return existing;
-                }
+                // Assert
+                var entries = Directory.EnumerateDirectories(
+                    tempFolder.Path
+                );
+                Expect(entries).To.Be.Empty();
+            }
+        }
+    }
+
+    [TestFixture]
+    public class FindingInPath : AutoDestroyTempDbOnTimeout
+    {
+        [Test]
+        public void ShouldBeAbleToFindInPath_WhenIsInPath()
+        {
+            if (Find.InPath("mysqld") is null)
+            {
+                Assert.Ignore("mysqld must be in the PATH to run this test");
             }
 
-            private static TempDbMySqlServerSettings CreateForPort(
-                int port
-            )
+            // Arrange
+            Expect(
+                () =>
+                {
+                    using var db1 = Create();
+                    using var db2 = Create();
+                    using (db1.OpenConnection())
+                    {
+                        // Act
+                        // Assert
+                    }
+
+                    using (db2.OpenConnection())
+                    {
+                        // Act
+                        // Assert
+                    }
+                }
+            ).Not.To.Throw();
+        }
+
+        private string _envPath;
+
+        [SetUp]
+        public void Setup()
+        {
+            if (Platform.IsUnixy)
             {
-                return new TempDbMySqlServerSettings()
+                // allow this test to be run on a unixy platform where
+                //  mysqld is actually in the path
+                return;
+            }
+
+            _envPath = Environment.GetEnvironmentVariable("PATH");
+            if (_envPath == null)
+            {
+                throw new InvalidOperationException("How can you have no PATH variable?");
+            }
+
+            var search = new[]
+            {
+                "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin",
+                "C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin"
+            };
+            foreach (var item in search)
+            {
+                if (Directory.Exists(item))
+                {
+                    var modified = $"{item};{_envPath}";
+                    Environment.SetEnvironmentVariable("PATH", modified);
+                    return;
+                }
+            }
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Environment.SetEnvironmentVariable("PATH", _envPath);
+        }
+    }
+
+    [TestFixture]
+    public class LoggingProcessStartup : AutoDestroyTempDbOnTimeout
+    {
+        [Test]
+        public void ShouldLogProcessStartupInfoToFileInDataDir()
+        {
+            // Arrange
+            var expected = GetRandomString(5);
+            Environment.SetEnvironmentVariable("LOG_PROCESS_STARTUP_TEST", expected);
+            // Act
+            using var db = new TempDBMySql();
+            var logFile = Path.Combine(db.DataDir, "startup-info.log");
+            // Assert
+            Expect(logFile)
+                .To.Exist();
+            var contents = File.ReadAllLines(logFile);
+            Expect(contents)
+                .To.Contain.Exactly(1)
+                .Matched.By(
+                    s => s.StartsWith("CLI:", StringComparison.OrdinalIgnoreCase) &&
+                        s.Contains("mysqld.exe", StringComparison.OrdinalIgnoreCase)
+                );
+            Expect(contents)
+                .To.Contain.Exactly(1)
+                .Matched.By(s => s.StartsWith("Environment"));
+            Expect(contents)
+                .To.Contain.Exactly(1)
+                .Matched.By(
+                    s =>
+                    {
+                        var trimmed = s.Trim();
+                        return trimmed.StartsWith("LOG_PROCESS_STARTUP_TEST") &&
+                            trimmed.EndsWith(expected);
+                    }
+                );
+        }
+
+        [SetUp]
+        public void Setup()
+        {
+            SkipIfNotOnWindows();
+            SkipIfOnWindowsButNoMySqlInstalled();
+        }
+    }
+
+    [TestFixture]
+    public class ConnectionStringSettings : AutoDestroyTempDbOnTimeout
+    {
+        [Test]
+        public void ShouldDisableSsl()
+        {
+            // Arrange
+            var sut = new TempDBMySql(
+                new TempDbMySqlServerSettings()
                 {
                     Options =
                     {
-                        PortHint = port
+                        LogAction = s => Console.Error.WriteLine($"debug: {s}"),
                     }
-                };
-            }
-
-            private static int GrokPortFrom(
-                string connectionString
-            )
-            {
-                // can't use MySqlConnectionStringBuilder because
-                //  of a conflict between Connector and .Data
-                return connectionString
-                    .Split(
-                        new[]
-                        {
-                            ";"
-                        },
-                        StringSplitOptions.RemoveEmptyEntries
-                    )
-                    .First(part => part.StartsWith("port", StringComparison.OrdinalIgnoreCase))
-                    .Split('=')
-                    .Skip(1)
-                    .Select(int.Parse)
-                    .First();
-            }
+                }
+            );
+            // Act
+            var connectionString = sut.ConnectionString;
+            var builder = new MySqlConnectionStringBuilder(connectionString);
+            // Assert
+            Expect(builder.SslMode)
+                .To.Equal(MySqlSslMode.Disabled);
+            Expect(builder.AllowPublicKeyRetrieval)
+                // required for the case of resurrecting a shared template
+                .To.Be.True();
         }
+    }
 
-        [TestFixture]
-        public class SharingSchemaBetweenNamedInstances : AutoDestroyTempDbOnTimeout
+    [TestFixture]
+    public class Reset : AutoDestroyTempDbOnTimeout
+    {
+        [Test]
+        public void ShouldResetConnections()
         {
-            [Test]
-            public void ShouldBeAbleToQueryDumpedSchema()
-            {
-                if (Find.InPath("mysqldump") is null)
-                {
-                    Assert.Ignore("Requires mysqldump in the PATH");
-                }
+            // Arrange
+            using var db = new TempDBMySql();
+            using var conn1 = db.OpenConnection();
+            using var cmd1 = conn1.CreateCommand();
+            cmd1.CommandText = "select * from information_schema.TABLES limit 1";
+            using var reader1 = cmd1.ExecuteReader();
+            Expect(reader1.HasRows)
+                .To.Be.True();
+            // Act
+            Expect(() => db.CloseAllConnections())
+                .Not.To.Throw();
+            using var conn2 = db.OpenConnection();
+            using var cmd2 = conn2.CreateCommand();
+            cmd2.CommandText = "select * from information_schema.TABLES limit 1";
+            using var reader2 = cmd2.ExecuteReader();
 
-                // Arrange
-                using var outer = new TempDBMySql(SCHEMA);
-                // Act
-                var dumped = outer.DumpSchema();
-                using var inner = new TempDBMySql(dumped);
-                var result = InsertAnimal(inner, "moo-cow");
-                // Assert
-                Expect(result).To.Be.Greater.Than(0);
-            }
+            // Assert
+            Expect(reader2.HasRows)
+                .To.Be.True();
+        }
+    }
 
-            [Test]
-            [Explicit("WIP: requires a cross-platform, reliable method of IPC ...")]
-            public void SimpleSchemaSharing()
-            {
-                // Arrange
-                var name = GetRandomString(10, 20);
-                var settings = TempDbMySqlServerSettingsBuilder.Create()
-                    .WithName(name)
-                    .Build();
-                using (new TempDBMySql(
-                           settings,
-                           SCHEMA
-                       ))
+    [TestFixture]
+    public class StayingAlive : AutoDestroyTempDbOnTimeout
+    {
+        [Test]
+        [Explicit("flaky since allowing longer to test connect at startup")]
+        public void ShouldResurrectADerpedServerWhilstNotDisposed()
+        {
+            // Arrange
+            using var db = new TempDBMySql(
+                new TempDbMySqlServerSettings()
                 {
-                    using (var inner = new TempDBMySql(settings))
+                    Options =
                     {
-                        // Act
-                        var result = InsertAnimal(inner, "cow");
-                        Expect(result).To.Be.Greater.Than(0);
+                        MaxTimeToConnectAtStartInSeconds = 0
                     }
                 }
-            }
-
-            private const string SCHEMA = "create table animals (id int primary key auto_increment, name text);";
-
-            private int InsertAnimal(
-                ITempDB db,
-                string name
-            )
+            );
+            // Act
+            using (var conn = db.OpenConnection())
             {
-                using var conn = db.OpenConnection();
-                using var cmd = conn.CreateCommand();
-                cmd.CommandText = $"insert into animals (name) values ('{name}'); select LAST_INSERT_ID() as id;";
-                return int.Parse(cmd.ExecuteScalar()?.ToString() ?? "0");
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"create schema moo_cakes;";
+                    cmd.ExecuteNonQuery();
+                    db.SwitchToSchema("moo_cakes");
+                }
             }
-        }
 
+
+            using (var conn = db.OpenConnection())
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "create table cows (id int, name text);";
+                cmd.ExecuteNonQuery();
+                cmd.CommandText = "insert into cows (id, name) values (1, 'daisy');";
+                cmd.ExecuteNonQuery();
+            }
+
+
+            var originalId = db.ServerProcessId.Value;
+            var process = Process.GetProcessById(db.ServerProcessId.Value);
+            process.Kill();
+
+            var reconnected = false;
+            var maxWait = DateTime.Now.AddMilliseconds(
+                5000
+            );
+            while (DateTime.Now < maxWait)
+            {
+                try
+                {
+                    using var conn2 = db.OpenConnection();
+                    using var cmd2 = conn2.CreateCommand();
+                    cmd2.CommandText = "select * from moo_cakes.cows;";
+                    using (var reader = cmd2.ExecuteReader())
+                    {
+                        Expect(reader.Read())
+                            .To.Be.True();
+                    }
+
+                    reconnected = true;
+                    break;
+                }
+                catch
+                {
+                    Console.Error.WriteLine("-- mysql process not yet resurrected --");
+                    /* suppressed */
+                }
+
+                Thread.Sleep(50);
+            }
+
+            // Assert
+            Expect(reconnected)
+                .To.Be.True(
+                    "Should have been able to reconnect to mysql server"
+                );
+            var resurrectedPid = db.ServerProcessId.Value;
+
+            Expect(resurrectedPid)
+                .To.Be.Greater.Than(0);
+            Expect(() => Process.GetProcessById(originalId))
+                .To.Throw<ArgumentException>()
+                .With.Message.Containing(
+                    "not running",
+                    "Server should be dead after disposal"
+                );
+        }
+    }
+
+    [TestFixture]
+    public class PortHint : AutoDestroyTempDbOnTimeout
+    {
         [TestFixture]
-        public class HandlingPortConflicts : AutoDestroyTempDbOnTimeout
+        public class ConfiguredFromApi : AutoDestroyTempDbOnTimeout
         {
             [Test]
             [Retry(3)]
-            public void ShouldReconfigurePortOnConflict_QuickStart()
+            public void ShouldListenOnHintedPortWhenAvailable()
             {
-                using var _ = new AutoTempEnvironmentVariable(EnvironmentVariables.PORT_HINT, null);
                 Assert.That(
                     () =>
                     {
-                        // because sometimes a port is taken after it was tested for
-                        // viability :/
                         // Arrange
+                        PortFinder.ResetUsedHistory();
+                        var port = PortFinder.FindOpenPort();
+                        using var db = new TempDBMySql(CreateForPort(port));
                         // Act
-                        var log = CreateLoggerFor(nameof(ShouldReconfigurePortOnConflict_QuickStart));
-                        log("Attempt to create db1");
-                        using (var db1 = new TempDbMySqlWithDeterministicPort(log))
+                        var configuredPort = GrokPortFrom(db.ConnectionString);
+                        // Assert
+                        Expect(configuredPort - port)
+                            .To.Be.Greater.Than.Or.Equal.To(0)
+                            .And
+                            .To.Be.Less.Than.Or.Equal.To(10);
+                    },
+                    Throws.Nothing
+                );
+            }
+
+            [Test]
+            [Retry(3)]
+            public void ShouldIncrementPortWhenHintedPortIsNotAvailable()
+            {
+                // Arrange
+                if (Environment.GetEnvironmentVariable(EnvironmentVariables.PORT_HINT) is null)
+                {
+                    Assert.Ignore("Requires TEMPDB_PORT_HINT env var to be set");
+                }
+
+                Assert.That(
+                    () =>
+                    {
+                        PortFinder.ResetUsedHistory();
+                        var port = PortFinder.FindOpenPort();
+                        while (PortFinder.PortIsActivelyInUse(port + 1))
                         {
-                            log($"started db1 at {db1.DatabasePath} [{db1.ServerProcessId}]");
-                            log($"attempt to create db2");
-                            using var db2 = new TempDbMySqlWithDeterministicPort(log);
+                            port = PortFinder.FindOpenPort();
+                        }
 
-                            log($"started db2 at {db2.DatabasePath} [{db2.ServerProcessId}]");
-                            WaitFor(() => db1.Port != db2.Port, 10000);
-                            log($"test ports: db1 is {db1.Port}, db2 is {db2.Port}");
-                            Expect(db1.Port)
-                                .Not.To.Equal(db2.Port);
+                        using var outer = new TempDBMySql(CreateForPort(port));
+                        using var inner = new TempDBMySql(CreateForPort(port));
+                        // Act
+                        var outerPort = GrokPortFrom(outer.ConnectionString);
+                        var innerPort = GrokPortFrom(inner.ConnectionString);
+                        // Assert
+                        Expect(outerPort - port)
+                            .To.Be.Greater.Than.Or.Equal.To(1)
+                            .And
+                            .To.Be.Less.Than.Or.Equal.To(10);
+                        Expect(innerPort - outerPort)
+                            .To.Be.Greater.Than.Or.Equal.To(1)
+                            .And
+                            .To.Be.Less.Than.Or.Equal.To(10);
+                    },
+                    Throws.Nothing
+                );
+            }
+        }
 
-                            log($"attempt to open connection to db1");
-                            using var conn1 = db1.OpenConnection();
-                            log("db1 connection open");
-                            log("attempt to open connection to db2");
-                            using var conn2 = db2.OpenConnection();
-                            log("db2 connection is open");
-                            // Assert
-                            log($"test connection states: 1 is {conn1.State} and 2 is {conn2.State}");
-                            Expect(conn1.State)
-                                .To.Equal(ConnectionState.Open);
-                            Expect(conn2.State)
-                                .To.Equal(ConnectionState.Open);
+        [TestFixture]
+        public class ConfiguredFromEnvironment : AutoDestroyTempDbOnTimeout
+        {
+            [Test]
+            [Retry(3)]
+            public void ShouldListenOnHintedPortWhenAvailable()
+            {
+                // Arrange
+                Assert.That(
+                    () =>
+                    {
+                        PortFinder.ResetUsedHistory();
+                        var port = PortFinder.FindOpenPort();
+                        using (new AutoResetter<string>(
+                                   () => SetPortHintEnvVar(port),
+                                   RestorePortHintEnvVar
+                               ))
+                        {
+                            var settings = new TempDbMySqlServerSettings()
+                            {
+                                Options =
+                                {
+                                    EnableVerboseLogging = true
+                                }
+                            };
+                            using (var db = new TempDBMySql(settings))
+                            {
+                                // Act
+                                var configuredPort = GrokPortFrom(db.ConnectionString);
+                                // Assert
+                                Expect(configuredPort - port)
+                                    .To.Be.Greater.Than.Or.Equal.To(0)
+                                    .And
+                                    .To.Be.Less.Than.Or.Equal.To(10);
+                            }
                         }
                     },
                     Throws.Nothing
                 );
             }
 
-            private void WaitFor(
-                Func<bool> condition,
-                int maxWaitMs
+            private void RestorePortHintEnvVar(
+                string prior
             )
             {
-                WaitFor(
-                    condition,
-                    TimeSpan.FromMilliseconds(maxWaitMs)
+                Environment.SetEnvironmentVariable(
+                    EnvironmentVariables.PORT_HINT,
+                    prior
                 );
             }
 
-            private void WaitFor(
-                Func<bool> condition,
-                TimeSpan maxWait
+            private string SetPortHintEnvVar(
+                int port
             )
             {
-                var timeout = DateTime.Now + maxWait;
-                while (DateTime.Now < timeout)
-                {
-                    if (condition())
-                    {
-                        break;
-                    }
+                var existing = Environment.GetEnvironmentVariable(
+                    EnvironmentVariables.PORT_HINT
+                );
+                Environment.SetEnvironmentVariable(
+                    EnvironmentVariables.PORT_HINT,
+                    port.ToString()
+                );
+                return existing;
+            }
+        }
 
+        private static TempDbMySqlServerSettings CreateForPort(
+            int port
+        )
+        {
+            return new TempDbMySqlServerSettings()
+            {
+                Options =
+                {
+                    PortHint = port
+                }
+            };
+        }
+
+        private static int GrokPortFrom(
+            string connectionString
+        )
+        {
+            // can't use MySqlConnectionStringBuilder because
+            //  of a conflict between Connector and .Data
+            return connectionString
+                .Split(
+                    new[]
+                    {
+                        ";"
+                    },
+                    StringSplitOptions.RemoveEmptyEntries
+                )
+                .First(part => part.StartsWith("port", StringComparison.OrdinalIgnoreCase))
+                .Split('=')
+                .Skip(1)
+                .Select(int.Parse)
+                .First();
+        }
+    }
+
+    [TestFixture]
+    public class SharingSchemaBetweenNamedInstances : AutoDestroyTempDbOnTimeout
+    {
+        [Test]
+        public void ShouldBeAbleToQueryDumpedSchema()
+        {
+            if (Find.InPath("mysqldump") is null)
+            {
+                Assert.Ignore("Requires mysqldump in the PATH");
+            }
+
+            // Arrange
+            using var outer = new TempDBMySql(SCHEMA);
+            // Act
+            var dumped = outer.DumpSchema();
+            using var inner = new TempDBMySql(dumped);
+            var result = InsertAnimal(inner, "moo-cow");
+            // Assert
+            Expect(result).To.Be.Greater.Than(0);
+        }
+
+        [Test]
+        [Explicit("WIP: requires a cross-platform, reliable method of IPC ...")]
+        public void SimpleSchemaSharing()
+        {
+            // Arrange
+            var name = GetRandomString(10, 20);
+            var settings = TempDbMySqlServerSettingsBuilder.Create()
+                .WithName(name)
+                .Build();
+            using (new TempDBMySql(
+                       settings,
+                       SCHEMA
+                   ))
+            {
+                using (var inner = new TempDBMySql(settings))
+                {
+                    // Act
+                    var result = InsertAnimal(inner, "cow");
+                    Expect(result).To.Be.Greater.Than(0);
+                }
+            }
+        }
+
+        private const string SCHEMA = "create table animals (id int primary key auto_increment, name text);";
+
+        private int InsertAnimal(
+            ITempDB db,
+            string name
+        )
+        {
+            using var conn = db.OpenConnection();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = $"insert into animals (name) values ('{name}'); select LAST_INSERT_ID() as id;";
+            return int.Parse(cmd.ExecuteScalar()?.ToString() ?? "0");
+        }
+    }
+
+    [TestFixture]
+    public class HandlingPortConflicts : AutoDestroyTempDbOnTimeout
+    {
+        [Test]
+        [Retry(3)]
+        public void ShouldReconfigurePortOnConflict_QuickStart()
+        {
+            using var _ = new AutoTempEnvironmentVariable(EnvironmentVariables.PORT_HINT, null);
+            Assert.That(
+                () =>
+                {
+                    // because sometimes a port is taken after it was tested for
+                    // viability :/
+                    // Arrange
+                    // Act
+                    var log = CreateLoggerFor(nameof(ShouldReconfigurePortOnConflict_QuickStart));
+                    log("Attempt to create db1");
+                    using (var db1 = new TempDbMySqlWithDeterministicPort(log))
+                    {
+                        log($"started db1 at {db1.DatabasePath} [{db1.ServerProcessId}]");
+                        log($"attempt to create db2");
+                        using var db2 = new TempDbMySqlWithDeterministicPort(log);
+
+                        log($"started db2 at {db2.DatabasePath} [{db2.ServerProcessId}]");
+                        WaitFor(() => db1.Port != db2.Port, 10000);
+                        log($"test ports: db1 is {db1.Port}, db2 is {db2.Port}");
+                        Expect(db1.Port)
+                            .Not.To.Equal(db2.Port);
+
+                        log($"attempt to open connection to db1");
+                        using var conn1 = db1.OpenConnection();
+                        log("db1 connection open");
+                        log("attempt to open connection to db2");
+                        using var conn2 = db2.OpenConnection();
+                        log("db2 connection is open");
+                        // Assert
+                        log($"test connection states: 1 is {conn1.State} and 2 is {conn2.State}");
+                        Expect(conn1.State)
+                            .To.Equal(ConnectionState.Open);
+                        Expect(conn2.State)
+                            .To.Equal(ConnectionState.Open);
+                    }
+                },
+                Throws.Nothing
+            );
+        }
+
+        private void WaitFor(
+            Func<bool> condition,
+            int maxWaitMs
+        )
+        {
+            WaitFor(
+                condition,
+                TimeSpan.FromMilliseconds(maxWaitMs)
+            );
+        }
+
+        private void WaitFor(
+            Func<bool> condition,
+            TimeSpan maxWait
+        )
+        {
+            var timeout = DateTime.Now + maxWait;
+            while (DateTime.Now < timeout)
+            {
+                if (condition())
+                {
+                    break;
+                }
+
+                Thread.Sleep(100);
+            }
+        }
+
+        Action<string> CreateLoggerFor(
+            string name
+        )
+        {
+            if (!Platform.IsUnixy)
+            {
+                return s => { };
+            }
+
+            var targetFile = $"/tmp/{name}.log";
+            if (File.Exists(targetFile))
+            {
+                File.AppendAllText(targetFile, $"==========\nNew run: {DateTime.Now}\n==========\n");
+            }
+
+            return s => File.AppendAllText(
+                targetFile,
+                $"[{DateTime.Now}] {s}\n"
+            );
+        }
+
+        [Test]
+        [Retry(3)]
+        public void ShouldReconfigurePortOnConflict_SlowerStart()
+        {
+            Assert.That(
+                () =>
+                {
+                    // because sometimes a port is taken after it was tested for
+                    // viability :/
+                    // Arrange
+                    // Act
+                    var log = CreateLoggerFor(nameof(ShouldReconfigurePortOnConflict_SlowerStart));
+                    log("Attempt to create db1");
+                    using (var db1 = new TempDbMySqlWithDeterministicPort())
+                    {
+                        // with a slower start, the conflict may be with an existing
+                        // tempdb (or other) mysql instance, so the connect test
+                        // will appear to work -- hence the `IsMyInstance` check too
+                        // -> so we ensure that we can connect to the first instance
+                        log($"started db1 at {db1.DatabasePath} [{db1.ServerProcessId}]");
+
+                        log($"attempt to open connection to db1");
+                        using var conn1 = db1.OpenConnection();
+                        log("db1 connection open");
+                        log($"attempt to create db2");
+                        using var db2 = new TempDbMySqlWithDeterministicPort();
+                        log($"started db2 at {db2.DatabasePath} [{db2.ServerProcessId}]");
+                        WaitFor(() => db1.Port != db2.Port, 10000);
+                        log($"test ports: db1 is {db1.Port}, db2 is {db2.Port}");
+                        Expect(db1.Port)
+                            .Not.To.Equal(db2.Port);
+                        log($"attempt to open connection to db2");
+                        using var conn2 = db2.OpenConnection();
+                        log("db2 connection open");
+                        // Assert
+                        log($"test connection states: 1 is {conn1.State} and 2 is {conn2.State}");
+                        Expect(conn1.State)
+                            .To.Equal(ConnectionState.Open);
+                        Expect(conn2.State)
+                            .To.Equal(ConnectionState.Open);
+                    }
+                },
+                Throws.Nothing
+            );
+        }
+
+        public class TempDbMySqlWithDeterministicPort : TempDBMySql
+        {
+            public const int STARTING_PORT = 21000;
+            private int _lastAttempt = 0;
+
+            protected override int FindRandomOpenPort()
+            {
+                return _lastAttempt > 0
+                    ? (++_lastAttempt)
+                    : (_lastAttempt = STARTING_PORT);
+            }
+
+            public TempDbMySqlWithDeterministicPort() : this(null)
+            {
+            }
+
+            public TempDbMySqlWithDeterministicPort(
+                Action<string> logger
+            ) : base(
+                new TempDbMySqlServerSettings()
+                {
+                    Options =
+                    {
+                        LogAction = logger,
+                        LogRandomPortDiscovery = true,
+                        EnableVerboseLogging = true
+                    }
+                }
+            )
+            {
+            }
+        }
+    }
+
+    [TestFixture]
+    public class AutomaticDisposal : AutoDestroyTempDbOnTimeout
+    {
+        // perhaps the creator forgets to dispose
+        // -> perhaps the creator is TempDb.Runner and the caller
+        // of that dies before it can dispose!
+        [Test]
+        public void ShouldAutomaticallyDisposeAfterMaxLifetimeHasExpired()
+        {
+            // Arrange
+            TempDBMySql db;
+            using (db = Create(inactivityTimeout: TimeSpan.FromSeconds(2)))
+            {
+                // Act
+                Expect(
+                    () =>
+                    {
+                        using var conn = db.OpenConnection();
+                    }
+                ).Not.To.Throw();
+                while (db.IsRunning)
+                {
                     Thread.Sleep(100);
                 }
             }
 
-            Action<string> CreateLoggerFor(
-                string name
-            )
-            {
-                if (!Platform.IsUnixy)
-                {
-                    return s => { };
-                }
-
-                var targetFile = $"/tmp/{name}.log";
-                if (File.Exists(targetFile))
-                {
-                    File.AppendAllText(targetFile, $"==========\nNew run: {DateTime.Now}\n==========\n");
-                }
-
-                return s => File.AppendAllText(
-                    targetFile,
-                    $"[{DateTime.Now}] {s}\n"
-                );
-            }
-
-            [Test]
-            [Retry(3)]
-            public void ShouldReconfigurePortOnConflict_SlowerStart()
-            {
-                Assert.That(
+            Expect(
                     () =>
                     {
-                        // because sometimes a port is taken after it was tested for
-                        // viability :/
-                        // Arrange
-                        // Act
-                        var log = CreateLoggerFor(nameof(ShouldReconfigurePortOnConflict_SlowerStart));
-                        log("Attempt to create db1");
-                        using (var db1 = new TempDbMySqlWithDeterministicPort())
-                        {
-                            // with a slower start, the conflict may be with an existing
-                            // tempdb (or other) mysql instance, so the connect test
-                            // will appear to work -- hence the `IsMyInstance` check too
-                            // -> so we ensure that we can connect to the first instance
-                            log($"started db1 at {db1.DatabasePath} [{db1.ServerProcessId}]");
-
-                            log($"attempt to open connection to db1");
-                            using var conn1 = db1.OpenConnection();
-                            log("db1 connection open");
-                            log($"attempt to create db2");
-                            using var db2 = new TempDbMySqlWithDeterministicPort();
-                            log($"started db2 at {db2.DatabasePath} [{db2.ServerProcessId}]");
-                            WaitFor(() => db1.Port != db2.Port, 10000);
-                            log($"test ports: db1 is {db1.Port}, db2 is {db2.Port}");
-                            Expect(db1.Port)
-                                .Not.To.Equal(db2.Port);
-                            log($"attempt to open connection to db2");
-                            using var conn2 = db2.OpenConnection();
-                            log("db2 connection open");
-                            // Assert
-                            log($"test connection states: 1 is {conn1.State} and 2 is {conn2.State}");
-                            Expect(conn1.State)
-                                .To.Equal(ConnectionState.Open);
-                            Expect(conn2.State)
-                                .To.Equal(ConnectionState.Open);
-                        }
-                    },
-                    Throws.Nothing
-                );
-            }
-
-            public class TempDbMySqlWithDeterministicPort : TempDBMySql
-            {
-                public const int STARTING_PORT = 21000;
-                private int _lastAttempt = 0;
-
-                protected override int FindRandomOpenPort()
-                {
-                    return _lastAttempt > 0
-                        ? (++_lastAttempt)
-                        : (_lastAttempt = STARTING_PORT);
-                }
-
-                public TempDbMySqlWithDeterministicPort() : this(null)
-                {
-                }
-
-                public TempDbMySqlWithDeterministicPort(
-                    Action<string> logger
-                ) : base(
-                    new TempDbMySqlServerSettings()
-                    {
-                        Options =
-                        {
-                            LogAction = logger,
-                            LogRandomPortDiscovery = true,
-                            EnableVerboseLogging = true
-                        }
+                        using var conn = db.OpenConnection();
                     }
-                )
-                {
-                }
-            }
+                ).To.Throw<InvalidOperationException>()
+                .With.Message.Containing("not running");
+            // Assert
         }
 
-        [TestFixture]
-        public class AutomaticDisposal : AutoDestroyTempDbOnTimeout
+        [Test]
+        [Retry(3)]
+        public void ConnectionUseShouldExtendLifetime()
         {
-            // perhaps the creator forgets to dispose
-            // -> perhaps the creator is TempDb.Runner and the caller
-            // of that dies before it can dispose!
-            [Test]
-            public void ShouldAutomaticallyDisposeAfterMaxLifetimeHasExpired()
-            {
-                // Arrange
-                TempDBMySql db;
-                using (db = Create(inactivityTimeout: TimeSpan.FromSeconds(2)))
+            Assert.That(
+                () =>
                 {
-                    // Act
-                    Expect(
-                        () =>
-                        {
-                            using var conn = db.OpenConnection();
-                        }
-                    ).Not.To.Throw();
-                    while (db.IsRunning)
+                    // Arrange
+                    var inactivitySeconds = 1;
+                    var disposed = new ConcurrentQueue<bool>();
+                    TempDBMySql db;
+                    using (db = Create(inactivityTimeout: TimeSpan.FromSeconds(inactivitySeconds)))
                     {
-                        Thread.Sleep(100);
-                    }
-                }
-
-                Expect(
-                        () =>
+                        db.Disposed += (
+                            o,
+                            e
+                        ) =>
                         {
-                            using var conn = db.OpenConnection();
-                        }
-                    ).To.Throw<InvalidOperationException>()
-                    .With.Message.Containing("not running");
-                // Assert
-            }
-
-            [Test]
-            [Retry(3)]
-            public void ConnectionUseShouldExtendLifetime()
-            {
-                Assert.That(
-                    () =>
-                    {
-                        // Arrange
-                        var inactivitySeconds = 1;
-                        var disposed = new ConcurrentQueue<bool>();
-                        TempDBMySql db;
-                        using (db = Create(inactivityTimeout: TimeSpan.FromSeconds(inactivitySeconds)))
+                            Console.Error.WriteLine(">>> dispose event handled <<<");
+                            disposed.Enqueue(true);
+                        };
+                        // Act
+                        for (var i = 0; i < 5; i++)
                         {
-                            db.Disposed += (
-                                o,
-                                e
-                            ) =>
-                            {
-                                Console.Error.WriteLine(">>> dispose event handled <<<");
-                                disposed.Enqueue(true);
-                            };
-                            // Act
-                            for (var i = 0; i < 5; i++)
-                            {
-                                Expect(
-                                    () =>
-                                    {
-                                        using var conn = db.OpenConnection();
-                                        Thread.Sleep(500);
-                                    }
-                                ).Not.To.Throw();
-                            }
-
-                            var timeout = DateTime.Now.AddSeconds(10);
-                            var stillConnected = true;
-                            while (DateTime.Now < timeout && stillConnected && db.IsRunning)
-                            {
-                                stillConnected = db.TryFetchCurrentConnectionCount() > 0;
-                                if (stillConnected)
+                            Expect(
+                                () =>
                                 {
-                                    Thread.Sleep(100);
+                                    using var conn = db.OpenConnection();
+                                    Thread.Sleep(500);
                                 }
-                            }
+                            ).Not.To.Throw();
+                        }
 
+                        var timeout = DateTime.Now.AddSeconds(10);
+                        var stillConnected = true;
+                        while (DateTime.Now < timeout && stillConnected && db.IsRunning)
+                        {
+                            stillConnected = db.TryFetchCurrentConnectionCount() > 0;
                             if (stillConnected)
-                            {
-                                Assert.Fail("Still appear to have connections?!");
-                            }
-
-                            while (DateTime.Now < timeout && disposed.Count == 0)
                             {
                                 Thread.Sleep(100);
                             }
                         }
 
-                        // Assert
-                        Expect(db.IsRunning)
-                            .To.Be.False(() => $"db still running against {db.DatabasePath}");
-                        Expect(disposed.ToArray())
-                            .To.Equal(
-                                new[]
-                                {
-                                    true
-                                },
-                                () => disposed.Count == 0
-                                    ? $"dispose event not triggered"
-                                    : $"Received multiple dispose events: {disposed.ToArray().Stringify()}"
-                            );
+                        if (stillConnected)
+                        {
+                            Assert.Fail("Still appear to have connections?!");
+                        }
 
-                        Expect(
-                                () =>
+                        while (DateTime.Now < timeout && disposed.Count == 0)
+                        {
+                            Thread.Sleep(100);
+                        }
+                    }
+
+                    // Assert
+                    Expect(db.IsRunning)
+                        .To.Be.False(() => $"db still running against {db.DatabasePath}");
+                    Expect(disposed.ToArray())
+                        .To.Equal(
+                            new[]
+                            {
+                                true
+                            },
+                            () => disposed.Count == 0
+                                ? $"dispose event not triggered"
+                                : $"Received multiple dispose events: {disposed.ToArray().Stringify()}"
+                        );
+
+                    Expect(
+                            () =>
+                            {
+                                using var conn = db.OpenConnection();
+                            }
+                        ).To.Throw<InvalidOperationException>()
+                        .With.Message.Containing("not running");
+                },
+                Throws.Nothing
+            );
+        }
+
+        [Test]
+        public void AbsoluteLifespanShouldOverrideConnectionActivity()
+        {
+            Retry.Max(3).Times(
+                () =>
+                {
+                    // Arrange
+                    using var db = Create(
+                        inactivityTimeout: TimeSpan.FromSeconds(1),
+                        absoluteLifespan: TimeSpan.FromSeconds(3)
+                    );
+                    var connections = 0;
+                    // Act
+                    Expect(
+                            () =>
+                            {
+                                while (true)
                                 {
                                     using var conn = db.OpenConnection();
+                                    connections++;
+                                    Thread.Sleep(300);
                                 }
-                            ).To.Throw<InvalidOperationException>()
-                            .With.Message.Containing("not running");
-                    },
-                    Throws.Nothing
-                );
-            }
 
-            [Test]
-            public void AbsoluteLifespanShouldOverrideConnectionActivity()
-            {
-                Retry.Max(3).Times(
-                    () =>
-                    {
-                        // Arrange
-                        using var db = Create(
-                            inactivityTimeout: TimeSpan.FromSeconds(1),
-                            absoluteLifespan: TimeSpan.FromSeconds(3)
-                        );
-                        var connections = 0;
-                        // Act
-                        Expect(
-                                () =>
-                                {
-                                    while (true)
-                                    {
-                                        using var conn = db.OpenConnection();
-                                        connections++;
-                                        Thread.Sleep(300);
-                                    }
-
-                                    // ReSharper disable once FunctionNeverReturns
-                                }
-                            ).To.Throw<InvalidOperationException>()
-                            .With.Message.Containing("not running");
-                        // Assert
-                        Expect(connections)
-                            .To.Be.Greater.Than(1);
-                    }
-                );
-            }
-        }
-
-        [TestFixture]
-        public class CreatingUsers : AutoDestroyTempDbOnTimeout
-        {
-            [Test]
-            public void ShouldBeAbleToCreateTheUserAndConnectWithThoseCredentials()
-            {
-                // Arrange
-                using var db = Create();
-                var user = "testuser";
-                var password = "testuser";
-                var schema = "guest_schema";
-                db.CreateSchemaIfNotExists(schema);
-                // Act
-                db.CreateUser(user, password, schema);
-                // Assert
-                var builder =
-                    new MySqlConnectionStringBuilder(db.ConnectionString)
-                    {
-                        UserID = user,
-                        Password = password,
-                        Database = schema
-                    };
-                var connectionString = builder.ToString();
-                using var connection = new MySqlConnection(connectionString);
-                Expect(() => connection.Open())
-                    .Not.To.Throw();
-            }
-        }
-
-        private static void Execute(
-            ITempDB tempDb,
-            string sql
-        )
-        {
-            using var conn = tempDb.OpenConnection();
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = sql;
-            cmd.ExecuteNonQuery();
-        }
-
-        private static Dictionary<string, object>[] Query(
-            ITempDB tempDb,
-            string sql
-        )
-        {
-            using var conn = tempDb.OpenConnection();
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = sql;
-            var result = new List<Dictionary<string, object>>();
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                var row = new Dictionary<string, object>();
-                Range(reader.FieldCount)
-                    .ForEach(i => row[reader.GetName(i)] = reader[i]);
-                result.Add(row);
-            }
-
-            return result.ToArray();
-        }
-
-        private static TempDBMySql Create(
-            string pathToMySql = null,
-            TimeSpan? inactivityTimeout = null,
-            TimeSpan? absoluteLifespan = null,
-            string templatePath = null
-        )
-        {
-            return new TempDBMySql(
-                new TempDbMySqlServerSettings()
-                {
-                    Options =
-                    {
-                        PathToMySqlD = pathToMySql,
-                        ForceFindMySqlInPath = true,
-                        LogAction = Console.Error.WriteLine,
-                        InactivityTimeout = inactivityTimeout ?? TimeSpan.FromMinutes(1),
-                        AbsoluteLifespan = absoluteLifespan ?? TimeSpan.FromMinutes(5),
-                        EnableVerboseLogging = true,
-                        TemplateDatabasePath = templatePath,
-                    }
+                                // ReSharper disable once FunctionNeverReturns
+                            }
+                        ).To.Throw<InvalidOperationException>()
+                        .With.Message.Containing("not running");
+                    // Assert
+                    Expect(connections)
+                        .To.Be.Greater.Than(1);
                 }
             );
         }
+    }
 
-
-        public abstract class AutoDestroyTempDbOnTimeout
+    [TestFixture]
+    public class CreatingUsers : AutoDestroyTempDbOnTimeout
+    {
+        [Test]
+        public void ShouldBeAbleToCreateTheUserAndConnectWithThoseCredentials()
         {
-            [TearDown]
-            public void DestroyAllTempDbInstances()
+            // Arrange
+            using var db = Create();
+            var user = "testuser";
+            var password = "testuser";
+            var schema = "guest_schema";
+            db.CreateSchemaIfNotExists(schema);
+            // Act
+            db.CreateUser(user, password, schema);
+            // Assert
+            var builder =
+                new MySqlConnectionStringBuilder(db.ConnectionString)
+                {
+                    UserID = user,
+                    Password = password,
+                    Database = schema
+                };
+            var connectionString = builder.ToString();
+            using var connection = new MySqlConnection(connectionString);
+            Expect(() => connection.Open())
+                .Not.To.Throw();
+        }
+    }
+
+    [TestFixture]
+    public class VersionSpecificWorkarounds
+    {
+        [TestCase("8.4.0+")]
+        [Explicit("Requires mysql 8.4.6 in ~/apps/mysql-8.4.6")]
+        public void ShouldEnableMySqlNativePasswordOnServerWithVersion_(
+            string v
+        )
+        {
+            // Arrange
+            var homeFolder = Environment.GetEnvironmentVariable("HOME");
+            if (string.IsNullOrWhiteSpace(homeFolder))
             {
-                TempDbTracker.DestroyAll();
+                throw new Exception("HOME env var not set");
             }
+
+            var seek = Path.Combine(homeFolder, "apps", "mysql-8.4.6", "bin", "mysqld");
+            if (!File.Exists(seek))
+            {
+                throw new Exception($"File not found: {seek}");
+            }
+
+            // Act
+            Expect(
+                () =>
+                {
+                    using var db = Create(pathToMySql: seek);
+                    Expect(db.MySqlVersion.Version)
+                        .To.Equal(new Version(8, 4, 6));
+                }
+            ).Not.To.Throw();
+            // Assert
+        }
+    }
+
+    private static void Execute(
+        ITempDB tempDb,
+        string sql
+    )
+    {
+        using var conn = tempDb.OpenConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = sql;
+        cmd.ExecuteNonQuery();
+    }
+
+    private static Dictionary<string, object>[] Query(
+        ITempDB tempDb,
+        string sql
+    )
+    {
+        using var conn = tempDb.OpenConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = sql;
+        var result = new List<Dictionary<string, object>>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            var row = new Dictionary<string, object>();
+            Range(reader.FieldCount)
+                .ForEach(i => row[reader.GetName(i)] = reader[i]);
+            result.Add(row);
         }
 
-        public class User
+        return result.ToArray();
+    }
+
+    private static TempDBMySql Create(
+        string pathToMySql = null,
+        TimeSpan? inactivityTimeout = null,
+        TimeSpan? absoluteLifespan = null,
+        string templatePath = null
+    )
+    {
+        return new TempDBMySql(
+            new TempDbMySqlServerSettings()
+            {
+                Options =
+                {
+                    PathToMySqlD = pathToMySql,
+                    ForceFindMySqlInPath = true,
+                    LogAction = Console.Error.WriteLine,
+                    InactivityTimeout = inactivityTimeout ?? TimeSpan.FromMinutes(1),
+                    AbsoluteLifespan = absoluteLifespan ?? TimeSpan.FromMinutes(5),
+                    EnableVerboseLogging = true,
+                    TemplateDatabasePath = templatePath,
+                }
+            }
+        );
+    }
+
+
+    public abstract class AutoDestroyTempDbOnTimeout
+    {
+        [TearDown]
+        public void DestroyAllTempDbInstances()
         {
-            public int Id { get; set; }
-            public string Name { get; set; }
+            TempDbTracker.DestroyAll();
+        }
+    }
+
+    public class User
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    private static void SkipIfNotOnWindows()
+    {
+        if (!Platform.IsWindows)
+        {
+            Assert.Ignore("This test is designed for a windows environment");
+        }
+    }
+
+    private static void SkipIfOnWindowsButNoMySqlInstalled()
+    {
+        if (!Platform.IsWindows)
+        {
+            return;
         }
 
-        private static void SkipIfNotOnWindows()
-        {
-            if (!Platform.IsWindows)
-            {
-                Assert.Ignore("This test is designed for a windows environment");
-            }
-        }
-
-        private static void SkipIfOnWindowsButNoMySqlInstalled()
-        {
-            if (!Platform.IsWindows)
-            {
-                return;
-            }
-
-            var mysqlServices =
+        var mysqlServices =
 #pragma warning disable CA1416
-                ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
-            if (!mysqlServices.Any())
-            {
-                Assert.Ignore(
-                    "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
-                );
-            }
-#pragma warning restore CA1416
-        }
-
-        private static void SkipIfNotOnWindowsAndNotInPath()
+            ServiceController.GetServices().Where(s => s.DisplayName.ToLower().Contains("mysql"));
+        if (!mysqlServices.Any())
         {
-            if (Platform.IsWindows)
-            {
-                return;
-            }
-
-            if (Find.InPath("mysqld") is null)
-            {
-                Assert.Ignore("Test only works when mysqld is installed & in the path for non-windows");
-            }
-        }
-    }
-
-    public class MySqlConnectionStringUtil
-    {
-        public string Database { get; }
-
-        public MySqlConnectionStringUtil(
-            string connectionString
-        )
-        {
-            Database = connectionString
-                .Split(';')
-                .Select(p => p.Trim())
-                .FirstOrDefault(p => p.StartsWith("DATABASE", StringComparison.OrdinalIgnoreCase))
-                ?.Split('=')
-                ?.Last();
-        }
-    }
-
-    public static class IniMatchers
-    {
-        public static IMore<INIFile> Section(
-            this IHave<INIFile> have,
-            string expected
-        )
-        {
-            return have.Compose(
-                actual =>
-                {
-                    Expect(actual.HasSection(expected))
-                        .To.Be.True(() => $"Expected to find section '{expected}' in ini file");
-                }
+            Assert.Ignore(
+                "Test only works when there is at least one mysql service installed and that service has 'mysql' in the name (case-insensitive)"
             );
         }
+#pragma warning restore CA1416
+    }
+
+    private static void SkipIfNotOnWindowsAndNotInPath()
+    {
+        if (Platform.IsWindows)
+        {
+            return;
+        }
+
+        if (Find.InPath("mysqld") is null)
+        {
+            Assert.Ignore("Test only works when mysqld is installed & in the path for non-windows");
+        }
+    }
+}
+
+public class MySqlConnectionStringUtil
+{
+    public string Database { get; }
+
+    public MySqlConnectionStringUtil(
+        string connectionString
+    )
+    {
+        Database = connectionString
+            .Split(';')
+            .Select(p => p.Trim())
+            .FirstOrDefault(p => p.StartsWith("DATABASE", StringComparison.OrdinalIgnoreCase))
+            ?.Split('=')
+            ?.Last();
+    }
+}
+
+public static class IniMatchers
+{
+    public static IMore<INIFile> Section(
+        this IHave<INIFile> have,
+        string expected
+    )
+    {
+        return have.Compose(
+            actual =>
+            {
+                Expect(actual.HasSection(expected))
+                    .To.Be.True(() => $"Expected to find section '{expected}' in ini file");
+            }
+        );
     }
 }

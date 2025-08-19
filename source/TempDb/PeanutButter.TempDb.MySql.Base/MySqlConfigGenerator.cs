@@ -46,7 +46,7 @@ public class MySqlConfigGenerator
                 $"""
                  Starting mysqld with the following config:
                  ---
-                 ${iniFile}
+                 {iniFile}
                  ---
                  """
             );
