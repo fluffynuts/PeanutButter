@@ -12,13 +12,13 @@ namespace PeanutButter.TempDb.MySql.Base
     {
         public const string PORT_HINT = "TEMPDB_PORT_HINT";
         public const string SQL_MODE = "TEMPDB_MYSQL_SQL_MODE";
-        public const string MYSQL_MAX_STARTUP_TIME_IN_SECONDS = 
+        public const string MYSQL_MAX_STARTUP_TIME_IN_SECONDS =
             "TEMPDB_MYSQL_MAX_STARTUP_TIME_IN_SECONDS";
         public const string VERBOSE = "TEMPDB_VERBOSE";
         public const string GRACEFUL_SHUTDOWN = "TEMPDB_GRACEFUL_SHUTDOWN";
         public const string BASE_PATH = "TEMPDB_BASE_PATH";
         public const string PREFERRED_SERVICE = "TEMPDB_MYSQL_PREFERRED_SERVICE";
-        
+
         // timings
         public const string STARTUP_COMMAND_TIMEOUT = "TEMPDB_MYSQL_STARTUP_COMMAND_TIMEOUT";
         public const string SHUTDOWN_TIMEOUT = "TEMPDB_MYSQL_SHUTDOWN_TIMEOUT";
@@ -32,11 +32,11 @@ namespace PeanutButter.TempDb.MySql.Base
         public const int MIN_STARTUP_COMMAND_TIMEOUT = 5000;
         public const int DEFAULT_STARTUP_COMMAND_TIMEOUT = 30000;
         public const int MAX_STARTUP_COMMAND_TIMEOUT = 90000;
-        
+
         public const int MIN_SHUTDOWN_TIMEOUT = 1000;
         public const int DEFAULT_SHUTDOWN_TIMEOUT = 3000;
         public const int MAX_SHUTDOWN_TIMEOUT = 10000;
-        
+
         public const int MIN_POLL_INTERVAL = 100;
         public const int MAX_POLL_INTERVAL = 2000;
         public const int DEFAULT_POLL_INTERVAL = 500;
@@ -158,7 +158,7 @@ namespace PeanutButter.TempDb.MySql.Base
             /// that was provided
             /// - turn on with "1", "yes", "true"
             /// - turn off with "0", "no", "false"
-            /// 
+            ///
             /// </summary>
             public bool EnableVerboseLogging { get; set; }
 
@@ -353,13 +353,13 @@ namespace PeanutButter.TempDb.MySql.Base
 
         /// <summary>
         /// mysql server setting
-        /// </summary> 
+        /// </summary>
         [Setting("innodb_flush_log_at_timeout")]
         public int InnodbFlushLogAtTimeout { get; set; } = 1;
 
         /// <summary>
         /// mysql server setting
-        /// </summary> 
+        /// </summary>
         [Setting("sync_binlog")]
         public int SyncBinLog { get; set; } = 1;
 
@@ -445,7 +445,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// mysql server setting
         /// </summary>
         [Setting("sql-mode")]
-        public string SqlMode { get; set; } = 
+        public string SqlMode { get; set; } =
             Environment.GetEnvironmentVariable(EnvironmentVariables.SQL_MODE)
                 ?? "STRICT_TRANS_TABLES,STRICT_ALL_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";
 
@@ -472,6 +472,9 @@ namespace PeanutButter.TempDb.MySql.Base
 
         [Setting("performance-schema")]
         public int PerformanceSchema { get; set; } = 0;
+
+        [Setting("mysql_native_password")]
+        public string MySqlNativePassword { get; set; } = null;
 
         public TempDbMySqlServerSettings()
         {
@@ -512,7 +515,7 @@ namespace PeanutButter.TempDb.MySql.Base
         /// of a server crash. If you care about your data in the event of a system/process crash, do not
         /// use this.
         /// </summary>
-        /// <param name="isRunningOnSsdDisk">Set this to true to cap off InnoDbIoCapacity to 3000 (for 
+        /// <param name="isRunningOnSsdDisk">Set this to true to cap off InnoDbIoCapacity to 3000 (for
         /// spinning rust disks)</param>
         public TempDbMySqlServerSettings OptimizeForPerformance(bool isRunningOnSsdDisk)
         {

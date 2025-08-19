@@ -116,7 +116,9 @@ namespace PeanutButter.TempDb.MySql.Base
 
         private readonly object _debugLogLock = new();
 
-        private void DebugLog(string toLog)
+        private void DebugLog(
+            string toLog
+        )
         {
             if (!VerboseLoggingEnabled)
             {
@@ -127,10 +129,7 @@ namespace PeanutButter.TempDb.MySql.Base
             {
                 File.AppendAllLines(
                     _debugLogFile,
-                    new[]
-                    {
-                        toLog
-                    }
+                    [toLog]
                 );
             }
         }
@@ -168,7 +167,9 @@ namespace PeanutButter.TempDb.MySql.Base
             return ParseFirstGuidFromPath(DatabasePath);
         }
 
-        private Guid ParseFirstGuidFromPath(string path)
+        private Guid ParseFirstGuidFromPath(
+            string path
+        )
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -232,7 +233,9 @@ namespace PeanutButter.TempDb.MySql.Base
         /// Construct a TempDbMySql with zero or more creation scripts and default options
         /// </summary>
         /// <param name="creationScripts"></param>
-        public TempDBMySqlBase(params string[] creationScripts)
+        public TempDBMySqlBase(
+            params string[] creationScripts
+        )
             : this(new TempDbMySqlServerSettings(), creationScripts)
         {
         }
@@ -287,7 +290,9 @@ namespace PeanutButter.TempDb.MySql.Base
             beforeInit?.Invoke(self);
         }
 
-        private static bool FolderExists(string path)
+        private static bool FolderExists(
+            string path
+        )
         {
             return path is not null &&
                 Directory.Exists(path);
@@ -338,7 +343,9 @@ namespace PeanutButter.TempDb.MySql.Base
         ///   the server afterwards
         /// </summary>
         /// <returns></returns>
-        public string Snapshot(string toNewFolder)
+        public string Snapshot(
+            string toNewFolder
+        )
         {
             return Snapshot(toNewFolder, true);
         }
@@ -458,7 +465,9 @@ namespace PeanutButter.TempDb.MySql.Base
                 Settings?.Options?.PathToMySqlD ?? FindInstalledMySqlD()
             );
 
-        private string StoreValidCommandlineArgumentsFor(string pathToMySqlD)
+        private string StoreValidCommandlineArgumentsFor(
+            string pathToMySqlD
+        )
         {
             if (string.IsNullOrWhiteSpace(pathToMySqlD) || !File.Exists(pathToMySqlD))
             {
@@ -495,7 +504,9 @@ namespace PeanutButter.TempDb.MySql.Base
             return pathToMySqlD;
         }
 
-        private bool IsValidArgument(string arg)
+        private bool IsValidArgument(
+            string arg
+        )
         {
             if (!MySqlArguments.TryGetValue(MySqld, out var validArgs))
             {
@@ -723,7 +734,9 @@ namespace PeanutButter.TempDb.MySql.Base
         }
 
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-        private void SetRootPasswordViaCli(int attempt = 0)
+        private void SetRootPasswordViaCli(
+            int attempt = 0
+        )
         {
             if (attempt > 10)
             {
@@ -734,7 +747,7 @@ namespace PeanutButter.TempDb.MySql.Base
 
             var pass = $"'{Settings.Options.RootUserPassword.Replace("'", "''")}'";
             using var tmpFile = new AutoTempFile(
-                // update root password & 
+                // update root password &
                 $@"
 create user if not exists 'root'@'localhost' identified with mysql_native_password by {pass};
 alter user 'root'@'localhost' identified with mysql_native_password by {pass};
@@ -805,7 +818,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             );
         }
 
-        private void TryStoreRootUserInitSql(AutoTempFile tmpFile)
+        private void TryStoreRootUserInitSql(
+            AutoTempFile tmpFile
+        )
         {
             var script = Path.Combine(DataDir, "init-root-users.sql");
             var toCopy = tmpFile.Path;
@@ -819,7 +834,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             }
         }
 
-        private void TryStoreInitScriptForDiagnosticPurposes(string commandline)
+        private void TryStoreInitScriptForDiagnosticPurposes(
+            string commandline
+        )
         {
             try
             {
@@ -1021,7 +1038,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         /// Creates the schema if not already present.
         /// </summary>
         /// <param name="schema"></param>
-        public void SwitchToSchema(string schema)
+        public void SwitchToSchema(
+            string schema
+        )
         {
             SwitchToSchema(schema, true);
         }
@@ -1050,7 +1069,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             SchemaName = schema;
         }
 
-        public void CreateSchemaIfNotExists(string schema)
+        public void CreateSchemaIfNotExists(
+            string schema
+        )
         {
             var schemaCount = QueryFirst<int>(
                 $"select count(*) from information_schema.schemata where schema_name = {Quote(schema)};"
@@ -1096,12 +1117,16 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public string Escape(string other)
+        public string Escape(
+            string other
+        )
         {
             return $"{other?.Replace("`", "``")}";
         }
 
-        public string Quote(string other)
+        public string Quote(
+            string other
+        )
         {
             return $"'{Escape(other)}'";
         }
@@ -1110,7 +1135,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         /// Executes arbitrary sql on the current schema
         /// </summary>
         /// <param name="sql"></param>
-        public void Execute(string sql)
+        public void Execute(
+            string sql
+        )
         {
             Log($"executing: {sql}");
             using var connection = base.OpenConnection();
@@ -1119,7 +1146,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             command.ExecuteNonQuery();
         }
 
-        private TResult QueryFirst<TResult>(string sql)
+        private TResult QueryFirst<TResult>(
+            string sql
+        )
         {
             using var conn = base.OpenConnection();
             using var cmd = conn.CreateCommand();
@@ -1133,7 +1162,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             return default;
         }
 
-        public IEnumerable<Dictionary<string, object>> ExecuteReader(string sql)
+        public IEnumerable<Dictionary<string, object>> ExecuteReader(
+            string sql
+        )
         {
             using var conn = base.OpenConnection();
             using var cmd = conn.CreateCommand();
@@ -1151,7 +1182,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             }
         }
 
-        private void EnsureIsRemoved(string path)
+        private void EnsureIsRemoved(
+            string path
+        )
         {
             Log($"Ensuring {path} does not already exist");
             if (File.Exists(path))
@@ -1180,6 +1213,11 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             {
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Directory.CreateDirectory(containingFolder);
+            }
+
+            if (MySqlVersion.Version > new Version(8, 4, 0))
+            {
+                Settings.MySqlNativePassword = "ON";
             }
 
             File.WriteAllBytes(
@@ -1266,7 +1304,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             CleanupSocketMess();
         }
 
-        private void TryDo(Action action)
+        private void TryDo(
+            Action action
+        )
         {
             try
             {
@@ -1319,7 +1359,7 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             {
                 throw new Exception($"MySql process {proc.ProcessId} has not shut down!");
             }
-            
+
             TryDo(() => EnsureFolderDoesNotExist(DataDir));
 
             if (Platform.IsUnixy)
@@ -1416,7 +1456,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
 
         private bool _watcherPaused;
 
-        private string[] DisableMonitoring(string[] args)
+        private string[] DisableMonitoring(
+            string[] args
+        )
         {
             // disable monitoring
             // -> this means that RESTART won't work
@@ -1513,7 +1555,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             }
         }
 
-        private string[] AddSocketIfRequired(string[] args)
+        private string[] AddSocketIfRequired(
+            string[] args
+        )
         {
             return Platform.IsWindows
                 ? args
@@ -1627,7 +1671,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             Log("Watcher thread exiting");
         }
 
-        private string BaseDirOf(string mysqld)
+        private string BaseDirOf(
+            string mysqld
+        )
         {
             return Path.GetDirectoryName(Path.GetDirectoryName(mysqld));
         }
@@ -1644,7 +1690,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             return base.OpenConnection();
         }
 
-        protected virtual bool IsMyInstance(Guid? assimilatedInstanceId)
+        protected virtual bool IsMyInstance(
+            Guid? assimilatedInstanceId
+        )
         {
             var existingId = FetchDbInstanceId();
             if (string.IsNullOrWhiteSpace(existingId))
@@ -1663,7 +1711,10 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             );
         }
 
-        private void TrySetDbInstanceId(Guid newId, Guid? assimilatedInstanceId)
+        private void TrySetDbInstanceId(
+            Guid newId,
+            Guid? assimilatedInstanceId
+        )
         {
             TrySetDbInstanceId(
                 $"{newId}",
@@ -1673,7 +1724,10 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             );
         }
 
-        private void TrySetDbInstanceId(string newId, string assimilatedId)
+        private void TrySetDbInstanceId(
+            string newId,
+            string assimilatedId
+        )
         {
             if (newId is null)
             {
@@ -1704,7 +1758,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             SetDbInstanceId(newId);
         }
 
-        private void SetDbInstanceId(string newId)
+        private void SetDbInstanceId(
+            string newId
+        )
         {
             newId = newId.Replace("'", "''");
 
@@ -1944,7 +2000,10 @@ stderr: {stderr}"
                 : existingArgs;
         }
 
-        private void InitializeWith(string mysqld, string tempDefaultsFile)
+        private void InitializeWith(
+            string mysqld,
+            string tempDefaultsFile
+        )
         {
             Directory.CreateDirectory(DataDir);
 
@@ -2012,7 +2071,9 @@ stderr: {stderr}"
             return MySqlVersion?.Version?.Major >= 8;
         }
 
-        private void AttemptManualInitialization(string mysqld)
+        private void AttemptManualInitialization(
+            string mysqld
+        )
         {
             Log("Attempting manual initialization for older mysql");
             var installFolder = Path.GetDirectoryName(
@@ -2039,7 +2100,9 @@ stderr: {stderr}"
                 .ForEach(f => File.Copy(Path.Combine(f), CombinePaths(DatabasePath, Path.GetFileName(f))));
         }
 
-        private static string CombinePaths(params string[] parts)
+        private static string CombinePaths(
+            params string[] parts
+        )
         {
             var nonNull = parts.Where(p => p != null).ToArray();
             if (nonNull.IsEmpty())
@@ -2050,7 +2113,10 @@ stderr: {stderr}"
             return Path.Combine(nonNull);
         }
 
-        private static void CopyFolder(string sourceFolder, string destFolder)
+        private static void CopyFolder(
+            string sourceFolder,
+            string destFolder
+        )
         {
             if (!Directory.Exists(destFolder))
                 Directory.CreateDirectory(destFolder);
@@ -2062,12 +2128,19 @@ stderr: {stderr}"
                 .ForEach(d => CopyFolderIntoFolder(d, destFolder));
         }
 
-        private static void CopyFolderIntoFolder(string srcFolder, string targetFolder)
+        private static void CopyFolderIntoFolder(
+            string srcFolder,
+            string targetFolder
+        )
         {
             CopyItemToFolder(srcFolder, targetFolder, CopyFolder);
         }
 
-        private static void CopyItemToFolder(string src, string targetFolder, Action<string, string> copyAction)
+        private static void CopyItemToFolder(
+            string src,
+            string targetFolder,
+            Action<string, string> copyAction
+        )
         {
             var baseName = Path.GetFileName(src);
             if (baseName == null)
@@ -2078,12 +2151,17 @@ stderr: {stderr}"
             copyAction(src, Path.Combine(targetFolder, baseName));
         }
 
-        private static void CopyFileToFolder(string srcFile, string targetFolder)
+        private static void CopyFileToFolder(
+            string srcFile,
+            string targetFolder
+        )
         {
             CopyItemToFolder(srcFile, targetFolder, File.Copy);
         }
 
-        private bool IsWindowsAndMySql56OrLower(MySqlVersionInfo mysqlVersion)
+        private bool IsWindowsAndMySql56OrLower(
+            MySqlVersionInfo mysqlVersion
+        )
         {
             return (mysqlVersion.Platform?.StartsWith("win") ?? false) &&
                 mysqlVersion.Version.Major <= 5 &&
@@ -2101,7 +2179,9 @@ stderr: {stderr}"
             }
         }
 
-        private MySqlVersionInfo QueryVersionOf(string mysqld)
+        private MySqlVersionInfo QueryVersionOf(
+            string mysqld
+        )
         {
             using var process = RunCommand(false, mysqld, "--version");
             process.WaitForExit();
@@ -2128,7 +2208,9 @@ stderr: {stderr}"
             return versionInfo;
         }
 
-        private string DataFilePath(string relativePath)
+        private string DataFilePath(
+            string relativePath
+        )
         {
             return Path.Combine(DataDir, relativePath);
         }
@@ -2206,7 +2288,9 @@ stderr: {stderr}"
                 : FindRandomOpenPort();
         }
 
-        private int FindFirstPortFrom(int portHint)
+        private int FindFirstPortFrom(
+            int portHint
+        )
         {
             var minPort = Settings?.Options?.RandomPortMin
                 ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MIN;
@@ -2216,7 +2300,11 @@ stderr: {stderr}"
                 IPAddress.Loopback,
                 minPort,
                 maxPort,
-                (_, _, last) => last < 1
+                (
+                    _,
+                    _,
+                    last
+                ) => last < 1
                     ? portHint
                     : last + 1,
                 LogPortDiscoveryInfo
@@ -2237,7 +2325,9 @@ stderr: {stderr}"
             );
         }
 
-        private void LogPortDiscoveryInfo(string message)
+        private void LogPortDiscoveryInfo(
+            string message
+        )
         {
             if (Settings?.Options?.LogRandomPortDiscovery ?? false)
             {

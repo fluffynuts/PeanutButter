@@ -62,6 +62,10 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
         public void ShouldBeAbleToEnableVerboseLogging()
         {
             // Arrange
+            using var __ = new AutoTempEnvironmentVariable(
+                "TEMPDB_DUMP_CONFIG",
+                "1"
+            );
             using var _ = new AutoTempFile(
                 EnvironmentVariables.VERBOSE,
                 "1"
@@ -72,6 +76,21 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
             // Assert
             Expect(db.ServerProcessCommand)
                 .To.Contain("--log-error-verbosity");
+        }
+
+        [Test]
+        [Explicit("Discovery and reminder of comparible nature of Version objects")]
+        public void ComparingVersionObjects()
+        {
+            // Arrange
+            var v1 = new Version(1, 0, 1);
+            var v2 = new Version(1, 0, 2);
+            // Act
+            // Assert
+            Expect(v2 > v1)
+                .To.Be.True();
+            Expect(v2)
+                .To.Be.Greater.Than(v1);
         }
 
         [Test]
@@ -547,6 +566,7 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                             // Act
                             // Assert
                         }
+
                         using (db2.OpenConnection())
                         {
                             // Act
@@ -898,7 +918,9 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     );
                 }
 
-                private void RestorePortHintEnvVar(string prior)
+                private void RestorePortHintEnvVar(
+                    string prior
+                )
                 {
                     Environment.SetEnvironmentVariable(
                         EnvironmentVariables.PORT_HINT,
@@ -906,7 +928,9 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                     );
                 }
 
-                private string SetPortHintEnvVar(int port)
+                private string SetPortHintEnvVar(
+                    int port
+                )
                 {
                     var existing = Environment.GetEnvironmentVariable(
                         EnvironmentVariables.PORT_HINT
@@ -919,7 +943,9 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 }
             }
 
-            private static TempDbMySqlServerSettings CreateForPort(int port)
+            private static TempDbMySqlServerSettings CreateForPort(
+                int port
+            )
             {
                 return new TempDbMySqlServerSettings()
                 {
@@ -930,7 +956,9 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 };
             }
 
-            private static int GrokPortFrom(string connectionString)
+            private static int GrokPortFrom(
+                string connectionString
+            )
             {
                 // can't use MySqlConnectionStringBuilder because
                 //  of a conflict between Connector and .Data
@@ -1083,7 +1111,9 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                 }
             }
 
-            Action<string> CreateLoggerFor(string name)
+            Action<string> CreateLoggerFor(
+                string name
+            )
             {
                 if (!Platform.IsUnixy)
                 {
@@ -1231,7 +1261,10 @@ namespace PeanutButter.TempDb.MySql.Data.Tests
                         TempDBMySql db;
                         using (db = Create(inactivityTimeout: TimeSpan.FromSeconds(inactivitySeconds)))
                         {
-                            db.Disposed += (o, e) =>
+                            db.Disposed += (
+                                o,
+                                e
+                            ) =>
                             {
                                 Console.Error.WriteLine(">>> dispose event handled <<<");
                                 disposed.Enqueue(true);
