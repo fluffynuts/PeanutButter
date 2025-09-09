@@ -459,6 +459,7 @@ internal
         var props = obj.GetType()
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(pi => pi.GetCustomAttribute<SkipStringifyAttribute>() is null)
+            .OrderBy(pi => pi.Name)
             .ToArray();
         var indentMinus1 = new string(' ', level * INDENT_SIZE);
         var indent = indentMinus1 + new string(' ', INDENT_SIZE);

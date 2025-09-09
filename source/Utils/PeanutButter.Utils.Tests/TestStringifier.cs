@@ -16,7 +16,10 @@ public class TestStringifier
     [TestCase(true, "true")]
     [TestCase(false, "false")]
     [TestCase(null, "null")]
-    public void Stringify_GivenPrimitive_ShouldReturnExpected(object value, string expected)
+    public void Stringify_GivenPrimitive_ShouldReturnExpected(
+        object value,
+        string expected
+    )
     {
         //--------------- Arrange -------------------
 
@@ -31,20 +34,37 @@ public class TestStringifier
 
     private static readonly Tuple<object, string>[] ComplexSource =
     {
-        Tuple.Create(new { foo = 1 } as object, @"
+        Tuple.Create(
+            new
+            {
+                foo = 1
+            } as object,
+            @"
 {
   foo: 1
-}"),
-        Tuple.Create(new { foo = new { bar = 1 } } as object, @"
+}"
+        ),
+        Tuple.Create(
+            new
+            {
+                foo = new
+                {
+                    bar = 1
+                }
+            } as object,
+            @"
 {
   foo: {
     bar: 1
   }
-}")
+}"
+        )
     };
 
     [TestCaseSource(nameof(ComplexSource))]
-    public void Stringify_GivenObject_ShouldReturnExpected(Tuple<object, string> data)
+    public void Stringify_GivenObject_ShouldReturnExpected(
+        Tuple<object, string> data
+    )
     {
         //--------------- Arrange -------------------
 
@@ -63,11 +83,22 @@ public class TestStringifier
         // Arrange
         // Pre-Assert
         // Act
-        Console.WriteLine(new[]
-        {
-            new[] { 1, 2 },
-            new[] { 5, 6, 7 }
-        }.Stringify());
+        Console.WriteLine(
+            new[]
+            {
+                new[]
+                {
+                    1,
+                    2
+                },
+                new[]
+                {
+                    5,
+                    6,
+                    7
+                }
+            }.Stringify()
+        );
         // Assert
     }
 
@@ -75,7 +106,10 @@ public class TestStringifier
     public void Stringifying_PropertiesOfTypeShort()
     {
         // Arrange
-        var obj = new { x = short.MaxValue };
+        var obj = new
+        {
+            x = short.MaxValue
+        };
         var expected = (@"{
   x: " + short.MaxValue + @"
 }").Replace("\r", "");
@@ -91,11 +125,33 @@ public class TestStringifier
     {
         // Arrange
         var src = GetRandomDate();
-        var local = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second,
-            DateTimeKind.Local);
-        var utc = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second, DateTimeKind.Utc);
-        var unspecified = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, src.Second,
-            DateTimeKind.Unspecified);
+        var local = new DateTime(
+            src.Year,
+            src.Month,
+            src.Day,
+            src.Hour,
+            src.Minute,
+            src.Second,
+            DateTimeKind.Local
+        );
+        var utc = new DateTime(
+            src.Year,
+            src.Month,
+            src.Day,
+            src.Hour,
+            src.Minute,
+            src.Second,
+            DateTimeKind.Utc
+        );
+        var unspecified = new DateTime(
+            src.Year,
+            src.Month,
+            src.Day,
+            src.Hour,
+            src.Minute,
+            src.Second,
+            DateTimeKind.Unspecified
+        );
         var expectedPre = src.ToString(CultureInfo.InvariantCulture);
         // Pre-Assert
         // Act
@@ -148,8 +204,14 @@ public class TestStringifier
     public void ShouldNeverGetInAnInfiniteLoop()
     {
         // Arrange
-        var node1 = new Node() { Name = GetRandomString(10) };
-        var node2 = new Node() { Name = GetRandomString(10) };
+        var node1 = new Node()
+        {
+            Name = GetRandomString(10)
+        };
+        var node2 = new Node()
+        {
+            Name = GetRandomString(10)
+        };
         node1.Parent = node2;
         node2.Parent = node1;
         // Pre-assert
@@ -170,7 +232,11 @@ public class TestStringifier
         var value2 = GetRandomString(4);
         var dict = new Dictionary<string, IEnumerable<string>>()
         {
-            [key] = new[] { value1, value2 }.AsEnumerable()
+            [key] = new[]
+            {
+                value1,
+                value2
+            }.AsEnumerable()
         };
         // Act
         var result = dict.Stringify();
@@ -193,9 +259,44 @@ public class TestStringifier
             .Not.To.Contain("Name");
     }
 
+    [Test]
+    public void ShouldOrderPropertiesAlphabetically()
+    {
+        // Arrange
+        var data = GetRandom<OutOfOrder>();
+        // Act
+        var result = data.Stringify();
+        // Assert
+        var lines = result.SplitIntoLines()
+            .Map(s => s.Trim());
+        Expect(lines)
+            .To.Contain.Only(6).Items();
+        Expect(lines[0])
+            .To.Equal("{");
+        Expect(lines[1])
+            .To.Start.With("A:");
+        Expect(lines[2])
+            .To.Start.With("B:");
+        Expect(lines[3])
+            .To.Start.With("C:");
+        Expect(lines[4])
+            .To.Start.With("Z:");
+        Expect(lines[5])
+            .To.Equal("}");
+    }
+
+    public class OutOfOrder
+    {
+        public int Z { get; set; }
+        public bool B { get; set; }
+        public string A { get; set; }
+        public TimeSpan C { get; set; }
+    }
+
     public class SkipOneProperty
     {
         public int Id { get; set; }
+
         [SkipStringify]
         public string Name { get; set; }
     }
