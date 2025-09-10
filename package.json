@@ -29,7 +29,8 @@
     "upgrade-nexpect": "cross-env UPGRADE_PACKAGES=/NExpect\\.*/ zarro upgrade-packages",
     "upgrade-nunit": "cross-env UPGRADE_PACKAGES=/NUnit\\.*/ zarro upgrade-packages",
     "experiment": "zarro @",
-    "generate-docs": "zarro @"
+    "generate-docs": "zarro @",
+    "resume-release": "zarro re-push-packages after-manual-push"
   },
   "devDependencies": {
     "dotnet-cli": "^1.4.0",
