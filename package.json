@@ -30,7 +30,9 @@
     "upgrade-nunit": "cross-env UPGRADE_PACKAGES=/NUnit\\.*/ zarro upgrade-packages",
     "experiment": "zarro @",
     "generate-docs": "zarro @",
-    "resume-release": "zarro re-push-packages after-manual-push"
+    "re-push-packages": "zarro @",
+    "after-manual-push": "zarro @",
+    "resume-release": "run-s re-push-packages after-manual-push"
   },
   "devDependencies": {
     "dotnet-cli": "^1.4.0",

@@ -198,7 +198,7 @@ import { Stream } from "stream";
         await nugetPush({
           target: pkg,
           apiKey: await resolveNugetApiKey("nuget.org"),
-          skipDuplicates: false
+          skipDuplicates: skipDuplicates
         });
       });
     }
