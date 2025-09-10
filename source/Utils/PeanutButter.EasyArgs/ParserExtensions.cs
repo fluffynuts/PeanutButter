@@ -256,6 +256,7 @@ public
     }
 
     private static readonly Regex ShortArgMatcher = new("^-[a-zA-Z]$");
+    private static readonly IDateTimeParser DateTimeParser = new DateTimeParser();
 
     private static CommandlineArgument FindFuzzyMatch(
         KeyValuePair<string, IHasValue> item,
@@ -365,13 +366,13 @@ public
         var cleanObj = Activator.CreateInstance<T>();
         typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance).ForEach(
             pi =>
-                {
-                    cleanObj.SetPropertyValue(
-                        pi.Name,
-                        asT.GetTopMostPropertyValue<object>(pi.Name)
-                    );
-                }
-            );
+            {
+                cleanObj.SetPropertyValue(
+                    pi.Name,
+                    asT.GetTopMostPropertyValue<object>(pi.Name)
+                );
+            }
+        );
         return cleanObj;
     }
 
@@ -873,10 +874,22 @@ public
                     return;
                 }
 
-                result[opt.Key] = opt.Default;
+                if (opt.Property?.PropertyType == typeof(DateTime) ||
+                    opt.Property?.PropertyType == typeof(DateTime?))
+                {
+                    if (opt.Default is string str)
+                    {
+                        result[opt.Key] = DateTimeParser.Parse(str);
+                    }
+                }
+                else
+                {
+                    result[opt.Key] = opt.Default;
+                }
             }
         );
     }
+
 
     private static readonly ConcurrentDictionary<Type, IDictionary<string, CommandlineArgument>>
         SwitchCache = new();
@@ -894,20 +907,20 @@ public
         result = new Dictionary<string, CommandlineArgument>();
         options.OrderByDescending(o => o.IsImplicit).ForEach(
             opt =>
+            {
+                SetShortNameIfMissing(opt, shortNames);
+                SetLongNameIfMissing(opt, longNames);
+                if (!string.IsNullOrWhiteSpace(opt.ShortName))
                 {
-                    SetShortNameIfMissing(opt, shortNames);
-                    SetLongNameIfMissing(opt, longNames);
-                    if (!string.IsNullOrWhiteSpace(opt.ShortName))
-                    {
-                        result[opt.ShortName] = opt;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(opt.LongName))
-                    {
-                        result[opt.LongName] = opt;
-                    }
+                    result[opt.ShortName] = opt;
                 }
-            );
+
+                if (!string.IsNullOrWhiteSpace(opt.LongName))
+                {
+                    result[opt.LongName] = opt;
+                }
+            }
+        );
         SwitchCache.TryAdd(typeof(T), result.Clone());
         return result;
     }

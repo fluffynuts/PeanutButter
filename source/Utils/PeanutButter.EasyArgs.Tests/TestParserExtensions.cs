@@ -1186,6 +1186,7 @@ Report bugs to <no-one-cares@whatevs.org>
         {
             public const int DEFAULT_ID = 1;
             public const string DEFAULT_NAME = "Bob";
+
             [Default(DEFAULT_ID)]
             public int Id { get; set; }
 
@@ -1833,7 +1834,7 @@ Report bugs to <no-one-cares@whatevs.org>
             // Arrange
             var days = 2;
             var expected = DateTime.Now.AddDays(-days);
-            string[] args = [ "--since", $"{days} days ago" ];
+            string[] args = ["--since", $"{days} days ago"];
 
             // Act
             var result = args.ParseTo<IHasSince>();
@@ -1848,7 +1849,7 @@ Report bugs to <no-one-cares@whatevs.org>
             // Arrange
             var days = 2;
             var expected = DateTime.Now.AddDays(-days);
-            string[] args = [ "--since", $"{days} days ago" ];
+            string[] args = ["--since", $"{days} days ago"];
 
             // Act
             var result = args.ParseTo<IHasNullableSince>();
@@ -1857,8 +1858,35 @@ Report bugs to <no-one-cares@whatevs.org>
                 .To.Approximately.Equal(expected);
         }
 
+        [Test]
+        public void ShouldParseShortTime()
+        {
+            // Arrange
+            var expected = DateTime.Now.AddHours(2);
+            string[] args = ["--since", "2h"];
+            // Act
+            var result = args.ParseTo<IHasSince>();
+            // Assert
+            Expect(result.Since)
+                .To.Approximately.Equal(expected);
+        }
+
+        [Test]
+        public void ShouldParseDefaultForShortTime()
+        {
+            // Arrange
+            string[] args = [];
+            var expected = DateTime.Now.AddMinutes(10);
+            // Act
+            var result = args.ParseTo<IHasSince>();
+            // Assert
+            Expect(result.Since)
+                .To.Approximately.Equal(expected);
+        }
+
         public interface IHasSince
         {
+            [Default("10m")]
             public DateTime Since { get; set; }
         }
 
