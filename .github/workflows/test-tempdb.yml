@@ -12,38 +12,7 @@ jobs:
     steps:
       - name: Checkout project
         uses: actions/checkout@v2
-        
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: |
-            6.x
-            7.x
-            8.x
-      
-      - name: Setup NodeJS
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          
-      - name: Build and test
-        env:
-          MAX_CONCURRENCY: 1
-          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          DOTNET_CLI_TELEMETRY_OPTOUT: 1
-          SUPPRESS_DOWNLOAD_PROGRESS: 1
-          TEMPDB_MYSQL_STARTUP_COMMAND_TIMEOUT: 90000
-          TEMPDB_MYSQL_INIT_TIMEOUT: 90000
-        run: |
-          npm i
-          npm run test-ci-tempdb
-          
-  test-tempdb-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
-        
+
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
@@ -56,7 +25,38 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          
+
+      - name: Build and test
+        env:
+          MAX_CONCURRENCY: 1
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+          SUPPRESS_DOWNLOAD_PROGRESS: 1
+          TEMPDB_MYSQL_STARTUP_COMMAND_TIMEOUT: 90000
+          TEMPDB_MYSQL_INIT_TIMEOUT: 90000
+        run: |
+          npm i
+          npm run test-ci-tempdb
+
+  test-tempdb-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            6.x
+            7.x
+            8.x
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
       - name: Disable AppArmor
         run: |
           sudo systemctl stop apparmor.service
@@ -72,19 +72,19 @@ jobs:
         run: |
           npm i
           npm run test-ci-tempdb
-    
+
   test-tempdb-osx:
-    runs-on: macos-latest
+    runs-on: macos-latest-large
     steps:
       - name: Setup mysql via homebrew
         uses: tecolicom/actions-use-homebrew-tools@v1
         with:
           tools: 'mysql'
           cache: yes
-          
+
       - name: Checkout project
         uses: actions/checkout@v4
-        
+
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
@@ -108,4 +108,3 @@ jobs:
         run: |
           npm i
           npm run test-ci-tempdb
-    
