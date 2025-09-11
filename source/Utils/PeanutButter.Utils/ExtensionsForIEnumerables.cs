@@ -28,7 +28,10 @@ internal
     /// <param name="collection">Subject collection to operate over</param>
     /// <param name="toRun">Action to run on each member of the collection</param>
     /// <typeparam name="T">Item type of the collection</typeparam>
-    public static void ForEach<T>(this IEnumerable<T> collection, Action<T> toRun)
+    public static void ForEach<T>(
+        this IEnumerable<T> collection,
+        Action<T> toRun
+    )
     {
         foreach (var item in collection)
         {
@@ -61,7 +64,10 @@ internal
     /// <param name="collection">Subject collection to operate over</param>
     /// <param name="toRunWithIndex">Action to run on each member of the collection</param>
     /// <typeparam name="T">Item type of the collection</typeparam>
-    public static void ForEach<T>(this IEnumerable<T> collection, Action<T, int> toRunWithIndex)
+    public static void ForEach<T>(
+        this IEnumerable<T> collection,
+        Action<T, int> toRunWithIndex
+    )
     {
         var idx = 0;
         collection.ForEach(
@@ -240,7 +246,9 @@ internal
     /// <param name="collection">Source collection to operate on</param>
     /// <typeparam name="T">Item type of the collection</typeparam>
     /// <returns>True if the collection is null or has no items; false otherwise.</returns>
-    public static bool IsEmpty<T>(this IEnumerable<T> collection)
+    public static bool IsEmpty<T>(
+        this IEnumerable<T> collection
+    )
     {
         if (collection is T[] array)
         {
@@ -258,7 +266,9 @@ internal
     /// <param name="collection">Source collection to operate over</param>
     /// <typeparam name="T">Item type of the collection</typeparam>
     /// <returns>An empty collection if the source is null; otherwise the source.</returns>
-    public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T> collection)
+    public static IEnumerable<T> EmptyIfNull<T>(
+        this IEnumerable<T> collection
+    )
     {
         return collection ?? new T[0];
     }
@@ -270,7 +280,10 @@ internal
     /// <param name="values"></param>
     /// <typeparam name="T">Item type of the array</typeparam>
     /// <returns>A new array which is the source with the new items appended</returns>
-    public static T[] And<T>(this IEnumerable<T> source, params T[] values)
+    public static T[] And<T>(
+        this IEnumerable<T> source,
+        params T[] values
+    )
     {
         return source
             .Concat(values)
@@ -284,7 +297,10 @@ internal
     /// <param name="values"></param>
     /// <typeparam name="T">Item type of the array</typeparam>
     /// <returns>A new array which is the source with the new items appended</returns>
-    public static T[] And<T>(this IEnumerable<T> source, IEnumerable<T> values)
+    public static T[] And<T>(
+        this IEnumerable<T> source,
+        IEnumerable<T> values
+    )
     {
         return source
             .Concat(values)
@@ -298,7 +314,10 @@ internal
     /// <param name="values"></param>
     /// <typeparam name="T">Item type of the array</typeparam>
     /// <returns>A new array which is the source with the new items appended</returns>
-    public static T[] And<T>(this T[] source, params T[] values)
+    public static T[] And<T>(
+        this T[] source,
+        params T[] values
+    )
     {
         return And(source as IEnumerable<T>, values);
     }
@@ -310,7 +329,10 @@ internal
     /// <param name="values"></param>
     /// <typeparam name="T">Item type of the array</typeparam>
     /// <returns>A new array which is the source with the new items appended</returns>
-    public static T[] And<T>(this T[] source, IEnumerable<T> values)
+    public static T[] And<T>(
+        this T[] source,
+        IEnumerable<T> values
+    )
     {
         return And(source as IEnumerable<T>, values);
     }
@@ -355,7 +377,10 @@ internal
     /// <param name="toRemove">items which should not appear in the result array</param>
     /// <typeparam name="T">Item type of the array</typeparam>
     /// <returns>A new array of T with the specified items not present</returns>
-    public static T[] ButNot<T>(this IEnumerable<T> source, params T[] toRemove)
+    public static T[] ButNot<T>(
+        this IEnumerable<T> source,
+        params T[] toRemove
+    )
     {
         return source.Except(toRemove).ToArray();
     }
@@ -368,7 +393,9 @@ internal
     /// <param name="collection">Source collection to operate on</param>
     /// <typeparam name="T">Item type of the collection</typeparam>
     /// <returns>A new, flat collection</returns>
-    public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> collection)
+    public static IEnumerable<T> Flatten<T>(
+        this IEnumerable<IEnumerable<T>> collection
+    )
     {
         return collection.SelectMany(o => o);
     }
@@ -428,7 +455,10 @@ internal
     /// <param name="delimiter">Optional delimiter (default is Environment.NewLine)</param>
     /// <typeparam name="T">Item type of collection</typeparam>
     /// <returns>String representation of the the items</returns>
-    public static string AsText<T>(this IEnumerable<T> input, string delimiter = null)
+    public static string AsText<T>(
+        this IEnumerable<T> input,
+        string delimiter = null
+    )
     {
         return input.JoinWith(delimiter ?? Environment.NewLine);
     }
@@ -598,7 +628,10 @@ internal
     /// True if only one item in the collection got a true value from the matcher
     /// function; false if zero or more than one items were matched.
     /// </returns>
-    public static bool HasUnique<T>(this IEnumerable<T> input, Func<T, bool> matcher)
+    public static bool HasUnique<T>(
+        this IEnumerable<T> input,
+        Func<T, bool> matcher
+    )
     {
         var matches = input.Where(matcher);
         return matches.Count() == 1;
@@ -610,7 +643,10 @@ internal
     /// </summary>
     /// <param name="howMany">Number of times to run the provided action</param>
     /// <param name="toRun">Action to run</param>
-    public static void TimesDo(this int howMany, Action toRun)
+    public static void TimesDo(
+        this int howMany,
+        Action toRun
+    )
     {
         howMany.TimesDo(_ => toRun());
     }
@@ -622,7 +658,10 @@ internal
     /// </summary>
     /// <param name="howMany">Number of times to run the provided action</param>
     /// <param name="toRun">Action to run</param>
-    public static void TimesDo(this int howMany, Action<int> toRun)
+    public static void TimesDo(
+        this int howMany,
+        Action<int> toRun
+    )
     {
         if (howMany < 0)
         {
@@ -644,7 +683,9 @@ internal
     /// <param name="src">Source collection</param>
     /// <typeparam name="T">Item type of the collection</typeparam>
     /// <returns>The second item, when available. Will throw if there is no item available.</returns>
-    public static T Second<T>(this IEnumerable<T> src)
+    public static T Second<T>(
+        this IEnumerable<T> src
+    )
     {
         return src.FirstAfter(1);
     }
@@ -655,7 +696,9 @@ internal
     /// <param name="src">Source collection</param>
     /// <typeparam name="T">Item type of the collection</typeparam>
     /// <returns>The third item, when available. Will throw if there is no item available.</returns>
-    public static T Third<T>(this IEnumerable<T> src)
+    public static T Third<T>(
+        this IEnumerable<T> src
+    )
     {
         return src.FirstAfter(2);
     }
@@ -666,7 +709,9 @@ internal
     /// <param name="src">Source collection</param>
     /// <typeparam name="T">Item type of the collection</typeparam>
     /// <returns>The fourth item, when available. Will throw if there is no item available.</returns>
-    public static T Fourth<T>(this IEnumerable<T> src)
+    public static T Fourth<T>(
+        this IEnumerable<T> src
+    )
     {
         return src.FirstAfter(3);
     }
@@ -678,7 +723,10 @@ internal
     /// <param name="n">Zero-based index into collection</param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static T Nth<T>(this IEnumerable<T> src, int n)
+    public static T Nth<T>(
+        this IEnumerable<T> src,
+        int n
+    )
     {
         return src.FirstAfter(n);
     }
@@ -690,7 +738,10 @@ internal
     /// <param name="n">Zero-based index into collection</param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static T At<T>(this IEnumerable<T> src, int n)
+    public static T At<T>(
+        this IEnumerable<T> src,
+        int n
+    )
     {
         return src.Nth(n);
     }
@@ -704,7 +755,10 @@ internal
     /// <param name="toSkip">How many items to skip</param>
     /// <typeparam name="T">Item type of the collection</typeparam>
     /// <returns>The third item, when available. Will throw if there is no item available.</returns>
-    public static T FirstAfter<T>(this IEnumerable<T> src, int toSkip)
+    public static T FirstAfter<T>(
+        this IEnumerable<T> src,
+        int toSkip
+    )
     {
         return src.Skip(toSkip).First();
     }
@@ -719,7 +773,10 @@ internal
     /// <param name="toSkip">How many items to skip</param>
     /// <typeparam name="T">Item type of the collection</typeparam>
     /// <returns>The third item, when available. Will return the default value for T otherwise.</returns>
-    public static T FirstOrDefaultAfter<T>(this IEnumerable<T> src, int toSkip)
+    public static T FirstOrDefaultAfter<T>(
+        this IEnumerable<T> src,
+        int toSkip
+    )
     {
         return src.Skip(toSkip).FirstOrDefault();
     }
@@ -792,12 +849,14 @@ internal
     /// - given an array, returns the exact array
     /// - given null, returns empty array
     /// - given any other IEnumerable&lt;T&gt;, calls .ToArray on it
-    /// 
+    ///
     /// </summary>
     /// <param name="collection"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static T[] AsArray<T>(this IEnumerable<T> collection)
+    public static T[] AsArray<T>(
+        this IEnumerable<T> collection
+    )
     {
         return collection switch
         {
@@ -831,7 +890,10 @@ internal
         /// </summary>
         /// <param name="key">Key value</param>
         /// <param name="items">Duplicated items</param>
-        public DuplicateResult(TKey key, IEnumerable<TItem> items)
+        public DuplicateResult(
+            TKey key,
+            IEnumerable<TItem> items
+        )
         {
             Key = key;
             Items = items;
@@ -863,7 +925,9 @@ internal
             );
         }
 
-        MethodInfo ResolveImplicitOperator(Type inputType)
+        MethodInfo ResolveImplicitOperator(
+            Type inputType
+        )
         {
             if (implicitOp != null)
             {
@@ -976,7 +1040,10 @@ internal
     {
         return left.Matches(
             right,
-            (a, b) =>
+            (
+                a,
+                b
+            ) =>
             {
                 if (a is null && b is null)
                 {
@@ -1380,13 +1447,19 @@ internal
         // are in right, then all of right are in left
         var keysMatch = leftKeys.Aggregate(
             true,
-            (acc, cur) => acc && rightKeys.Contains(cur)
+            (
+                acc,
+                cur
+            ) => acc && rightKeys.Contains(cur)
         );
 
         return keysMatch &&
             leftCount.Aggregate(
                 true,
-                (acc, cur) => acc && rightCount[cur.Key] == leftCount[cur.Key]
+                (
+                    acc,
+                    cur
+                ) => acc && rightCount[cur.Key] == leftCount[cur.Key]
             );
     }
 
@@ -1397,7 +1470,9 @@ internal
     /// <param name="collection"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static HashSet<T> AsHashSet<T>(this IEnumerable<T> collection)
+    public static HashSet<T> AsHashSet<T>(
+        this IEnumerable<T> collection
+    )
     {
         return [..collection];
     }
@@ -1818,7 +1893,10 @@ internal
 
     private class BasicEqualityComparer<T> : IEqualityComparer<T>
     {
-        public bool Equals(T x, T y)
+        public bool Equals(
+            T x,
+            T y
+        )
         {
             if (x is null && y is null)
             {
@@ -1833,7 +1911,9 @@ internal
             return x.Equals(y);
         }
 
-        public int GetHashCode(T obj)
+        public int GetHashCode(
+            T obj
+        )
         {
             return obj?.GetHashCode() ?? 0;
         }
@@ -2244,16 +2324,21 @@ internal
 
         return result;
 
-        void AddIfNotNull(T k)
+        void AddIfNotNull(
+            T k
+        )
         {
             if (k is null)
             {
                 return;
             }
+
             AlwaysAdd(k);
         }
 
-        void AlwaysAdd(T k)
+        void AlwaysAdd(
+            T k
+        )
         {
             result.AddOrUpdate(
                 k ?? nullKey,
@@ -2262,10 +2347,37 @@ internal
             );
         }
     }
-    
-    private static void NoOp<T>(T _)
+
+    private static void NoOp<T>(
+        T _
+    )
     {
         // does nothing, on purpose
+    }
+
+    /// <summary>
+    /// Calculates the provides percentile value
+    /// from the provided collection
+    /// </summary>
+    /// <param name="values"></param>
+    /// <param name="percentile"></param>
+    /// <returns></returns>
+    public static T CalculatePercentile<T>(
+        this IEnumerable<T> values,
+        int percentile
+    )
+    {
+        if (percentile is < 1 or > 100)
+        {
+            throw new ArgumentException(
+                "percentile must be a value in the range 1..100",
+                nameof(percentile)
+            );
+        }
+
+        var list = values as IList<T> ?? values.ToArray();
+        var target = (int)Math.Round((percentile / 100m) * list.Count);
+        return list.OrderBy(o => o).Skip(target - 1).First();
     }
 }
 

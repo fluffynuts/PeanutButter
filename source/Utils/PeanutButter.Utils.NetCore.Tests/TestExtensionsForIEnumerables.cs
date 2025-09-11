@@ -106,13 +106,21 @@ public class TestExtensionsForIEnumerables
                 var input = GetRandomArray<int>(5, 15);
                 var collectedIndexes = new List<int>();
                 var collectedItems = new List<int>();
-                var expectedIndexes = input.Select((_, i) => i).ToList();
+                var expectedIndexes = input.Select(
+                    (
+                        _,
+                        i
+                    ) => i
+                ).ToList();
 
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
                 input.ForEach(
-                    (item, idx) =>
+                    (
+                        item,
+                        idx
+                    ) =>
                     {
                         collectedItems.Add(item);
                         collectedIndexes.Add(idx);
@@ -896,7 +904,9 @@ public class TestExtensionsForIEnumerables
         {
             [TestCase(1)]
             [TestCase(2)]
-            public void ShouldThrowFor_(int howMany)
+            public void ShouldThrowFor_(
+                int howMany
+            )
             {
                 //---------------Set up test pack-------------------
                 var input = GetRandomArray<int>(howMany, howMany);
@@ -947,7 +957,9 @@ public class TestExtensionsForIEnumerables
             [TestCase(1)]
             [TestCase(2)]
             [TestCase(3)]
-            public void ShouldThrowFor_(int howMany)
+            public void ShouldThrowFor_(
+                int howMany
+            )
             {
                 //---------------Set up test pack-------------------
                 var input = GetRandomArray<int>(howMany, howMany);
@@ -1177,7 +1189,9 @@ public class TestExtensionsForIEnumerables
         public class WhenIntCollectionIsInsufficient
         {
             [TestCase(default(int))]
-            public void ShouldReturn_(int expected)
+            public void ShouldReturn_(
+                int expected
+            )
             {
                 //---------------Set up test pack-------------------
                 var collection = GetRandomCollection<int>(2, 5);
@@ -1257,7 +1271,9 @@ public class TestExtensionsForIEnumerables
         // ReSharper disable once MemberCanBePrivate.Local
         public int? Id { get; set; }
 
-        public static ItemWithNullableId For(int? value)
+        public static ItemWithNullableId For(
+            int? value
+        )
         {
             return new ItemWithNullableId()
             {
@@ -1305,7 +1321,9 @@ public class TestExtensionsForIEnumerables
         {
             public Thing Thing { get; set; }
 
-            public static ItemWithNullableThing For(Thing thing)
+            public static ItemWithNullableThing For(
+                Thing thing
+            )
             {
                 return new ItemWithNullableThing()
                 {
@@ -2814,7 +2832,9 @@ public class TestExtensionsForIEnumerables
                 public int Id { get; set; }
                 public string Name { get; set; }
 
-                public override bool Equals(object obj)
+                public override bool Equals(
+                    object obj
+                )
                 {
                     var asPoco = obj as Poco;
                     if (asPoco is null)
@@ -3271,13 +3291,17 @@ public class TestExtensionsForIEnumerables
                     return $"[{Method}] {Route}";
                 }
 
-                public override bool Equals(object obj)
+                public override bool Equals(
+                    object obj
+                )
                 {
                     var other = obj as RouteAndMethod;
                     return Equals(other);
                 }
 
-                protected bool Equals(RouteAndMethod other)
+                protected bool Equals(
+                    RouteAndMethod other
+                )
                 {
                     return other is not null &&
                         Route == other.Route &&
@@ -3289,7 +3313,9 @@ public class TestExtensionsForIEnumerables
                     return Tuple.Create(Route, (int)Method).GetHashCode();
                 }
 
-                public int CompareTo(RouteAndMethod other)
+                public int CompareTo(
+                    RouteAndMethod other
+                )
                 {
                     if (ReferenceEquals(this, other))
                     {
@@ -4185,11 +4211,9 @@ public class TestExtensionsForIEnumerables
                         };
                         // Act
                         var result = collection.ContainsAnyOf(
-                            [
-                                4,
-                                5,
-                                6
-                            ]
+                            4,
+                            5,
+                            6
                         );
                         // Assert
                         Expect(result)
@@ -4208,7 +4232,7 @@ public class TestExtensionsForIEnumerables
                         var seek = GetRandomFrom(collection);
 
                         // Act
-                        var result = collection.ContainsAnyOf([seek]);
+                        var result = collection.ContainsAnyOf(seek);
                         // Assert
                         Expect(result)
                             .To.Be.True();
@@ -4392,6 +4416,373 @@ public class TestExtensionsForIEnumerables
         )
         {
             return args;
+        }
+    }
+
+    [TestFixture]
+    public class CalculatePercentile
+    {
+        // reference: https://www.geeksforgeeks.org/maths/percentile-formula/
+        [TestFixture]
+        public class IntegerValues
+        {
+            [Test]
+            public void ShouldCalculateExampleIntegerPercentile1()
+            {
+                /*
+                 * Q: What is the 15th percentile for the given population of weights
+                 *    of persons 50, 55, 40, 60, 100, 95, 90, 60, 80, 75?
+                 * A: 50
+                 */
+                // Arrange
+                var data = new[]
+                {
+                    50,
+                    55,
+                    40,
+                    60,
+                    100,
+                    95,
+                    90,
+                    60,
+                    80,
+                    75
+                };
+                // Act
+                var result = data.CalculatePercentile(15);
+                // Assert
+                Expect(result)
+                    .To.Equal(50);
+            }
+
+            [Test]
+            public void ShouldCalculateExampleIntegerPercentile2()
+            {
+                /*
+                 * Q: What is the 50th percentile for the given scores of
+                 *    8 persons are 50, 100, 70, 80, 56, 60, 80, 75?
+                 * A: 70
+                 */
+                // Arrange
+                var data = new[]
+                {
+                    50,
+                    100,
+                    70,
+                    80,
+                    56,
+                    60,
+                    80,
+                    75
+                };
+                // Act
+                var result = data.CalculatePercentile(50);
+                // Assert
+                Expect(result)
+                    .To.Equal(70);
+            }
+        }
+
+        [TestFixture]
+        public class DecimalValues
+        {
+            [Test]
+            public void ShouldCalculateExampleIntegerPercentile1()
+            {
+                /*
+                 * Q: What is the 15th percentile for the given population of weights
+                 *    of persons 50, 55, 40, 60, 100, 95, 90, 60, 80, 75?
+                 * A: 50
+                 */
+                // Arrange
+                var data = new[]
+                {
+                    50m,
+                    55m,
+                    40m,
+                    60m,
+                    100m,
+                    95m,
+                    90m,
+                    60m,
+                    80m,
+                    75m
+                };
+                // Act
+                var result = data.CalculatePercentile(15);
+                // Assert
+                Expect(result)
+                    .To.Equal(50m);
+            }
+
+            [Test]
+            public void ShouldCalculateExampleIntegerPercentile2()
+            {
+                /*
+                 * Q: What is the 50th percentile for the given scores of
+                 *    8 persons are 50, 100, 70, 80, 56, 60, 80, 75?
+                 * A: 70
+                 */
+                // Arrange
+                var data = new[]
+                {
+                    50m,
+                    100m,
+                    70m,
+                    80m,
+                    56m,
+                    60m,
+                    80m,
+                    75m
+                };
+                // Act
+                var result = data.CalculatePercentile(50);
+                // Assert
+                Expect(result)
+                    .To.Equal(70m);
+            }
+        }
+
+        [TestFixture]
+        public class FloatValues
+        {
+            [Test]
+            public void ShouldCalculateExampleIntegerPercentile1()
+            {
+                /*
+                 * Q: What is the 15th percentile for the given population of weights
+                 *    of persons 50, 55, 40, 60, 100, 95, 90, 60, 80, 75?
+                 * A: 50
+                 */
+                // Arrange
+                var data = new[]
+                {
+                    50f,
+                    55f,
+                    40f,
+                    60f,
+                    100f,
+                    95f,
+                    90f,
+                    60f,
+                    80f,
+                    75f
+                };
+                // Act
+                var result = data.CalculatePercentile(15);
+                // Assert
+                Expect(result)
+                    .To.Equal(50f);
+            }
+
+            [Test]
+            public void ShouldCalculateExampleIntegerPercentile2()
+            {
+                /*
+                 * Q: What is the 50th percentile for the given scores of
+                 *    8 persons are 50, 100, 70, 80, 56, 60, 80, 75?
+                 * A: 70
+                 */
+                // Arrange
+                var data = new[]
+                {
+                    50f,
+                    100f,
+                    70f,
+                    80f,
+                    56f,
+                    60f,
+                    80f,
+                    75f
+                };
+                // Act
+                var result = data.CalculatePercentile(50);
+                // Assert
+                Expect(result)
+                    .To.Equal(70f);
+            }
+        }
+
+        [TestFixture]
+        public class LongValues
+        {
+            [Test]
+            public void ShouldCalculateExampleIntegerPercentile1()
+            {
+                /*
+                 * Q: What is the 15th percentile for the given population of weights
+                 *    of persons 50, 55, 40, 60, 100, 95, 90, 60, 80, 75?
+                 * A: 50
+                 */
+                // Arrange
+                var data = new[]
+                {
+                    50L,
+                    55L,
+                    40L,
+                    60L,
+                    100L,
+                    95L,
+                    90L,
+                    60L,
+                    80L,
+                    75L
+                };
+                // Act
+                var result = data.CalculatePercentile(15);
+                // Assert
+                Expect(result)
+                    .To.Equal(50L);
+            }
+
+            [Test]
+            public void ShouldCalculateExampleIntegerPercentile2()
+            {
+                /*
+                 * Q: What is the 50th percentile for the given scores of
+                 *    8 persons are 50, 100, 70, 80, 56, 60, 80, 75?
+                 * A: 70
+                 */
+                // Arrange
+                var data = new[]
+                {
+                    50L,
+                    100L,
+                    70L,
+                    80L,
+                    56L,
+                    60L,
+                    80L,
+                    75L
+                };
+                // Act
+                var result = data.CalculatePercentile(50);
+                // Assert
+                Expect(result)
+                    .To.Equal(70L);
+            }
+        }
+
+        [TestFixture]
+        public class TimeSpanValues
+        {
+            [Test]
+            public void ShouldCalculateExampleIntegerPercentile1()
+            {
+                /*
+                 * Q: What is the 15th percentile for the given population of weights
+                 *    of persons 50, 55, 40, 60, 100, 95, 90, 60, 80, 75?
+                 * A: 50
+                 */
+                // Arrange
+                var data = new[]
+                {
+                    50,
+                    55,
+                    40,
+                    60,
+                    100,
+                    95,
+                    90,
+                    60,
+                    80,
+                    75
+                }.Map(o => TimeSpan.FromSeconds(o));
+                // Act
+                var result = data.CalculatePercentile(15);
+                // Assert
+                Expect(result)
+                    .To.Equal(TimeSpan.FromSeconds(50));
+            }
+
+            [Test]
+            public void ShouldCalculateExampleIntegerPercentile2()
+            {
+                /*
+                 * Q: What is the 50th percentile for the given scores of
+                 *    8 persons are 50, 100, 70, 80, 56, 60, 80, 75?
+                 * A: 70
+                 */
+                // Arrange
+                var data = new[]
+                {
+                    50,
+                    100,
+                    70,
+                    80,
+                    56,
+                    60,
+                    80,
+                    75
+                }.Map(o => TimeSpan.FromSeconds(o));
+                // Act
+                var result = data.CalculatePercentile(50);
+                // Assert
+                Expect(result)
+                    .To.Equal(TimeSpan.FromSeconds(70));
+            }
+        }
+
+        [TestFixture]
+        public class DateTimeValues
+        {
+            [Test]
+            public void ShouldCalculateExampleIntegerPercentile1()
+            {
+                /*
+                 * Q: What is the 15th percentile for the given population of weights
+                 *    of persons 50, 55, 40, 60, 100, 95, 90, 60, 80, 75?
+                 * A: 50
+                 */
+                // Arrange
+                var now = DateTime.Now;
+                var data = new[]
+                {
+                    50,
+                    55,
+                    40,
+                    60,
+                    100,
+                    95,
+                    90,
+                    60,
+                    80,
+                    75
+                }.Map(o => now.AddSeconds(o));
+                // Act
+                var result = data.CalculatePercentile(15);
+                // Assert
+                Expect(result)
+                    .To.Equal(now.AddSeconds(50));
+            }
+
+            [Test]
+            public void ShouldCalculateExampleIntegerPercentile2()
+            {
+                /*
+                 * Q: What is the 50th percentile for the given scores of
+                 *    8 persons are 50, 100, 70, 80, 56, 60, 80, 75?
+                 * A: 70
+                 */
+                // Arrange
+                var now = DateTime.Now;
+                var data = new[]
+                {
+                    50,
+                    100,
+                    70,
+                    80,
+                    56,
+                    60,
+                    80,
+                    75
+                }.Map(o => now.AddSeconds(o));
+                // Act
+                var result = data.CalculatePercentile(50);
+                // Assert
+                Expect(result)
+                    .To.Equal(now.AddSeconds(70));
+            }
         }
     }
 }
