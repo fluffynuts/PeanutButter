@@ -1,6 +1,5 @@
 var namespacePeanutButter =
 [
-    [ "Async", "namespacePeanutButter_1_1Async.html", "namespacePeanutButter_1_1Async" ],
     [ "DuckTyping", "namespacePeanutButter_1_1DuckTyping.html", "namespacePeanutButter_1_1DuckTyping" ],
     [ "EasyArgs", "namespacePeanutButter_1_1EasyArgs.html", "namespacePeanutButter_1_1EasyArgs" ],
     [ "FileSystem", "namespacePeanutButter_1_1FileSystem.html", "namespacePeanutButter_1_1FileSystem" ],

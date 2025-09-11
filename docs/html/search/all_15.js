@@ -34,7 +34,5 @@ var searchData=
   ['urlparameters_31',['UrlParameters',['../classPeanutButter_1_1SimpleHTTPServer_1_1HttpProcessor.html#aebec1ad7fef514b2c3fb4254ac2cdec0',1,'PeanutButter::SimpleHTTPServer::HttpProcessor']]],
   ['user_32',['User',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpContext.html#a9e6a7eabd7e931715a0c92ad3f46d17d',1,'PeanutButter::TestUtils::AspNetCore::Fakes::FakeHttpContext']]],
   ['userbuilders_33',['UserBuilders',['../classPeanutButter_1_1RandomGenerators_1_1GenericBuilderBase.html#acf8b01044936a606a37eaf6e2ca60bd5',1,'PeanutButter::RandomGenerators::GenericBuilderBase']]],
-  ['using_34',['Using',['../classPeanutButter_1_1Async_1_1TaskExtensions.html#a7d2b7d04afaeef5d9ee412de0d365562',1,'PeanutButter::Async::TaskExtensions']]],
-  ['using_3c_20t_20_3e_35',['Using&lt; T &gt;',['../classPeanutButter_1_1Async_1_1TaskExtensions.html#a8b00e2a437afd06ed6f34a8176ab20d3',1,'PeanutButter::Async::TaskExtensions']]],
-  ['utilities_36',['Utilities',['../index.html#autotoc_md2',1,'']]]
+  ['utilities_34',['Utilities',['../index.html#autotoc_md2',1,'']]]
 ];

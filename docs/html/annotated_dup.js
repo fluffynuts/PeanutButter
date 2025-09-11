@@ -1,18 +1,6 @@
 var annotated_dup =
 [
     [ "PeanutButter", "namespacePeanutButter.html", [
-      [ "Async", "namespacePeanutButter_1_1Async.html", [
-        [ "Interfaces", "namespacePeanutButter_1_1Async_1_1Interfaces.html", [
-          [ "IContinuation", "interfacePeanutButter_1_1Async_1_1Interfaces_1_1IContinuation.html", "interfacePeanutButter_1_1Async_1_1Interfaces_1_1IContinuation" ],
-          [ "IContinuation< T >", "interfacePeanutButter_1_1Async_1_1Interfaces_1_1IContinuation-1-g.html", "interfacePeanutButter_1_1Async_1_1Interfaces_1_1IContinuation-1-g" ],
-          [ "IFluentTaskRunnerContinuation< T >", "interfacePeanutButter_1_1Async_1_1Interfaces_1_1IFluentTaskRunnerContinuation-1-g.html", "interfacePeanutButter_1_1Async_1_1Interfaces_1_1IFluentTaskRunnerContinuation-1-g" ],
-          [ "ITaskRunner", "interfacePeanutButter_1_1Async_1_1Interfaces_1_1ITaskRunner.html", "interfacePeanutButter_1_1Async_1_1Interfaces_1_1ITaskRunner" ]
-        ] ],
-        [ "Continuation< T >", "classPeanutButter_1_1Async_1_1Continuation-1-g.html", "classPeanutButter_1_1Async_1_1Continuation-1-g" ],
-        [ "FluentTaskRunnerContinuation< T >", "classPeanutButter_1_1Async_1_1FluentTaskRunnerContinuation-1-g.html", "classPeanutButter_1_1Async_1_1FluentTaskRunnerContinuation-1-g" ],
-        [ "TaskExtensions", "classPeanutButter_1_1Async_1_1TaskExtensions.html", "classPeanutButter_1_1Async_1_1TaskExtensions" ],
-        [ "TaskRunner", "classPeanutButter_1_1Async_1_1TaskRunner.html", "classPeanutButter_1_1Async_1_1TaskRunner" ]
-      ] ],
       [ "DuckTyping", "namespacePeanutButter_1_1DuckTyping.html", [
         [ "AutoConversion", "namespacePeanutButter_1_1DuckTyping_1_1AutoConversion.html", [
           [ "ConverterExtensions", "classPeanutButter_1_1DuckTyping_1_1AutoConversion_1_1ConverterExtensions.html", "classPeanutButter_1_1DuckTyping_1_1AutoConversion_1_1ConverterExtensions" ],
@@ -327,9 +315,6 @@ var annotated_dup =
           [ "HttpResponseExtensions", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1HttpResponseExtensions.html", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1HttpResponseExtensions" ],
           [ "InvalidImplementationException< TExpected >", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1InvalidImplementationException-1-g.html", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1InvalidImplementationException-1-g" ],
           [ "InvalidSameSiteValueException", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1InvalidSameSiteValueException.html", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1InvalidSameSiteValueException" ]
-        ] ],
-        [ "Async", "namespacePeanutButter_1_1TestUtils_1_1Async.html", [
-          [ "ImmediateTaskRunnerBuilder", "classPeanutButter_1_1TestUtils_1_1Async_1_1ImmediateTaskRunnerBuilder.html", "classPeanutButter_1_1TestUtils_1_1Async_1_1ImmediateTaskRunnerBuilder" ]
         ] ],
         [ "Generic", "namespacePeanutButter_1_1TestUtils_1_1Generic.html", [
           [ "ConstructorTestUtils", "classPeanutButter_1_1TestUtils_1_1Generic_1_1ConstructorTestUtils.html", "classPeanutButter_1_1TestUtils_1_1Generic_1_1ConstructorTestUtils" ],

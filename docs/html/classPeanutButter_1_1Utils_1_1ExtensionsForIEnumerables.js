@@ -22,6 +22,7 @@ var classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables =
     [ "AsTextListWithHeader< T >", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html#a0be66014d47b8ae78675f33746aeb40d", null ],
     [ "At< T >", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html#a0abc601dfe0714001dd38b2f2835075d", null ],
     [ "ButNot< T >", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html#a3b09a78e758a586300b7705b925f280a", null ],
+    [ "CalculatePercentile< T >", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html#a526e127c743a0407d07f73b6193dc1e0", null ],
     [ "ContainsAllOf< T >", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html#abb4a5428b38b568187bc540a554d73c9", null ],
     [ "ContainsAnyOf< T >", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html#a3a927566737b1f2208d945c3e22a3fcf", null ],
     [ "ContainsAnyOf< T >", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html#a590ea752306479873a0aa86cc2c6ea01", null ],

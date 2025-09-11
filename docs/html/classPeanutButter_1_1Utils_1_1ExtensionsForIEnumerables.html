@@ -292,6 +292,8 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memdesc:a4bd24e4a527728ebb06d6ee5621ef4da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given a collection of items, produces a dictionary where the keys are the unique items and the values are counts of those items, eg counting fruit:  <br /></td></tr>
 <tr class="memitem:a05a93827ef25c5aa8b3a067e8be0896c" id="r_a05a93827ef25c5aa8b3a067e8be0896c"><td class="memItemLeft" align="right" valign="top">static IDictionary&lt; T, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a05a93827ef25c5aa8b3a067e8be0896c">AsFrequencyDistribution&lt; T &gt;</a> (this IEnumerable&lt; T &gt; collection, T nullKey)</td></tr>
 <tr class="memdesc:a05a93827ef25c5aa8b3a067e8be0896c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given a collection of items, produces a dictionary where the keys are the unique items and the values are counts of those items, eg counting fruit:  <br /></td></tr>
+<tr class="memitem:a526e127c743a0407d07f73b6193dc1e0" id="r_a526e127c743a0407d07f73b6193dc1e0"><td class="memItemLeft" align="right" valign="top">static T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a526e127c743a0407d07f73b6193dc1e0">CalculatePercentile&lt; T &gt;</a> (this IEnumerable&lt; T &gt; values, int percentile)</td></tr>
+<tr class="memdesc:a526e127c743a0407d07f73b6193dc1e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the provides percentile value from the provided collection.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Useful extensions for IEnumerable&lt;T&gt; collections. </p>
@@ -1313,6 +1315,45 @@ Static Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new array of T with the specified items not present</dd></dl>
+
+</div>
+</div>
+<a id="a526e127c743a0407d07f73b6193dc1e0" name="a526e127c743a0407d07f73b6193dc1e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a526e127c743a0407d07f73b6193dc1e0">&#9670;&#160;</a></span>CalculatePercentile&lt; T &gt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">T PeanutButter.Utils.ExtensionsForIEnumerables.CalculatePercentile&lt; T &gt; </td>
+          <td>(</td>
+          <td class="paramtype">this IEnumerable&lt; T &gt;</td>          <td class="paramname"><span class="paramname"><em>values</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>percentile</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Calculates the provides percentile value from the provided collection. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">values</td><td></td></tr>
+    <tr><td class="paramname">percentile</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>
