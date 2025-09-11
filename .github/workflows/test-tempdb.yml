@@ -74,7 +74,7 @@ jobs:
           npm run test-ci-tempdb
 
   test-tempdb-osx:
-    runs-on: macos-latest-large
+    runs-on: macos-latest
     steps:
       - name: Setup mysql via homebrew
         uses: tecolicom/actions-use-homebrew-tools@v1
