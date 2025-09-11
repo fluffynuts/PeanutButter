@@ -877,10 +877,9 @@ public
                 if (opt.Property?.PropertyType == typeof(DateTime) ||
                     opt.Property?.PropertyType == typeof(DateTime?))
                 {
-                    if (opt.Default is string str)
-                    {
-                        result[opt.Key] = DateTimeParser.Parse(str);
-                    }
+                    result[opt.Key] = opt.Default is string str
+                        ? DateTimeParser.Parse(str)
+                        : opt.Default;
                 }
                 else
                 {
