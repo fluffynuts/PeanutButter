@@ -57,7 +57,8 @@ var searchData=
   ['exitnestedscope_54',['ExitNestedScope',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1FakeModelBindingContext.html#a4592499803dff634916b696e1f089958',1,'PeanutButter::TestUtils::AspNetCore::Builders::FakeModelBindingContext']]],
   ['exitonerror_55',['ExitOnError',['../classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a4e79455ac477e23ec792c1d08aa2cfb7',1,'PeanutButter::EasyArgs::ParserOptions']]],
   ['exitwhenshowinghelp_56',['ExitWhenShowingHelp',['../classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#ade0a74bb7470b314f1c39634fb1eacd1',1,'PeanutButter::EasyArgs::ParserOptions']]],
-  ['expired_57',['Expired',['../classPeanutButter_1_1TinyEventAggregator_1_1Subscription-1-g.html#a8493137f6dbf3c2553b4f9d5ed6ee0aaa24fe48030f7d3097d5882535b04c3fa8',1,'PeanutButter::TinyEventAggregator::Subscription-1-g']]],
-  ['expressionutil_58',['ExpressionUtil',['../classPeanutButter_1_1Utils_1_1ExpressionUtil.html',1,'PeanutButter::Utils']]],
-  ['extensionsforienumerables_59',['ExtensionsForIEnumerables',['../classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html',1,'PeanutButter::Utils']]]
+  ['exitwhenshowingversion_57',['ExitWhenShowingVersion',['../classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a970069f8ae714dcaf790765c1bc8df6f',1,'PeanutButter::EasyArgs::ParserOptions']]],
+  ['expired_58',['Expired',['../classPeanutButter_1_1TinyEventAggregator_1_1Subscription-1-g.html#a8493137f6dbf3c2553b4f9d5ed6ee0aaa24fe48030f7d3097d5882535b04c3fa8',1,'PeanutButter::TinyEventAggregator::Subscription-1-g']]],
+  ['expressionutil_59',['ExpressionUtil',['../classPeanutButter_1_1Utils_1_1ExpressionUtil.html',1,'PeanutButter::Utils']]],
+  ['extensionsforienumerables_60',['ExtensionsForIEnumerables',['../classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html',1,'PeanutButter::Utils']]]
 ];

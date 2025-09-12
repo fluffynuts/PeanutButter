@@ -17,5 +17,6 @@ var searchData=
   ['exitaction_14',['ExitAction',['../classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a341261ca123d1220bf9cd12e9fa1e899',1,'PeanutButter::EasyArgs::ParserOptions']]],
   ['exitcode_15',['ExitCode',['../interfacePeanutButter_1_1Utils_1_1IProcessIO.html#ad35521811bfc7b2a899b77f8caeb2475',1,'PeanutButter.Utils.IProcessIO.ExitCode'],['../classPeanutButter_1_1Utils_1_1ProcessIO.html#ad4575c3f3cd89672f996eb33e22cc1b6',1,'PeanutButter.Utils.ProcessIO.ExitCode']]],
   ['exitonerror_16',['ExitOnError',['../classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a4e79455ac477e23ec792c1d08aa2cfb7',1,'PeanutButter::EasyArgs::ParserOptions']]],
-  ['exitwhenshowinghelp_17',['ExitWhenShowingHelp',['../classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#ade0a74bb7470b314f1c39634fb1eacd1',1,'PeanutButter::EasyArgs::ParserOptions']]]
+  ['exitwhenshowinghelp_17',['ExitWhenShowingHelp',['../classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#ade0a74bb7470b314f1c39634fb1eacd1',1,'PeanutButter::EasyArgs::ParserOptions']]],
+  ['exitwhenshowingversion_18',['ExitWhenShowingVersion',['../classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a970069f8ae714dcaf790765c1bc8df6f',1,'PeanutButter::EasyArgs::ParserOptions']]]
 ];

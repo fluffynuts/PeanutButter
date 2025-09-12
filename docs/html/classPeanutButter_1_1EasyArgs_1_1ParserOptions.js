@@ -1,6 +1,7 @@
 var classPeanutButter_1_1EasyArgs_1_1ParserOptions =
 [
     [ "DisplayHelp< T >", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#afa093b925c0c73b9a3b0efe4c5d8c0b3", null ],
+    [ "DisplayVersionInfo", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a4225abe53b3805cceed1f9ea48b1a27a", null ],
     [ "FormatArg", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a42756ff1339fd9abe6ca3f40a0b5518e", null ],
     [ "FormatDescriptionText", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#acbe81ba9084dd2ea9a55c401b912eae9", null ],
     [ "FormatOptionHelp", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a67ae19b28cc459e82ee00cfb17f755d0", null ],
@@ -23,6 +24,7 @@ var classPeanutButter_1_1EasyArgs_1_1ParserOptions =
     [ "ExitAction", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a341261ca123d1220bf9cd12e9fa1e899", null ],
     [ "ExitOnError", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a4e79455ac477e23ec792c1d08aa2cfb7", null ],
     [ "ExitWhenShowingHelp", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#ade0a74bb7470b314f1c39634fb1eacd1", null ],
+    [ "ExitWhenShowingVersion", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a970069f8ae714dcaf790765c1bc8df6f", null ],
     [ "FallbackOnEnvironmentVariables", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#adaae1cd49dffc974723ce4c802955dba", null ],
     [ "IgnoreUnknownSwitches", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a749363d57eb1ea86ace145e96b89eb90", null ],
     [ "IncludeDefaultDescription", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a3f11ef177285d57162f1c91e281e73db", null ],
@@ -30,5 +32,7 @@ var classPeanutButter_1_1EasyArgs_1_1ParserOptions =
     [ "MoreInfo", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#abce591fe42bd007f819235b9060d7533", null ],
     [ "NegateMessage", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#afd7ac2da7b667e9c35c215195d887db2", null ],
     [ "ShowedHelp", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#aba6da4d1fb9a5a5ff2b30a0f7cd2dbf4", null ],
-    [ "ShowHelpOnArgumentError", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a23e51eaa52e153058082bd34c9a2cd14", null ]
+    [ "ShowedVersionInfo", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#aabda3201d190d0bb6a704e1bf46d2405", null ],
+    [ "ShowHelpOnArgumentError", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a23e51eaa52e153058082bd34c9a2cd14", null ],
+    [ "VersionInfo", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a473f9b9cd8a218a93e895249fd219990", null ]
 ];

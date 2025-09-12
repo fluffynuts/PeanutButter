@@ -107,6 +107,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:add06648dcd38285c3d63682f27d32b95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports that an unknown switch was encountered.  <br /></td></tr>
 <tr class="memitem:afa093b925c0c73b9a3b0efe4c5d8c0b3" id="r_afa093b925c0c73b9a3b0efe4c5d8c0b3"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afa093b925c0c73b9a3b0efe4c5d8c0b3">DisplayHelp&lt; T &gt;</a> (<a class="el" href="classPeanutButter_1_1EasyArgs_1_1CommandlineArgument.html">CommandlineArgument</a>[] options)</td></tr>
 <tr class="memdesc:afa093b925c0c73b9a3b0efe4c5d8c0b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays help via the LineWriter action.  <br /></td></tr>
+<tr class="memitem:a4225abe53b3805cceed1f9ea48b1a27a" id="r_a4225abe53b3805cceed1f9ea48b1a27a"><td class="memItemLeft" align="right" valign="top"><a id="a4225abe53b3805cceed1f9ea48b1a27a" name="a4225abe53b3805cceed1f9ea48b1a27a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DisplayVersionInfo</b> ()</td></tr>
+<tr class="memdesc:a4225abe53b3805cceed1f9ea48b1a27a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays the version info and flags that it's been shown so the app can exit. <br /></td></tr>
 <tr class="memitem:a7a47057a98f275dd0f20eaa9e4efa28a" id="r_a7a47057a98f275dd0f20eaa9e4efa28a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7a47057a98f275dd0f20eaa9e4efa28a">ReportMissingRequiredOption</a> (<a class="el" href="classPeanutButter_1_1EasyArgs_1_1CommandlineArgument.html">CommandlineArgument</a> arg)</td></tr>
 <tr class="memdesc:a7a47057a98f275dd0f20eaa9e4efa28a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports a missing, required option.  <br /></td></tr>
 <tr class="memitem:a8f247eb6c00225bf17e87a4db8124e0d" id="r_a8f247eb6c00225bf17e87a4db8124e0d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8f247eb6c00225bf17e87a4db8124e0d">ReportMinimumViolation</a> (string arg, decimal? minValue, decimal value)</td></tr>
@@ -135,6 +138,9 @@ Protected Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-properties" class="groupheader"><a id="properties" name="properties"></a>
 Properties</h2></td></tr>
+<tr class="memitem:a473f9b9cd8a218a93e895249fd219990" id="r_a473f9b9cd8a218a93e895249fd219990"><td class="memItemLeft" align="right" valign="top"><a id="a473f9b9cd8a218a93e895249fd219990" name="a473f9b9cd8a218a93e895249fd219990"></a>
+object&#160;</td><td class="memItemRight" valign="bottom"><b>VersionInfo</b><code> [get, set]</code></td></tr>
+<tr class="memdesc:a473f9b9cd8a218a93e895249fd219990"><td class="mdescLeft">&#160;</td><td class="mdescRight">When provided, your application will respond to a <span class="tt">--version</span> argument with the string representation of the VersionInfo object - so you could set a string, or use a more complex object that overrides .ToString() <br /></td></tr>
 <tr class="memitem:af1c2f21752789eb77d5b0f2dfe1e78d4" id="r_af1c2f21752789eb77d5b0f2dfe1e78d4"><td class="memItemLeft" align="right" valign="top"><a id="af1c2f21752789eb77d5b0f2dfe1e78d4" name="af1c2f21752789eb77d5b0f2dfe1e78d4"></a>
 Action&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>LineWriter</b> = Console.WriteLine<code> [get, set]</code></td></tr>
 <tr class="memdesc:af1c2f21752789eb77d5b0f2dfe1e78d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a line to the output (default is Console.WriteLine) <br /></td></tr>
@@ -144,9 +150,15 @@ Action&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ExitAc
 <tr class="memitem:ade0a74bb7470b314f1c39634fb1eacd1" id="r_ade0a74bb7470b314f1c39634fb1eacd1"><td class="memItemLeft" align="right" valign="top"><a id="ade0a74bb7470b314f1c39634fb1eacd1" name="ade0a74bb7470b314f1c39634fb1eacd1"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>ExitWhenShowingHelp</b> = true<code> [get, set]</code></td></tr>
 <tr class="memdesc:ade0a74bb7470b314f1c39634fb1eacd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">(flag) exit when showing help? default true <br /></td></tr>
+<tr class="memitem:a970069f8ae714dcaf790765c1bc8df6f" id="r_a970069f8ae714dcaf790765c1bc8df6f"><td class="memItemLeft" align="right" valign="top"><a id="a970069f8ae714dcaf790765c1bc8df6f" name="a970069f8ae714dcaf790765c1bc8df6f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>ExitWhenShowingVersion</b> = true<code> [get, set]</code></td></tr>
+<tr class="memdesc:a970069f8ae714dcaf790765c1bc8df6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">(flag) exit when showing version info? default true <br /></td></tr>
 <tr class="memitem:aba6da4d1fb9a5a5ff2b30a0f7cd2dbf4" id="r_aba6da4d1fb9a5a5ff2b30a0f7cd2dbf4"><td class="memItemLeft" align="right" valign="top"><a id="aba6da4d1fb9a5a5ff2b30a0f7cd2dbf4" name="aba6da4d1fb9a5a5ff2b30a0f7cd2dbf4"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>ShowedHelp</b> = false<code> [get, set]</code></td></tr>
-<tr class="memdesc:aba6da4d1fb9a5a5ff2b30a0f7cd2dbf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">(flag) did we show help? useful if you choose not to exit when showing help <br /></td></tr>
+<tr class="memdesc:aba6da4d1fb9a5a5ff2b30a0f7cd2dbf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">(flag) did we show help? useful to decide whether to exit after parsing <br /></td></tr>
+<tr class="memitem:aabda3201d190d0bb6a704e1bf46d2405" id="r_aabda3201d190d0bb6a704e1bf46d2405"><td class="memItemLeft" align="right" valign="top"><a id="aabda3201d190d0bb6a704e1bf46d2405" name="aabda3201d190d0bb6a704e1bf46d2405"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>ShowedVersionInfo</b> = false<code> [get, set]</code></td></tr>
+<tr class="memdesc:aabda3201d190d0bb6a704e1bf46d2405"><td class="mdescLeft">&#160;</td><td class="mdescRight">(flag) did we show version info? useful to decide whether to exit after parsing <br /></td></tr>
 <tr class="memitem:a4e79455ac477e23ec792c1d08aa2cfb7" id="r_a4e79455ac477e23ec792c1d08aa2cfb7"><td class="memItemLeft" align="right" valign="top"><a id="a4e79455ac477e23ec792c1d08aa2cfb7" name="a4e79455ac477e23ec792c1d08aa2cfb7"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>ExitOnError</b> = true<code> [get, set]</code></td></tr>
 <tr class="memdesc:a4e79455ac477e23ec792c1d08aa2cfb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">(flag) should we exit when args have an error? default true <br /></td></tr>
