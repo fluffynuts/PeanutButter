@@ -30,6 +30,14 @@ namespace PeanutButter.EasyArgs
         class ParserOptions
     {
         /// <summary>
+        /// When provided, your application will respond to a `--version`
+        /// argument with the string representation of the VersionInfo
+        /// object - so you could set a string, or use a more complex
+        /// object that overrides .ToString()
+        /// </summary>
+        public object VersionInfo { get; set; }
+
+        /// <summary>
         /// Writes a line to the output (default is Console.WriteLine)
         /// </summary>
         public Action<string> LineWriter { get; set; } = Console.WriteLine;
@@ -45,10 +53,22 @@ namespace PeanutButter.EasyArgs
         public bool ExitWhenShowingHelp { get; set; } = true;
 
         /// <summary>
-        /// (flag) did we show help? useful if you choose not to exit when showing
-        /// help
+        /// (flag) exit when showing version info? default true
+        /// </summary>
+        public bool ExitWhenShowingVersion { get; set; } = true;
+
+
+        /// <summary>
+        /// (flag) did we show help? useful to decide whether to
+        /// exit after parsing
         /// </summary>
         public bool ShowedHelp { get; set; } = false;
+
+        /// <summary>
+        /// (flag) did we show version info? useful to decide whether to
+        /// exit after parsing
+        /// </summary>
+        public bool ShowedVersionInfo { get; set; } = false;
 
         /// <summary>
         /// (flag) should we exit when args have an error? default true
@@ -86,7 +106,9 @@ namespace PeanutButter.EasyArgs
         /// Reports that multiple values were found for a single-value argument
         /// </summary>
         /// <param name="arg"></param>
-        public virtual void ReportMultipleValuesForSingleValueArgument(string arg)
+        public virtual void ReportMultipleValuesForSingleValueArgument(
+            string arg
+        )
         {
             LineWriter(
                 $"{arg} specified more than once but only accepts one value"
@@ -113,7 +135,10 @@ namespace PeanutButter.EasyArgs
         /// </summary>
         /// <param name="left"></param>
         /// <param name="right"></param>
-        public virtual void ReportConflict(string left, string right)
+        public virtual void ReportConflict(
+            string left,
+            string right
+        )
         {
             LineWriter(
                 $"{left} conflicts with {right}"
@@ -124,7 +149,9 @@ namespace PeanutButter.EasyArgs
         /// Reports that an unknown switch was encountered
         /// </summary>
         /// <param name="arg"></param>
-        public virtual void ReportUnknownSwitch(string arg)
+        public virtual void ReportUnknownSwitch(
+            string arg
+        )
         {
             if (IgnoreUnknownSwitches)
             {
@@ -164,7 +191,8 @@ namespace PeanutButter.EasyArgs
                 ? OneLine
                 : NoLines;
             var body = GenerateArgumentHelp<T>(
-                options.Where(o => !o.IsImplicit || o.Key == CommandlineArgument.HELP_FLAG_KEY
+                options.Where(
+                    o => !o.IsImplicit || o.IsAutomaticallyAdded
                 ).ToArray()
             );
             var footer = GenerateHelpFooter<T>(this);
@@ -189,6 +217,21 @@ namespace PeanutButter.EasyArgs
             }
 
             ShowedHelp = true;
+        }
+
+        /// <summary>
+        /// Displays the version info and flags that it's been shown
+        /// so the app can exit
+        /// </summary>
+        public void DisplayVersionInfo()
+        {
+            LineWriter?.Invoke($"{VersionInfo}");
+            if (ExitWhenShowingVersion)
+            {
+                ExitAction?.Invoke(ExitCodes.SHOWED_VERSION);
+            }
+
+            ShowedVersionInfo = true;
         }
 
         private static readonly string[] OneLine =
@@ -285,7 +328,9 @@ namespace PeanutButter.EasyArgs
         /// <param name="options"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected virtual string[] GenerateArgumentHelp<T>(CommandlineArgument[] options)
+        protected virtual string[] GenerateArgumentHelp<T>(
+            CommandlineArgument[] options
+        )
         {
             var result = new List<string>();
             if (options.Any(o => o.EnvironmentDefaultVariable is not null))
@@ -300,19 +345,21 @@ namespace PeanutButter.EasyArgs
                 );
             }
 
-            var longestLeftCol = options.Select(o =>
-                DashLength +
-                SHORT_NAME_LENGTH +
-                CommaAndSpaceLength +
-                DashLength + DashLength +
-                o.LongName.Length +
-                SingleSpaceLength +
-                LeftBracketLength +
-                o.Type.Length +
-                RightBracketLength +
-                COLUMN_PADDING_LENGTH
+            var longestLeftCol = options.Select(
+                o =>
+                    DashLength +
+                    SHORT_NAME_LENGTH +
+                    CommaAndSpaceLength +
+                    DashLength + DashLength +
+                    o.LongName.Length +
+                    SingleSpaceLength +
+                    LeftBracketLength +
+                    o.Type.Length +
+                    RightBracketLength +
+                    COLUMN_PADDING_LENGTH
             ).Max();
-            options.ForEach(opt =>
+            options.ForEach(
+                opt =>
                 {
                     result.Add(
                         FormatOptionHelp(
@@ -576,14 +623,16 @@ namespace PeanutButter.EasyArgs
                 return ConsoleColumns;
             }
         }
-        
+
         /// <summary>
         /// Generates the help footer from a [MoreInfo] attribute
         /// </summary>
         /// <param name="parserOptions"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected virtual string[] GenerateHelpFooter<T>(ParserOptions parserOptions)
+        protected virtual string[] GenerateHelpFooter<T>(
+            ParserOptions parserOptions
+        )
         {
             return FirstSpecified(
                 parserOptions.MoreInfo,
@@ -613,7 +662,9 @@ namespace PeanutButter.EasyArgs
         /// Reports a missing, required option
         /// </summary>
         /// <param name="arg"></param>
-        public virtual void ReportMissingRequiredOption(CommandlineArgument arg)
+        public virtual void ReportMissingRequiredOption(
+            CommandlineArgument arg
+        )
         {
             var suffix = FallbackOnEnvironmentVariables
                 ? $", or set the {arg.Key.ToSnakeCase().ToUpper()} environment variable appropriately"

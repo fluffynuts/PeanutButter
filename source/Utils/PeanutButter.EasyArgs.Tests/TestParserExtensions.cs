@@ -1949,6 +1949,112 @@ Report bugs to <no-one-cares@whatevs.org>
         }
     }
 
+    [TestFixture]
+    public class ShowingVersionInfo
+    {
+        [TestCase("--version")]
+        public void HelpShouldIncludeCliArgWhenVersionInfoSet_(
+            string expected
+        )
+        {
+            // Arrange
+            string[] args = ["--help"];
+            var collected = new List<string>();
+            var exitCode = -1;
+            var options = new ParserOptions()
+            {
+                VersionInfo = GetRandomString(),
+                LineWriter = collected.Add,
+                ExitAction = i => exitCode = i
+            };
+            // Act
+            args.ParseTo<OptionsForVersionInfo>(options);
+            // Assert
+            Expect(collected)
+                .To.Contain.Exactly(1)
+                .Containing("--version");
+            Expect(exitCode)
+                .To.Equal(ExitCodes.SHOWED_HELP);
+        }
+
+        [Test]
+        public void ShouldShowTheStringVersionInfo()
+        {
+            // Arrange
+            string[] args = ["--version"];
+            var expected = GetRandomString();
+            var collected = new List<string>();
+            var exitCode = -1;
+            var options = new ParserOptions()
+            {
+                VersionInfo = expected,
+                LineWriter = collected.Add,
+                ExitAction = i => exitCode = i
+            };
+            // Act
+            args.ParseTo<OptionsForVersionInfo>(options);
+            // Assert
+            Expect(collected)
+                .To.Contain.Only(1)
+                .Containing(expected);
+            Expect(exitCode)
+                .To.Equal(ExitCodes.SHOWED_VERSION);
+        }
+
+        [Test]
+        public void ShouldShowTheObjectVersionInfo()
+        {
+            // Arrange
+            string[] args = ["--version"];
+            var versionInfo = new VersionInfo(1, 2, 3);
+            var expected = "1.2.3";
+            var collected = new List<string>();
+            var exitCode = -1;
+            var options = new ParserOptions()
+            {
+                VersionInfo = versionInfo,
+                LineWriter = collected.Add,
+                ExitAction = i => exitCode = i
+            };
+            // Act
+            args.ParseTo<OptionsForVersionInfo>(options);
+            // Assert
+            Expect(collected)
+                .To.Contain.Only(1)
+                .Containing(expected);
+            Expect(exitCode)
+                .To.Equal(ExitCodes.SHOWED_VERSION);
+        }
+
+        public class VersionInfo
+        {
+            public int Major { get; }
+            public int Minor { get; }
+            public int Patch { get; }
+
+            public VersionInfo(
+                int major,
+                int minor,
+                int patch
+            )
+            {
+                Major = major;
+                Minor = minor;
+                Patch = patch;
+            }
+
+            public override string ToString()
+            {
+                return $"{Major}.{Minor}.{Patch}";
+            }
+        }
+
+        public class OptionsForVersionInfo
+        {
+            bool Flag { get; set; }
+        }
+    }
+
     public class DefaultOneWeekAgoAttribute : DefaultAttribute
     {
         public DefaultOneWeekAgoAttribute()

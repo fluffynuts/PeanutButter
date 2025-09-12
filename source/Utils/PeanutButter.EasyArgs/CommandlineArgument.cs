@@ -55,7 +55,7 @@ namespace PeanutButter.EasyArgs
         public string Type => string.IsNullOrWhiteSpace(_type)
             ? _type = GrokType()
             : _type;
-        
+
         /// <summary>
         /// Exposes the property name for debugging
         /// </summary>
@@ -89,7 +89,9 @@ namespace PeanutButter.EasyArgs
         /// </summary>
         /// <param name="sw"></param>
         /// <returns></returns>
-        public bool HasSwitch(string sw)
+        public bool HasSwitch(
+            string sw
+        )
         {
             return LongSwitch == sw || ShortSwitch == sw;
         }
@@ -174,9 +176,24 @@ namespace PeanutButter.EasyArgs
         public const string HELP_FLAG_KEY = "$help$";
 
         /// <summary>
+        /// Explicit key for the version argument
+        /// </summary>
+        public const string VERSION_FLAG_KEY = "$version$";
+
+        /// <summary>
         /// Whether this specific argument is the help one
         /// </summary>
         public bool IsHelpFlag => Key == HELP_FLAG_KEY;
+
+        /// <summary>
+        /// Whether this specific argument is the version one
+        /// </summary>
+        public bool IsVersionFlag => Key == VERSION_FLAG_KEY;
+
+        /// <summary>
+        /// Marker for commandline arguments which are added implicitly
+        /// </summary>
+        public bool IsAutomaticallyAdded => IsHelpFlag || IsVersionFlag;
 
         /// <summary>
         /// Whether this argument is required

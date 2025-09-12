@@ -25,5 +25,10 @@ namespace PeanutButter.EasyArgs
         /// We showed the help and exited
         /// </summary>
         public const int SHOWED_HELP = 2;
+
+        /// <summary>
+        /// We showed the version info and exited
+        /// </summary>
+        public const int SHOWED_VERSION = 3;
     }
 }

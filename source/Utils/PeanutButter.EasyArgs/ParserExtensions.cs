@@ -122,7 +122,7 @@ public
     )
     {
         var lookup = GenerateSwitchLookupFor<T>();
-        AddImpliedOptionsTo(lookup);
+        AddImpliedOptionsTo(lookup, options);
         var flags = new HashSet<string>();
         foreach (var kvp in lookup)
         {
@@ -386,24 +386,32 @@ public
     )
     {
         var lookup = GenerateSwitchLookupFor<T>();
-        AddHelp(lookup);
+        AddImpliedOptionsTo(lookup, options);
+
         options.DisplayHelp<T>(
             lookup.Values.Distinct().ToArray()
         );
     }
 
     private static void AddImpliedOptionsTo(
-        IDictionary<string, CommandlineArgument> lookup
+        IDictionary<string, CommandlineArgument> lookup,
+        ParserOptions options
     )
     {
         AddFlagNegations(lookup);
         AddHelp(lookup);
+        AddVersionIfPossible(lookup, options);
     }
 
     private static void AddHelp(
         IDictionary<string, CommandlineArgument> lookup
     )
     {
+        if (lookup.ContainsKey("--help"))
+        {
+            return;
+        }
+
         var opt = new CommandlineArgument()
         {
             Key = CommandlineArgument.HELP_FLAG_KEY,
@@ -423,14 +431,35 @@ public
             lookup[opt.ShortName] = opt;
         }
 
-        if (lookup.ContainsKey(opt.LongName))
+        lookup[opt.LongName] = opt;
+    }
+
+    private static void AddVersionIfPossible(
+        IDictionary<string, CommandlineArgument> lookup,
+        ParserOptions options
+    )
+    {
+        if (options.VersionInfo is null)
         {
-            opt.LongName = "";
+            return;
         }
-        else
+
+        if (lookup.ContainsKey(CommandlineArgument.VERSION_FLAG_KEY))
         {
-            lookup[opt.LongName] = opt;
+            return;
         }
+
+        var opt = new CommandlineArgument()
+        {
+            Key = CommandlineArgument.VERSION_FLAG_KEY,
+            Default = false,
+            IsFlag = true,
+            Description = "shows the application version",
+            IsImplicit = true,
+            LongName = "version"
+        };
+
+        lookup[opt.LongName] = opt;
     }
 
     private static void AddFlagNegations(
@@ -527,6 +556,10 @@ public
                                 .OrderBy(o => o.LongName)
                                 .ToArray()
                         );
+                    }
+                    else if (opt.IsVersionFlag)
+                    {
+                        options.DisplayVersionInfo();
                     }
                     else
                     {
