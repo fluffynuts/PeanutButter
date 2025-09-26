@@ -3222,7 +3222,7 @@ public
             () => string.Join(
                 ".",
                 GetRandomCollection(
-                    () => GetRandomString(1),
+                    () => GetRandomAlphaNumericString(1),
                     minParts,
                     maxParts
                 )
