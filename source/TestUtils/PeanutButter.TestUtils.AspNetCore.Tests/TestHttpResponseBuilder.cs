@@ -400,6 +400,21 @@ public class TestHttpResponseBuilder
     }
 
     [Test]
+    public void ShouldStoreAppendedCookies()
+    {
+        // Arrange
+        var sut = HttpResponseBuilder.BuildDefault();
+        var cookieName = GetRandomString();
+        var cookieValue = GetRandomString();
+        // Act
+        sut.Cookies.Append(cookieName, cookieValue);
+        // Assert
+        Expect(sut)
+            .To.Have.Cookie(cookieName)
+            .With.Value(cookieValue);
+    }
+
+    [Test]
     public void ShouldBeAbleToSetCookieJar()
     {
         // Arrange
