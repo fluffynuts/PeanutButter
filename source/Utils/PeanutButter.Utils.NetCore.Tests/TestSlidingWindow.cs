@@ -382,11 +382,11 @@ public class TestSlidingWindow
             var sut = Create<int>(TimeSpan.FromSeconds(10));
             // Act
             sut.Add(3);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(4);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(5);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             var result = sut.CurrentRate();
             // Assert
             Expect(Math.Round(result))
@@ -401,11 +401,11 @@ public class TestSlidingWindow
             var sut = Create<long>(TimeSpan.FromSeconds(10));
             // Act
             sut.Add(3);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(4);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(5);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             var result = sut.CurrentRate();
             // Assert
             Expect(Math.Round(result))
@@ -420,11 +420,11 @@ public class TestSlidingWindow
             var sut = Create<decimal>(TimeSpan.FromSeconds(10));
             // Act
             sut.Add(3);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(4);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(5);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             var result = sut.CurrentRate();
             // Assert
             Expect(Math.Round(result))
@@ -439,11 +439,11 @@ public class TestSlidingWindow
             var sut = Create<double>(TimeSpan.FromSeconds(10));
             // Act
             sut.Add(3);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(4);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(5);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             var result = sut.CurrentRate();
             // Assert
             Expect(Math.Round(result))
@@ -463,11 +463,11 @@ public class TestSlidingWindow
             var sut = Create<int>(TimeSpan.FromSeconds(10));
             // Act
             sut.Add(3);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(4);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(5);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             var result = sut.EstimatedTimeRemaining(sut.Sum());
             // Assert
             Expect(Math.Round(result.TotalSeconds))
@@ -482,11 +482,11 @@ public class TestSlidingWindow
             var sut = Create<long>(TimeSpan.FromSeconds(10));
             // Act
             sut.Add(3);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(4);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(5);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             var result = sut.EstimatedTimeRemaining(sut.Sum());
             // Assert
             Expect(Math.Round(result.TotalSeconds))
@@ -501,11 +501,11 @@ public class TestSlidingWindow
             var sut = Create<decimal>(TimeSpan.FromSeconds(10));
             // Act
             sut.Add(3);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(4);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(5);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             var result = sut.EstimatedTimeRemaining(sut.Sum());
             // Assert
             Expect(Math.Round(result.TotalSeconds))
@@ -520,11 +520,11 @@ public class TestSlidingWindow
             var sut = Create<double>(TimeSpan.FromSeconds(10));
             // Act
             sut.Add(3);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(4);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             sut.Add(5);
-            Thread.Sleep(1000);
+            Thread.Sleep(995);
             var result = sut.EstimatedTimeRemaining(sut.Sum());
             // Assert
             Expect(Math.Round(result.TotalSeconds))

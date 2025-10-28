@@ -51,13 +51,13 @@ public
         long remainingItems
     )
     {
-        var ratePerSecond = window.CurrentRate();
-        if (ratePerSecond == 0)
+        var itemsPerSecond = window.CurrentRate();
+        if (itemsPerSecond == 0)
         {
             return TimeSpan.MaxValue;
         }
 
-        var remainingSeconds = remainingItems / ratePerSecond;
+        var remainingSeconds = remainingItems / itemsPerSecond;
         return TimeSpan.FromSeconds((double)remainingSeconds);
     }
 
