@@ -24,6 +24,7 @@ var classPeanutButter_1_1Utils_1_1StringExtensions =
     [ "DefaultIfEmptyOrNull", "classPeanutButter_1_1Utils_1_1StringExtensions.html#a6a4dc30b32d2fd8bf72d9971c2f57b0b", null ],
     [ "DeQuote", "classPeanutButter_1_1Utils_1_1StringExtensions.html#ab115b8106a2f13bed118f0bc91dc5959", null ],
     [ "EqualsOneOf", "classPeanutButter_1_1Utils_1_1StringExtensions.html#ab0851ce4cef66d0775fb1151a6992b51", null ],
+    [ "FromBase64", "classPeanutButter_1_1Utils_1_1StringExtensions.html#a993b3830b5a2ad8055a636c5f9ba955a", null ],
     [ "GZip", "classPeanutButter_1_1Utils_1_1StringExtensions.html#aa64368204b14aa0c9e51148209cba7b7", null ],
     [ "GZip", "classPeanutButter_1_1Utils_1_1StringExtensions.html#ab447f8771f5c258ecbed8941e712d1e4", null ],
     [ "IsAbsolutePath", "classPeanutButter_1_1Utils_1_1StringExtensions.html#a4fd1bb1ad264abec267c3b557f98e8d5", null ],

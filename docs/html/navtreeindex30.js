@@ -1,5 +1,7 @@
 var NAVTREEINDEX30 =
 {
+"interfacePeanutButter_1_1Utils_1_1ISlidingWindowItem-1-g.html#afff15bb0b3e12d60bb1173b9d492019c":[2,0,0,15,64,0],
+"interfacePeanutButter_1_1Utils_1_1ITextStatusSteps.html":[1,0,0,15,66],
 "interfacePeanutButter_1_1Utils_1_1ITextStatusSteps.html":[2,0,0,15,65],
 "interfacePeanutButter_1_1Utils_1_1ITextStatusSteps.html#a1131b9130b3906ab60dd0c9c9d6fdddd":[1,0,0,15,66,3],
 "interfacePeanutButter_1_1Utils_1_1ITextStatusSteps.html#a1131b9130b3906ab60dd0c9c9d6fdddd":[2,0,0,15,65,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX30 =
 "namespacePeanutButter_1_1Utils.html#ae8be3852b229b43d144aedebbeda596fa6f16a5f8ff5d75ab84c018adacdfcbb7":[1,0,0,15,139,1],
 "namespacePeanutButter_1_1Utils_1_1Dictionaries.html":[1,0,0,15,0],
 "namespacePeanutButter_1_1Utils_1_1Dictionaries.html#a64848eb7568115bb61630a51d30d987f":[1,0,0,15,0,14],
-"namespacePeanutButter_1_1Utils_1_1Dictionaries.html#a64848eb7568115bb61630a51d30d987fa1ffd6d18a42a916c5a9ad3f5464ab0ef":[1,0,0,15,0,14,1],
-"namespacePeanutButter_1_1Utils_1_1Dictionaries.html#a64848eb7568115bb61630a51d30d987fa6adf97f83acf6453d4a6a4b1070f3754":[1,0,0,15,0,14,0],
-"namespacePeanutButter_1_1Utils_1_1Dictionaries.html#a64848eb7568115bb61630a51d30d987fa8df07d4a9b5655059adbcfda316879ae":[1,0,0,15,0,14,2]
+"namespacePeanutButter_1_1Utils_1_1Dictionaries.html#a64848eb7568115bb61630a51d30d987fa1ffd6d18a42a916c5a9ad3f5464ab0ef":[1,0,0,15,0,14,1]
 };

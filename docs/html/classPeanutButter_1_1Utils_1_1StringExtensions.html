@@ -217,6 +217,8 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memdesc:a85ecf27b107655afbab783bab6f81572"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds a window into a string, centered around the given centeredOn parameter, with maximum maxCharsLeftOrRight of the center. Eg: "12345".Window(2, 1) -&gt; 234.  <br /></td></tr>
 <tr class="memitem:a3a9023ba3aeaa3d92d24653fdda20350" id="r_a3a9023ba3aeaa3d92d24653fdda20350"><td class="memItemLeft" align="right" valign="top">static byte[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3a9023ba3aeaa3d92d24653fdda20350">UnBase64</a> (this string base64Data)</td></tr>
 <tr class="memdesc:a3a9023ba3aeaa3d92d24653fdda20350"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a base64 string back to the original string.  <br /></td></tr>
+<tr class="memitem:a993b3830b5a2ad8055a636c5f9ba955a" id="r_a993b3830b5a2ad8055a636c5f9ba955a"><td class="memItemLeft" align="right" valign="top">static byte[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a993b3830b5a2ad8055a636c5f9ba955a">FromBase64</a> (this string base64Data)</td></tr>
+<tr class="memdesc:a993b3830b5a2ad8055a636c5f9ba955a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a base64 string back to the original string.  <br /></td></tr>
 <tr class="memitem:a339ce262795be4ebb00af65f70f8be6d" id="r_a339ce262795be4ebb00af65f70f8be6d"><td class="memItemLeft" align="right" valign="top">static string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a339ce262795be4ebb00af65f70f8be6d">UnBase64</a> (this string base64Data, Encoding encoding)</td></tr>
 <tr class="memdesc:a339ce262795be4ebb00af65f70f8be6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a base64 string back to the original string using the provided encoding.  <br /></td></tr>
 <tr class="memitem:a7130700bbe8a3c5f7944064f3d42df41" id="r_a7130700bbe8a3c5f7944064f3d42df41"><td class="memItemLeft" align="right" valign="top">static string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7130700bbe8a3c5f7944064f3d42df41">UnBase64&lt; T &gt;</a> (this string base64Data)</td></tr>
@@ -1184,6 +1186,43 @@ Static Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">haystack</td><td></td></tr>
     <tr><td class="paramname">needles</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a id="a993b3830b5a2ad8055a636c5f9ba955a" name="a993b3830b5a2ad8055a636c5f9ba955a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a993b3830b5a2ad8055a636c5f9ba955a">&#9670;&#160;</a></span>FromBase64()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">byte[] PeanutButter.Utils.StringExtensions.FromBase64 </td>
+          <td>(</td>
+          <td class="paramtype">this string</td>          <td class="paramname"><span class="paramname"><em>base64Data</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Converts a base64 string back to the original string. </p>
+<ul>
+<li>assumes the original string is UTF8</li>
+</ul>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base64Data</td><td></td></tr>
   </table>
   </dd>
 </dl>
@@ -3490,6 +3529,7 @@ Static Public Member Functions</h2></td></tr>
 <p>Converts a base64 string back to the original string. </p>
 <ul>
 <li>assumes the original string is UTF8</li>
+<li>renamed to FromBase64</li>
 </ul>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
