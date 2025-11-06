@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
-using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 
 // ReSharper disable UnusedMember.Global
@@ -2397,7 +2396,7 @@ public class TestStringExtensions
 
     [TestFixture]
     [Parallelizable]
-    public class UnBase64
+    public class FromBase64
     {
         [Test]
         [Parallelizable]
@@ -2408,7 +2407,7 @@ public class TestStringExtensions
             var bytes = Encoding.UTF8.GetBytes(str);
             var base64 = Convert.ToBase64String(bytes);
             // Act
-            var result = base64.UnBase64();
+            var result = base64.FromBase64();
             // Assert
             Expect(result)
                 .To.Equal(bytes);
@@ -2429,7 +2428,7 @@ public class TestStringExtensions
             } while (!base64.Contains("="));
 
             // Act
-            var result = base64.UnBase64();
+            var result = base64.FromBase64();
             // Assert
             Expect(result)
                 .To.Equal(bytes);

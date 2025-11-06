@@ -1344,14 +1344,29 @@ internal
     /// <summary>
     /// Converts a base64 string back to the original string
     /// - assumes the original string is UTF8
+    /// - renamed to FromBase64
     /// </summary>
     /// <param name="base64Data"></param>
     /// <returns></returns>
+    [Obsolete("Renamed to FromBase64 - will be removed in a future update")]
     public static byte[] UnBase64(this string base64Data)
     {
         return Convert.FromBase64String(base64Data.Base64Padded());
     }
 
+    /// <summary>
+    /// Converts a base64 string back to the original string
+    /// - assumes the original string is UTF8
+    /// </summary>
+    /// <param name="base64Data"></param>
+    /// <returns></returns>
+    public static byte[] FromBase64(this string base64Data)
+    {
+        return string.IsNullOrWhiteSpace(base64Data)
+            ? []
+            : Convert.FromBase64String(base64Data.Base64Padded());
+    }
+    
     /// <summary>
     /// Converts a base64 string back to the original string
     /// using the provided encoding
