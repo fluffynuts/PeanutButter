@@ -247,8 +247,7 @@ public
     private static readonly Type[] EmptyTypes = new Type[0];
 
     private static readonly Type[] LoadedTypes = AppDomain.CurrentDomain.GetAssemblies()
-        .Select(
-            asm =>
+        .Select(asm =>
             {
                 try
                 {
@@ -453,6 +452,7 @@ public
 
     private static readonly ThreadSafeRandom RandomGenerator = new();
     private const string DEFAULT_RANDOM_STRING_CHARS = "abcdefghijklmnopqrstuvwxyz1234567890";
+    private const string IPV6_STRING_CHARS = "0123456789abcdef";
 
     /// <summary>
     /// Produces a random integer between 0 and 10 inclusive
@@ -2128,8 +2128,7 @@ public
     /// <returns></returns>
     public static string GetRandomUrlParameters()
     {
-        return Range(1, GetRandomInt(2, 5)).Select(
-            _ => $"{GetRandomString(1)}={GetRandomString(1)}"
+        return Range(1, GetRandomInt(2, 5)).Select(_ => $"{GetRandomString(1)}={GetRandomString(1)}"
         ).JoinWith("&");
     }
 
@@ -2163,12 +2162,11 @@ public
     )
     {
         return Range(0, GetRandomInt(minChars, maxChars))
-            .Select(
-                _ =>
-                    GetRandom(
-                        c => c < 'A' || c > 'z',
-                        () => (char)GetRandomInt(32, 255)
-                    )
+            .Select(_ =>
+                GetRandom(
+                    c => c < 'A' || c > 'z',
+                    () => (char)GetRandomInt(32, 255)
+                )
             )
             .JoinWith("");
     }
@@ -2210,7 +2208,7 @@ public
     /// Thrown when GetRandomEnum is called on a
     /// non-enum type (since there is no generic constraint for enum types, yet)
     /// </exception>
-    public static T GetRandomEnum<T>() 
+    public static T GetRandomEnum<T>()
         where T : struct, IConvertible
     {
         return GetRandomEnum<T>([]);
@@ -2231,8 +2229,7 @@ public
         params T[] excludingValues
     ) where T : struct, IConvertible
     {
-        return GetRandomEnum<T>(
-            e => !excludingValues.Contains(e)
+        return GetRandomEnum<T>(e => !excludingValues.Contains(e)
         );
     }
 
@@ -3191,6 +3188,185 @@ public
     }
 
     /// <summary>
+    /// Generates a random ipv5 address
+    /// </summary>
+    /// <returns></returns>
+    public static string GetRandomIPv6Address()
+    {
+        return GetRandomIPv6Address(false);
+    }
+
+    /// <summary>
+    /// Generates a random ipv6 address
+    /// - optionally ensures that the output would be compressed, ie,
+    /// follows the rule:
+    /// A contiguous string of zeros can be replaced with a double colon (::)
+    /// but this can only be done once in an address
+    /// </summary>
+    /// <param name="ensureCompressed"></param>
+    /// <returns></returns>
+    public static string GetRandomIPv6Address(
+        bool ensureCompressed
+    )
+    {
+        var parts = new[]
+        {
+            GetRandomIpV6Group(),
+            GetRandomIpV6Group(),
+            GetRandomIpV6Group(),
+            GetRandomIpV6Group(),
+            GetRandomIpV6Group(),
+            GetRandomIpV6Group(),
+            GetRandomIpV6Group(),
+            GetRandomIpV6Group()
+        };
+        if (ensureCompressed)
+        {
+            if (parts.All(s => s != IPV6_STRING_CHARS))
+            {
+                var idx = GetRandomInt(0, parts.Length - 1);
+                parts[idx] = IPV6_ZEROS;
+            }
+        }
+
+        return CompressIPv6Address(
+            parts.JoinWith(":")
+        );
+    }
+
+    private const string IPV6_ZEROS = "0000";
+
+    private static readonly string[] LONGEST_ZEROS =
+    [
+        IPV6_ZEROS,
+        IPV6_ZEROS,
+        IPV6_ZEROS,
+        IPV6_ZEROS,
+        IPV6_ZEROS,
+        IPV6_ZEROS,
+        IPV6_ZEROS
+    ];
+
+    /// <summary>
+    /// Compresses an ipv6 address:
+    /// - the longest sequence of :0000:0000: is replaced with ::
+    /// - parts starting with zero are left-trimmed to remove zeros
+    /// </summary>
+    /// <param name="address"></param>
+    /// <returns></returns>
+    public static string CompressIPv6Address(
+        string address
+    )
+    {
+        var parts = new Queue<string>(LONGEST_ZEROS);
+        var firstPassResult = address;
+        do
+        {
+            var seek = parts.JoinWith(":");
+            firstPassResult = firstPassResult.Replace(seek, "");
+            parts.Dequeue();
+        } while (firstPassResult == address && parts.Any());
+        var pre = firstPassResult.StartsWith(":")
+            ? ":"
+            : "";
+        var post = firstPassResult.EndsWith(":")
+            ? ":"
+            : "";
+        var firstPass = $"{pre}{firstPassResult}{post}";
+        var groups = firstPass.Split(':');
+        var result = new List<string>();
+        var seenEmpty = false;
+        foreach (var group in groups)
+        {
+            if (group == "")
+            {
+                seenEmpty = true;
+                result.Add(group);
+                continue;
+            }
+            var trimmed = group.TrimStart('0');
+            if (seenEmpty && trimmed == "")
+            {
+                trimmed = "0";
+            }
+            result.Add(trimmed);
+        }
+        
+        return result.JoinWith(":");
+    }
+
+    /// <summary>
+    /// Generates a single group from an ipv6 address
+    /// </summary>
+    /// <returns></returns>
+    public static string GetRandomIpV6Group()
+    {
+        return GetRandomHexString(4, 4);
+    }
+
+    /// <summary>
+    /// Generates a random hex string
+    /// </summary>
+    /// <returns></returns>
+    public static string GetRandomHexString()
+    {
+        return GetRandomHexString(
+            DefaultRanges.MINLENGTH_STRING
+        );
+    }
+
+    /// <summary>
+    /// Generates a random hex string with the
+    /// provided minimum length
+    /// </summary>
+    /// <param name="minLength"></param>
+    /// <returns></returns>
+    public static string GetRandomHexString(
+        int minLength
+    )
+    {
+        return GetRandomHexString(
+            minLength,
+            minLength + DefaultRanges.MINLENGTH_STRING
+        );
+    }
+
+    /// <summary>
+    /// Produces a random string with 
+    /// </summary>
+    /// <param name="minLength"></param>
+    /// <param name="maxLength"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public static string GetRandomHexString(
+        int minLength,
+        int maxLength
+    )
+    {
+        if (minLength < 0)
+        {
+            throw new ArgumentException(
+                "minLength must be >= 0",
+                nameof(minLength)
+            );
+        }
+
+        var howMany = GetRandomInt(minLength, maxLength);
+        if (howMany % 2 != 0)
+        {
+            howMany = howMany == maxLength
+                ? maxLength - 1
+                : howMany + 1;
+        }
+
+        return GetRandomString(
+            howMany,
+            howMany,
+            IPV6_STRING_CHARS
+        );
+    }
+
+    /// <summary>
     /// Gets a random hostname-like string
     /// </summary>
     /// <returns>New string with at least two parts, separated by .</returns>
@@ -3302,8 +3478,7 @@ public
     )
     {
         var toCreate = GetRandomCollection<string>(1).ToList();
-        toCreate.ToArray().ForEach(
-            f =>
+        toCreate.ToArray().ForEach(f =>
             {
                 Directory.CreateDirectory(Path.Combine(path, f));
                 if (depth > 1)
@@ -3375,12 +3550,10 @@ public
     {
         var folders = CreateRandomFoldersIn(path, depth).ToArray();
         var result = new List<string>(folders);
-        folders.ForEach(
-            f =>
+        folders.ForEach(f =>
             {
                 var numberOfFiles = GetRandomInt(1);
-                numberOfFiles.TimesDo(
-                    () =>
+                numberOfFiles.TimesDo(() =>
                     {
                         var createdFile = CreateRandomFileIn(Path.Combine(path, f));
                         result.Add(Path.Combine(f, createdFile));
