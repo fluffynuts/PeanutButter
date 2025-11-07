@@ -4559,6 +4559,94 @@ public class TestRandomValueGen
     }
 
     [TestFixture]
+    public class GetRandomIPv6Group
+    {
+        [TestFixture]
+        public class ParameterlessVariant
+        {
+            [Test]
+            public void ShouldReturnValid4DigitHexString()
+            {
+                // Arrange
+                // Act
+                var allResults = new List<string>();
+                var regex = new Regex("^[a-zA-Z0-9]{4}$", RegexOptions.Compiled);
+                RunCycles(
+                    () =>
+                    {
+                        var group = GetRandomIPv6Group();
+                        Expect(group)
+                            .To.Match(regex);
+                        allResults.Add(group);
+                    },
+                    HIGH_RANDOM_TEST_CYCLES
+                );
+                // Assert
+                VarianceAssert.IsVariant(allResults);
+            }
+        }
+
+        [TestFixture]
+        public class CompressibleVariant
+        {
+            [TestFixture]
+            public class WhenCompressionNotSelected
+            {
+                [Test]
+                public void ShouldReturnValid4DigitHexString()
+                {
+                    // Arrange
+                    // Act
+                    var allResults = new List<string>();
+                    var regex = new Regex("^[a-zA-Z0-9]{4}$", RegexOptions.Compiled);
+                    RunCycles(
+                        () =>
+                        {
+                            var group = GetRandomIPv6Group(compress: false);
+                            Expect(group)
+                                .To.Match(regex);
+                            allResults.Add(group);
+                        },
+                        HIGH_RANDOM_TEST_CYCLES
+                    );
+                    // Assert
+                    VarianceAssert.IsVariant(allResults);
+                }
+            }
+
+            [TestFixture]
+            public class WhenCompressionSelected
+            {
+                [Test]
+                public void ShouldCompressWherePossible()
+                {
+                    // Arrange
+                    var allResults = new List<string>();
+                    var regex = new Regex("^[a-zA-Z0-9]+$");
+                    // Act
+                    RunCycles(
+                        () =>
+                        {
+                            var group = GetRandomIPv6Group(compress: true);
+                            Expect(group)
+                                .Not.To.Be.Empty();
+                            Expect(group)
+                                .To.Match(regex);
+                            allResults.Add(group);
+                        },
+                        HIGH_RANDOM_TEST_CYCLES
+                    );
+                    // Assert
+                    VarianceAssert.IsVariant(allResults);
+                    var averageLength = allResults.Average(s => s.Length);
+                    Expect(averageLength)
+                        .To.Be.Less.Than(4);
+                }
+            }
+        }
+    }
+
+    [TestFixture]
     public class GetRandomIPV6Address
     {
         [Test]
@@ -4617,7 +4705,7 @@ public class TestRandomValueGen
                     {
                         var result = GetRandomIPv6Address(ensureCompressed: true);
                         var parts = result.Split(':');
-                        var nonEmptyParts = parts.Count(s => 
+                        var nonEmptyParts = parts.Count(s =>
                             s != ""
                         );
 

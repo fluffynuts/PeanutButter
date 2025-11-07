@@ -3211,14 +3211,14 @@ public
     {
         var parts = new[]
         {
-            GetRandomIpV6Group(),
-            GetRandomIpV6Group(),
-            GetRandomIpV6Group(),
-            GetRandomIpV6Group(),
-            GetRandomIpV6Group(),
-            GetRandomIpV6Group(),
-            GetRandomIpV6Group(),
-            GetRandomIpV6Group()
+            GetRandomIPv6Group(),
+            GetRandomIPv6Group(),
+            GetRandomIPv6Group(),
+            GetRandomIPv6Group(),
+            GetRandomIPv6Group(),
+            GetRandomIPv6Group(),
+            GetRandomIPv6Group(),
+            GetRandomIPv6Group()
         };
         if (ensureCompressed)
         {
@@ -3266,6 +3266,7 @@ public
             firstPassResult = firstPassResult.Replace(seek, "");
             parts.Dequeue();
         } while (firstPassResult == address && parts.Any());
+
         var pre = firstPassResult.StartsWith(":")
             ? ":"
             : "";
@@ -3284,14 +3285,16 @@ public
                 result.Add(group);
                 continue;
             }
+
             var trimmed = group.TrimStart('0');
             if (seenEmpty && trimmed == "")
             {
                 trimmed = "0";
             }
+
             result.Add(trimmed);
         }
-        
+
         return result.JoinWith(":");
     }
 
@@ -3299,9 +3302,30 @@ public
     /// Generates a single group from an ipv6 address
     /// </summary>
     /// <returns></returns>
-    public static string GetRandomIpV6Group()
+    public static string GetRandomIPv6Group()
     {
-        return GetRandomHexString(4, 4);
+        return GetRandomIPv6Group(compress: false);
+    }
+
+    /// <summary>
+    /// Generates a single group from an ipv6 address
+    /// and optionally compresses it
+    /// </summary>
+    /// <param name="compress"></param>
+    /// <returns></returns>
+    public static string GetRandomIPv6Group(
+        bool compress
+    )
+    {
+        var result = GetRandomHexString(4, 4);
+        if (!compress)
+        {
+            return result;
+        }
+        result = result.TrimStart('0');
+        return result == ""
+            ? "0"
+            : result;
     }
 
     /// <summary>
