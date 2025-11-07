@@ -4574,7 +4574,7 @@ public class TestRandomValueGen
                 RunCycles(
                     () =>
                     {
-                        var group = GetRandomIPv6Group();
+                        var group = GetRandomIPv6Hextet();
                         Expect(group)
                             .To.Match(regex);
                         allResults.Add(group);
@@ -4602,7 +4602,7 @@ public class TestRandomValueGen
                     RunCycles(
                         () =>
                         {
-                            var group = GetRandomIPv6Group(compress: false);
+                            var group = GetRandomIPv6Hextet(compress: false);
                             Expect(group)
                                 .To.Match(regex);
                             allResults.Add(group);
@@ -4627,7 +4627,7 @@ public class TestRandomValueGen
                     RunCycles(
                         () =>
                         {
-                            var group = GetRandomIPv6Group(compress: true);
+                            var group = GetRandomIPv6Hextet(compress: true);
                             Expect(group)
                                 .Not.To.Be.Empty();
                             Expect(group)

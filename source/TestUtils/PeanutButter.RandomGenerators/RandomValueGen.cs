@@ -3211,14 +3211,14 @@ public
     {
         var parts = new[]
         {
-            GetRandomIPv6Group(),
-            GetRandomIPv6Group(),
-            GetRandomIPv6Group(),
-            GetRandomIPv6Group(),
-            GetRandomIPv6Group(),
-            GetRandomIPv6Group(),
-            GetRandomIPv6Group(),
-            GetRandomIPv6Group()
+            GetRandomIPv6Hextet(),
+            GetRandomIPv6Hextet(),
+            GetRandomIPv6Hextet(),
+            GetRandomIPv6Hextet(),
+            GetRandomIPv6Hextet(),
+            GetRandomIPv6Hextet(),
+            GetRandomIPv6Hextet(),
+            GetRandomIPv6Hextet()
         };
         if (ensureCompressed)
         {
@@ -3302,9 +3302,9 @@ public
     /// Generates a single group from an ipv6 address
     /// </summary>
     /// <returns></returns>
-    public static string GetRandomIPv6Group()
+    public static string GetRandomIPv6Hextet()
     {
-        return GetRandomIPv6Group(compress: false);
+        return GetRandomIPv6Hextet(compress: false);
     }
 
     /// <summary>
@@ -3313,7 +3313,7 @@ public
     /// </summary>
     /// <param name="compress"></param>
     /// <returns></returns>
-    public static string GetRandomIPv6Group(
+    public static string GetRandomIPv6Hextet(
         bool compress
     )
     {
