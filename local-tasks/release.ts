@@ -209,8 +209,25 @@ import { Stream } from "stream";
     "re-push-packages",
     "Attempt re-push of all packages, skipping those already found at nuget.org",
     async () => {
-      await pushPackages(true);
+      const MAX_ATTEMPTS = 10;
+      for (let i = 0; i < MAX_ATTEMPTS; i++) {
+        try {
+          await pushPackages(true);
+          return;
+        } catch (e) {
+          if (i === MAX_ATTEMPTS - 1) {
+            console.warn(`giving up after ${MAX_ATTEMPTS} attempts`)
+            throw e;
+          }
+          console.warn(`temporary error during upload (${i + 1} of ${MAX_ATTEMPTS})`);
+          await sleep(1000);
+        }
+      }
     });
+
+    async function sleep(ms: number): Promise<void> {
+      await new Promise(resolve => setTimeout(resolve, ms));
+    }
 
   gulp.task("_test_", async () => {
     console.log(await listLocalPackageFiles());

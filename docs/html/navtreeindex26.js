@@ -1,5 +1,7 @@
 var NAVTREEINDEX26 =
 {
+"classPeanutButter_1_1WindowsServiceManagement_1_1NativeWindowsServiceUtil.html#aa842af7e7077c1c8fa6c29061f429fd3":[2,0,0,16,3,6],
+"classPeanutButter_1_1WindowsServiceManagement_1_1NativeWindowsServiceUtil.html#aac0ce8b7ceaef65798718c52055a4448":[1,0,0,16,3,2],
 "classPeanutButter_1_1WindowsServiceManagement_1_1NativeWindowsServiceUtil.html#aac0ce8b7ceaef65798718c52055a4448":[2,0,0,16,3,2],
 "classPeanutButter_1_1WindowsServiceManagement_1_1NativeWindowsServiceUtil.html#aacfe9792f3df5b73f8cf62d42e18314d":[1,0,0,16,3,8],
 "classPeanutButter_1_1WindowsServiceManagement_1_1NativeWindowsServiceUtil.html#aacfe9792f3df5b73f8cf62d42e18314d":[2,0,0,16,3,8],
@@ -247,7 +249,5 @@ var NAVTREEINDEX26 =
 "index.html#autotoc_md1":[0,0],
 "interfacePeanutButter_1_1DuckTyping_1_1AutoConversion_1_1IConverter-2-g.html":[1,0,0,0,0,4],
 "interfacePeanutButter_1_1DuckTyping_1_1AutoConversion_1_1IConverter-2-g.html":[2,0,0,0,0,3],
-"interfacePeanutButter_1_1DuckTyping_1_1AutoConversion_1_1IConverter-2-g.html#a46caec6936d40906182b2d9c037f78e7":[1,0,0,0,0,4,0],
-"interfacePeanutButter_1_1DuckTyping_1_1AutoConversion_1_1IConverter-2-g.html#a46caec6936d40906182b2d9c037f78e7":[2,0,0,0,0,3,0],
-"interfacePeanutButter_1_1DuckTyping_1_1AutoConversion_1_1IConverter-2-g.html#a7c5540b113caa6019b418853a031cf47":[1,0,0,0,0,4,1]
+"interfacePeanutButter_1_1DuckTyping_1_1AutoConversion_1_1IConverter-2-g.html#a46caec6936d40906182b2d9c037f78e7":[1,0,0,0,0,4,0]
 };

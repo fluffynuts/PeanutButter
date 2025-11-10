@@ -15,6 +15,7 @@ var classPeanutButter_1_1Utils_1_1StringExtensions =
     [ "AsString", "classPeanutButter_1_1Utils_1_1StringExtensions.html#aee66885c146c06de0dce88869e052d33", null ],
     [ "Base64Padded", "classPeanutButter_1_1Utils_1_1StringExtensions.html#aa2cdaf813073c6d01271b77d870ab59c", null ],
     [ "Base64UnPadded", "classPeanutButter_1_1Utils_1_1StringExtensions.html#a0767942e348604fbd2145488b45ff503", null ],
+    [ "CompressIPv6Address", "classPeanutButter_1_1Utils_1_1StringExtensions.html#ac3272f46bab3138ab90db8d7bd7eafbe", null ],
     [ "CondenseWhitespace", "classPeanutButter_1_1Utils_1_1StringExtensions.html#a3cdcf3b27c28e4d8e6fc6d44987e4510", null ],
     [ "CondenseWhitespace", "classPeanutButter_1_1Utils_1_1StringExtensions.html#a71b3165001c1db7d74a00a5a33eb31f0", null ],
     [ "ContainsAllOf", "classPeanutButter_1_1Utils_1_1StringExtensions.html#a479191fb4762f09c6afa7e34b4f8b52c", null ],

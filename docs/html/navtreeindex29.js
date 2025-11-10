@@ -1,5 +1,7 @@
 var NAVTREEINDEX29 =
 {
+"interfacePeanutButter_1_1Utils_1_1Dictionaries_1_1IWrapper.html#ae23ca6d130376fea55aee2931572662b":[2,0,0,15,0,7,0],
+"interfacePeanutButter_1_1Utils_1_1IAutoTempFolder.html":[1,0,0,15,46],
 "interfacePeanutButter_1_1Utils_1_1IAutoTempFolder.html":[2,0,0,15,45],
 "interfacePeanutButter_1_1Utils_1_1IAutoTempFolder.html#a10318a7c224b5408a2809976abf62466":[1,0,0,15,46,3],
 "interfacePeanutButter_1_1Utils_1_1IAutoTempFolder.html#a10318a7c224b5408a2809976abf62466":[2,0,0,15,45,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX29 =
 "interfacePeanutButter_1_1Utils_1_1ISlidingWindow-1-g.html#af6b54477163f6bef6ee2f9d877ea98ee":[2,0,0,15,63,1],
 "interfacePeanutButter_1_1Utils_1_1ISlidingWindowItem-1-g.html":[1,0,0,15,65],
 "interfacePeanutButter_1_1Utils_1_1ISlidingWindowItem-1-g.html":[2,0,0,15,64],
-"interfacePeanutButter_1_1Utils_1_1ISlidingWindowItem-1-g.html#aea85ef5b6fdf7fa09bab4e20791c55a3":[1,0,0,15,65,1],
-"interfacePeanutButter_1_1Utils_1_1ISlidingWindowItem-1-g.html#aea85ef5b6fdf7fa09bab4e20791c55a3":[2,0,0,15,64,1],
-"interfacePeanutButter_1_1Utils_1_1ISlidingWindowItem-1-g.html#afff15bb0b3e12d60bb1173b9d492019c":[1,0,0,15,65,0]
+"interfacePeanutButter_1_1Utils_1_1ISlidingWindowItem-1-g.html#aea85ef5b6fdf7fa09bab4e20791c55a3":[1,0,0,15,65,1]
 };
