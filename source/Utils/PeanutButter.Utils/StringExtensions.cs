@@ -635,6 +635,70 @@ internal
 
         return new String(arr);
     }
+    
+    /// <summary>
+    /// Compresses an ipv6 address:
+    /// - the longest sequence of :0000:0000: is replaced with ::
+    /// - parts starting with zero are left-trimmed to remove zeros
+    /// </summary>
+    /// <param name="address"></param>
+    /// <returns></returns>
+    public static string CompressIPv6Address(
+        this string address
+    )
+    {
+        var parts = new Queue<string>(LONGEST_ZEROS);
+        var firstPassResult = address;
+        do
+        {
+            var seek = parts.JoinWith(":");
+            firstPassResult = firstPassResult.Replace(seek, "");
+            parts.Dequeue();
+        } while (firstPassResult == address && parts.Any());
+
+        var pre = firstPassResult.StartsWith(":")
+            ? ":"
+            : "";
+        var post = firstPassResult.EndsWith(":")
+            ? ":"
+            : "";
+        var firstPass = $"{pre}{firstPassResult}{post}";
+        var groups = firstPass.Split(':');
+        var result = new List<string>();
+        var seenEmpty = false;
+        foreach (var group in groups)
+        {
+            if (group == "")
+            {
+                seenEmpty = true;
+                result.Add(group);
+                continue;
+            }
+
+            var trimmed = group.TrimStart('0');
+            if (seenEmpty && trimmed == "")
+            {
+                trimmed = "0";
+            }
+
+            result.Add(trimmed);
+        }
+
+        return result.JoinWith(":");
+    }
+    
+    private const string IPV6_ZEROS = "0000";
+
+    private static readonly string[] LONGEST_ZEROS =
+    [
+        IPV6_ZEROS,
+        IPV6_ZEROS,
+        IPV6_ZEROS,
+        IPV6_ZEROS,
+        IPV6_ZEROS,
+        IPV6_ZEROS,
+        IPV6_ZEROS
+    ];
 
     /// <summary>
     /// Replace all occurrences of strings in needles with the replaceWith string
