@@ -135,7 +135,7 @@ namespace PeanutButter.RandomGenerators.Tests
             Expect(() => src.ShouldContainOneDeepEqualTo(seek))
                 .To.Throw<AssertionException>()
                 .With.Message.Containing(
-                    $"Expected to find one \"{seek}\" in {src.Stringify()}"
+                    $"Expected to find one \"{seek}\" in {src.StringifyCollection()}"
                 );
 
             //--------------- Assert -----------------------
@@ -205,7 +205,7 @@ namespace PeanutButter.RandomGenerators.Tests
             Expect(() => src.ShouldContainAtLeastOneDeepEqualTo(seek))
                 .To.Throw<AssertionException>()
                 .With.Message.Containing(
-                    $"Expected to find \"{seek}\" in {Stringifier.Stringify(src)}"
+                    $"Expected to find \"{seek}\" in {Stringifier.StringifyCollection(src)}"
                 );
 
             //--------------- Assert -----------------------

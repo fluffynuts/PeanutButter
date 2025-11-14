@@ -94,7 +94,7 @@ public class TestProcessIO
             io.WaitForExit();
             var lines = io.StandardOutput.ToArray().Trim();
             Expect(lines.Last() /* sometimes, pwsh has to break this test by outputting an upgrade nag :| */)
-                .To.Equal(expected, () => lines.Stringify());
+                .To.Equal(expected, () => lines.StringifyCollection());
         }
 
         [Test]
@@ -413,7 +413,7 @@ rl.on(""line"", function(line) {
              io.WaitForExit();
              var lines = collected.Trim().ToArray();
              Expect(lines.Last() /* sometimes, pwsh has to break this test by outputting an upgrade nag :| */)
-                 .To.Equal(expected, () => lines.Stringify());
+                 .To.Equal(expected, () => lines.StringifyCollection());
          }
 
          [Test]

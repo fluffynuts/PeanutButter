@@ -1314,7 +1314,7 @@ public class TestTempDbMySqlData
                             },
                             () => disposed.Count == 0
                                 ? $"dispose event not triggered"
-                                : $"Received multiple dispose events: {disposed.ToArray().Stringify()}"
+                                : $"Received multiple dispose events: {disposed.ToArray().StringifyCollection()}"
                         );
 
                     Expect(

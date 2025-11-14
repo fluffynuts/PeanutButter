@@ -107,7 +107,7 @@ namespace PeanutButter.TestUtils.Generic
             var message = srcArray.ContainsAtLeastOneDeepEqualTo(seek, ignoreProperties)
                 ? "more than one match"
                 : "no matches";
-                Assertions.Throw($"Expected to find one {seek.Stringify()} in {srcArray.Stringify()} but found {message}");
+                Assertions.Throw($"Expected to find one {seek.Stringify()} in {srcArray.StringifyCollection()} but found {message}");
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace PeanutButter.TestUtils.Generic
 
             if (!localArray.ContainsAtLeastOneDeepEqualTo(seek, ignoreProperties))
             {
-                Assertions.Throw($"Expected to find {seek.Stringify()} in {localArray.Stringify()}");
+                Assertions.Throw($"Expected to find {seek.Stringify()} in {localArray.StringifyCollection()}");
             }
         }
     }

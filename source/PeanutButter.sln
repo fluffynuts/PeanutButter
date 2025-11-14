@@ -183,11 +183,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{905D
 	ProjectSection(SolutionItems) = preProject
 		..\package.json = ..\package.json
 		..\.zarro-defaults = ..\.zarro-defaults
+		.\MonoForFramework.targets = .\MonoForFramework.targets
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetService", "Win32Service\DotNetService\DotNetService.csproj", "{6621EEF0-C057-45B3-AB16-68A0E09B38A4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.ServiceShell.NetCore.Tests", "Win32Service\PeanutButter.ServiceShell.NetCore.Tests\PeanutButter.ServiceShell.NetCore.Tests.csproj", "{45EF2DC5-0706-4E15-97AD-9495DCF5756E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempElasticsearch", "TempDb\PeanutButter.TempElasticsearch\PeanutButter.TempElasticsearch.csproj", "{91E0CBD7-001F-4880-8FD3-DE32E6E16969}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempElasticsearch.Tests", "TempDb\PeanutButter.TempElasticsearch.Tests\PeanutButter.TempElasticsearch.Tests.csproj", "{E4404F2D-F206-4284-8452-B5F7619AB0B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1027,6 +1032,30 @@ Global
 		{45EF2DC5-0706-4E15-97AD-9495DCF5756E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{45EF2DC5-0706-4E15-97AD-9495DCF5756E}.Release|x86.ActiveCfg = Release|Any CPU
 		{45EF2DC5-0706-4E15-97AD-9495DCF5756E}.Release|x86.Build.0 = Release|Any CPU
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969}.Debug|x86.Build.0 = Debug|Any CPU
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969}.Debug-X|Any CPU.ActiveCfg = Debug|Any CPU
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969}.Debug-X|Any CPU.Build.0 = Debug|Any CPU
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969}.Debug-X|x86.ActiveCfg = Debug|Any CPU
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969}.Debug-X|x86.Build.0 = Debug|Any CPU
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969}.Release|x86.ActiveCfg = Release|Any CPU
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969}.Release|x86.Build.0 = Release|Any CPU
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5}.Debug|x86.Build.0 = Debug|Any CPU
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5}.Debug-X|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5}.Debug-X|Any CPU.Build.0 = Debug|Any CPU
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5}.Debug-X|x86.ActiveCfg = Debug|Any CPU
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5}.Debug-X|x86.Build.0 = Debug|Any CPU
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5}.Release|x86.ActiveCfg = Release|Any CPU
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1105,6 +1134,8 @@ Global
 		{3036AFBD-41FC-401F-9A7B-A5D61E688823} = {24E89997-84BA-4B44-8F07-DBC9830D24C1}
 		{6621EEF0-C057-45B3-AB16-68A0E09B38A4} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
 		{45EF2DC5-0706-4E15-97AD-9495DCF5756E} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
+		{91E0CBD7-001F-4880-8FD3-DE32E6E16969} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
+		{E4404F2D-F206-4284-8452-B5F7619AB0B5} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3024A467-FC9C-430A-821A-448AF0866E32}

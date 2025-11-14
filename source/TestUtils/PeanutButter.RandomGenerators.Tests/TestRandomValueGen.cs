@@ -6274,7 +6274,7 @@ internal static class Matchers
 
                 return new MatcherResult(
                     passed,
-                    () => $"Expected some variance in the collection:\n{actual.Stringify()}"
+                    () => $"Expected some variance in the collection:\n{actual.StringifyCollection()}"
                 );
             }
         );

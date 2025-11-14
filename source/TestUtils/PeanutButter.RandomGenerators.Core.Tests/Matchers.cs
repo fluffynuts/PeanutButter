@@ -36,7 +36,7 @@ public static class Matchers
 
                 return new MatcherResult(
                     passed,
-                    () => $"Expected some variance in the collection:\n{arr.Stringify()}"
+                    () => $"Expected some variance in the collection:\n{arr.StringifyCollection()}"
                 );
             }
         );

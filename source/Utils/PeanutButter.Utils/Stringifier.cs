@@ -29,7 +29,7 @@ internal
     /// </summary>
     /// <param name="objs"></param>
     /// <returns>Human-readable representation of collection</returns>
-    public static string Stringify<T>(
+    public static string StringifyCollection<T>(
         this IEnumerable<T> objs
     )
     {

@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <DocumentationFile>bin/$(Configuration)/$(TargetFramework)/PeanutButter.TempElasticsearch.xml</DocumentationFile>
+        <Configurations>Debug;Release;Debug-X</Configurations>
+        <Platforms>AnyCPU</Platforms>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <RootNamespace>PeanutButter.TempElasticsearch</RootNamespace>
+        <LangVersion>latest</LangVersion>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackagerFormat>snupkg</SymbolPackagerFormat>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+        <DefineConstants>NETSTANDARD</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup>
+        <DebugType>Full</DebugType>
+        <DebugSymbols>True</DebugSymbols>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+        <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+        <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+        <PackageReference Include="PeanutButter.Utils" Version="3.0.401"/>
+    </ItemGroup>
+
+    <Import Project="..\..\MonoForFramework.targets" />
+</Project>

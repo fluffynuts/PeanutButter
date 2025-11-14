@@ -97,7 +97,7 @@ public class TestStringifier
                     6,
                     7
                 }
-            }.Stringify()
+            }.StringifyCollection()
         );
         // Assert
     }
@@ -239,7 +239,7 @@ public class TestStringifier
             }.AsEnumerable()
         };
         // Act
-        var result = dict.Stringify();
+        var result = dict.StringifyCollection();
         // Assert
         Expect(result)
             .To.Contain(key)

@@ -2,14 +2,13 @@
 
     <PropertyGroup>
         <!--
-        Note that the net6.0 and net8.0 targets are only here to support
+        Note that the net8.0 target is only here to support
         building PeanutButter.TempDb.Runner, which doesn't seem to want
         to target the netstandard assembly that everyone else does :|
          -->
-        <TargetFrameworks>net462;netstandard2.0;net6.0;net8.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>net462;netstandard2.0;net8.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <DefineConstants>$(DefineConstants);BUILD_PEANUTBUTTER_DUCKTYPING_INTERNAL;BUILD_PEANUTBUTTER_INTERNAL</DefineConstants>
-        <DefineConstants Condition="$(TargetFramework) == 'net6.0'">$(DefineConstants);NETSTANDARD</DefineConstants>
         <DefineConstants Condition="$(TargetFramework) == 'net8.0'">$(DefineConstants);NETSTANDARD</DefineConstants>
         <DefineConstants Condition="$(TargetFramework) == 'net8.0'">$(DefineConstants);NETSTANDARD</DefineConstants>
         <RootNamespace>PeanutButter.EasyArgs</RootNamespace>
@@ -97,8 +96,6 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="System.Reflection.Emit" Version="4.7.0" Condition="$(TargetFramework) == 'netstandard2.0'"/>
-        <PackageReference Include="System.Reflection.Emit" Version="4.7.0" Condition="$(TargetFramework) == 'net6.0'"/>
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.1" Condition="$(TargetFramework) == 'net6.0'"/>
     </ItemGroup>
 
     <ItemGroup>

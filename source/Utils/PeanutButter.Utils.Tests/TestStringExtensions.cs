@@ -1984,7 +1984,7 @@ public class TestStringExtensions
 
                 // Assert
                 Expect(result).To.Be.True(
-                    $"{input.Stringify()} should be alpha-numeric"
+                    $"{input.StringifyCollection()} should be alpha-numeric"
                 );
             }
         }

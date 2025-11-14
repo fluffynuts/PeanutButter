@@ -936,7 +936,7 @@ namespace PeanutButter.WindowsServiceManagement.Core.Tests
                 }
             }
 
-            throw new Exception($"Unable to determine startup type from\n{captured.Stringify()}");
+            throw new Exception($"Unable to determine startup type from\n{captured.StringifyCollection()}");
         }
 
         private static void WaitFor(
