@@ -102,21 +102,47 @@ Properties</h2></td></tr>
 <tr class="memdesc:ae269f1f278952c524af0948eeb9e6387"><td class="mdescLeft">&#160;</td><td class="mdescRight">The desired password for auth.  <br /></td></tr>
 <tr class="memitem:a1caef2a7e6ede8a657a0ce4bcac78279" id="r_a1caef2a7e6ede8a657a0ce4bcac78279"><td class="memItemLeft" align="right" valign="top"><a id="a1caef2a7e6ede8a657a0ce4bcac78279" name="a1caef2a7e6ede8a657a0ce4bcac78279"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>CPUs</b> = 2<code> [get, set]</code></td></tr>
-<tr class="memdesc:a1caef2a7e6ede8a657a0ce4bcac78279"><td class="mdescLeft">&#160;</td><td class="mdescRight">The max number of cpus to let docker take over for this. <br /></td></tr>
+<tr class="memdesc:a1caef2a7e6ede8a657a0ce4bcac78279"><td class="mdescLeft">&#160;</td><td class="mdescRight">The max number of cpus to let docker take over for this (default: 2) <br /></td></tr>
 <tr class="memitem:aaaf0b4be7162a28c7711cb2bd5c67c9a" id="r_aaaf0b4be7162a28c7711cb2bd5c67c9a"><td class="memItemLeft" align="right" valign="top"><a id="aaaf0b4be7162a28c7711cb2bd5c67c9a" name="aaaf0b4be7162a28c7711cb2bd5c67c9a"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>MaxMemoryMb</b> = 1024<code> [get, set]</code></td></tr>
-<tr class="memdesc:aaaf0b4be7162a28c7711cb2bd5c67c9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The max memory, in megabytes, to allow for the docker container. <br /></td></tr>
+<tr class="memdesc:aaaf0b4be7162a28c7711cb2bd5c67c9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The max memory, in megabytes, to allow for the docker container (default: 1024) <br /></td></tr>
 <tr class="memitem:a4eba6b7aa70409440dc9104f2c13e642" id="r_a4eba6b7aa70409440dc9104f2c13e642"><td class="memItemLeft" align="right" valign="top"><a id="a4eba6b7aa70409440dc9104f2c13e642" name="a4eba6b7aa70409440dc9104f2c13e642"></a>
 string&#160;</td><td class="memItemRight" valign="bottom"><b>Version</b> = &quot;9.2.1&quot;<code> [get, set]</code></td></tr>
-<tr class="memdesc:a4eba6b7aa70409440dc9104f2c13e642"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the version of the elasticsearch docker image to start up. <br /></td></tr>
+<tr class="memdesc:a4eba6b7aa70409440dc9104f2c13e642"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the version of the elasticsearch docker image to start up (default: 9.2.1) <br /></td></tr>
 <tr class="memitem:a2d609e493d1425bb3c0af389e0985948" id="r_a2d609e493d1425bb3c0af389e0985948"><td class="memItemLeft" align="right" valign="top"><a id="a2d609e493d1425bb3c0af389e0985948" name="a2d609e493d1425bb3c0af389e0985948"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>MaxTimeAllowedToComeUpInSeconds</b> = 45<code> [get, set]</code></td></tr>
-<tr class="memdesc:a2d609e493d1425bb3c0af389e0985948"><td class="mdescLeft">&#160;</td><td class="mdescRight">The maximum amount of time, in seconds, to allow for the dockerised elasticsearch to become available before giving up. When a connection cannot be established within this time, an <a class="el" href="classPeanutButter_1_1TempElasticsearch_1_1UnableToStartTempElasticsearch.html" title="Thrown when TempElasticsearch is unable to verify that elasticsearch has started up by querying the r...">UnableToStartTempElasticsearch</a> exception is raised. <br /></td></tr>
-<tr class="memitem:a6d7478147d8b541dee78580098483a99" id="r_a6d7478147d8b541dee78580098483a99"><td class="memItemLeft" align="right" valign="top"><a id="a6d7478147d8b541dee78580098483a99" name="a6d7478147d8b541dee78580098483a99"></a>
-Action&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>DockerLogReceiver</b><code> [get, set]</code></td></tr>
-<tr class="memdesc:a6d7478147d8b541dee78580098483a99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Normally, docker output is discarded (there is a lot!) but if you want to debug the docker startup process, you may set an handler here to collect logs. <br /></td></tr>
+<tr class="memdesc:a2d609e493d1425bb3c0af389e0985948"><td class="mdescLeft">&#160;</td><td class="mdescRight">The maximum amount of time, in seconds, to allow for the dockerised elasticsearch to become available before giving up. When a connection cannot be established within this time, an <a class="el" href="classPeanutButter_1_1TempElasticsearch_1_1UnableToStartTempElasticsearch.html" title="Thrown when TempElasticsearch is unable to verify that elasticsearch has started up by querying the r...">UnableToStartTempElasticsearch</a> exception is raised default: 45. <br /></td></tr>
+<tr class="memitem:a6d7478147d8b541dee78580098483a99" id="r_a6d7478147d8b541dee78580098483a99"><td class="memItemLeft" align="right" valign="top">Action&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6d7478147d8b541dee78580098483a99">DockerLogReceiver</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a6d7478147d8b541dee78580098483a99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Normally, docker output is discarded (there is a lot!) but if you want to debug the docker startup process, you may set an handler here to collect logs.  <br /></td></tr>
 </table>
 <a name="doc-property-members" id="doc-property-members"></a><h2 id="header-doc-property-members" class="groupheader">Property Documentation</h2>
+<a id="a6d7478147d8b541dee78580098483a99" name="a6d7478147d8b541dee78580098483a99"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d7478147d8b541dee78580098483a99">&#9670;&#160;</a></span>DockerLogReceiver</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Action&lt;string&gt; PeanutButter.TempElasticsearch.TempElasticSearchOptions.DockerLogReceiver</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span><span class="mlabel set">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Normally, docker output is discarded (there is a lot!) but if you want to debug the docker startup process, you may set an handler here to collect logs. </p>
+<ul>
+<li>when not set, logs are discarded </li>
+</ul>
+
+</div>
+</div>
 <a id="ae269f1f278952c524af0948eeb9e6387" name="ae269f1f278952c524af0948eeb9e6387"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae269f1f278952c524af0948eeb9e6387">&#9670;&#160;</a></span>Password</h2>
 
@@ -167,7 +193,7 @@ Action&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Doc
 
 <p>The desired port to listen on. </p>
 <ul>
-<li>defaults to 9200 </li>
+<li>default: is selected randomly from available open ports between 9200 and 9300 inclusive </li>
 </ul>
 
 </div>
