@@ -9,15 +9,43 @@ namespace PeanutButter.TempElasticsearch.Tests;
 
 public class TestTempElasticsearch
 {
+    private TempElasticsearchFactory _factory;
+
     [Test]
     public async Task ShouldSetUpServer()
     {
         // Arrange
-        using var tempES = new TempElasticsearch();
+        using var lease = _factory.Borrow();
+        var tempES = lease.Instance;
         // Act
         var client = new ElasticsearchClient(tempES.Url);
         await RunTestWith(client);
         // Assert
+    }
+
+    [Test]
+    public async Task ShouldBeFasterSecondTimeAroundFromFactory()
+    {
+        // Arrange
+        using var lease = _factory.Borrow();
+        var tempES = lease.Instance;
+        // Act
+        var client = new ElasticsearchClient(tempES.Url);
+        await RunTestWith(client);
+        // Assert
+    }
+
+    [OneTimeSetUp]
+    public void OneTimeSetup()
+    {
+        _factory = new TempElasticsearchFactory();
+    }
+
+    [OneTimeTearDown]
+    public void OneTimeTeardown()
+    {
+        _factory?.Dispose();
+        _factory = null;
     }
 
     private async Task RunTestWith(

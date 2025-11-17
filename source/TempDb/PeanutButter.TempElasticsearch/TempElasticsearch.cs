@@ -3,164 +3,61 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
-using PeanutButter.Utils;
+using Imported.PeanutButter.Utils;
 
 namespace PeanutButter.TempElasticsearch;
 
 /// <summary>
-/// 
-/// </summary>
-public class TempElasticSearchOptions
-{
-    /// <summary>
-    /// The desired port to listen on
-    /// - defaults to 9200
-    /// </summary>
-    public int Port { get; set; } = 9200;
-
-    /// <summary>
-    /// The desired username for auth
-    /// - defaults to empty (no auth)
-    /// </summary>
-    public string User { get; set; }
-
-    /// <summary>
-    /// The desired password for auth
-    /// - defaults to empty
-    /// - when no username specified, is ignored
-    /// </summary>
-    public string Password { get; set; }
-
-    /// <summary>
-    /// The max number of cpus to let docker
-    /// take over for this
-    /// </summary>
-    public int CPUs { get; set; } = 2;
-
-    /// <summary>
-    /// The max memory, in megabytes, to allow
-    /// for the docker container
-    /// </summary>
-    public int MaxMemoryMb { get; set; } = 2048;
-
-    /// <summary>
-    /// Sets the version of the elasticsearch docker
-    /// image to start up
-    /// </summary>
-    public string Version { get; set; } = "9.2.1";
-
-    /// <summary>
-    /// The maximum amount of time, in seconds, to
-    /// allow for the dockerised elasticsearch to
-    /// become available before giving up.
-    /// When a connection cannot be established within this time,
-    /// an UnableToStartTempElasticsearch exception is raised
-    /// </summary>
-    public int MaxTimeAllowedToComeUpInSeconds { get; set; } = 45;
-
-    /// <summary>
-    /// Normally, docker output is discarded (there is a lot!)
-    /// but if you want to debug the docker startup process,
-    /// you may set an handler here to collect logs
-    /// </summary>
-    public Action<string> DockerLogReceiver { get; set; }
-}
-
-/// <summary>
-/// Read-only TempElasticsearch options
-/// </summary>
-public class ReadOnlyTempElasticsearchOptions
-{
-    /// <summary>
-    /// The port this instance is configured to use
-    /// </summary>
-    public int Port { get; private set; }
-
-    /// <summary>
-    /// The user this instance is configured to use for auth
-    /// </summary>
-    public string User { get; private set; }
-
-    /// <summary>
-    /// The password this instance is configured to use for auth
-    /// </summary>
-    public string Password { get; private set; }
-
-    /// <summary>
-    /// The number of cpus that docker is allowed to use
-    /// </summary>
-    public int CPUs { get; private set; }
-
-    /// <summary>
-    /// The max memory docker is allowed to use
-    /// </summary>
-    public int MaxMemoryMb { get; private set; }
-
-    /// <summary>
-    /// The version of the elasticsearch docker
-    /// image being used
-    /// </summary>
-    public string Version { get; private set; }
-
-    /// <summary>
-    /// The maximum amount of time, in seconds, to
-    /// allow for the dockerised elasticsearch to
-    /// become available before giving up.
-    /// When a connection cannot be established within this time,
-    /// an UnableToStartTempElasticsearch exception is raised
-    /// </summary>
-    public int MaxTimeAllowedToComeUpInSeconds { get; set; } = 30;
-
-    internal static ReadOnlyTempElasticsearchOptions From(
-        TempElasticSearchOptions options
-    )
-    {
-        if (options is null)
-        {
-            throw new ArgumentNullException(nameof(options));
-        }
-
-        return new()
-        {
-            Port = options.Port,
-            User = options.User,
-            Password = options.Password,
-            CPUs = options.CPUs,
-            MaxMemoryMb = options.MaxMemoryMb,
-            Version = options.Version,
-            MaxTimeAllowedToComeUpInSeconds = options.MaxTimeAllowedToComeUpInSeconds
-        };
-    }
-}
-
-/// <summary>
 /// Provides a temporary Elasticsearch service
 /// </summary>
-public class TempElasticsearch : IDisposable
+public interface ITempElasticsearch : IDisposable
 {
     /// <summary>
     /// Self-assigned Id, used in container name generation
     /// </summary>
-    public long Id { get; } = DateTime.Now.Ticks;
+    long Id { get; }
+
     /// <summary>
     /// Read-only copy of the options this instance was launched
     /// with
     /// </summary>
-    public ReadOnlyTempElasticsearchOptions Options { get; }
+    ReadOnlyTempElasticsearchOptions Options { get; }
+
     /// <summary>
     /// Public url this service should be available at once running
     /// </summary>
-    public Uri Url { get; private set; }
+    Uri Url { get; }
+
     /// <summary>
     /// Recorded time it took to boot the docker container
     /// - does not include the time taken to pull the image
     /// </summary>
-    public TimeSpan? BootTime { get; private set; }
+    TimeSpan? BootTime { get; }
+
     /// <summary>
     /// The name assigned to the docker container
     /// </summary>
+    string ContainerName { get; }
+}
+
+/// <inheritdoc />
+public class TempElasticsearch : ITempElasticsearch
+{
+    /// <inheritdoc />
+    public long Id { get; } = DateTime.Now.Ticks;
+
+    /// <inheritdoc />
+    public ReadOnlyTempElasticsearchOptions Options { get; }
+
+    /// <inheritdoc />
+    public Uri Url { get; private set; }
+
+    /// <inheritdoc />
+    public TimeSpan? BootTime { get; private set; }
+
+    /// <inheritdoc />
     public string ContainerName { get; private set; }
-    
+
     private IProcessIO _io;
 
     /// <inheritdoc />
@@ -348,7 +245,7 @@ public class TempElasticsearch : IDisposable
                 HttpMethod.Get,
                 Url
             );
-            
+
             var response = Async.RunSync(() => client.SendAsync(request));
             return response.StatusCode == HttpStatusCode.OK;
         }
@@ -407,24 +304,15 @@ public class TempElasticsearch : IDisposable
 }
 
 /// <summary>
-/// Thrown when TempElasticsearch is unable to verify
-/// that elasticsearch has started up by querying the
-/// root document
+/// Describes a factory for your http server usage:
+/// - Take() an IPoolItem&lt;IHttpServer&gt;
+/// - work with the server
+/// - return it to the pool by disposing of the pool item (use 'using' for safety)
 /// </summary>
-public class UnableToStartTempElasticsearch : Exception
+public interface ITempElasticsearchFactory : IPool<ITempElasticsearch>
 {
-    /// <inheritdoc />
-    public UnableToStartTempElasticsearch(
-        Exception inner
-    ) : base("Unable to verify connection to temporary elasticsearch", inner)
-    {
-    }
-
-    /// <inheritdoc />
-    public UnableToStartTempElasticsearch(
-        string message
-    )
-        : base(message)
-    {
-    }
+    /// <summary>
+    /// The options to use when providing a new TempElasticsearch
+    /// </summary>
+    TempElasticSearchOptions Options { get; }
 }

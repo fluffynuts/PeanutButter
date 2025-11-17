@@ -11,6 +11,7 @@
         <LangVersion>latest</LangVersion>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackagerFormat>snupkg</SymbolPackagerFormat>
+        <DefineConstants>BUILD_PEANUTBUTTER_INTERNAL;BUILD_PEANUTBUTTER_POOL_PUBLIC</DefineConstants>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
         <DefineConstants>NETSTANDARD</DefineConstants>
@@ -23,10 +24,29 @@
         <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
         <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
     </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\Async.cs" Link="Imported\Async.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\AutoDeleter.cs" Link="Imported\AutoDeleter.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\AutoLocker.cs" Link="Imported\AutoLocker.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\AutoTempFile.cs" Link="Imported\AutoTempFile.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\CannotZipNullException.cs" Link="Imported\CannotZipNullException.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\DefaultBackoffStrategy.cs" Link="Imported\DefaultBackoffStrategy.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\DictionaryExtensions.cs" Link="Imported\DictionaryExtensions.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\ExtensionsForIEnumerables.cs" Link="Imported\ExtensionsForIEnumerables.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\Find.cs" Link="Imported\Find.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\IBackoffStrategy.cs" Link="Imported\IBackoffStrategy.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\MaxAttemptsRetryContext.cs" Link="Imported\MaxAttemptsRetryContext.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\Pool.cs" Link="Imported\Pool.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\Platform.cs" Link="Imported\Platform.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\ProcessIO.cs" Link="Imported\ProcessIO.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\Retry.cs" Link="Imported\Retry.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\RetriesExceededException.cs" Link="Imported\RetriesExceededException.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\TimeBasedRetryContext.cs" Link="Imported\TimeBasedRetryContext.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\UnevenZipException.cs" Link="Imported\UnevenZipException.cs"/>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-        <PackageReference Include="PeanutButter.Utils" Version="3.0.401"/>
     </ItemGroup>
 
     <Import Project="..\..\MonoForFramework.targets" />

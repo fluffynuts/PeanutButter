@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+// ReSharper disable UnusedMemberInSuper.Global
+// ReSharper disable UnusedMember.Global
 
 namespace
 #if BUILD_PEANUTBUTTER_INTERNAL
@@ -13,7 +15,11 @@ namespace
 /// </summary>
 /// <typeparam name="T"></typeparam>
 #if BUILD_PEANUTBUTTER_INTERNAL
+#if BUILD_PEANUTBUTTER_POOL_PUBLIC
+public
+#else
 internal
+#endif
 #else
 public
 #endif
@@ -84,7 +90,11 @@ public
 /// </summary>
 /// <typeparam name="T"></typeparam>
 #if BUILD_PEANUTBUTTER_INTERNAL
+#if BUILD_PEANUTBUTTER_POOL_PUBLIC
+public
+#else
 internal
+#endif
 #else
 public
 #endif
@@ -101,7 +111,7 @@ public
     public int Count => _items.Count;
 
     private readonly List<IPoolItem<T>> _items = new();
-    private readonly Func<T> _factory;
+    private readonly Func<IPool<T>, T> _factory;
     private readonly Action<T> _onRelease;
 
     private TResult WithLockedItems<TResult>(Func<List<IPoolItem<T>>, TResult> toRun)
@@ -177,6 +187,61 @@ public
         int maxItems
     )
     {
+        _factory = o => factory();
+        _onRelease = onRelease;
+        MaxItems = maxItems;
+    }
+
+    /// <summary>
+    /// Creates the pool with a factory for the items
+    /// </summary>
+    /// <param name="factory"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    public Pool(
+        Func<IPool<T>, T> factory
+    ) : this(factory, int.MaxValue)
+    {
+    }
+
+    /// <summary>
+    /// Creates the pool with a factory for the items
+    /// </summary>
+    /// <param name="factory"></param>
+    /// <param name="maxItems"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    public Pool(
+        Func<IPool<T>, T> factory,
+        int maxItems
+    ) : this(factory, null, maxItems)
+    {
+    }
+
+    /// <summary>
+    /// Creates the pool with the provided factory and an
+    /// action to run on releasing the item
+    /// </summary>
+    /// <param name="factory"></param>
+    /// <param name="onRelease"></param>
+    public Pool(
+        Func<IPool<T>, T> factory,
+        Action<T> onRelease
+    ) : this(factory, onRelease, int.MaxValue)
+    {
+    }
+
+    /// <summary>
+    /// Creates the pool with the provided factory and an
+    /// action to run on releasing the item
+    /// </summary>
+    /// <param name="factory"></param>
+    /// <param name="maxItems"></param>
+    /// <param name="onRelease"></param>
+    public Pool(
+        Func<IPool<T>, T> factory,
+        Action<T> onRelease,
+        int maxItems
+    )
+    {
         _factory = factory;
         _onRelease = onRelease;
         MaxItems = maxItems;
@@ -222,8 +287,7 @@ public
             return result;
         }
 
-        return WithLockedItems(
-            items =>
+        return WithLockedItems(items =>
             {
                 if (Count == MaxItems)
                 {
@@ -237,7 +301,7 @@ public
                 }
 
                 result = new PoolItem<T>(
-                    _factory(),
+                    _factory(this),
                     _onRelease,
                     this
                 );
@@ -252,9 +316,10 @@ public
     public void Forget(IPoolItem<T> item)
     {
         WithLockedItems(items =>
-        {
-            items.Remove(item);
-        });
+            {
+                items.Remove(item);
+            }
+        );
     }
 
     private bool TryFindExistingAvailableInstance(int maxWaitMs, out IPoolItem<T> result)
@@ -263,8 +328,7 @@ public
         var timeout = DateTime.Now.AddMilliseconds(maxWaitMs);
         do
         {
-            result = WithLockedItems(
-                items =>
+            result = WithLockedItems(items =>
                 {
                     foreach (var item in items)
                     {
@@ -300,11 +364,11 @@ public
             {
                 return;
             }
+
             _disposed = true;
         }
 
-        WithLockedItemsInternal(
-            items =>
+        WithLockedItemsInternal(items =>
             {
                 foreach (var item in items)
                 {
@@ -370,7 +434,11 @@ public
 /// </summary>
 /// <typeparam name="T"></typeparam>
 #if BUILD_PEANUTBUTTER_INTERNAL
+#if BUILD_PEANUTBUTTER_POOL_PUBLIC
+public
+#else
 internal
+#endif
 #else
 public
 #endif
@@ -394,12 +462,16 @@ public
     ///   should always return false from within consumer code
     /// </summary>
     /// <param name="maxWait"></param>
-    public bool TryLock(int maxWait);
+    bool TryLock(int maxWait);
 }
 
 /// <inheritdoc />
 #if BUILD_PEANUTBUTTER_INTERNAL
+#if BUILD_PEANUTBUTTER_POOL_PUBLIC
+    public
+#else
 internal
+#endif
 #else
 public
 #endif
