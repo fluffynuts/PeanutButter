@@ -17,11 +17,11 @@
         <PackageReference Include="NUnit3TestAdapter" Version="4.2.1"/>
         <PackageReference Include="NUnit.Analyzers" Version="3.6.1"/>
         <PackageReference Include="coverlet.collector" Version="6.0.0"/>
+        <PackageReference Include="PeanutButter.Utils" Version="3.0.403" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
-      <ProjectReference Include="..\..\Utils\PeanutButter.Utils\PeanutButter.Utils.csproj" />
       <ProjectReference Include="..\PeanutButter.TempElasticsearch\PeanutButter.TempElasticsearch.csproj" />
     </ItemGroup>
 
