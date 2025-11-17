@@ -1,7 +1,7 @@
 var searchData=
 [
   ['backingfieldforpropertynotfoundexception_0',['BackingFieldForPropertyNotFoundException',['../classPeanutButter_1_1DuckTyping_1_1Exceptions_1_1BackingFieldForPropertyNotFoundException.html#a842cfa51c54f741e822821ae82e204e2',1,'PeanutButter::DuckTyping::Exceptions::BackingFieldForPropertyNotFoundException']]],
-  ['backoff_1',['Backoff',['../classPeanutButter_1_1Utils_1_1DefaultBackoffStrategy.html#a25f05a6b026fdbdaee85fb8af3934c3a',1,'PeanutButter.Utils.DefaultBackoffStrategy.Backoff()'],['../interfacePeanutButter_1_1Utils_1_1IBackoffStrategy.html#acb62dfcdd05f7d0a8645cf5311dd0f09',1,'PeanutButter.Utils.IBackoffStrategy.Backoff()']]],
+  ['backoff_1',['Backoff',['../classPeanutButter_1_1Utils_1_1DefaultBackoffStrategy.html#a25f05a6b026fdbdaee85fb8af3934c3a',1,'PeanutButter.Utils.DefaultBackoffStrategy.Backoff()'],['../classPeanutButter_1_1Utils_1_1ConstantTimeBackoffStrategy.html#ac2b74e71a376e9b5401b5cd8eef99d79',1,'PeanutButter.Utils.ConstantTimeBackoffStrategy.Backoff()'],['../interfacePeanutButter_1_1Utils_1_1IBackoffStrategy.html#acb62dfcdd05f7d0a8645cf5311dd0f09',1,'PeanutButter.Utils.IBackoffStrategy.Backoff()']]],
   ['base64padded_2',['Base64Padded',['../classPeanutButter_1_1Utils_1_1StringExtensions.html#aa2cdaf813073c6d01271b77d870ab59c',1,'PeanutButter::Utils::StringExtensions']]],
   ['base64unpadded_3',['Base64UnPadded',['../classPeanutButter_1_1Utils_1_1StringExtensions.html#a0767942e348604fbd2145488b45ff503',1,'PeanutButter::Utils::StringExtensions']]],
   ['basetype_4',['BaseType',['../classPeanutButter_1_1Utils_1_1TypeExtensions.html#ae5c058a62567ff0ed7bfcb55d035b52d',1,'PeanutButter::Utils::TypeExtensions']]],

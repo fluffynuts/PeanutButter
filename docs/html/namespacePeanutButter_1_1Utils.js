@@ -26,6 +26,7 @@ var namespacePeanutButter_1_1Utils =
     [ "Commandline", "classPeanutButter_1_1Utils_1_1Commandline.html", "classPeanutButter_1_1Utils_1_1Commandline" ],
     [ "ConcurrentCollectionExtensions", "classPeanutButter_1_1Utils_1_1ConcurrentCollectionExtensions.html", "classPeanutButter_1_1Utils_1_1ConcurrentCollectionExtensions" ],
     [ "ConsoleSteps", "classPeanutButter_1_1Utils_1_1ConsoleSteps.html", "classPeanutButter_1_1Utils_1_1ConsoleSteps" ],
+    [ "ConstantTimeBackoffStrategy", "classPeanutButter_1_1Utils_1_1ConstantTimeBackoffStrategy.html", "classPeanutButter_1_1Utils_1_1ConstantTimeBackoffStrategy" ],
     [ "DateTimeExtensions", "classPeanutButter_1_1Utils_1_1DateTimeExtensions.html", "classPeanutButter_1_1Utils_1_1DateTimeExtensions" ],
     [ "DateTimeParser", "classPeanutButter_1_1Utils_1_1DateTimeParser.html", "classPeanutButter_1_1Utils_1_1DateTimeParser" ],
     [ "DecimalDecorator", "classPeanutButter_1_1Utils_1_1DecimalDecorator.html", "classPeanutButter_1_1Utils_1_1DecimalDecorator" ],

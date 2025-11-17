@@ -1,5 +1,11 @@
 var NAVTREEINDEX28 =
 {
+"interfacePeanutButter_1_1INI_1_1IINIFile.html#acb26be55d526113d2493057d3c948e6a":[2,0,0,3,1,18],
+"interfacePeanutButter_1_1INI_1_1IINIFile.html#acf2ffde5855b69b5184dcd777f714b5a":[1,0,0,3,1,23],
+"interfacePeanutButter_1_1INI_1_1IINIFile.html#acf2ffde5855b69b5184dcd777f714b5a":[2,0,0,3,1,23],
+"interfacePeanutButter_1_1INI_1_1IINIFile.html#acf38d7b5c66690ebf42d3730fc517c9b":[1,0,0,3,1,7],
+"interfacePeanutButter_1_1INI_1_1IINIFile.html#acf38d7b5c66690ebf42d3730fc517c9b":[2,0,0,3,1,7],
+"interfacePeanutButter_1_1INI_1_1IINIFile.html#ad47fe172e3de2b0bc50dd103cdb956fe":[1,0,0,3,1,28],
 "interfacePeanutButter_1_1INI_1_1IINIFile.html#ad47fe172e3de2b0bc50dd103cdb956fe":[2,0,0,3,1,28],
 "interfacePeanutButter_1_1INI_1_1IINIFile.html#ad4b89677d7b93bb882a74b0a5d50f0b9":[1,0,0,3,1,6],
 "interfacePeanutButter_1_1INI_1_1IINIFile.html#ad4b89677d7b93bb882a74b0a5d50f0b9":[2,0,0,3,1,6],
@@ -243,11 +249,5 @@ var NAVTREEINDEX28 =
 "interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1ICanBeIndexedBy-1-g.html#a63aa305103a9790ab248aa2d229d8ac8":[2,0,0,14,0,1,28,0],
 "interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1IFake.html":[1,0,0,14,0,1,30],
 "interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1IFake.html":[2,0,0,14,0,1,29],
-"interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1IFakeModelMetadata.html":[1,0,0,14,0,1,31],
-"interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1IFakeModelMetadata.html":[2,0,0,14,0,1,30],
-"interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1IFakeModelMetadata.html#a0a5362922d18765827aea939e1fa5f4b":[1,0,0,14,0,1,31,18],
-"interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1IFakeModelMetadata.html#a0a5362922d18765827aea939e1fa5f4b":[2,0,0,14,0,1,30,18],
-"interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1IFakeModelMetadata.html#a0d10f1254278d0a2a0b5201293022e65":[1,0,0,14,0,1,31,9],
-"interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1IFakeModelMetadata.html#a0d10f1254278d0a2a0b5201293022e65":[2,0,0,14,0,1,30,9],
-"interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1IFakeModelMetadata.html#a0d378f82112603d802dbc08a7a3d466b":[1,0,0,14,0,1,31,33]
+"interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1IFakeModelMetadata.html":[1,0,0,14,0,1,31]
 };

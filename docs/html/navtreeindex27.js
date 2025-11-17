@@ -1,5 +1,11 @@
 var NAVTREEINDEX27 =
 {
+"classPeanutButter_1_1XmlUtils_1_1XElementExtensions.html#a8256af7bf2455d45e25f3241f17bf308":[2,0,0,18,0,2],
+"classPeanutButter_1_1XmlUtils_1_1XElementExtensions.html#ae8219f120e852523cf54ef634aee6d6a":[1,0,0,18,0,1],
+"classPeanutButter_1_1XmlUtils_1_1XElementExtensions.html#ae8219f120e852523cf54ef634aee6d6a":[2,0,0,18,0,1],
+"classPeanutButter_1_1XmlUtils_1_1XElementExtensions.html#af2c656bed28825dc3fe0f8c0d68e7847":[1,0,0,18,0,0],
+"classPeanutButter_1_1XmlUtils_1_1XElementExtensions.html#af2c656bed28825dc3fe0f8c0d68e7847":[2,0,0,18,0,0],
+"classSkipOnGenerationAttribute.html":[2,0,1],
 "classes.html":[2,1],
 "functions.html":[2,3,0],
 "functions.html":[2,3,0,0],
@@ -243,11 +249,5 @@ var NAVTREEINDEX27 =
 "interfacePeanutButter_1_1INI_1_1IINIFile.html#ac2cc452745dcc82e9b544c42080c98db":[2,0,0,3,1,27],
 "interfacePeanutButter_1_1INI_1_1IINIFile.html#ac829d02b8165a3f5364509056d269a06":[1,0,0,3,1,35],
 "interfacePeanutButter_1_1INI_1_1IINIFile.html#ac829d02b8165a3f5364509056d269a06":[2,0,0,3,1,35],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#acb26be55d526113d2493057d3c948e6a":[1,0,0,3,1,18],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#acb26be55d526113d2493057d3c948e6a":[2,0,0,3,1,18],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#acf2ffde5855b69b5184dcd777f714b5a":[1,0,0,3,1,23],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#acf2ffde5855b69b5184dcd777f714b5a":[2,0,0,3,1,23],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#acf38d7b5c66690ebf42d3730fc517c9b":[1,0,0,3,1,7],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#acf38d7b5c66690ebf42d3730fc517c9b":[2,0,0,3,1,7],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#ad47fe172e3de2b0bc50dd103cdb956fe":[1,0,0,3,1,28]
+"interfacePeanutButter_1_1INI_1_1IINIFile.html#acb26be55d526113d2493057d3c948e6a":[1,0,0,3,1,18]
 };

@@ -204,6 +204,7 @@ var hierarchy =
       [ "PeanutButter.TestUtils.AspNetCore.Fakes.FakeViewResultExecutor", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeViewResultExecutor.html", null ]
     ] ],
     [ "PeanutButter.Utils.IBackoffStrategy", "interfacePeanutButter_1_1Utils_1_1IBackoffStrategy.html", [
+      [ "PeanutButter.Utils.ConstantTimeBackoffStrategy", "classPeanutButter_1_1Utils_1_1ConstantTimeBackoffStrategy.html", null ],
       [ "PeanutButter.Utils.DefaultBackoffStrategy", "classPeanutButter_1_1Utils_1_1DefaultBackoffStrategy.html", null ]
     ] ],
     [ "PeanutButter.Utils.IBuilder< TBuilder, TEntity >", "interfacePeanutButter_1_1Utils_1_1IBuilder-2-g.html", [
