@@ -1,4 +1,6 @@
 using System;
+using System.Net;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TempElasticsearch;
 
@@ -11,7 +13,7 @@ public class TempElasticSearchOptions
     /// The desired port to listen on
     /// - defaults to 9200
     /// </summary>
-    public int Port { get; set; } = 9200;
+    public int Port { get; set; } = PortFinder.FindOpenPort(IPAddress.Loopback, 9200, 9300);
 
     /// <summary>
     /// The desired username for auth

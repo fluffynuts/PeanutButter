@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.IndexManagement;
 using PeanutButter.Utils;
+// ReSharper disable UnusedMember.Global
 
 namespace PeanutButter.TempElasticsearch.Tests;
 
@@ -42,7 +43,8 @@ public class TestTempElasticsearch
             new
             {
                 tempES.PullTime,
-                tempES.BootTime
+                tempES.BootTime,
+                tempES.Options
             }.Stringify()
         );
         await Console.Error.WriteLineAsync("\n\n\n-----------------------");

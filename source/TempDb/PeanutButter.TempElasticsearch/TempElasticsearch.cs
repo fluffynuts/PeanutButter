@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
-using Imported.PeanutButter.Utils;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TempElasticsearch;
 

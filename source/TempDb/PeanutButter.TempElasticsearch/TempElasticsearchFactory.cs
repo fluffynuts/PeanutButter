@@ -1,4 +1,4 @@
-using Imported.PeanutButter.Utils;
+using PeanutButter.Utils;
 
 namespace PeanutButter.TempElasticsearch;
 
