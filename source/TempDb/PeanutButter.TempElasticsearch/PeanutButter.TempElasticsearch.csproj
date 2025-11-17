@@ -25,7 +25,6 @@
         <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
     </PropertyGroup>
     <ItemGroup>
-        <Compile Include="..\..\Utils\PeanutButter.Utils\Async.cs" Link="Imported\Async.cs"/>
         <Compile Include="..\..\Utils\PeanutButter.Utils\AutoDeleter.cs" Link="Imported\AutoDeleter.cs"/>
         <Compile Include="..\..\Utils\PeanutButter.Utils\AutoLocker.cs" Link="Imported\AutoLocker.cs"/>
         <Compile Include="..\..\Utils\PeanutButter.Utils\AutoTempFile.cs" Link="Imported\AutoTempFile.cs"/>

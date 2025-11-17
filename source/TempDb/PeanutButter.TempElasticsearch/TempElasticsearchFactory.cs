@@ -2,6 +2,19 @@ using Imported.PeanutButter.Utils;
 
 namespace PeanutButter.TempElasticsearch;
 
+/// <summary>
+/// Describes a factory for your http server usage:
+/// - Take() an IPoolItem&lt;IHttpServer&gt;
+/// - work with the server
+/// - return it to the pool by disposing of the pool item (use 'using' for safety)
+/// </summary>
+public interface ITempElasticsearchFactory : IPool<ITempElasticsearch>
+{
+    /// <summary>
+    /// The options to use when providing a new TempElasticsearch
+    /// </summary>
+    TempElasticSearchOptions Options { get; }
+}
 /// <inheritdoc cref="PeanutButter.TempElasticsearch.ITempElasticsearch" />
 public class TempElasticsearchFactory : Pool<ITempElasticsearch>, ITempElasticsearchFactory
 {

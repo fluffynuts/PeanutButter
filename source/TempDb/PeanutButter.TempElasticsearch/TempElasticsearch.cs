@@ -35,6 +35,11 @@ public interface ITempElasticsearch : IDisposable
     TimeSpan? BootTime { get; }
 
     /// <summary>
+    /// Recorded time it took to pull the docker image
+    /// </summary>
+    TimeSpan? PullTime { get; }
+
+    /// <summary>
     /// The name assigned to the docker container
     /// </summary>
     string ContainerName { get; }
@@ -54,6 +59,9 @@ public class TempElasticsearch : ITempElasticsearch
 
     /// <inheritdoc />
     public TimeSpan? BootTime { get; private set; }
+
+    /// <inheritdoc />
+    public TimeSpan? PullTime { get; private set; }
 
     /// <inheritdoc />
     public string ContainerName { get; private set; }
@@ -103,7 +111,7 @@ public class TempElasticsearch : ITempElasticsearch
         var logReceiver = options.DockerLogReceiver ?? NoOp;
         PullImage(Options, logReceiver);
         StartContainer(logReceiver);
-        ValidateConnection();
+        ValidateConnection(logReceiver);
     }
 
     private void PullImage(
@@ -112,6 +120,12 @@ public class TempElasticsearch : ITempElasticsearch
     )
     {
         var image = $"elasticsearch:{options.Version}";
+        Console.Error.WriteLine(
+            $"""
+             Pulling docker image {image} - please be patient, this may take a while"
+             """
+        );
+        var started = DateTime.Now;
         using var io = ProcessIO
             .WithStdErrReceiver(dockerLogReceiver)
             .WithStdOutReceiver(dockerLogReceiver)
@@ -122,6 +136,8 @@ public class TempElasticsearch : ITempElasticsearch
                 image
             );
         io.WaitForExit();
+        PullTime = DateTime.Now - started;
+
         if (io.ExitCode != 0)
         {
             throw new UnableToStartTempElasticsearch(
@@ -194,7 +210,7 @@ public class TempElasticsearch : ITempElasticsearch
         // intentionally left blank
     }
 
-    private void ValidateConnection()
+    private void ValidateConnection(Action<string> logReceiver)
     {
         try
         {
@@ -202,7 +218,7 @@ public class TempElasticsearch : ITempElasticsearch
             var eol = now.AddSeconds(Options.MaxTimeAllowedToComeUpInSeconds); // may be too long?
             bool canConnect;
             var httpClient = new HttpClient();
-            while (!(canConnect = CanConnect(httpClient)) && DateTime.Now < eol)
+            while (!(canConnect = CanConnect(httpClient, logReceiver)) && DateTime.Now < eol)
             {
                 Thread.Sleep(500);
                 if (_io.HasExited)
@@ -237,7 +253,7 @@ public class TempElasticsearch : ITempElasticsearch
         }
     }
 
-    private bool CanConnect(HttpClient client)
+    private bool CanConnect(HttpClient client, Action<string> logReceiver)
     {
         try
         {
@@ -246,11 +262,18 @@ public class TempElasticsearch : ITempElasticsearch
                 Url
             );
 
-            var response = Async.RunSync(() => client.SendAsync(request));
+            var task = client.SendAsync(request);
+            task.ConfigureAwait(false);
+            var response = task.Result;
             return response.StatusCode == HttpStatusCode.OK;
         }
-        catch
+        catch (Exception ex)
         {
+            logReceiver?.Invoke(
+                $"""
+                 Attempt to connect during boot fails: {ex}
+                 """
+            );
             return false;
         }
     }
@@ -301,18 +324,4 @@ public class TempElasticsearch : ITempElasticsearch
             Console.Error.WriteLine("WARNING: unable to stop docker container");
         }
     }
-}
-
-/// <summary>
-/// Describes a factory for your http server usage:
-/// - Take() an IPoolItem&lt;IHttpServer&gt;
-/// - work with the server
-/// - return it to the pool by disposing of the pool item (use 'using' for safety)
-/// </summary>
-public interface ITempElasticsearchFactory : IPool<ITempElasticsearch>
-{
-    /// <summary>
-    /// The options to use when providing a new TempElasticsearch
-    /// </summary>
-    TempElasticSearchOptions Options { get; }
 }

@@ -10,9 +10,49 @@ namespace PeanutButter.TempElasticsearch.Tests;
 public class TestTempElasticsearch
 {
     private TempElasticsearchFactory _factory;
+    
+    private static bool DebugEnabled =>
+        _debugEnabled ??= Env.Flag("DEBUG", false);
+    private static bool? _debugEnabled;
+
+    private static Action<string> CreateLogger()
+    {
+        return DebugEnabled
+            ? s => Console.Error.WriteLine(s)
+            : NoOp;
+    }
+
+    private static void NoOp(string str)
+    {
+        // intentionally left blank
+    }
 
     [Test]
-    public async Task ShouldSetUpServer()
+    [Order(1)]
+    public async Task _1_ShouldSetUpServer()
+    {
+        // Arrange
+        _factory.Warmup();
+        using var lease = _factory.Borrow();
+        var tempES = lease.Instance;
+        // Act
+        var client = new ElasticsearchClient(tempES.Url);
+        await Console.Error.WriteLineAsync("-----------------------\n\n\n");
+        await Console.Error.WriteLineAsync(
+            new
+            {
+                tempES.PullTime,
+                tempES.BootTime
+            }.Stringify()
+        );
+        await Console.Error.WriteLineAsync("\n\n\n-----------------------");
+        await RunTestWith(client);
+        // Assert
+    }
+
+    [Test]
+    [Order(2)]
+    public async Task _2_ShouldBeFasterSecondTimeAroundFromFactory()
     {
         // Arrange
         using var lease = _factory.Borrow();
@@ -24,13 +64,16 @@ public class TestTempElasticsearch
     }
 
     [Test]
-    public async Task ShouldBeFasterSecondTimeAroundFromFactory()
+    [Explicit("Run against an existing ES instance")]
+    public async Task ShouldConnect()
     {
         // Arrange
-        using var lease = _factory.Borrow();
-        var tempES = lease.Instance;
+        // using var lease = _factory.Borrow();
+        // var tempES = lease.Instance;
         // Act
-        var client = new ElasticsearchClient(tempES.Url);
+        var client = new ElasticsearchClient(
+            new Uri("http://localhost:9200")
+        );
         await RunTestWith(client);
         // Assert
     }
@@ -38,7 +81,11 @@ public class TestTempElasticsearch
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
-        _factory = new TempElasticsearchFactory();
+        var options = new TempElasticSearchOptions()
+        {
+            DockerLogReceiver = CreateLogger()
+        };
+        _factory = new TempElasticsearchFactory(10, options);
     }
 
     [OneTimeTearDown]
@@ -52,7 +99,7 @@ public class TestTempElasticsearch
         ElasticsearchClient client
     )
     {
-        var index = "callcenter-orders";
+        var index = "the-test-index";
         var payload = GetRandom<IndexItem>();
         var existingIndeces = await client.Indices.GetAsync(
             new GetIndexRequest(
@@ -69,7 +116,7 @@ public class TestTempElasticsearch
         // Act
         var indexResponse = await client.IndexAsync(
             payload,
-            o => o.Index("callcenter-orders")
+            o => o.Index(index)
         );
         Expect(indexResponse.IsValidResponse)
             .To.Be.True();
@@ -116,7 +163,7 @@ public class TestTempElasticsearch
 
         void Log(string str)
         {
-            Console.WriteLine($"[{DateTime.Now:u}] {str}");
+            Console.Error.WriteLine($"[{DateTime.Now:u}] {str}");
         }
     }
 

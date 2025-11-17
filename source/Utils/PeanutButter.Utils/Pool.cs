@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable UnusedMember.Global
 
@@ -78,6 +79,13 @@ public
     /// </summary>
     /// <param name="item"></param>
     void Forget(IPoolItem<T> item);
+
+    /// <summary>
+    /// Causes an initial temporary elasticsearch
+    /// instance to be started, and gates the next
+    /// request for an instance
+    /// </summary>
+    void Warmup();
 
     /// <summary>
     /// Disposes of this pool and all items in the pool
@@ -273,6 +281,44 @@ public
     }
 
     /// <summary>
+    /// Set when warmup starts
+    /// - more of an internal flag, but may be interesting
+    ///   to observe
+    /// </summary>
+    public bool WarmupStarted { get; private set; }
+
+    /// <summary>
+    /// Set when warmup completes
+    /// - mostly for external observation
+    /// </summary>
+    public bool WarmedUp { get; set; }
+
+    private bool _warmupStarted;
+    private ManualResetEvent _warmupEvent;
+    private Thread _warmupThread;
+    private SemaphoreSlim _warmupLock = new(1);
+
+    /// <inheritdoc />
+    public void Warmup()
+    {
+        if (_warmupStarted)
+        {
+            return;
+        }
+
+        _warmupStarted = true;
+        _warmupEvent = new ManualResetEvent(false);
+        _warmupThread = new Thread(() =>
+            {
+                using var _ = FindOrGenerateInstance(0);
+                WarmedUp = true;
+                _warmupEvent.Set();
+            }
+        );
+        _warmupThread.Start();
+    }
+
+    /// <summary>
     /// Attempt to take an item from the pool, with a max wait in ms
     /// when the pool is already full and you need to wait on something
     /// else to release an instance. If no instance can be found in time, then
@@ -282,25 +328,44 @@ public
     /// <returns></returns>
     public IPoolItem<T> Borrow(int maxWaitMilliseconds)
     {
+        var ev = _warmupEvent;
+        if (ev is not null)
+        {
+            ev.WaitOne();
+            using var _ = new AutoLocker(_warmupLock);
+            _warmupThread?.Join();
+            _warmupThread = null;
+        }
+
         if (TryFindExistingAvailableInstance(0, out var result))
         {
             return result;
         }
 
+        return FindOrGenerateInstance(maxWaitMilliseconds);
+    }
+
+    private IPoolItem<T> FindOrGenerateInstance(
+        int maxWaitMilliseconds
+    )
+    {
         return WithLockedItems(items =>
             {
-                if (Count == MaxItems)
+                if (TryFindExistingAvailableInstance(maxWaitMilliseconds, out var res))
                 {
-                    return TryFindExistingAvailableInstance(maxWaitMilliseconds, out result)
-                        ? result
-                        : throw new NoPooledItemAvailableException(
-                            typeof(T),
-                            MaxItems,
-                            maxWaitMilliseconds
-                        );
+                    return res;
                 }
 
-                result = new PoolItem<T>(
+                if (Count == MaxItems)
+                {
+                    throw new NoPooledItemAvailableException(
+                        typeof(T),
+                        MaxItems,
+                        maxWaitMilliseconds
+                    );
+                }
+
+                var result = new PoolItem<T>(
                     _factory(this),
                     _onRelease,
                     this
@@ -468,7 +533,7 @@ public
 /// <inheritdoc />
 #if BUILD_PEANUTBUTTER_INTERNAL
 #if BUILD_PEANUTBUTTER_POOL_PUBLIC
-    public
+public
 #else
 internal
 #endif
