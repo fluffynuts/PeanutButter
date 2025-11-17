@@ -122,6 +122,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:aec633c0b3c657d19172b7e1173ee0eb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempt to take an item from the pool, with a max wait in ms when the pool is already full and you need to wait on something else to release an instance. If no instance can be found in time, then this will return a PoolItem with a default instance.  <br /></td></tr>
 <tr class="memitem:a04287bbdc19bbcb3b9849376746800f3" id="r_a04287bbdc19bbcb3b9849376746800f3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a04287bbdc19bbcb3b9849376746800f3">Forget</a> (IPoolItem&lt; T &gt; item)</td></tr>
 <tr class="memdesc:a04287bbdc19bbcb3b9849376746800f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forget the item from the pool.  <br /></td></tr>
+<tr class="memitem:a0d95ec6a61e9aa34f9a17c76a6c8cad4" id="r_a0d95ec6a61e9aa34f9a17c76a6c8cad4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0d95ec6a61e9aa34f9a17c76a6c8cad4">Warmup</a> ()</td></tr>
+<tr class="memdesc:a0d95ec6a61e9aa34f9a17c76a6c8cad4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Causes an initial temporary elasticsearch instance to be started, and gates the next request for an instance.  <br /></td></tr>
 <tr class="memitem:ad3f235bac4cdc617bc1561280cb2a309" id="r_ad3f235bac4cdc617bc1561280cb2a309"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad3f235bac4cdc617bc1561280cb2a309">Dispose</a> ()</td></tr>
 <tr class="memdesc:ad3f235bac4cdc617bc1561280cb2a309"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disposes of this pool and all items in the pool.  <br /></td></tr>
 </table><table class="memberdecls">
@@ -286,6 +288,27 @@ Properties</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 <p>Implemented in <a class="el" href="classPeanutButter_1_1Utils_1_1Pool-1-g.html#a2402a00b189f7e3ffaecc267aa01f0ce">PeanutButter.Utils.Pool&lt; T &gt;</a>.</p>
+
+</div>
+</div>
+<a id="a0d95ec6a61e9aa34f9a17c76a6c8cad4" name="a0d95ec6a61e9aa34f9a17c76a6c8cad4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d95ec6a61e9aa34f9a17c76a6c8cad4">&#9670;&#160;</a></span>Warmup()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PeanutButter.Utils.IPool&lt; T &gt;.Warmup </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Causes an initial temporary elasticsearch instance to be started, and gates the next request for an instance. </p>
+
+<p>Implemented in <a class="el" href="classPeanutButter_1_1Utils_1_1Pool-1-g.html#aa3164b1d37f10f196cb26ef96872db08">PeanutButter.Utils.Pool&lt; T &gt;</a>.</p>
 
 </div>
 </div>

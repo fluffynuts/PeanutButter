@@ -1,6 +1,7 @@
 var searchData=
 [
   ['uninstall_0',['Uninstall',['../interfacePeanutButter_1_1ServiceShell_1_1IServiceCommandlineOptions.html#aa1bba4515654d249ef9d5972e4abd949',1,'PeanutButter.ServiceShell.IServiceCommandlineOptions.Uninstall'],['../classPeanutButter_1_1ServiceShell_1_1ServiceCommandlineOptions.html#a3d6c39f77a2ba9129b14e3b1fece42da',1,'PeanutButter.ServiceShell.ServiceCommandlineOptions.Uninstall']]],
-  ['urlparameters_1',['UrlParameters',['../classPeanutButter_1_1SimpleHTTPServer_1_1HttpProcessor.html#aebec1ad7fef514b2c3fb4254ac2cdec0',1,'PeanutButter::SimpleHTTPServer::HttpProcessor']]],
-  ['user_2',['User',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpContext.html#a9e6a7eabd7e931715a0c92ad3f46d17d',1,'PeanutButter::TestUtils::AspNetCore::Fakes::FakeHttpContext']]]
+  ['url_1',['Url',['../interfacePeanutButter_1_1TempElasticsearch_1_1ITempElasticsearch.html#a6bbf5e776196f4608e1378fec90afeeb',1,'PeanutButter.TempElasticsearch.ITempElasticsearch.Url'],['../classPeanutButter_1_1TempElasticsearch_1_1TempElasticsearch.html#ace9481ea4ddcd15e8e7e5f16f915e06f',1,'PeanutButter.TempElasticsearch.TempElasticsearch.Url']]],
+  ['urlparameters_2',['UrlParameters',['../classPeanutButter_1_1SimpleHTTPServer_1_1HttpProcessor.html#aebec1ad7fef514b2c3fb4254ac2cdec0',1,'PeanutButter::SimpleHTTPServer::HttpProcessor']]],
+  ['user_3',['User',['../classPeanutButter_1_1TempElasticsearch_1_1ReadOnlyTempElasticsearchOptions.html#a83b6301d28ef00a04e3ad75ff69f5617',1,'PeanutButter.TempElasticsearch.ReadOnlyTempElasticsearchOptions.User'],['../classPeanutButter_1_1TempElasticsearch_1_1TempElasticSearchOptions.html#abb58adc128f558a59827bd881988e04c',1,'PeanutButter.TempElasticsearch.TempElasticSearchOptions.User'],['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpContext.html#a9e6a7eabd7e931715a0c92ad3f46d17d',1,'PeanutButter.TestUtils.AspNetCore.Fakes.FakeHttpContext.User']]]
 ];

@@ -208,6 +208,15 @@ var annotated_dup =
         [ "TempDbHints", "classPeanutButter_1_1TempDb_1_1TempDbHints.html", null ],
         [ "TempDbTracker", "classPeanutButter_1_1TempDb_1_1TempDbTracker.html", null ]
       ] ],
+      [ "TempElasticsearch", "namespacePeanutButter_1_1TempElasticsearch.html", [
+        [ "ITempElasticsearch", "interfacePeanutButter_1_1TempElasticsearch_1_1ITempElasticsearch.html", "interfacePeanutButter_1_1TempElasticsearch_1_1ITempElasticsearch" ],
+        [ "ITempElasticsearchFactory", "interfacePeanutButter_1_1TempElasticsearch_1_1ITempElasticsearchFactory.html", "interfacePeanutButter_1_1TempElasticsearch_1_1ITempElasticsearchFactory" ],
+        [ "ReadOnlyTempElasticsearchOptions", "classPeanutButter_1_1TempElasticsearch_1_1ReadOnlyTempElasticsearchOptions.html", "classPeanutButter_1_1TempElasticsearch_1_1ReadOnlyTempElasticsearchOptions" ],
+        [ "TempElasticsearch", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticsearch.html", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticsearch" ],
+        [ "TempElasticsearchFactory", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticsearchFactory.html", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticsearchFactory" ],
+        [ "TempElasticSearchOptions", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticSearchOptions.html", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticSearchOptions" ],
+        [ "UnableToStartTempElasticsearch", "classPeanutButter_1_1TempElasticsearch_1_1UnableToStartTempElasticsearch.html", "classPeanutButter_1_1TempElasticsearch_1_1UnableToStartTempElasticsearch" ]
+      ] ],
       [ "TempRedis", "namespacePeanutButter_1_1TempRedis.html", [
         [ "IRedisDownloader", "interfacePeanutButter_1_1TempRedis_1_1IRedisDownloader.html", "interfacePeanutButter_1_1TempRedis_1_1IRedisDownloader" ],
         [ "ITempRedis", "interfacePeanutButter_1_1TempRedis_1_1ITempRedis.html", "interfacePeanutButter_1_1TempRedis_1_1ITempRedis" ],

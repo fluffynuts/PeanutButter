@@ -146,6 +146,7 @@ var hierarchy =
       [ "PeanutButter.TempDb.MySql.Base.TryAnotherPortException", "classPeanutButter_1_1TempDb_1_1MySql_1_1Base_1_1TryAnotherPortException.html", null ],
       [ "PeanutButter.TempDb.MySql.Base.UnableToInitializeMySqlException", "classPeanutButter_1_1TempDb_1_1MySql_1_1Base_1_1UnableToInitializeMySqlException.html", null ],
       [ "PeanutButter.TempDb.Runner.ShowSupportedEngines", "classPeanutButter_1_1TempDb_1_1Runner_1_1ShowSupportedEngines.html", null ],
+      [ "PeanutButter.TempElasticsearch.UnableToStartTempElasticsearch", "classPeanutButter_1_1TempElasticsearch_1_1UnableToStartTempElasticsearch.html", null ],
       [ "PeanutButter.TestUtils.AspNetCore.CookieNotFoundException", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1CookieNotFoundException.html", null ],
       [ "PeanutButter.TestUtils.AspNetCore.Fakes.ServiceProviderImplementationRequiredException", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1ServiceProviderImplementationRequiredException.html", null ],
       [ "PeanutButter.TestUtils.AspNetCore.InvalidImplementationException< TExpected >", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1InvalidImplementationException-1-g.html", null ],
@@ -272,6 +273,9 @@ var hierarchy =
         ] ]
       ] ],
       [ "PeanutButter.TempDb.Runner.InteractiveShell", "classPeanutButter_1_1TempDb_1_1Runner_1_1InteractiveShell.html", null ],
+      [ "PeanutButter.TempElasticsearch.ITempElasticsearch", "interfacePeanutButter_1_1TempElasticsearch_1_1ITempElasticsearch.html", [
+        [ "PeanutButter.TempElasticsearch.TempElasticsearch", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticsearch.html", null ]
+      ] ],
       [ "PeanutButter.TempRedis.ITempRedis", "interfacePeanutButter_1_1TempRedis_1_1ITempRedis.html", [
         [ "PeanutButter.TempRedis.TempRedis", "classPeanutButter_1_1TempRedis_1_1TempRedis.html", null ]
       ] ],
@@ -434,6 +438,11 @@ var hierarchy =
       [ "PeanutButter.Utils.ParallelWorker< T >", "classPeanutButter_1_1Utils_1_1ParallelWorker-1-g.html", null ]
     ] ],
     [ "PeanutButter.INI.IParsedLine", "interfacePeanutButter_1_1INI_1_1IParsedLine.html", null ],
+    [ "IPool", null, [
+      [ "PeanutButter.TempElasticsearch.ITempElasticsearchFactory", "interfacePeanutButter_1_1TempElasticsearch_1_1ITempElasticsearchFactory.html", [
+        [ "PeanutButter.TempElasticsearch.TempElasticsearchFactory", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticsearchFactory.html", null ]
+      ] ]
+    ] ],
     [ "PeanutButter.Utils.IPool< T >", "interfacePeanutButter_1_1Utils_1_1IPool-1-g.html", [
       [ "PeanutButter.SimpleHTTPServer.IHttpServerFactory", "interfacePeanutButter_1_1SimpleHTTPServer_1_1IHttpServerFactory.html", [
         [ "PeanutButter.SimpleHTTPServer.HttpServerFactory", "classPeanutButter_1_1SimpleHTTPServer_1_1HttpServerFactory.html", null ]
@@ -565,6 +574,9 @@ var hierarchy =
     [ "PeanutButter.EasyArgs.ParserExtensions", "classPeanutButter_1_1EasyArgs_1_1ParserExtensions.html", null ],
     [ "PeanutButter.EasyArgs.ParserOptions", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html", null ],
     [ "PeanutButter.Utils.Platform", "classPeanutButter_1_1Utils_1_1Platform.html", null ],
+    [ "Pool", null, [
+      [ "PeanutButter.TempElasticsearch.TempElasticsearchFactory", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticsearchFactory.html", null ]
+    ] ],
     [ "PeanutButter.TempDb.MySql.Data.MySqlPoolStatsFetcher.PoolStats", "classPeanutButter_1_1TempDb_1_1MySql_1_1Data_1_1MySqlPoolStatsFetcher_1_1PoolStats.html", null ],
     [ "PeanutButter.Utils.PortFinder", "classPeanutButter_1_1Utils_1_1PortFinder.html", null ],
     [ "PeanutButter.TempDb.Runner.Program", "classPeanutButter_1_1TempDb_1_1Runner_1_1Program.html", null ],
@@ -575,6 +587,7 @@ var hierarchy =
     [ "PeanutButter.Utils.QueueExtensions", "classPeanutButter_1_1Utils_1_1QueueExtensions.html", null ],
     [ "PeanutButter.Utils.RandomNumber", "classPeanutButter_1_1Utils_1_1RandomNumber.html", null ],
     [ "PeanutButter.RandomGenerators.RandomValueGen", "classPeanutButter_1_1RandomGenerators_1_1RandomValueGen.html", null ],
+    [ "PeanutButter.TempElasticsearch.ReadOnlyTempElasticsearchOptions", "classPeanutButter_1_1TempElasticsearch_1_1ReadOnlyTempElasticsearchOptions.html", null ],
     [ "PeanutButter.TempRedis.RedisExecutableFinder", "classPeanutButter_1_1TempRedis_1_1RedisExecutableFinder.html", null ],
     [ "PeanutButter.TestUtils.AspNetCore.Utils.RequestDelegateTestArena", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1RequestDelegateTestArena.html", null ],
     [ "PeanutButter.TestUtils.AspNetCore.Utils.RequestDelegateTestArenaBuilder", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1RequestDelegateTestArenaBuilder.html", null ],
@@ -618,6 +631,7 @@ var hierarchy =
     [ "PeanutButter.TempDb.MySql.Base.TempDbMySqlServerSettings", "classPeanutButter_1_1TempDb_1_1MySql_1_1Base_1_1TempDbMySqlServerSettings.html", null ],
     [ "PeanutButter.TempDb.MySql.Base.TempDbMySqlServerSettings.TempDbOptions", "classPeanutButter_1_1TempDb_1_1MySql_1_1Base_1_1TempDbMySqlServerSettings_1_1TempDbOptions.html", null ],
     [ "PeanutButter.TempDb.TempDbTracker", "classPeanutButter_1_1TempDb_1_1TempDbTracker.html", null ],
+    [ "PeanutButter.TempElasticsearch.TempElasticSearchOptions", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticSearchOptions.html", null ],
     [ "PeanutButter.TempRedis.TempRedisOptions", "classPeanutButter_1_1TempRedis_1_1TempRedisOptions.html", null ],
     [ "PeanutButter.Utils.TimeBasedRetryContext", "classPeanutButter_1_1Utils_1_1TimeBasedRetryContext.html", null ],
     [ "PeanutButter.Utils.TimeSpanExtensions", "classPeanutButter_1_1Utils_1_1TimeSpanExtensions.html", null ],

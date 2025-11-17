@@ -6,6 +6,7 @@ var interfacePeanutButter_1_1Utils_1_1IPool_1_g =
     [ "Forget", "interfacePeanutButter_1_1Utils_1_1IPool-1-g.html#a04287bbdc19bbcb3b9849376746800f3", null ],
     [ "Take", "interfacePeanutButter_1_1Utils_1_1IPool-1-g.html#a16875762fed86d38e26774c5682f1b77", null ],
     [ "Take", "interfacePeanutButter_1_1Utils_1_1IPool-1-g.html#a4ed92539492feab5b09bf10357da01a1", null ],
+    [ "Warmup", "interfacePeanutButter_1_1Utils_1_1IPool-1-g.html#a0d95ec6a61e9aa34f9a17c76a6c8cad4", null ],
     [ "Count", "interfacePeanutButter_1_1Utils_1_1IPool-1-g.html#a1d60eb663bdb8b75bf2cdf5e18ba7186", null ],
     [ "MaxItems", "interfacePeanutButter_1_1Utils_1_1IPool-1-g.html#a4a956d74447d7cdbc80419a197ba85ea", null ]
 ];

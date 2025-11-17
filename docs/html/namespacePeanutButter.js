@@ -12,6 +12,7 @@ var namespacePeanutButter =
     [ "SimpleHTTPServer", "namespacePeanutButter_1_1SimpleHTTPServer.html", "namespacePeanutButter_1_1SimpleHTTPServer" ],
     [ "SimpleTcpServer", "namespacePeanutButter_1_1SimpleTcpServer.html", "namespacePeanutButter_1_1SimpleTcpServer" ],
     [ "TempDb", "namespacePeanutButter_1_1TempDb.html", "namespacePeanutButter_1_1TempDb" ],
+    [ "TempElasticsearch", "namespacePeanutButter_1_1TempElasticsearch.html", "namespacePeanutButter_1_1TempElasticsearch" ],
     [ "TempRedis", "namespacePeanutButter_1_1TempRedis.html", "namespacePeanutButter_1_1TempRedis" ],
     [ "TestUtils", "namespacePeanutButter_1_1TestUtils.html", "namespacePeanutButter_1_1TestUtils" ],
     [ "TinyEventAggregator", "namespacePeanutButter_1_1TinyEventAggregator.html", "namespacePeanutButter_1_1TinyEventAggregator" ],

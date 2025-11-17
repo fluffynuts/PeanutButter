@@ -116,6 +116,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a5bd84d1b0b924302c1eb18a991d5a468"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the pool with the provided factory and an action to run on releasing the item.  <br /></td></tr>
 <tr class="memitem:a864e5d3ce53eca4f72e3d8f7b34f90ec" id="r_a864e5d3ce53eca4f72e3d8f7b34f90ec"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a864e5d3ce53eca4f72e3d8f7b34f90ec">Pool</a> (Func&lt; T &gt; factory, Action&lt; T &gt; onRelease, int maxItems)</td></tr>
 <tr class="memdesc:a864e5d3ce53eca4f72e3d8f7b34f90ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the pool with the provided factory and an action to run on releasing the item.  <br /></td></tr>
+<tr class="memitem:a958da3af2ced748bb15be75aa96af88d" id="r_a958da3af2ced748bb15be75aa96af88d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a958da3af2ced748bb15be75aa96af88d">Pool</a> (Func&lt; IPool&lt; T &gt;, T &gt; factory)</td></tr>
+<tr class="memdesc:a958da3af2ced748bb15be75aa96af88d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the pool with a factory for the items.  <br /></td></tr>
+<tr class="memitem:a9ac1de66e89ed1fdb3c199a399b344ae" id="r_a9ac1de66e89ed1fdb3c199a399b344ae"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9ac1de66e89ed1fdb3c199a399b344ae">Pool</a> (Func&lt; IPool&lt; T &gt;, T &gt; factory, int maxItems)</td></tr>
+<tr class="memdesc:a9ac1de66e89ed1fdb3c199a399b344ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the pool with a factory for the items.  <br /></td></tr>
+<tr class="memitem:a97b76f847575280b3cae3b4812556d51" id="r_a97b76f847575280b3cae3b4812556d51"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a97b76f847575280b3cae3b4812556d51">Pool</a> (Func&lt; IPool&lt; T &gt;, T &gt; factory, Action&lt; T &gt; onRelease)</td></tr>
+<tr class="memdesc:a97b76f847575280b3cae3b4812556d51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the pool with the provided factory and an action to run on releasing the item.  <br /></td></tr>
+<tr class="memitem:a294209311f9441b87a4218f7e155d18a" id="r_a294209311f9441b87a4218f7e155d18a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a294209311f9441b87a4218f7e155d18a">Pool</a> (Func&lt; IPool&lt; T &gt;, T &gt; factory, Action&lt; T &gt; onRelease, int maxItems)</td></tr>
+<tr class="memdesc:a294209311f9441b87a4218f7e155d18a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the pool with the provided factory and an action to run on releasing the item.  <br /></td></tr>
 <tr class="memitem:a8981bd921c0f0abdb05a8ce3958c0299" id="r_a8981bd921c0f0abdb05a8ce3958c0299"><td class="memItemLeft" align="right" valign="top">IPoolItem&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8981bd921c0f0abdb05a8ce3958c0299">Take</a> ()</td></tr>
 <tr class="memdesc:a8981bd921c0f0abdb05a8ce3958c0299"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempt to take an item from the pool. If possible and required, an item will be created for you. If the pool is full and no item can be made available, this will a pool item with a null instance.<dl class="section return"><dt>Returns</dt><dd></dd></dl>
   <br /></td></tr>
@@ -130,6 +138,8 @@ Public Member Functions</h2></td></tr>
   <br /></td></tr>
 <tr class="memitem:a40b20e73368193479e4f141577a20e8f" id="r_a40b20e73368193479e4f141577a20e8f"><td class="memItemLeft" align="right" valign="top">IPoolItem&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a40b20e73368193479e4f141577a20e8f">Borrow</a> ()</td></tr>
 <tr class="memdesc:a40b20e73368193479e4f141577a20e8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempt to take an item from the pool. If possible and required, an item will be created for you. If the pool is full and no item can be made available, this will a pool item with a null instance.  <br /></td></tr>
+<tr class="memitem:aa3164b1d37f10f196cb26ef96872db08" id="r_aa3164b1d37f10f196cb26ef96872db08"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa3164b1d37f10f196cb26ef96872db08">Warmup</a> ()</td></tr>
+<tr class="memdesc:aa3164b1d37f10f196cb26ef96872db08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Causes an initial temporary elasticsearch instance to be started, and gates the next request for an instance.  <br /></td></tr>
 <tr class="memitem:ab9ec480b15c73ec03094a7172bc8b229" id="r_ab9ec480b15c73ec03094a7172bc8b229"><td class="memItemLeft" align="right" valign="top">IPoolItem&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab9ec480b15c73ec03094a7172bc8b229">Borrow</a> (int maxWaitMilliseconds)</td></tr>
 <tr class="memdesc:ab9ec480b15c73ec03094a7172bc8b229"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempt to take an item from the pool, with a max wait in ms when the pool is already full and you need to wait on something else to release an instance. If no instance can be found in time, then this will return a PoolItem with a default instance.  <br /></td></tr>
 <tr class="memitem:a049c7a3772259a63d037ff9e01490a6a" id="r_a049c7a3772259a63d037ff9e01490a6a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a049c7a3772259a63d037ff9e01490a6a">Forget</a> (IPoolItem&lt; T &gt; item)</td></tr>
@@ -149,6 +159,10 @@ Properties</h2></td></tr>
 <tr class="memdesc:aa1af1ccd11427090dd37f56d5e236d18"><td class="mdescLeft">&#160;</td><td class="mdescRight">The maximum number of items to hold in the pool.  <br /></td></tr>
 <tr class="memitem:a236be27384710ee122db1c4c909845a0" id="r_a236be27384710ee122db1c4c909845a0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a236be27384710ee122db1c4c909845a0">Count</a><code> [get]</code></td></tr>
 <tr class="memdesc:a236be27384710ee122db1c4c909845a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">How many items are currently in the pool.  <br /></td></tr>
+<tr class="memitem:a2db16c24d4222233ab47937092a6de44" id="r_a2db16c24d4222233ab47937092a6de44"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2db16c24d4222233ab47937092a6de44">WarmupStarted</a><code> [get]</code></td></tr>
+<tr class="memdesc:a2db16c24d4222233ab47937092a6de44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set when warmup starts.  <br /></td></tr>
+<tr class="memitem:a57ff2e480233015b81abae8a098d3d1a" id="r_a57ff2e480233015b81abae8a098d3d1a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a57ff2e480233015b81abae8a098d3d1a">WarmedUp</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a57ff2e480233015b81abae8a098d3d1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set when warmup completes.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides a generic pooling mechanism using the Disposable pattern. </p>
@@ -257,8 +271,141 @@ Properties</h2></td></tr>
 
 </div>
 </div>
+<a id="a958da3af2ced748bb15be75aa96af88d" name="a958da3af2ced748bb15be75aa96af88d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a958da3af2ced748bb15be75aa96af88d">&#9670;&#160;</a></span>Pool() <span class="overload">[1/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PeanutButter.Utils.Pool&lt; T &gt;.Pool </td>
+          <td>(</td>
+          <td class="paramtype">Func&lt; IPool&lt; T &gt;, T &gt;</td>          <td class="paramname"><span class="paramname"><em>factory</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Creates the pool with a factory for the items. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">factory</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">NotImplementedException</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a97b76f847575280b3cae3b4812556d51" name="a97b76f847575280b3cae3b4812556d51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97b76f847575280b3cae3b4812556d51">&#9670;&#160;</a></span>Pool() <span class="overload">[2/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PeanutButter.Utils.Pool&lt; T &gt;.Pool </td>
+          <td>(</td>
+          <td class="paramtype">Func&lt; IPool&lt; T &gt;, T &gt;</td>          <td class="paramname"><span class="paramname"><em>factory</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Action&lt; T &gt;</td>          <td class="paramname"><span class="paramname"><em>onRelease</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Creates the pool with the provided factory and an action to run on releasing the item. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">factory</td><td></td></tr>
+    <tr><td class="paramname">onRelease</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a294209311f9441b87a4218f7e155d18a" name="a294209311f9441b87a4218f7e155d18a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a294209311f9441b87a4218f7e155d18a">&#9670;&#160;</a></span>Pool() <span class="overload">[3/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PeanutButter.Utils.Pool&lt; T &gt;.Pool </td>
+          <td>(</td>
+          <td class="paramtype">Func&lt; IPool&lt; T &gt;, T &gt;</td>          <td class="paramname"><span class="paramname"><em>factory</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Action&lt; T &gt;</td>          <td class="paramname"><span class="paramname"><em>onRelease</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>maxItems</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Creates the pool with the provided factory and an action to run on releasing the item. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">factory</td><td></td></tr>
+    <tr><td class="paramname">maxItems</td><td></td></tr>
+    <tr><td class="paramname">onRelease</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a9ac1de66e89ed1fdb3c199a399b344ae" name="a9ac1de66e89ed1fdb3c199a399b344ae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ac1de66e89ed1fdb3c199a399b344ae">&#9670;&#160;</a></span>Pool() <span class="overload">[4/8]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PeanutButter.Utils.Pool&lt; T &gt;.Pool </td>
+          <td>(</td>
+          <td class="paramtype">Func&lt; IPool&lt; T &gt;, T &gt;</td>          <td class="paramname"><span class="paramname"><em>factory</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>maxItems</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Creates the pool with a factory for the items. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">factory</td><td></td></tr>
+    <tr><td class="paramname">maxItems</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">NotImplementedException</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a78e6ce1047915eaf3bc1082c4f8cdb54" name="a78e6ce1047915eaf3bc1082c4f8cdb54"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a78e6ce1047915eaf3bc1082c4f8cdb54">&#9670;&#160;</a></span>Pool() <span class="overload">[1/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a78e6ce1047915eaf3bc1082c4f8cdb54">&#9670;&#160;</a></span>Pool() <span class="overload">[5/8]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -289,7 +436,7 @@ Properties</h2></td></tr>
 </div>
 </div>
 <a id="a5bd84d1b0b924302c1eb18a991d5a468" name="a5bd84d1b0b924302c1eb18a991d5a468"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5bd84d1b0b924302c1eb18a991d5a468">&#9670;&#160;</a></span>Pool() <span class="overload">[2/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5bd84d1b0b924302c1eb18a991d5a468">&#9670;&#160;</a></span>Pool() <span class="overload">[6/8]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -319,7 +466,7 @@ Properties</h2></td></tr>
 </div>
 </div>
 <a id="a864e5d3ce53eca4f72e3d8f7b34f90ec" name="a864e5d3ce53eca4f72e3d8f7b34f90ec"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a864e5d3ce53eca4f72e3d8f7b34f90ec">&#9670;&#160;</a></span>Pool() <span class="overload">[3/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a864e5d3ce53eca4f72e3d8f7b34f90ec">&#9670;&#160;</a></span>Pool() <span class="overload">[7/8]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -355,7 +502,7 @@ Properties</h2></td></tr>
 </div>
 </div>
 <a id="aba2a8595095582ba886cd41860aeecd9" name="aba2a8595095582ba886cd41860aeecd9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aba2a8595095582ba886cd41860aeecd9">&#9670;&#160;</a></span>Pool() <span class="overload">[4/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aba2a8595095582ba886cd41860aeecd9">&#9670;&#160;</a></span>Pool() <span class="overload">[8/8]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -440,6 +587,27 @@ Properties</h2></td></tr>
 
 </div>
 </div>
+<a id="aa3164b1d37f10f196cb26ef96872db08" name="aa3164b1d37f10f196cb26ef96872db08"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa3164b1d37f10f196cb26ef96872db08">&#9670;&#160;</a></span>Warmup()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PeanutButter.Utils.Pool&lt; T &gt;.Warmup </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Causes an initial temporary elasticsearch instance to be started, and gates the next request for an instance. </p>
+
+<p>Implements <a class="el" href="interfacePeanutButter_1_1Utils_1_1IPool-1-g.html#a0d95ec6a61e9aa34f9a17c76a6c8cad4">PeanutButter.Utils.IPool&lt; T &gt;</a>.</p>
+
+</div>
+</div>
 <a name="doc-property-members" id="doc-property-members"></a><h2 id="header-doc-property-members" class="groupheader">Property Documentation</h2>
 <a id="a236be27384710ee122db1c4c909845a0" name="a236be27384710ee122db1c4c909845a0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a236be27384710ee122db1c4c909845a0">&#9670;&#160;</a></span>Count</h2>
@@ -490,6 +658,60 @@ Properties</h2></td></tr>
 <p>The maximum number of items to hold in the pool. </p>
 
 <p>Implements <a class="el" href="interfacePeanutButter_1_1Utils_1_1IPool-1-g.html#a4a956d74447d7cdbc80419a197ba85ea">PeanutButter.Utils.IPool&lt; T &gt;</a>.</p>
+
+</div>
+</div>
+<a id="a57ff2e480233015b81abae8a098d3d1a" name="a57ff2e480233015b81abae8a098d3d1a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a57ff2e480233015b81abae8a098d3d1a">&#9670;&#160;</a></span>WarmedUp</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool PeanutButter.Utils.Pool&lt; T &gt;.WarmedUp</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span><span class="mlabel set">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set when warmup completes. </p>
+<ul>
+<li>mostly for external observation </li>
+</ul>
+
+</div>
+</div>
+<a id="a2db16c24d4222233ab47937092a6de44" name="a2db16c24d4222233ab47937092a6de44"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2db16c24d4222233ab47937092a6de44">&#9670;&#160;</a></span>WarmupStarted</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool PeanutButter.Utils.Pool&lt; T &gt;.WarmupStarted</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set when warmup starts. </p>
+<ul>
+<li>more of an internal flag, but may be interesting to observe </li>
+</ul>
 
 </div>
 </div>
