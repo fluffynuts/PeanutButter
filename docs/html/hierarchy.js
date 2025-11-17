@@ -309,6 +309,7 @@ var hierarchy =
       ] ],
       [ "PeanutButter.Utils.Pool< T >", "classPeanutButter_1_1Utils_1_1Pool-1-g.html", [
         [ "PeanutButter.SimpleHTTPServer.HttpServerFactory", "classPeanutButter_1_1SimpleHTTPServer_1_1HttpServerFactory.html", null ],
+        [ "PeanutButter.TempElasticsearch.TempElasticsearchFactory", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticsearchFactory.html", null ],
         [ "PeanutButter.TempRedis.TempRedisFactory", "classPeanutButter_1_1TempRedis_1_1TempRedisFactory.html", null ]
       ] ],
       [ "PeanutButter.Utils.SingleDebuggerBlock", "classPeanutButter_1_1Utils_1_1SingleDebuggerBlock.html", null ]
@@ -438,14 +439,12 @@ var hierarchy =
       [ "PeanutButter.Utils.ParallelWorker< T >", "classPeanutButter_1_1Utils_1_1ParallelWorker-1-g.html", null ]
     ] ],
     [ "PeanutButter.INI.IParsedLine", "interfacePeanutButter_1_1INI_1_1IParsedLine.html", null ],
-    [ "IPool", null, [
-      [ "PeanutButter.TempElasticsearch.ITempElasticsearchFactory", "interfacePeanutButter_1_1TempElasticsearch_1_1ITempElasticsearchFactory.html", [
-        [ "PeanutButter.TempElasticsearch.TempElasticsearchFactory", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticsearchFactory.html", null ]
-      ] ]
-    ] ],
     [ "PeanutButter.Utils.IPool< T >", "interfacePeanutButter_1_1Utils_1_1IPool-1-g.html", [
       [ "PeanutButter.SimpleHTTPServer.IHttpServerFactory", "interfacePeanutButter_1_1SimpleHTTPServer_1_1IHttpServerFactory.html", [
         [ "PeanutButter.SimpleHTTPServer.HttpServerFactory", "classPeanutButter_1_1SimpleHTTPServer_1_1HttpServerFactory.html", null ]
+      ] ],
+      [ "PeanutButter.TempElasticsearch.ITempElasticsearchFactory", "interfacePeanutButter_1_1TempElasticsearch_1_1ITempElasticsearchFactory.html", [
+        [ "PeanutButter.TempElasticsearch.TempElasticsearchFactory", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticsearchFactory.html", null ]
       ] ],
       [ "PeanutButter.TempRedis.ITempRedisFactory", "interfacePeanutButter_1_1TempRedis_1_1ITempRedisFactory.html", [
         [ "PeanutButter.TempRedis.TempRedisFactory", "classPeanutButter_1_1TempRedis_1_1TempRedisFactory.html", null ]
@@ -574,9 +573,6 @@ var hierarchy =
     [ "PeanutButter.EasyArgs.ParserExtensions", "classPeanutButter_1_1EasyArgs_1_1ParserExtensions.html", null ],
     [ "PeanutButter.EasyArgs.ParserOptions", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html", null ],
     [ "PeanutButter.Utils.Platform", "classPeanutButter_1_1Utils_1_1Platform.html", null ],
-    [ "Pool", null, [
-      [ "PeanutButter.TempElasticsearch.TempElasticsearchFactory", "classPeanutButter_1_1TempElasticsearch_1_1TempElasticsearchFactory.html", null ]
-    ] ],
     [ "PeanutButter.TempDb.MySql.Data.MySqlPoolStatsFetcher.PoolStats", "classPeanutButter_1_1TempDb_1_1MySql_1_1Data_1_1MySqlPoolStatsFetcher_1_1PoolStats.html", null ],
     [ "PeanutButter.Utils.PortFinder", "classPeanutButter_1_1Utils_1_1PortFinder.html", null ],
     [ "PeanutButter.TempDb.Runner.Program", "classPeanutButter_1_1TempDb_1_1Runner_1_1Program.html", null ],
