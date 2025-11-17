@@ -28,6 +28,5 @@
     <ProjectReference Include="..\PeanutButter.TempDb.MySql.Data\PeanutButter.TempDb.MySql.Data.csproj" />
     <ProjectReference Include="..\PeanutButter.TempDb.Sqlite\PeanutButter.TempDb.Sqlite.csproj" />
     <ProjectReference Include="..\PeanutButter.TempDb\PeanutButter.TempDb.csproj" />
-    <ProjectReference Include="..\..\Utils\PeanutButter.EasyArgs\PeanutButter.EasyArgs.csproj" />
   </ItemGroup>
 </Project>
