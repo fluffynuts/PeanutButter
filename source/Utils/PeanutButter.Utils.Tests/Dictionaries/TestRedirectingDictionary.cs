@@ -2,12 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using NExpect;
-using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils.Dictionaries;
-using static NExpect.Expectations;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests.Dictionaries;
 
