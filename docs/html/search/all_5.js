@@ -59,6 +59,8 @@ var searchData=
   ['exitwhenshowinghelp_56',['ExitWhenShowingHelp',['../classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#ade0a74bb7470b314f1c39634fb1eacd1',1,'PeanutButter::EasyArgs::ParserOptions']]],
   ['exitwhenshowingversion_57',['ExitWhenShowingVersion',['../classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a970069f8ae714dcaf790765c1bc8df6f',1,'PeanutButter::EasyArgs::ParserOptions']]],
   ['expired_58',['Expired',['../classPeanutButter_1_1TinyEventAggregator_1_1Subscription-1-g.html#a8493137f6dbf3c2553b4f9d5ed6ee0aaa24fe48030f7d3097d5882535b04c3fa8',1,'PeanutButter::TinyEventAggregator::Subscription-1-g']]],
-  ['expressionutil_59',['ExpressionUtil',['../classPeanutButter_1_1Utils_1_1ExpressionUtil.html',1,'PeanutButter::Utils']]],
-  ['extensionsforienumerables_60',['ExtensionsForIEnumerables',['../classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html',1,'PeanutButter::Utils']]]
+  ['expiringdictionary_59',['ExpiringDictionary',['../classPeanutButter_1_1Utils_1_1Dictionaries_1_1ExpiringDictionary-2-g.html#a18dd42313910fb83f4d9971560ff3fa1',1,'PeanutButter::Utils::Dictionaries::ExpiringDictionary-2-g']]],
+  ['expiringdictionary_2d2_2dg_60',['ExpiringDictionary-2-g',['../classPeanutButter_1_1Utils_1_1Dictionaries_1_1ExpiringDictionary-2-g.html',1,'PeanutButter::Utils::Dictionaries']]],
+  ['expressionutil_61',['ExpressionUtil',['../classPeanutButter_1_1Utils_1_1ExpressionUtil.html',1,'PeanutButter::Utils']]],
+  ['extensionsforienumerables_62',['ExtensionsForIEnumerables',['../classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html',1,'PeanutButter::Utils']]]
 ];

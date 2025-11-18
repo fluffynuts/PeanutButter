@@ -122,6 +122,7 @@ public
             return TrimThenRunLocked(
                 () => _items
                     .Select(o => o.Value)
+                    .ToList()
                     // ReSharper disable once NotDisposedResourceIsReturned
                     .GetEnumerator()
             );

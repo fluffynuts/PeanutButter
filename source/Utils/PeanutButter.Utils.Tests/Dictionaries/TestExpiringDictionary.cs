@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using PeanutButter.Utils.Dictionaries;
 
@@ -285,10 +287,142 @@ public class TestExpiringDictionary
             .To.Contain.Key(k1)
             .With.Value(v1);
         Thread.Sleep(500);
-        
+
         // Assert
         Expect(dict)
             .Not.To.Contain.Key(k1);
+    }
+
+    [Test]
+    public void ShouldBeThreadSafe()
+    {
+        // Arrange
+        var dict = Create<string, string>();
+        // Act
+        var threads = new List<Thread>();
+        var threadCount = 16;
+        var repeatCount = 1000;
+        var barrier = new Barrier(threadCount + 1);
+        var collected = new ConcurrentBag<Exception>();
+        for (var i = 0; i < threadCount; i++)
+        {
+            var t = new Thread(() =>
+                {
+                    for (var j = 0; j < repeatCount; j++)
+                    {
+                        try
+                        {
+                            PerformRandomOperation(dict);
+                        }
+                        catch (Exception ex)
+                        {
+                            collected.Add(ex);
+                        }
+                    }
+
+                    barrier.SignalAndWait();
+                }
+            );
+            t.Start();
+            threads.Add(t);
+        }
+
+        // Assert
+        barrier.SignalAndWait();
+        foreach (var t in threads)
+        {
+            t.Join();
+        }
+
+        Expect(collected)
+            .To.Be.Empty(() => 
+                collected.Select(e => e.ToString()).JoinWith("\n")
+            );
+    }
+
+    private static void PerformRandomOperation(
+        IDictionary<string, string> dict
+    )
+    {
+        Action<IDictionary<string, string>> toDo = GetRandomFrom(
+            RandomActions
+        );
+        toDo(dict);
+    }
+
+    private static Action<IDictionary<string, string>>[] RandomActions =
+    [
+        AddItem,
+        SetItem,
+        RemoveItemByKey,
+        RemoveItem,
+        // EnumerateItems
+    ];
+
+    private static int _addItemKeyIndex = 0;
+
+    private static void AddItem(IDictionary<string, string> dict)
+    {
+        dict.Add(
+            new KeyValuePair<string, string>(
+                $"add_item_{++_addItemKeyIndex}",
+                GetRandomString()
+            )
+        );
+    }
+
+    private static void SetItem(IDictionary<string, string> dict)
+    {
+        dict[GetRandomString()] = GetRandomString();
+    }
+
+    private static void RemoveItemByKey(IDictionary<string, string> dict)
+    {
+        if (GetRandomBoolean())
+        {
+            dict.Remove(GetRandomString());
+        }
+        else
+        {
+            var toRemove = dict.Keys.FirstOrDefault();
+            if (toRemove is null)
+            {
+                return;
+            }
+
+            dict.Remove(toRemove);
+        }
+    }
+
+    public static void RemoveItem(IDictionary<string, string> dict)
+    {
+        if (dict.Count < 1)
+        {
+            return;
+        }
+
+        var toRemove = dict.First();
+        dict.Remove(toRemove);
+    }
+
+    private static void EnumerateItems(IDictionary<string, string> dict)
+    {
+        var collected = new List<string>();
+        foreach (var item in dict)
+        {
+            if (item.Key.Length < 10)
+            {
+                collected.Add(item.Key);
+            }
+
+            if (item.Value.Length < 10)
+            {
+                collected.Add(item.Value);
+            }
+        }
+
+        Expect(collected)
+            .Not.To.Be.Empty();
     }
 
     private static ExpiringDictionary<TKey, TValue> Create<TKey, TValue>(

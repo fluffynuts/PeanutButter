@@ -85,13 +85,13 @@ namespace PeanutButter.Utils.Dictionaries
         /// <inheritdoc />
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
-            if (!_keys.Contains(item.Key))
-            {
-                return false;
-            }
-
             lock (_actual)
             {
+                if (!_keys.Contains(item.Key))
+                {
+                    return false;
+                }
+
                 // may have expired between the key check and now
                 return _keys.Contains(item.Key) &&
                     _actual.TryGetValue(item.Key, out var stored) &&
@@ -143,7 +143,16 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public int Count => _keys.Count;
+        public int Count
+        {
+            get
+            {
+                lock (_keys)
+                {
+                    return _keys.Count;
+                }
+            }
+        }
 
         /// <inheritdoc />
         public bool IsReadOnly => false;
@@ -154,34 +163,39 @@ namespace PeanutButter.Utils.Dictionaries
             lock (_actual)
             {
                 _actual.Add(key, value);
+                _keys.Add(key);
             }
-
-            _keys.Add(key);
         }
 
         /// <inheritdoc />
         public bool ContainsKey(TKey key)
         {
-            return _keys.Contains(key);
+            lock (_actual)
+            {
+                return _keys.Contains(key);
+            }
         }
 
         /// <inheritdoc />
         public bool Remove(TKey key)
         {
-            return _keys.Remove(key);
+            lock (_actual)
+            {
+                return _keys.Remove(key);
+            }
         }
 
         /// <inheritdoc />
         public bool TryGetValue(TKey key, out TValue value)
         {
-            if (!_keys.Contains(key))
-            {
-                value = default;
-                return false;
-            }
-
             lock (_actual)
             {
+                if (!_keys.Contains(key))
+                {
+                    value = default;
+                    return false;
+                }
+
                 return _actual.TryGetValue(key, out value);
             }
         }
@@ -209,9 +223,8 @@ namespace PeanutButter.Utils.Dictionaries
             {
                 _actual[key] = value;
                 TrimIfNecessary();
+                _keys.Add(key);
             }
-
-            _keys.Add(key);
         }
 
         private void TrimIfNecessary()
@@ -244,7 +257,16 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         /// <inheritdoc />
-        public ICollection<TKey> Keys => _keys.ToArray();
+        public ICollection<TKey> Keys
+        {
+            get
+            {
+                lock (_actual)
+                {
+                    return _keys.ToArray();
+                }
+            }
+        }
 
         /// <inheritdoc />
         public ICollection<TValue> Values

@@ -7,6 +7,7 @@ var namespacePeanutButter_1_1Utils_1_1Dictionaries =
     [ "DictionaryWrappingNameValueCollection", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingNameValueCollection.html", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingNameValueCollection" ],
     [ "DictionaryWrappingNameValueCollection< TValue >", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingNameValueCollection-1-g.html", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingNameValueCollection-1-g" ],
     [ "DictionaryWrappingObject", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingObject.html", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingObject" ],
+    [ "ExpiringDictionary< TKey, TValue >", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1ExpiringDictionary-2-g.html", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1ExpiringDictionary-2-g" ],
     [ "IWrapper", "interfacePeanutButter_1_1Utils_1_1Dictionaries_1_1IWrapper.html", "interfacePeanutButter_1_1Utils_1_1Dictionaries_1_1IWrapper" ],
     [ "MergeDictionary< TKey, TValue >", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1MergeDictionary-2-g.html", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1MergeDictionary-2-g" ],
     [ "RedirectingDictionary< TValue >", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1RedirectingDictionary-1-g.html", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1RedirectingDictionary-1-g" ],

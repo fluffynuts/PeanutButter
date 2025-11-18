@@ -13,6 +13,7 @@ var searchData=
   ['existingfileattribute_10',['ExistingFileAttribute',['../classPeanutButter_1_1EasyArgs_1_1Attributes_1_1ExistingFileAttribute.html',1,'PeanutButter::EasyArgs::Attributes']]],
   ['existingfolderattribute_11',['ExistingFolderAttribute',['../classPeanutButter_1_1EasyArgs_1_1Attributes_1_1ExistingFolderAttribute.html',1,'PeanutButter::EasyArgs::Attributes']]],
   ['exitcodes_12',['ExitCodes',['../classPeanutButter_1_1EasyArgs_1_1ExitCodes.html',1,'PeanutButter::EasyArgs']]],
-  ['expressionutil_13',['ExpressionUtil',['../classPeanutButter_1_1Utils_1_1ExpressionUtil.html',1,'PeanutButter::Utils']]],
-  ['extensionsforienumerables_14',['ExtensionsForIEnumerables',['../classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html',1,'PeanutButter::Utils']]]
+  ['expiringdictionary_2d2_2dg_13',['ExpiringDictionary-2-g',['../classPeanutButter_1_1Utils_1_1Dictionaries_1_1ExpiringDictionary-2-g.html',1,'PeanutButter::Utils::Dictionaries']]],
+  ['expressionutil_14',['ExpressionUtil',['../classPeanutButter_1_1Utils_1_1ExpressionUtil.html',1,'PeanutButter::Utils']]],
+  ['extensionsforienumerables_15',['ExtensionsForIEnumerables',['../classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html',1,'PeanutButter::Utils']]]
 ];

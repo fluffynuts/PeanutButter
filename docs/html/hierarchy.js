@@ -242,6 +242,7 @@ var hierarchy =
         [ "PeanutButter.Utils.Dictionaries.DictionaryWrappingNameValueCollection", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingNameValueCollection.html", null ]
       ] ],
       [ "PeanutButter.Utils.Dictionaries.DictionaryWrappingObject", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingObject.html", null ],
+      [ "PeanutButter.Utils.Dictionaries.ExpiringDictionary< TKey, TValue >", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1ExpiringDictionary-2-g.html", null ],
       [ "PeanutButter.Utils.Dictionaries.MergeDictionary< TKey, TValue >", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1MergeDictionary-2-g.html", null ],
       [ "PeanutButter.Utils.Dictionaries.RedirectingDictionary< TValue >", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1RedirectingDictionary-1-g.html", null ],
       [ "PeanutButter.Utils.Dictionaries.TransformingDictionary< TKey, TValue >", "classPeanutButter_1_1Utils_1_1Dictionaries_1_1TransformingDictionary-2-g.html", null ],
