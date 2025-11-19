@@ -194,6 +194,35 @@ public
     }
 
     /// <summary>
+    /// Alternative syntax for DeepEquals allowing
+    /// output of errors via an out parameter
+    /// </summary>
+    /// <param name="objSource">Source object for comparison</param>
+    /// <param name="objCompare">Object to compare with</param>
+    /// <param name="errors">(output) collected errors when deep equality check fails</param>
+    /// <param name="ignorePropertiesByName">Property names to ignore in the test</param>
+    /// <returns></returns>
+    public static bool DeepEquals(
+        this object objSource,
+        object objCompare,
+        out string[] errors,
+        params string[] ignorePropertiesByName
+    )
+    {
+        var tester = new DeepEqualityTester(
+            objSource,
+            objCompare,
+            ignorePropertiesByName
+        )
+        {
+            RecordErrors = true
+        };
+        var result = tester.AreDeepEqual();
+        errors = tester.Errors.ToArray();
+        return result;
+    }
+
+    /// <summary>
     /// Runs a deep equality test between two objects, using the properties on objSource (and children) as
     /// the set of properties to match on
     /// </summary>
@@ -474,9 +503,8 @@ public
             );
         }
 
-        foreach (var srcPropInfo in srcPropInfos.Where(
-                     pi => pi.CanRead &&
-                         pi.GetIndexParameters().Length == 0
+        foreach (var srcPropInfo in srcPropInfos.Where(pi => pi.CanRead &&
+                     pi.GetIndexParameters().Length == 0
                  ))
         {
             if (!targetPropertyCache.TryGetValue(
@@ -498,6 +526,7 @@ public
                     acc || cur(deep, srcPropInfo, matchingTarget, dst, srcVal)
             );
         }
+
         return dst;
     }
 
@@ -1143,8 +1172,7 @@ public
         var ancestry = CreateAncestryLookupFor(type);
         return type.GetProperties(AllOnInstance)
             .Where(pi => !(pi.DeclaringType is null))
-            .Select(
-                pi => new
+            .Select(pi => new
                 {
                     pi,
                     idx = ancestry[pi.DeclaringType]
@@ -1180,8 +1208,7 @@ public
     {
         return type.Ancestry()
             .Reverse()
-            .Select(
-                (t, idx) => new
+            .Select((t, idx) => new
                 {
                     type = t,
                     idx
@@ -1374,10 +1401,9 @@ public
             return false;
         }
 
-        indexes = parts.Skip(1).Select(
-            s => int.TryParse(s, out var asInt)
-                ? asInt
-                : s as object
+        indexes = parts.Skip(1).Select(s => int.TryParse(s, out var asInt)
+            ? asInt
+            : s as object
         ).ToArray();
         return true;
     }
@@ -1652,9 +1678,8 @@ public
     private static readonly MethodInfo GenericIsInstanceOf
         = typeof(ObjectExtensions)
             .GetMethods(PUBLIC_STATIC)
-            .Single(
-                mi => mi.IsGenericMethod &&
-                    mi.Name == nameof(ObjectExtensions.IsInstanceOf)
+            .Single(mi => mi.IsGenericMethod &&
+                mi.Name == nameof(ObjectExtensions.IsInstanceOf)
             );
 
     /// <summary>
@@ -1897,8 +1922,7 @@ public
         Func<T, string, string> valueFetcher
     )
     {
-        return keyFetcher(value).Select(
-            k => new KeyValuePair<string, string>(k, valueFetcher(value, k))
+        return keyFetcher(value).Select(k => new KeyValuePair<string, string>(k, valueFetcher(value, k))
         ).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     }
 
@@ -2079,11 +2103,10 @@ public
     private static MethodInfo GenericSystemSerializer =>
         _genericSystemSerializer ??= SystemTextJsonSerializer
             ?.GetMethods()
-            .FirstOrDefault(
-                mi =>
-                    mi.IsGenericMethod &&
-                    mi.Name == "Serialize" &&
-                    mi.GetParameters().Length == 2
+            .FirstOrDefault(mi =>
+                mi.IsGenericMethod &&
+                mi.Name == "Serialize" &&
+                mi.GetParameters().Length == 2
             );
 
     private static MethodInfo _genericSystemSerializer;
@@ -2091,11 +2114,10 @@ public
     private static MethodInfo GenericSystemDeserializer =>
         _genericSystemDeserializer ??= SystemTextJsonSerializer
             ?.GetMethods()
-            .FirstOrDefault(
-                mi => mi.IsGenericMethod &&
-                    mi.Name == "Deserialize" &&
-                    mi.GetGenericArguments().Length == 1 &&
-                    HasRequiredAttributesForGenericSystemDeserializer(mi)
+            .FirstOrDefault(mi => mi.IsGenericMethod &&
+                mi.Name == "Deserialize" &&
+                mi.GetGenericArguments().Length == 1 &&
+                HasRequiredAttributesForGenericSystemDeserializer(mi)
             );
 
     private static MethodInfo _genericSystemDeserializer;
@@ -2125,11 +2147,10 @@ public
     private static MethodInfo NewtonsoftSerializerMethod =>
         _newtonsoftSerializerMethod ??= NewtonsoftJsonSerializer
             ?.GetMethods()
-            .FirstOrDefault(
-                mi =>
-                    !mi.IsGenericMethod &&
-                    mi.Name == "SerializeObject" &&
-                    mi.GetParameters().Length == 1
+            .FirstOrDefault(mi =>
+                !mi.IsGenericMethod &&
+                mi.Name == "SerializeObject" &&
+                mi.GetParameters().Length == 1
             );
 
     private static MethodInfo _newtonsoftSerializerMethod;
@@ -2137,11 +2158,10 @@ public
     private static MethodInfo GenericNewtonsoftDeserializer =>
         _genericNewtonsoftDeserializer ??= NewtonsoftJsonSerializer
             ?.GetMethods()
-            .FirstOrDefault(
-                mi => mi.IsGenericMethod &&
-                    mi.Name == "DeserializeObject" &&
-                    mi.GetGenericArguments().Length == 1 &&
-                    mi.GetParameters().Length == 1
+            .FirstOrDefault(mi => mi.IsGenericMethod &&
+                mi.Name == "DeserializeObject" &&
+                mi.GetGenericArguments().Length == 1 &&
+                mi.GetParameters().Length == 1
             );
 
     private static MethodInfo _genericNewtonsoftDeserializer;

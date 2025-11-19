@@ -95,6 +95,36 @@ public class TestObjectExtensions
         }
 
         [Test]
+        public void ShouldBeAbleToPerformDeepEqualityWithOutputErrors()
+        {
+            // Arrange
+            var left = new
+            {
+                id = 1
+            };
+            var match = new
+            {
+                id = 1
+            };
+            var mismatch = new
+            {
+                id = 2
+            };
+            // Act
+            var result1 = left.DeepEquals(match, out var matchErrors);
+            var result2 = left.DeepEquals(mismatch, out var mismatchErrors);
+            // Assert
+            Expect(result1)
+                .To.Be.True();
+            Expect(matchErrors)
+                .To.Be.Empty();
+            Expect(result2)
+                .To.Be.False();
+            Expect(mismatchErrors)
+                .Not.To.Be.Empty();
+        }
+
+        [Test]
         public void DoesntBarfOnBothNull()
         {
             //---------------Set up test pack-------------------
@@ -4355,7 +4385,6 @@ public class TestObjectExtensions
                 .And
                 .To.Deep.Equal(src);
         }
-        
     }
 
     public class DoubleDecoratedDataObject
