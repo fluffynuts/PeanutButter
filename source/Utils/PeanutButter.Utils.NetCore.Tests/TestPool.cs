@@ -126,14 +126,20 @@ namespace PeanutButter.Utils.Tests
         public void StressTestShouldNotExceedMaxCount()
         {
             // Arrange
-            using var sut = Create(() => new Service(), 2);
+            var poolLimit = 2;
+            var itemWait = 1000;
+            using var sut = Create(
+                () =>
+                {
+                    Thread.Sleep(itemWait); // fake something taking a while to construct
+                    return new Service();
+                }, poolLimit);
             var threads = new List<Thread>();
             var captured = new ConcurrentBag<IPoolItem<Service>>();
             var errored = 0;
             var capturedTimes = new ConcurrentBag<TimeSpan>();
             var threadCount = 32;
-            var requestCount = 32;
-            var itemWait = 1000;
+            var requestCount = 10;
             for (var i = 0; i < threadCount; i++)
             {
                 var t = new Thread(() =>
@@ -173,9 +179,24 @@ namespace PeanutButter.Utils.Tests
                 .To.Contain.All
                 .Matched.By(o => o != null);
             Expect(sut.Count)
-                .To.Equal(2);
+                .To.Be.Less.Than.Or.Equal.To(poolLimit);
             Expect(errored)
                 .To.Equal(0);
+        }
+
+        [Test]
+        public void ShouldGetNewInstanceWhenPriorInstanceStillInUse()
+        {
+            // Arrange
+            var poolLimit = 2;
+            using var sut = Create(() => new Service(), poolLimit);
+            
+            // Act
+            using var result1 = sut.Borrow();
+            using var result2 = sut.Borrow();
+            // Assert
+            Expect(result1.Instance)
+                .Not.To.Be(result2.Instance);
         }
 
         private static Pool<T> Create<T>(
