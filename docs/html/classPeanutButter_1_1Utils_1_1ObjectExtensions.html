@@ -107,6 +107,8 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memdesc:a3882e668a8259f1c4bb3698ea57d9cd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runs a deep equality test between two objects, glossing over reference differences between class-types and comparing only primitive types. Use this when you'd like to essentially test whether the data in one object hierarchy matches that of another.  <br /></td></tr>
 <tr class="memitem:ab0870b551ded689a184401fb6ea8fda2" id="r_ab0870b551ded689a184401fb6ea8fda2"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab0870b551ded689a184401fb6ea8fda2">DeepEquals</a> (this object objSource, object objCompare, Action&lt; string &gt; failureLogAction, params string[] ignorePropertiesByName)</td></tr>
 <tr class="memdesc:ab0870b551ded689a184401fb6ea8fda2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runs a deep equality test between two objects, ignoring reference differences wherever possible and logging failures with the provided action. Properties can be excluded by name with the ignorePropertiesByName params.  <br /></td></tr>
+<tr class="memitem:a8734c69460f46c26cddbb1eb594abf80" id="r_a8734c69460f46c26cddbb1eb594abf80"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8734c69460f46c26cddbb1eb594abf80">DeepEquals</a> (this object objSource, object objCompare, out string[] errors, params string[] ignorePropertiesByName)</td></tr>
+<tr class="memdesc:a8734c69460f46c26cddbb1eb594abf80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alternative syntax for DeepEquals allowing output of errors via an out parameter.  <br /></td></tr>
 <tr class="memitem:ada71e8f710ceb1c7f20872661eb7f1d9" id="r_ada71e8f710ceb1c7f20872661eb7f1d9"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ada71e8f710ceb1c7f20872661eb7f1d9">DeepSubEquals</a> (this object objSource, object objCompare, params string[] ignorePropertiesByName)</td></tr>
 <tr class="memdesc:ada71e8f710ceb1c7f20872661eb7f1d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runs a deep equality test between two objects, using the properties on objSource (and children) as the set of properties to match on.  <br /></td></tr>
 <tr class="memitem:ab8d3b628496a36629746bd0e60bbc49b" id="r_ab8d3b628496a36629746bd0e60bbc49b"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab8d3b628496a36629746bd0e60bbc49b">DeepIntersectionEquals</a> (this object objSource, object objCompare, params string[] ignorePropertiesByName)</td></tr>
@@ -874,7 +876,7 @@ Static Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="ab0870b551ded689a184401fb6ea8fda2" name="ab0870b551ded689a184401fb6ea8fda2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab0870b551ded689a184401fb6ea8fda2">&#9670;&#160;</a></span>DeepEquals() <span class="overload">[1/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ab0870b551ded689a184401fb6ea8fda2">&#9670;&#160;</a></span>DeepEquals() <span class="overload">[1/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -925,7 +927,7 @@ Static Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a3882e668a8259f1c4bb3698ea57d9cd5" name="a3882e668a8259f1c4bb3698ea57d9cd5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3882e668a8259f1c4bb3698ea57d9cd5">&#9670;&#160;</a></span>DeepEquals() <span class="overload">[2/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a3882e668a8259f1c4bb3698ea57d9cd5">&#9670;&#160;</a></span>DeepEquals() <span class="overload">[2/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -975,8 +977,59 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a8734c69460f46c26cddbb1eb594abf80" name="a8734c69460f46c26cddbb1eb594abf80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8734c69460f46c26cddbb1eb594abf80">&#9670;&#160;</a></span>DeepEquals() <span class="overload">[3/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool PeanutButter.Utils.ObjectExtensions.DeepEquals </td>
+          <td>(</td>
+          <td class="paramtype">this object</td>          <td class="paramname"><span class="paramname"><em>objSource</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">object</td>          <td class="paramname"><span class="paramname"><em>objCompare</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">out string[]</td>          <td class="paramname"><span class="paramname"><em>errors</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">params string[]</td>          <td class="paramname"><span class="paramname"><em>ignorePropertiesByName</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Alternative syntax for DeepEquals allowing output of errors via an out parameter. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">objSource</td><td>Source object for comparison</td></tr>
+    <tr><td class="paramname">objCompare</td><td>Object to compare with</td></tr>
+    <tr><td class="paramname">errors</td><td>(output) collected errors when deep equality check fails</td></tr>
+    <tr><td class="paramname">ignorePropertiesByName</td><td>Property names to ignore in the test</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
 <a id="a670c6a3d93060aebf4e2a72ca89af576" name="a670c6a3d93060aebf4e2a72ca89af576"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a670c6a3d93060aebf4e2a72ca89af576">&#9670;&#160;</a></span>DeepEquals() <span class="overload">[3/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a670c6a3d93060aebf4e2a72ca89af576">&#9670;&#160;</a></span>DeepEquals() <span class="overload">[4/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

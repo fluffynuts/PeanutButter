@@ -1,5 +1,7 @@
 var NAVTREEINDEX22 =
 {
+"classPeanutButter_1_1Utils_1_1Pool-1-g.html#a78e6ce1047915eaf3bc1082c4f8cdb54":[2,0,0,16,86,8],
+"classPeanutButter_1_1Utils_1_1Pool-1-g.html#a864e5d3ce53eca4f72e3d8f7b34f90ec":[1,0,0,16,87,10],
 "classPeanutButter_1_1Utils_1_1Pool-1-g.html#a864e5d3ce53eca4f72e3d8f7b34f90ec":[2,0,0,16,86,10],
 "classPeanutButter_1_1Utils_1_1Pool-1-g.html#a8981bd921c0f0abdb05a8ce3958c0299":[1,0,0,16,87,12],
 "classPeanutButter_1_1Utils_1_1Pool-1-g.html#a8981bd921c0f0abdb05a8ce3958c0299":[2,0,0,16,86,12],
@@ -247,7 +249,5 @@ var NAVTREEINDEX22 =
 "classPeanutButter_1_1Utils_1_1RateLimiter.html#a01dca21d12328f8bdee162705b82be37":[2,0,0,16,95,2],
 "classPeanutButter_1_1Utils_1_1RateLimiter.html#a0b6357adf834a32c32fffa220e8e05df":[1,0,0,16,96,6],
 "classPeanutButter_1_1Utils_1_1RateLimiter.html#a0b6357adf834a32c32fffa220e8e05df":[2,0,0,16,95,6],
-"classPeanutButter_1_1Utils_1_1RateLimiter.html#a74f76e680e3f72c2e6920149f2dc299a":[1,0,0,16,96,1],
-"classPeanutButter_1_1Utils_1_1RateLimiter.html#a74f76e680e3f72c2e6920149f2dc299a":[2,0,0,16,95,1],
-"classPeanutButter_1_1Utils_1_1RateLimiter.html#a754911dd81a6465958bdc20b51d578b0":[1,0,0,16,96,5]
+"classPeanutButter_1_1Utils_1_1RateLimiter.html#a74f76e680e3f72c2e6920149f2dc299a":[1,0,0,16,96,1]
 };

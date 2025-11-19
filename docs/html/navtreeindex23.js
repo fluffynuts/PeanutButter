@@ -1,5 +1,7 @@
 var NAVTREEINDEX23 =
 {
+"classPeanutButter_1_1Utils_1_1RateLimiter.html#a74f76e680e3f72c2e6920149f2dc299a":[2,0,0,16,95,1],
+"classPeanutButter_1_1Utils_1_1RateLimiter.html#a754911dd81a6465958bdc20b51d578b0":[1,0,0,16,96,5],
 "classPeanutButter_1_1Utils_1_1RateLimiter.html#a754911dd81a6465958bdc20b51d578b0":[2,0,0,16,95,5],
 "classPeanutButter_1_1Utils_1_1RateLimiter.html#a8f958f9b5f5974528ab1047800b8a6f9":[1,0,0,16,96,3],
 "classPeanutButter_1_1Utils_1_1RateLimiter.html#a8f958f9b5f5974528ab1047800b8a6f9":[2,0,0,16,95,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX23 =
 "classPeanutButter_1_1Utils_1_1StreamExtensions.html#a0a20d68b48b3600c167721c98939d721":[2,0,0,16,111,15],
 "classPeanutButter_1_1Utils_1_1StreamExtensions.html#a21995c7c944c1458004bcb12f3d8c318":[1,0,0,16,112,7],
 "classPeanutButter_1_1Utils_1_1StreamExtensions.html#a21995c7c944c1458004bcb12f3d8c318":[2,0,0,16,111,7],
-"classPeanutButter_1_1Utils_1_1StreamExtensions.html#a2978e6f005d69e37c11917a330477592":[1,0,0,16,112,24],
-"classPeanutButter_1_1Utils_1_1StreamExtensions.html#a2978e6f005d69e37c11917a330477592":[2,0,0,16,111,24],
-"classPeanutButter_1_1Utils_1_1StreamExtensions.html#a2f17e6d8542b628df71c3e29bdf20625":[1,0,0,16,112,19]
+"classPeanutButter_1_1Utils_1_1StreamExtensions.html#a2978e6f005d69e37c11917a330477592":[1,0,0,16,112,24]
 };

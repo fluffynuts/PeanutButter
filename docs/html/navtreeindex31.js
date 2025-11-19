@@ -1,5 +1,7 @@
 var NAVTREEINDEX31 =
 {
+"interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html#aab2f10dd1a2ba2fe128264b7ec437ade":[2,0,0,17,2,1],
+"interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html#aabe03245780affc594013aa0054273bb":[1,0,0,17,2,23],
 "interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html#aabe03245780affc594013aa0054273bb":[2,0,0,17,2,23],
 "interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html#ab22c67247a846c880cb475d048e6ca24":[1,0,0,17,2,12],
 "interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html#ab22c67247a846c880cb475d048e6ca24":[2,0,0,17,2,12],

@@ -1,5 +1,7 @@
 var NAVTREEINDEX26 =
 {
+"classPeanutButter_1_1Utils_1_1TypeExtensions.html#af0897484b5a46428a93bd3381ffb00e0":[2,0,0,16,120,55],
+"classPeanutButter_1_1Utils_1_1TypeExtensions.html#af0c3311ad66c9c3793e64d5088e70fea":[1,0,0,16,121,76],
 "classPeanutButter_1_1Utils_1_1TypeExtensions.html#af0c3311ad66c9c3793e64d5088e70fea":[2,0,0,16,120,76],
 "classPeanutButter_1_1Utils_1_1TypeExtensions.html#af6dcad37989665169646f4b36586c240":[1,0,0,16,121,61],
 "classPeanutButter_1_1Utils_1_1TypeExtensions.html#af6dcad37989665169646f4b36586c240":[2,0,0,16,120,61],
@@ -247,7 +249,5 @@ var NAVTREEINDEX26 =
 "classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#a9419f8816cc363aced18b3a99fd05169":[2,0,0,17,6,3],
 "classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#a9f2cfa57471bd718e2792726af26e601":[1,0,0,17,6,39],
 "classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#a9f2cfa57471bd718e2792726af26e601":[2,0,0,17,6,39],
-"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#aa0b19cca19757f4b8a0dfbf1a2d0a676":[1,0,0,17,6,10],
-"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#aa0b19cca19757f4b8a0dfbf1a2d0a676":[2,0,0,17,6,10],
-"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#aa24a844843b1c5f0aad8b9f259f984e8":[1,0,0,17,6,36]
+"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#aa0b19cca19757f4b8a0dfbf1a2d0a676":[1,0,0,17,6,10]
 };
