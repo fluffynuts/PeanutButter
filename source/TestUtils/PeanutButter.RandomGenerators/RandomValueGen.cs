@@ -3183,7 +3183,14 @@ public
     /// <returns>String representing an ipv4 address</returns>
     public static string GetRandomIPv4Address()
     {
-        var octets = GetRandomCollection(() => GetRandomInt(0, 255), 4, 4);
+        var octets = new[]
+        {
+            GetRandomInt(1, 255),
+            GetRandomInt(0, 255),
+            GetRandomInt(0, 255),
+            GetRandomInt(1, 255)
+        };
+
         return string.Join(".", octets);
     }
 
@@ -3258,6 +3265,7 @@ public
         {
             return result;
         }
+
         result = result.TrimStart('0');
         return result == ""
             ? "0"

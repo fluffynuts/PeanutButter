@@ -4548,13 +4548,44 @@ public class TestRandomValueGen
                     var ints = parts.Select(int.Parse);
                     Expect(ints)
                         .To.Contain.All
-                        .Matched.By(i => i is >= 0 and <= 265
+                        .Matched.By(i => 
+                            i is >= 0 and <= 265
                         );
                 }
             );
 
             //---------------Test Result -----------------------
             VarianceAssert.IsVariant(allResults);
+        }
+
+        [Test]
+        public void ShouldNotProduceNetMask()
+        {
+            //---------------Set up test pack-------------------
+
+            //---------------Assert Precondition----------------
+
+            //---------------Execute Test ----------------------
+            RunCycles(() =>
+                {
+                    var result = GetRandomIPv4Address();
+                    var parts = result.Split('.');
+                    Expect(parts)
+                        .To.Contain.Only(4).Items();
+                    var ints = parts.Select(int.Parse);
+                    Expect(ints)
+                        .To.Contain.All
+                        .Matched.By(i => 
+                            i is >= 0 and <= 265
+                        );
+                    Expect(ints.Last())
+                        .To.Be.Greater.Than(0);
+                    Expect(ints.First())
+                        .To.Be.Greater.Than(0);
+                }
+            );
+
+            //---------------Test Result -----------------------
         }
     }
 
