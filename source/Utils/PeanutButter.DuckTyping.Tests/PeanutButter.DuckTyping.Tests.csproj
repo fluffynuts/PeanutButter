@@ -1,40 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net462</TargetFramework>
-    <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Configurations>Debug;Release;Debug-X</Configurations>
-    <LangVersion>latest</LangVersion>
-    <Platforms>AnyCPU</Platforms>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
-    <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
-    <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System.Configuration" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj" />
-    <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj" />
-    <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj" />
-    <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="ImpromptuInterface" Version="6.2.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-    <PackageReference Include="newtonsoft.json" Version="13.0.3" />
-    <PackageReference Include="NExpect" Version="2.0.125" />
-    <PackageReference Include="nunit" Version="4.3.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
-    <PackageReference Include="Quackers.TestLogger" Version="1.0.24" />
-    <PackageReference Include="System.Buffers" Version="4.6.1" />
-  </ItemGroup>
-  <Import Project="..\..\MonoForFramework.targets" />
+    <PropertyGroup>
+        <TargetFramework>net462</TargetFramework>
+        <RuntimeIdentifiers>win;osx;linux</RuntimeIdentifiers>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <Configurations>Debug;Release;Debug-X</Configurations>
+        <LangVersion>latest</LangVersion>
+        <Platforms>AnyCPU</Platforms>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug-X' ">
+        <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+        <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="System.Configuration"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\TestUtils\PeanutButter.RandomGenerators\PeanutButter.RandomGenerators.csproj"/>
+        <ProjectReference Include="..\..\TestUtils\PeanutButter.TestUtils.Generic\PeanutButter.TestUtils.Generic.csproj"/>
+        <ProjectReference Include="..\PeanutButter.DuckTyping\PeanutButter.DuckTyping.csproj"/>
+        <ProjectReference Include="..\PeanutButter.Utils\PeanutButter.Utils.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="ImpromptuInterface" Version="6.2.2"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+        <PackageReference Include="newtonsoft.json" Version="13.0.3"/>
+        <PackageReference Include="NExpect" Version="2.0.125"/>
+        <PackageReference Include="nunit" Version="4.4.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
+        <PackageReference Include="Quackers.TestLogger" Version="1.0.24"/>
+        <PackageReference Include="System.Buffers" Version="4.6.1"/>
+    </ItemGroup>
+    <Import Project="..\..\MonoForFramework.targets"/>
 </Project>
