@@ -137,15 +137,13 @@ internal
         return MultiMatch(
             haystack,
             needles,
-            h => needles.Any(
-                n => h.Contains(
+            h => needles.Any(n => h.Contains(
                     n.ToLower(
-
 
 
 #if NETSTANDARD
 #else
-                            CultureInfo.CurrentCulture
+                        CultureInfo.CurrentCulture
 #endif
                     )
                 )
@@ -168,8 +166,7 @@ internal
         return MultiMatch(
             haystack,
             needles,
-            h => needles.Any(
-                n => h?.Equals(n, StringComparison.CurrentCultureIgnoreCase) ?? false
+            h => needles.Any(n => h?.Equals(n, StringComparison.CurrentCultureIgnoreCase) ?? false
             )
         );
     }
@@ -333,11 +330,10 @@ internal
         CultureInfo cultureInfo
     )
     {
-        return src.Select(
-            s =>
-                cultureInfo.Equals(CultureInfo.InvariantCulture)
-                    ? s?.ToUpperInvariant()
-                    : s?.ToUpper()
+        return src.Select(s =>
+            cultureInfo.Equals(CultureInfo.InvariantCulture)
+                ? s?.ToUpperInvariant()
+                : s?.ToUpper()
         );
     }
 
@@ -635,7 +631,91 @@ internal
 
         return new String(arr);
     }
-    
+
+    /// <summary>
+    /// Replaces the first occurence of seek with replaceWith
+    /// - searches with StringComparison.Ordinal
+    /// </summary>
+    /// <param name="str"></param>
+    /// <param name="seek"></param>
+    /// <param name="replaceWith"></param>
+    /// <returns></returns>
+    public static string ReplaceFirst(
+        this string str,
+        string seek,
+        string replaceWith
+    )
+    {
+        return str.ReplaceFirst(seek, replaceWith, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Replaces the first occurence of seek with replaceWith
+    /// </summary>
+    /// <param name="str"></param>
+    /// <param name="seek"></param>
+    /// <param name="replaceWith"></param>
+    /// <param name="comparison"></param>
+    /// <returns></returns>
+    public static string ReplaceFirst(
+        this string str,
+        string seek,
+        string replaceWith,
+        StringComparison comparison
+    )
+    {
+        var pos = str.IndexOf(seek, comparison);
+        if (pos < 0)
+        {
+            return str;
+        }
+        return str.ReplaceAt(replaceWith, pos, pos + seek.Length - 1);
+    }
+
+    /// <summary>
+    /// Replaces the segment described by start-end, inclusive,
+    /// with the provided string
+    /// </summary>
+    /// <param name="str"></param>
+    /// <param name="replacement"></param>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public static string ReplaceAt(
+        this string str,
+        string replacement,
+        int start,
+        int end
+    )
+    {
+        if (start > end)
+        {
+            var swap = start;
+            start = end;
+            end = swap;
+        }
+
+        if (start > str.Length || end > str.Length)
+        {
+            throw new ArgumentException(
+                $"""
+                 start and end must be within the source string:
+                 start: {start}
+                 end: {end}
+                 str: {str}
+                 """
+            );
+        }
+
+        return string.Join(
+            "",
+            str.Substring(0, start),
+            replacement,
+            str.Substring(end + 1)
+        );
+    }
+
     /// <summary>
     /// Compresses an ipv6 address:
     /// - the longest sequence of :0000:0000: is replaced with ::
@@ -652,7 +732,7 @@ internal
         do
         {
             var seek = parts.JoinWith(":");
-            firstPassResult = firstPassResult.Replace(seek, "");
+            firstPassResult = firstPassResult.ReplaceFirst(seek, "");
             parts.Dequeue();
         } while (firstPassResult == address && parts.Any());
 
@@ -675,6 +755,7 @@ internal
                 continue;
             }
 
+
             var trimmed = group.TrimStart('0');
             if (seenEmpty && trimmed == "")
             {
@@ -686,7 +767,7 @@ internal
 
         return result.JoinWith(":");
     }
-    
+
     private const string IPV6_ZEROS = "0000";
 
     private static readonly string[] LONGEST_ZEROS =
@@ -753,6 +834,7 @@ internal
 
         return new String(result.ToArray());
     }
+
     /// <summary>
     /// Remove all the given substrings from the string, returning a new
     /// string
@@ -770,6 +852,7 @@ internal
         {
             result = result.Replace(item, "");
         }
+
         return result;
     }
 
@@ -863,10 +946,9 @@ internal
             "",
             input
                 .Select(c => c.ToString())
-                .Select(
-                    c => RandomNumber.NextDouble() < 0.5
-                        ? c.ToLowerInvariant()
-                        : c.ToUpperInvariant()
+                .Select(c => RandomNumber.NextDouble() < 0.5
+                    ? c.ToLowerInvariant()
+                    : c.ToUpperInvariant()
                 )
         );
     }
@@ -1049,8 +1131,7 @@ internal
     {
         var collected = new List<string>();
         var intMarker = 0;
-        value.ForEach(
-            c =>
+        value.ForEach(c =>
             {
                 if (intMarker > 1)
                 {
@@ -1430,7 +1511,7 @@ internal
             ? []
             : Convert.FromBase64String(base64Data.Base64Padded());
     }
-    
+
     /// <summary>
     /// Converts a base64 string back to the original string
     /// using the provided encoding
@@ -2283,8 +2364,7 @@ internal
             start.TrimEnd(delimiter)
         };
         allParts.AddRange(
-            parts.Select(
-                s => s.TrimStart(delimiter).TrimEnd(delimiter)
+            parts.Select(s => s.TrimStart(delimiter).TrimEnd(delimiter)
             )
         );
         var lastPart = parts.Last();
@@ -2326,7 +2406,7 @@ internal
             ? result
             : result.Replace(" ", replaceWith);
     }
-    
+
     private static readonly Regex TabsAndLineEndings = new("[\\t\\r\\n]");
-    private static readonly Regex TwoSpaces =  new(" {2,}");
+    private static readonly Regex TwoSpaces = new(" {2,}");
 }

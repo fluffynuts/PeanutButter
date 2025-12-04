@@ -25,23 +25,21 @@ public class TestSlidingWindow
         sut.Add(3);
         Expect(sut.ToArray())
             .To.Equal(
-                new[]
-                {
+                [
                     1,
                     2,
                     3
-                }
+                ]
             );
         sut.Add(4);
         // Assert
         Expect(sut.ToArray())
             .To.Equal(
-                new[]
-                {
+                [
                     2,
                     3,
                     4
-                }
+                ]
             );
     }
 
@@ -75,13 +73,12 @@ public class TestSlidingWindow
         // Assert
         Expect(target)
             .To.Equal(
-                new[]
-                {
+                [
                     0,
                     3,
                     4,
                     5
-                }
+                ]
             );
     }
 
@@ -101,11 +98,10 @@ public class TestSlidingWindow
             .To.Be.True();
         Expect((IList<int>)sut)
             .To.Equal(
-                new[]
-                {
+                [
                     2,
                     1
-                }
+                ]
             );
     }
 
@@ -131,10 +127,9 @@ public class TestSlidingWindow
             .To.Be.False();
         Expect((IList<int>)sut)
             .To.Equal(
-                new[]
-                {
+                [
                     2
-                }
+                ]
             );
     }
 
@@ -178,12 +173,11 @@ public class TestSlidingWindow
             // Assert
             Expect((IList<int>)sut)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         10,
                         2,
                         3
-                    },
+                    ],
                     () => "Trimming after insertion should have chucked out the 1"
                 );
         }
@@ -205,12 +199,11 @@ public class TestSlidingWindow
             // Assert
             Expect((IList<int>)sut)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         1,
                         2,
                         1
-                    }
+                    ]
                 );
             var before = sut.ItemAt(0);
             var inserted = sut.ItemAt(1);
@@ -236,12 +229,11 @@ public class TestSlidingWindow
             // Assert
             Expect((IList<int>)sut)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         2,
                         1,
                         1
-                    }
+                    ]
                 );
             var inserted = sut.ItemAt(0);
             var after = sut.ItemAt(1);
@@ -268,12 +260,11 @@ public class TestSlidingWindow
             // Assert
             Expect((IList<int>)sut)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         1,
                         1,
                         2
-                    }
+                    ]
                 );
             var inserted = sut.ItemAt(2);
             Expect(inserted.Created)
@@ -298,11 +289,10 @@ public class TestSlidingWindow
         // Assert
         Expect((IList<int>)sut)
             .To.Equal(
-                new[]
-                {
+                [
                     2,
                     3
-                }
+                ]
             );
     }
 
@@ -320,11 +310,10 @@ public class TestSlidingWindow
         // Assert
         Expect((IList<int>)sut)
             .To.Equal(
-                new[]
-                {
+                [
                     1,
                     3
-                }
+                ]
             );
     }
 

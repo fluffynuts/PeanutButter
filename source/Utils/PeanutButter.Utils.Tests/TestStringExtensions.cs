@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using PeanutButter.RandomGenerators;
 
 // ReSharper disable UnusedMember.Global
-
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable StringLiteralTypo
 // ReSharper disable ExpressionIsAlwaysNull
@@ -20,6 +20,24 @@ namespace PeanutButter.Utils.Tests;
 [Parallelizable]
 public class TestStringExtensions
 {
+    [TestFixture]
+    public class CompressIPv6Address
+    {
+        [Test]
+        public void ShouldNotIncorrectlyCompress()
+        {
+            // Arrange
+            var raw = "430c:0000:4eba:aa17:38f3:e44d:0000:0320";
+            Expect(() => IPAddress.Parse(raw))
+                .Not.To.Throw();
+            // Act
+            var result = raw.CompressIPv6Address();
+            // Assert
+            Expect(result)
+                .To.Be.An.Ipv6Address();
+        }
+    }
+
     [TestCase("Hello World", "^Hello", "Goodbye", "Goodbye World")]
     [TestCase("Hello World", "Wor.*", "Goodbye", "Hello Goodbye")]
     [TestCase("Hello World", "Hello$", "Goodbye", "Hello World")]
@@ -42,6 +60,66 @@ public class TestStringExtensions
         //---------------Test Result -----------------------
         Expect(result)
             .To.Equal(expected);
+    }
+
+    [TestFixture]
+    public class ReplaceAt
+    {
+        [TestCase("hello world", "y", 2, 4, "hey world")]
+        [TestCase("hello world", "0", 4, 4, "hell0 world")]
+        public void ShouldPerformReplacement(
+            string source,
+            string replaceWith,
+            int start,
+            int end,
+            string expected
+        )
+        {
+            // Arrange
+            // Act
+            var result = source.ReplaceAt(
+                replaceWith,
+                start,
+                end
+            );
+            // Assert
+            Expect(result)
+                .To.Equal(expected);
+        }
+    }
+
+    [TestFixture]
+    public class ReplaceFirst
+    {
+        [Test]
+        public void ShouldReplaceFirstOccurrenceOnly()
+        {
+            // Arrange
+            var match = GetRandomString();
+            var replace = "^_^";
+            var noMatch = GetRandomArray(() => GetAnother(match), 5);
+            Expect(noMatch)
+                .Not.To.Contain(match);
+            var parts = new List<string>()
+            {
+                noMatch.First(),
+                match,
+                noMatch.Second(),
+                match
+            };
+            parts.AddRange(noMatch.Skip(2));
+            var expected = new List<string>(parts)
+            {
+                [1] = replace
+            };
+            var str = parts.JoinWith(" ");
+            // Act
+            var result = str.ReplaceFirst(match, replace);
+            // Assert
+            var afterParts = result.Split(' ');
+            Expect(afterParts)
+                .To.Equal(expected);
+        }
     }
 
     [TestFixture]
@@ -3640,12 +3718,13 @@ function foo() {
             var collected = new List<string>();
             // Act
             var time = Benchmark.Time(() =>
-            {
-                for (var i = 0; i < 1000_000; i++)
                 {
-                    collected.Add(input.CondenseWhitespace());
+                    for (var i = 0; i < 1000_000; i++)
+                    {
+                        collected.Add(input.CondenseWhitespace());
+                    }
                 }
-            });
+            );
             // Assert
             Console.WriteLine(time);
             Expect(collected)
