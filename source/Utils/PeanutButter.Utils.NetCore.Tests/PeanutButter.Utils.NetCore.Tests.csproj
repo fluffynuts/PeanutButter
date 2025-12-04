@@ -21,8 +21,8 @@
     <PackageReference Include="nunit" Version="4.3.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="NExpect" Version="2.0.116" />
-    <PackageReference Include="NExpect.Matchers.NSubstitute" Version="2.0.116" />
+    <PackageReference Include="NExpect" Version="2.0.125" />
+    <PackageReference Include="NExpect.Matchers.NSubstitute" Version="2.0.125" />
     <PackageReference Include="Quackers.TestLogger" Version="1.0.24" />
   </ItemGroup>
 

@@ -10,12 +10,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Elastic.Clients.Elasticsearch" Version="9.2.1"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0"/>
-        <PackageReference Include="NExpect" Version="2.0.124"/>
-        <PackageReference Include="NUnit" Version="3.13.3"/>
-        <PackageReference Include="NUnit3TestAdapter" Version="4.2.1"/>
-        <PackageReference Include="NUnit.Analyzers" Version="3.6.1"/>
+        <PackageReference Include="Elastic.Clients.Elasticsearch" Version="9.2.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+        <PackageReference Include="NExpect" Version="2.0.125" />
+        <PackageReference Include="NUnit" Version="3.13.3" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
+        <PackageReference Include="NUnit.Analyzers" Version="3.6.1" />
         <PackageReference Include="PeanutButter.Utils" Version="3.0.403" />
     </ItemGroup>
 
