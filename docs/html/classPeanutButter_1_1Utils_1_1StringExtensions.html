@@ -163,6 +163,12 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memdesc:a2d76302156f640774655452ce50488ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts an input string to kebab-case.  <br /></td></tr>
 <tr class="memitem:a67aee2c112854d65d5befb4042406d73" id="r_a67aee2c112854d65d5befb4042406d73"><td class="memItemLeft" align="right" valign="top">static string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a67aee2c112854d65d5befb4042406d73">ReplaceAll</a> (this string haystack, IEnumerable&lt; char &gt; needles, char replaceWith)</td></tr>
 <tr class="memdesc:a67aee2c112854d65d5befb4042406d73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replace all occurrences of chars in needles with the replaceWith character.  <br /></td></tr>
+<tr class="memitem:a3a1f11869adfa66e6cb9db0c4baaf47e" id="r_a3a1f11869adfa66e6cb9db0c4baaf47e"><td class="memItemLeft" align="right" valign="top">static string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3a1f11869adfa66e6cb9db0c4baaf47e">ReplaceFirst</a> (this string str, string seek, string replaceWith)</td></tr>
+<tr class="memdesc:a3a1f11869adfa66e6cb9db0c4baaf47e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replaces the first occurence of seek with replaceWith.  <br /></td></tr>
+<tr class="memitem:aca962d3668b3fa9d163b4bb0413b39ab" id="r_aca962d3668b3fa9d163b4bb0413b39ab"><td class="memItemLeft" align="right" valign="top">static string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aca962d3668b3fa9d163b4bb0413b39ab">ReplaceFirst</a> (this string str, string seek, string replaceWith, StringComparison comparison)</td></tr>
+<tr class="memdesc:aca962d3668b3fa9d163b4bb0413b39ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replaces the first occurence of seek with replaceWith.  <br /></td></tr>
+<tr class="memitem:a3d12edb6008b9a577d1b57e6f5f01935" id="r_a3d12edb6008b9a577d1b57e6f5f01935"><td class="memItemLeft" align="right" valign="top">static string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3d12edb6008b9a577d1b57e6f5f01935">ReplaceAt</a> (this string str, string replacement, int start, int end)</td></tr>
+<tr class="memdesc:a3d12edb6008b9a577d1b57e6f5f01935"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replaces the segment described by start-end, inclusive, with the provided string.  <br /></td></tr>
 <tr class="memitem:ac3272f46bab3138ab90db8d7bd7eafbe" id="r_ac3272f46bab3138ab90db8d7bd7eafbe"><td class="memItemLeft" align="right" valign="top">static string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac3272f46bab3138ab90db8d7bd7eafbe">CompressIPv6Address</a> (this string address)</td></tr>
 <tr class="memdesc:ac3272f46bab3138ab90db8d7bd7eafbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compresses an ipv6 address:  <br /></td></tr>
 <tr class="memitem:a6b0258e955d5b3b175a455ae81c209d2" id="r_a6b0258e955d5b3b175a455ae81c209d2"><td class="memItemLeft" align="right" valign="top">static string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6b0258e955d5b3b175a455ae81c209d2">ReplaceAll</a> (this string haystack, IEnumerable&lt; string &gt; needles, string replaceWith)</td></tr>
@@ -2466,6 +2472,162 @@ Static Public Member Functions</h2></td></tr>
     <tr><td class="paramname">haystack</td><td></td></tr>
     <tr><td class="paramname">needles</td><td></td></tr>
     <tr><td class="paramname">replaceWith</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a id="a3d12edb6008b9a577d1b57e6f5f01935" name="a3d12edb6008b9a577d1b57e6f5f01935"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d12edb6008b9a577d1b57e6f5f01935">&#9670;&#160;</a></span>ReplaceAt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string PeanutButter.Utils.StringExtensions.ReplaceAt </td>
+          <td>(</td>
+          <td class="paramtype">this string</td>          <td class="paramname"><span class="paramname"><em>str</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string</td>          <td class="paramname"><span class="paramname"><em>replacement</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>start</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>end</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Replaces the segment described by start-end, inclusive, with the provided string. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">str</td><td></td></tr>
+    <tr><td class="paramname">replacement</td><td></td></tr>
+    <tr><td class="paramname">start</td><td></td></tr>
+    <tr><td class="paramname">end</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">ArgumentException</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a3a1f11869adfa66e6cb9db0c4baaf47e" name="a3a1f11869adfa66e6cb9db0c4baaf47e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a1f11869adfa66e6cb9db0c4baaf47e">&#9670;&#160;</a></span>ReplaceFirst() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string PeanutButter.Utils.StringExtensions.ReplaceFirst </td>
+          <td>(</td>
+          <td class="paramtype">this string</td>          <td class="paramname"><span class="paramname"><em>str</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string</td>          <td class="paramname"><span class="paramname"><em>seek</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string</td>          <td class="paramname"><span class="paramname"><em>replaceWith</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Replaces the first occurence of seek with replaceWith. </p>
+<ul>
+<li>searches with StringComparison.Ordinal</li>
+</ul>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">str</td><td></td></tr>
+    <tr><td class="paramname">seek</td><td></td></tr>
+    <tr><td class="paramname">replaceWith</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a id="aca962d3668b3fa9d163b4bb0413b39ab" name="aca962d3668b3fa9d163b4bb0413b39ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca962d3668b3fa9d163b4bb0413b39ab">&#9670;&#160;</a></span>ReplaceFirst() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string PeanutButter.Utils.StringExtensions.ReplaceFirst </td>
+          <td>(</td>
+          <td class="paramtype">this string</td>          <td class="paramname"><span class="paramname"><em>str</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string</td>          <td class="paramname"><span class="paramname"><em>seek</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string</td>          <td class="paramname"><span class="paramname"><em>replaceWith</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">StringComparison</td>          <td class="paramname"><span class="paramname"><em>comparison</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Replaces the first occurence of seek with replaceWith. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">str</td><td></td></tr>
+    <tr><td class="paramname">seek</td><td></td></tr>
+    <tr><td class="paramname">replaceWith</td><td></td></tr>
+    <tr><td class="paramname">comparison</td><td></td></tr>
   </table>
   </dd>
 </dl>
