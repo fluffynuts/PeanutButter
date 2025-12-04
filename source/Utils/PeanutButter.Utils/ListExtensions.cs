@@ -379,6 +379,22 @@ public
     }
 
     /// <summary>
+    /// Provided for consistency:
+    /// - .Reversed is necessary on arrays where .Reverse() is
+    ///   implemented on the array and takes precedence in higher
+    ///   versions of dotnet than System.LINQ's variant
+    /// </summary>
+    /// <param name="collection"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static IEnumerable<T> Reversed<T>(
+        this IEnumerable<T> collection
+    )
+    {
+        return collection.Reverse();
+    }
+
+    /// <summary>
     /// Reverses the list IN-PLACE (modifies the original
     /// list) and returns it for fluent syntax.
     /// </summary>

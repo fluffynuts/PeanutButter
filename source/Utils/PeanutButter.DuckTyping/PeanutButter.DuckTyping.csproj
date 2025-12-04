@@ -45,6 +45,7 @@
         <Compile Include="..\PeanutButter.Utils\Dictionaries\MergeDictionary.cs" Link="Imported\MergeDictionary.cs"/>
         <Compile Include="..\PeanutButter.Utils\EnumerableWrapper.cs" Link="Imported\EnumerableWrapper.cs"/>
         <Compile Include="..\PeanutButter.Utils\ExtensionsForIEnumerables.cs" Link="Imported\ExtensionsForIEnumerables.cs"/>
+        <Compile Include="..\PeanutButter.Utils\ListExtensions.cs" Link="Imported\ListExtensions.cs"/>
         <Compile Include="..\PeanutButter.Utils\MemberNotFoundException.cs" Link="Imported\MemberNotFoundException.cs"/>
         <Compile Include="..\PeanutButter.Utils\ObjectExtensions.cs" Link="Imported\ObjectExtensions.cs"/>
         <Compile Include="..\PeanutButter.Utils\PropertyOrField.cs" Link="Imported\PropertyOrField.cs"/>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using PeanutButter.Utils;
 using PeanutButter.XmlUtils;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -91,7 +92,7 @@ namespace NugetPackageVersionIncrementer
 
             var versionNumbers = GetVersionAsNumbers().ToArray();
             var minor = versionNumbers.Last();
-            var preMinor = versionNumbers.Reverse().Skip(1).Reverse();
+            var preMinor = versionNumbers.Reversed().Skip(1).Reversed();
             var incremented = new List<int>(preMinor)
             {
                 minor + 1

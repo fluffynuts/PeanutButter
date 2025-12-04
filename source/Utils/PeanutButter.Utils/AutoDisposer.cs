@@ -89,7 +89,7 @@ namespace PeanutButter.Utils
         public void Dispose()
         {
             using var _ = new AutoLocker(_lock);
-            var toDispose = _toDispose.ToArray().Reverse().ToArray();
+            var toDispose = _toDispose.Reversed().ToArray();
             _toDispose.Clear();
             if (ThreadedDisposal)
             {

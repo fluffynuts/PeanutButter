@@ -7,7 +7,9 @@ using System.Linq;
 using System.Reflection;
 #if BUILD_PEANUTBUTTER_INTERNAL
 using Imported.PeanutButter.Utils.Dictionaries;
+using Imported.PeanutButter.Utils;
 #else
+using PeanutButter.Utils;
 using PeanutButter.Utils.Dictionaries;
 #endif
 
@@ -1207,7 +1209,7 @@ public
     )
     {
         return type.Ancestry()
-            .Reverse()
+            .Reversed()
             .Select((t, idx) => new
                 {
                     type = t,

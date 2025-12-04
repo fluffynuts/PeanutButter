@@ -55,7 +55,8 @@ namespace PeanutButter.Utils
         {
             return type
                 .WalkAncestry(from)
-                .Reverse().ToArray();
+                .Reversed()
+                .ToArray();
         }
 
         /// <summary>
@@ -1250,7 +1251,7 @@ namespace PeanutButter.Utils
             }
 
             var lookup = props.ToDictionary(prop => prop.DeclaringType, prop => prop);
-            var ancestry = type.Ancestry().Reverse();
+            var ancestry = type.Ancestry().Reversed();
             var firstMatch = ancestry.FirstOrDefault(t => lookup.ContainsKey(t));
             if (firstMatch is null)
             {

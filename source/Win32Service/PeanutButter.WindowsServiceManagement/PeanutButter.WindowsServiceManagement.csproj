@@ -38,6 +38,7 @@
         <Compile Include="..\..\Utils\PeanutButter.Utils\RandomNumber.cs" Link="Imported\RandomNumber.cs"/>
         <Compile Include="..\..\Utils\PeanutButter.Utils\ByteArrayExtensions.cs" Link="Imported\ByteArrayExtensions.cs"/>
         <Compile Include="..\..\Utils\PeanutButter.Utils\ExtensionsForIEnumerables.cs" Link="Imported\ExtensionsForIEnumerables.cs"/>
+        <Compile Include="..\..\Utils\PeanutButter.Utils\ListExtensions.cs" Link="Imported\ListExtensions.cs"/>
         <Compile Include="..\..\Utils\PeanutButter.Utils\ObjectExtensions.cs" Link="Imported\ObjectExtensions.cs"/>
         <Compile Include="..\..\Utils\PeanutButter.Utils\DeepEqualityTester.cs" Link="Imported\DeepEqualityTester.cs"/>
         <Compile Include="..\..\Utils\PeanutButter.Utils\PyLike.cs" Link="Imported\PyLike.cs"/>
