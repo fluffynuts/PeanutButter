@@ -13,7 +13,7 @@ public class TestTempElasticsearch
     private TempElasticsearchFactory _factory;
     
     private static bool DebugEnabled =>
-        _debugEnabled ??= Env.Flag("DEBUG", false);
+        _debugEnabled ??= Env.Flag("ELASTICSEARCH_DEBUG", false);
     private static bool? _debugEnabled;
 
     private static Action<string> CreateLogger()
