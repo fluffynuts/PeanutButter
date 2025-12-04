@@ -1,8 +1,7 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class ContactNumber : EntityBase
 {
-    public class ContactNumber : EntityBase
-    {
-        public string Number { get; set; }
-        public ContactNumberType ContactNumberType { get; set; }
-    }
+    public string Number { get; set; }
+    public ContactNumberType ContactNumberType { get; set; }
 }

@@ -1,7 +1,6 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class DomainViewModel : ViewModelBase
 {
-    public class DomainViewModel : ViewModelBase
-    {
-        public string DomainType { get; set; }
-    }
+    public string DomainType { get; set; }
 }

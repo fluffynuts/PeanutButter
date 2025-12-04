@@ -1,8 +1,7 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class InvoiceNumbering : EntityBase
 {
-    public class InvoiceNumbering : EntityBase
-    {
-        public InvoiceNumberingType InvoiceNumberingType { get; set; }
-        public int SequenceNumber { get; set; }
-    }
+    public InvoiceNumberingType InvoiceNumberingType { get; set; }
+    public int SequenceNumber { get; set; }
 }

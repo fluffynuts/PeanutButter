@@ -1,8 +1,7 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public enum AddressType
 {
-    public enum AddressType
-    {
-        Physical,
-        Postal
-    }
+    Physical,
+    Postal
 }

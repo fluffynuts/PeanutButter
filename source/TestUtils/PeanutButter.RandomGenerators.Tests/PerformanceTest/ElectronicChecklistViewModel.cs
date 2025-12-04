@@ -1,8 +1,7 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class ElectronicChecklistViewModel : ViewModelBase
 {
-    public class ElectronicChecklistViewModel : ViewModelBase
-    {
-        public string FormType { get; set; }
-        public dynamic FormData { get; set; }
-    }
+    public string FormType { get; set; }
+    public dynamic FormData { get; set; }
 }

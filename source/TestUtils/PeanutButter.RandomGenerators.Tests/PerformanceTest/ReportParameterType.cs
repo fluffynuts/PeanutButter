@@ -1,8 +1,7 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public enum ReportParameterType
 {
-    public enum ReportParameterType
-    {
-        Date,
-        String
-    }
+    Date,
+    String
 }

@@ -1,17 +1,16 @@
 ﻿// ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
-namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public enum DocumentType
 {
-    public enum DocumentType
-    {
-        JobCard,
-        QA,
-        Recon,
-        IE101,
-        Invoice,
-        Report,
-        OrderDetails,
-        InitialJobCard,
-        FinalJobCard
-    }
+    JobCard,
+    QA,
+    Recon,
+    IE101,
+    Invoice,
+    Report,
+    OrderDetails,
+    InitialJobCard,
+    FinalJobCard
 }

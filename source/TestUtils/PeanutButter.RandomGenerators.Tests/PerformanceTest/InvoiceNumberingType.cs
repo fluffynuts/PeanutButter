@@ -1,8 +1,7 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public enum InvoiceNumberingType
 {
-    public enum InvoiceNumberingType
-    {
-        Internal = 1,
-        FrobNozzle = 2
-    }
+    Internal = 1,
+    FrobNozzle = 2
 }

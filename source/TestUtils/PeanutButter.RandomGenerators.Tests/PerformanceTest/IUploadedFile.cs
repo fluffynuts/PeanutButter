@@ -1,11 +1,10 @@
 ﻿using System.IO;
 
-namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public interface IUploadedFile
 {
-    public interface IUploadedFile
-    {
-        bool HasFile { get; }
-        string FileName { get; }
-        Stream InputStream { get; }
-    }
+    bool HasFile { get; }
+    string FileName { get; }
+    Stream InputStream { get; }
 }

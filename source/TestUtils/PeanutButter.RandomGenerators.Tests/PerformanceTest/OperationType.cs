@@ -1,10 +1,9 @@
-namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public enum OperationType
 {
-    public enum OperationType
-    {
-        Create,
-        Modify,
-        Delete,
-        Cancel
-    }
+    Create,
+    Modify,
+    Delete,
+    Cancel
 }

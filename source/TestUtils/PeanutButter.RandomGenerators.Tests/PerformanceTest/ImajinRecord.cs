@@ -1,9 +1,8 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class ImajinRecord : EntityBase
 {
-    public class ImajinRecord : EntityBase
-    {
-        public ImajinRecordType RecordType { get; set; }
-        public string ImajinId { get; set; }
-        public string ContactId { get; set; }
-    }
+    public ImajinRecordType RecordType { get; set; }
+    public string ImajinId { get; set; }
+    public string ContactId { get; set; }
 }

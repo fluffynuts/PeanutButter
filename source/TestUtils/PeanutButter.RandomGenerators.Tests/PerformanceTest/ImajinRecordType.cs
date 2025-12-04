@@ -1,10 +1,9 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public enum ImajinRecordType
 {
-    public enum ImajinRecordType
-    {
-        WorkItem = 1,
-        NewServiceItemEvent = 2,
-        ActualQuantityEvent = 3,
-        SiteDiaryEvent = 4
-    }
+    WorkItem = 1,
+    NewServiceItemEvent = 2,
+    ActualQuantityEvent = 3,
+    SiteDiaryEvent = 4
 }

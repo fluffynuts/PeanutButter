@@ -1,14 +1,13 @@
 ﻿using System;
 
-namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class InvoicePaymentRecon : EntityBase
 {
-    public class InvoicePaymentRecon : EntityBase
-    {
-        public int RowNumber { get; set; }
-        public string InvoiceNumber { get; set; }
-        public DateTime PaymentDate { get; set; }
-        public string PaymentReference { get; set; }
-        public decimal PaymentAmount { get; set; }
-        public string InvoiceId { get; set; }
-    }
+    public int RowNumber { get; set; }
+    public string InvoiceNumber { get; set; }
+    public DateTime PaymentDate { get; set; }
+    public string PaymentReference { get; set; }
+    public decimal PaymentAmount { get; set; }
+    public string InvoiceId { get; set; }
 }

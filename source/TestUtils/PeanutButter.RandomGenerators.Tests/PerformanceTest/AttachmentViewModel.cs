@@ -1,8 +1,7 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class AttachmentViewModel : ViewModelBase
 {
-    public class AttachmentViewModel : ViewModelBase
-    {
-        public string Name { get; set; }
-        public string DocumentId { get; set; }
-    }
+    public string Name { get; set; }
+    public string DocumentId { get; set; }
 }

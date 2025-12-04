@@ -1,15 +1,14 @@
 using System;
 
-namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class TrackOrdersParametersViewModel
 {
-    public class TrackOrdersParametersViewModel
-    {
-        public DateTime? FromDate { get; set; }
-        public DateTime? ToDate { get; set; }
-        public string FinNumber { get; set; }
-        public string PoNumber { get; set; }
-        public string RefNumber { get; set; }
-        public string InvoiceNumber { get; set; }
-        public string NetworkNumber { get; set; }
-    }
+    public DateTime? FromDate { get; set; }
+    public DateTime? ToDate { get; set; }
+    public string FinNumber { get; set; }
+    public string PoNumber { get; set; }
+    public string RefNumber { get; set; }
+    public string InvoiceNumber { get; set; }
+    public string NetworkNumber { get; set; }
 }

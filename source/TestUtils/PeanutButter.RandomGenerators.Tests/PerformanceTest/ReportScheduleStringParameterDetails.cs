@@ -1,8 +1,7 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public enum ReportScheduleStringParameterDetails
 {
-    public enum ReportScheduleStringParameterDetails
-    {
-        ParameterValue,
-        ParameterDisplayValue
-    }
+    ParameterValue,
+    ParameterDisplayValue
 }

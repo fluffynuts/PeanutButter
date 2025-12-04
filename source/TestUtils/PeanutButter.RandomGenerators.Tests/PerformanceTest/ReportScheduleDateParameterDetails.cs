@@ -1,9 +1,8 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public enum ReportScheduleDateParameterDetails
 {
-    public enum ReportScheduleDateParameterDetails
-    {
-        DirectionModifier,
-        ModifierValue,
-        ModifierSize
-    }
+    DirectionModifier,
+    ModifierValue,
+    ModifierSize
 }

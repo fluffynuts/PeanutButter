@@ -1,17 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public enum UserRole
 {
-    public enum UserRole
-    {
-        [Display(Name = "Manager")] Manager,
+    [Display(Name = "Manager")] Manager,
 
-        [Display(Name = "Non Admin")] NonAdmin,
+    [Display(Name = "Non Admin")] NonAdmin,
 
-        [Display(Name = "Administrator")] Administrator,
+    [Display(Name = "Administrator")] Administrator,
 
-        [Display(Name = "Mobile User")] MobileUser,
+    [Display(Name = "Mobile User")] MobileUser,
 
-        [Display(Name = "Third Party")] ThirdParty
-    }
+    [Display(Name = "Third Party")] ThirdParty
 }

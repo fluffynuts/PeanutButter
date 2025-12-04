@@ -1,8 +1,7 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class ReceiptMethod : EntityBase
 {
-    public class ReceiptMethod : EntityBase
-    {
-        public string Code { get; set; }
-        public string Description { get; set; }
-    }
+    public string Code { get; set; }
+    public string Description { get; set; }
 }

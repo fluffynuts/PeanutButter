@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class Rate : EntityBase
 {
-    public class Rate : EntityBase
-    {
-        public decimal Value { get; set; }
-        public DateTime EffectiveDate { get; set; }
-    }
+    public decimal Value { get; set; }
+    public DateTime EffectiveDate { get; set; }
 }

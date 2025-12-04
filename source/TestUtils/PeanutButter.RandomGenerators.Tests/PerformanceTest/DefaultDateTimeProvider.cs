@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
-{
-    public class DefaultDateTimeProvider : IDateTimeProvider
-    {
-        public DateTime Now => DateTime.Now;
+namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
 
-        public DateTime Today => DateTime.Today;
-    }
+public class DefaultDateTimeProvider : IDateTimeProvider
+{
+    public DateTime Now => DateTime.Now;
+
+    public DateTime Today => DateTime.Today;
 }

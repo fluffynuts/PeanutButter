@@ -1,8 +1,7 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class PdfEmbeddedFont : EntityBase
 {
-    public class PdfEmbeddedFont : EntityBase
-    {
-        public string Name { get; set; }
-        public byte[] FontData { get; set; }
-    }
+    public string Name { get; set; }
+    public byte[] FontData { get; set; }
 }

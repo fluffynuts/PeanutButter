@@ -1,9 +1,8 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public enum ScheduleType
 {
-    public enum ScheduleType
-    {
-        Daily,
-        Weekly,
-        Monthly
-    }
+    Daily,
+    Weekly,
+    Monthly
 }

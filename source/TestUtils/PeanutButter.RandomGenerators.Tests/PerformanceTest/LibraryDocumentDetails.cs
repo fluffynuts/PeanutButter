@@ -1,6 +1,5 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class LibraryDocumentDetails
 {
-    public class LibraryDocumentDetails
-    {
-    }
 }

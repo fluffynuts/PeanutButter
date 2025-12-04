@@ -1,8 +1,7 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class PdfFragment : EntityBase
 {
-    public class PdfFragment : EntityBase
-    {
-        public string Name { get; set; }
-        public byte[] Fragment { get; set; }
-    }
+    public string Name { get; set; }
+    public byte[] Fragment { get; set; }
 }

@@ -1,7 +1,6 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class VersionViewModel
 {
-    public class VersionViewModel
-    {
-        public string VersionNumber => GetType().Assembly.GetName().Version.ToString();
-    }
+    public string VersionNumber => GetType().Assembly.GetName().Version.ToString();
 }

@@ -1,7 +1,6 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public interface IDomainDescriptorFinder
 {
-    public interface IDomainDescriptorFinder
-    {
-        DomainDescriptor FindDescriptorForOrder(Order order);
-    }
+    DomainDescriptor FindDescriptorForOrder(Order order);
 }

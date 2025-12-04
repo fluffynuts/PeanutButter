@@ -1,7 +1,6 @@
-﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest
+﻿namespace PeanutButter.RandomGenerators.Tests.PerformanceTest;
+
+public class CompanyBankingDetails : BankingDetails
 {
-    public class CompanyBankingDetails : BankingDetails
-    {
-        public bool UseOnInvoice { get; set; }
-    }
+    public bool UseOnInvoice { get; set; }
 }
