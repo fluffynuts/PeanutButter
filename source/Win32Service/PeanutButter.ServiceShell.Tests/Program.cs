@@ -1,10 +1,9 @@
-namespace PeanutButter.ServiceShell.Tests
+namespace PeanutButter.ServiceShell.Tests;
+
+public static class Program
 {
-    public static class Program
+    public static int Main(string[] args)
     {
-        public static int Main(string[] args)
-        {
-            return Shell.RunMain<SomeService>(args);
-        }
+        return Shell.RunMain<SomeService>(args);
     }
 }

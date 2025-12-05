@@ -1,46 +1,42 @@
 ﻿using System;
-using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.Generic;
-using static NExpect.Expectations;
-using NExpect;
 
-namespace PeanutButter.ServiceShell.Tests
+namespace PeanutButter.ServiceShell.Tests;
+
+[TestFixture]
+public class TestServiceUnconfiguredException
 {
-    [TestFixture]
-    public class TestServiceUnconfiguredException
+    [Test]
+    public void Type_ShouldInheritFrom_Exception()
     {
-        [Test]
-        public void Type_ShouldInheritFrom_Exception()
-        {
-            //---------------Set up test pack-------------------
-            var sut = typeof (ServiceUnconfiguredException);
+        //---------------Set up test pack-------------------
+        var sut = typeof (ServiceUnconfiguredException);
 
-            //---------------Assert Precondition----------------
+        //---------------Assert Precondition----------------
 
-            //---------------Execute Test ----------------------
-            sut.ShouldInheritFrom<Exception>();
+        //---------------Execute Test ----------------------
+        sut.ShouldInheritFrom<Exception>();
 
-            //---------------Test Result -----------------------
-        }
-
-        [Test]
-        public void Construct_ShouldSetMessageContainingProvidedPropertyName()
-        {
-            //---------------Set up test pack-------------------
-            var property = RandomValueGen.GetRandomString();
-            var expected = "This service is not completely configured. Please set the " + property + " property value.";
-
-            //---------------Assert Precondition----------------
-
-            //---------------Execute Test ----------------------
-            var sut = new ServiceUnconfiguredException(property);
-
-            //---------------Test Result -----------------------
-            Expect(sut.Message)
-                .To.Equal(expected);
-        }
-
-
+        //---------------Test Result -----------------------
     }
+
+    [Test]
+    public void Construct_ShouldSetMessageContainingProvidedPropertyName()
+    {
+        //---------------Set up test pack-------------------
+        var property = RandomValueGen.GetRandomString();
+        var expected = "This service is not completely configured. Please set the " + property + " property value.";
+
+        //---------------Assert Precondition----------------
+
+        //---------------Execute Test ----------------------
+        var sut = new ServiceUnconfiguredException(property);
+
+        //---------------Test Result -----------------------
+        Expect(sut.Message)
+            .To.Equal(expected);
+    }
+
+
 }

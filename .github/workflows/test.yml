@@ -8,8 +8,6 @@ on:
 
 jobs:
   test-linux:
-    # disabled, for now, because it hangs
-    if: false
     runs-on: ubuntu-latest
     steps:
     - name: 🥜 Check out project

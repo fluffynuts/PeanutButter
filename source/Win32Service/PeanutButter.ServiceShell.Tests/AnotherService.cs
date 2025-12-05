@@ -1,11 +1,10 @@
-﻿namespace PeanutButter.ServiceShell.Tests
+﻿namespace PeanutButter.ServiceShell.Tests;
+
+// ReSharper disable once ClassNeverInstantiated.Global
+public class AnotherService: Shell
 {
-    // ReSharper disable once ClassNeverInstantiated.Global
-    public class AnotherService: Shell
+    protected override void RunOnce()
     {
-        protected override void RunOnce()
-        {
-            throw new System.NotImplementedException();
-        }
+        throw new System.NotImplementedException();
     }
 }

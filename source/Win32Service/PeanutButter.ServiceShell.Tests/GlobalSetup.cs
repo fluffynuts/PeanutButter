@@ -1,18 +1,16 @@
-using NUnit.Framework;
 using PeanutButter.Utils;
 
-namespace PeanutButter.ServiceShell.Tests
+namespace PeanutButter.ServiceShell.Tests;
+
+[SetUpFixture]
+public class GlobalSetup
 {
-    [SetUpFixture]
-    public class GlobalSetup
+    [OneTimeSetUp]
+    public void OneTimeSetup()
     {
-        [OneTimeSetUp]
-        public void OneTimeSetup()
+        if (!Platform.IsWindows)
         {
-            if (!Platform.IsWindows)
-            {
-                Assert.Ignore("Windows-specific tests");
-            }
+            Assert.Ignore("Windows-specific tests");
         }
     }
 }
