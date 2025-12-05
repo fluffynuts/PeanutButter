@@ -79,7 +79,7 @@ jobs:
       - name: Setup mysql via homebrew
         uses: tecolicom/actions-use-homebrew-tools@v1
         with:
-          tools: 'mysql'
+          tools: 'mysql@8.0'
           cache: yes
 
       - name: Checkout project
