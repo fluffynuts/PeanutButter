@@ -7,40 +7,6 @@ on:
     branches: [ master ]
 
 jobs:
-  test-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
-        
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: |
-            6.x
-            7.x
-            8.x
-      
-      - name: Setup NodeJS
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          
-      - name: Build and test
-        env:
-          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          DOTNET_CLI_TELEMETRY_OPTOUT: 1
-          SUPPRESS_DOWNLOAD_PROGRESS: 1
-        run: |
-          npm i
-          npm run test-ci-windows
-          
-      - name: Upload build reports    
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-reports
-          path: buildreports/
-          
   test-linux:
     # disabled, for now, because it hangs
     if: false
@@ -62,11 +28,12 @@ jobs:
         dotnet-version: |
           6.x
           7.x
+          8.x
 
     - name: 🟢 Setup NodeJS
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'npm'
 
     - name: 🏗️ Build and test everything EXCEPT TempDb 🧪
@@ -83,3 +50,38 @@ jobs:
       with:
         name: build-reports
         path: buildreports/
+
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+        
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            6.x
+            7.x
+            8.x
+      
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Build and test
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+          SUPPRESS_DOWNLOAD_PROGRESS: 1
+        run: |
+          npm i
+          npm run test-ci-windows
+          
+      - name: Upload build reports    
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports
+          path: buildreports/
+          
