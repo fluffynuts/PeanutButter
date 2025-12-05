@@ -125,17 +125,20 @@ public class TempElasticsearch : ITempElasticsearch
              Pulling docker image {image} - please be patient, this may take a while"
              """
         );
+        var allOutput = new List<string>();
         var started = DateTime.Now;
         using var io = ProcessIO
-            .WithStdErrReceiver(dockerLogReceiver)
-            .WithStdOutReceiver(dockerLogReceiver)
+            .WithStdErrReceiver(StoreLogs)
+            .WithStdOutReceiver(StoreLogs)
             .Start(
                 "docker",
                 "image",
                 "pull",
                 image
             );
+
         io.WaitForExit();
+
         PullTime = DateTime.Now - started;
 
         if (io.ExitCode != 0)
@@ -143,9 +146,15 @@ public class TempElasticsearch : ITempElasticsearch
             throw new UnableToStartTempElasticsearch(
                 $"""
                  Unable to pull image '{image}':
-                 {io.StandardOutputAndErrorInterleavedSnapshot}
+                 {allOutput.JoinWith("\n")}
                  """
             );
+        }
+
+        void StoreLogs(string str)
+        {
+            allOutput.Add(str);
+            dockerLogReceiver(str);
         }
     }
 
