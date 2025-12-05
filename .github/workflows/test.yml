@@ -39,6 +39,7 @@ jobs:
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
         DOTNET_CLI_TELEMETRY_OPTOUT: 1
         SUPPRESS_DOWNLOAD_PROGRESS: 1
+        ELASTICSEARCH_DEBUG: 1
       run: |
         sudo apt install -y mono-devel
         npm i
@@ -74,6 +75,7 @@ jobs:
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
           DOTNET_CLI_TELEMETRY_OPTOUT: 1
           SUPPRESS_DOWNLOAD_PROGRESS: 1
+          ELASTICSEARCH_DEBUG: 1
         run: |
           npm i
           npm run test-ci-windows
@@ -83,4 +85,4 @@ jobs:
         with:
           name: build-reports
           path: buildreports/
-          
+      
