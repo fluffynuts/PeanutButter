@@ -83,6 +83,12 @@ public class TestTempElasticsearch
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
+        const string ENV_VAR = "SKIP_TEMP_ELASTICSEARCH_TESTS";
+        if (Environment.GetEnvironmentVariable(ENV_VAR).AsBoolean())
+        {
+            Assert.Ignore($"Elasticsearch tests skipped due to env var set: {ENV_VAR}");
+        }
+
         var options = new TempElasticSearchOptions()
         {
             DockerLogReceiver = CreateLogger()

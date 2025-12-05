@@ -76,6 +76,8 @@ jobs:
           DOTNET_CLI_TELEMETRY_OPTOUT: 1
           SUPPRESS_DOWNLOAD_PROGRESS: 1
           ELASTICSEARCH_DEBUG: 1
+          # GH windows hosts can't pull the image :/
+          SKIP_TEMP_ELASTICSEARCH_TESTS: 1
         run: |
           npm i
           npm run test-ci-windows
