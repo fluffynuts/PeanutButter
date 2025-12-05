@@ -608,6 +608,13 @@ namespace PeanutButter.EasyArgs
 
         private int TryReadConsoleWidth()
         {
+            // can be used to ensure consisten output, eg from tests
+            var overrideVar = Environment.GetEnvironmentVariable("OVERRIDE_COLUMS");
+            if (overrideVar is not null && int.TryParse(overrideVar, out var parsedWith))
+            {
+                return parsedWith;
+            }
+
             try
             {
                 return Console.WindowWidth;

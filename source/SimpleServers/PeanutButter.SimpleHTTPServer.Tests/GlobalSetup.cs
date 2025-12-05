@@ -1,27 +1,25 @@
-﻿using NUnit.Framework;
-using PeanutButter.Utils;
+﻿using PeanutButter.Utils;
 
-namespace PeanutButter.SimpleHTTPServer.Tests
+namespace PeanutButter.SimpleHTTPServer.Tests;
+
+[SetUpFixture]
+public class GlobalSetup
 {
-    [SetUpFixture]
-    public class GlobalSetup
+    public static Pool<HttpServer> Pool { get; private set; }
+
+    [OneTimeSetUp]
+    public void OneTimeSetup()
     {
-        public static Pool<HttpServer> Pool { get; private set; }
+        Pool = new Pool<HttpServer>(
+            () => new HttpServer(),
+            s => s.Reset()
+        );
+    }
 
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            Pool = new Pool<HttpServer>(
-                () => new HttpServer(),
-                s => s.Reset()
-            );
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTeardown()
-        {
-            Pool?.Dispose();
-            Pool = null;
-        }
+    [OneTimeTearDown]
+    public void OneTimeTeardown()
+    {
+        Pool?.Dispose();
+        Pool = null;
     }
 }
