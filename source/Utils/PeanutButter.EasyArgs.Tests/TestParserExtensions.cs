@@ -591,7 +591,8 @@ public class TestParserExtensions
         return new ParserOptions()
         {
             ExitAction = c => myRef.ExitCode = c,
-            LineWriter = str => myRef.AddText(str)
+            LineWriter = str => myRef.AddText(str),
+            ForceConsoleWidth = 123
         };
     }
 

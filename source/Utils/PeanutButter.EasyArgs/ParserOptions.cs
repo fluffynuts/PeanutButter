@@ -574,6 +574,12 @@ namespace PeanutButter.EasyArgs
         public virtual int ConsoleWidth => TryReadConsoleWidth();
 
         /// <summary>
+        /// Enforce a specific console width
+        /// for, eg, printing help.
+        /// </summary>
+        public int? ForceConsoleWidth { get; set; }
+
+        /// <summary>
         /// Override any overall help description
         /// </summary>
         public string[] Description { get; set; }
@@ -608,7 +614,12 @@ namespace PeanutButter.EasyArgs
 
         private int TryReadConsoleWidth()
         {
-            // can be used to ensure consisten output, eg from tests
+            if (ForceConsoleWidth.HasValue)
+            {
+                return ForceConsoleWidth.Value;
+            }
+
+            // can be used to ensure consistent output, eg from tests
             var overrideVar = Environment.GetEnvironmentVariable("OVERRIDE_COLUMS");
             if (overrideVar is not null && int.TryParse(overrideVar, out var parsedWith))
             {
