@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Imported.PeanutButter.Utils;
-using NUnit.Framework;
 
 namespace PeanutButter.Utils.Tests
 {

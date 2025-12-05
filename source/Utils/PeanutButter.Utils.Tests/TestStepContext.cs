@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Security.Authentication;
 using System.Threading.Tasks;
-using NUnit.Framework;
-using NExpect;
-using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests;
 
@@ -29,7 +26,7 @@ public class TestStepContext
             // Assert
             Expect(collected)
                 .To.Equal(
-                    new[] { "before", "action", "after" }
+                    ["before", "action", "after"]
                 );
         }
 
@@ -115,7 +112,7 @@ public class TestStepContext
             // Assert
             Expect(collected)
                 .To.Equal(
-                    new[] { "before", "action", "after" }
+                    ["before", "action", "after"]
                 );
         }
 

@@ -1,7 +1,5 @@
 using System;
-using NExpect;
-using NUnit.Framework;
-using static NExpect.Expectations;
+
 // ReSharper disable UnassignedGetOnlyAutoProperty
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedMember.Global

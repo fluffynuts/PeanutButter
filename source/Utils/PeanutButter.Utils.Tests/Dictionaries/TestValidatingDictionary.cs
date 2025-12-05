@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Imported.PeanutButter.Utils;
-using NUnit.Framework;
 using PeanutButter.Utils.Dictionaries;
 
 namespace PeanutButter.Utils.Tests.Dictionaries;
@@ -558,12 +556,11 @@ public class TestValidatingDictionary
                 .To.Contain.Only(1).Item();
             Expect(mutations)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         Mutation.Create, // from setup
                         Mutation.Create, // first set attempt
-                        Mutation.Create, // Add attempt
-                    }
+                        Mutation.Create // Add attempt
+                    ]
                 );
         }
 
@@ -602,11 +599,10 @@ public class TestValidatingDictionary
                 .To.Be.Empty();
             Expect(mutations)
                 .To.Equal(
-                    new[]
-                    {
+                    [
                         Mutation.Create, // from setup
-                        Mutation.Remove, // blocked removal
-                    }
+                        Mutation.Remove // blocked removal
+                    ]
                 );
         }
 

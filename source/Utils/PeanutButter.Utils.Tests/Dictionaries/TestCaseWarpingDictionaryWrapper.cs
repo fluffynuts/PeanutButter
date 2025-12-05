@@ -2,12 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NExpect;
 using NSubstitute;
-using NUnit.Framework;
 using PeanutButter.Utils.Dictionaries;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using static NExpect.Expectations;
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
@@ -455,11 +451,11 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var keys = sut.Keys.ToArray();
             // Assert
             Expect(keys).To.Be.Equivalent.To(
-                new[]
-                {
-                    k1,
+            [
+                k1,
                     k2
-                });
+            ]
+            );
         }
 
         [Test]
@@ -481,11 +477,11 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             var values = sut.Values.ToArray();
             // Assert
             Expect(values).To.Be.Equivalent.To(
-                new[]
-                {
-                    v1,
+            [
+                v1,
                     v2
-                });
+            ]
+            );
         }
 
         [Test]

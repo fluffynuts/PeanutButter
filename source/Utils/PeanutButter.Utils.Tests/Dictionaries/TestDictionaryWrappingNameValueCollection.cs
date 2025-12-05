@@ -2,11 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using NExpect;
-using NUnit.Framework;
 using PeanutButter.Utils.Dictionaries;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using static NExpect.Expectations;
 
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable PossibleMultipleEnumeration

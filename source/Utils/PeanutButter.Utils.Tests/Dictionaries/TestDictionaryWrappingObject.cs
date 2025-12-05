@@ -5,11 +5,7 @@ using System.Configuration;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
 using PeanutButter.Utils.Dictionaries;
-using static NExpect.Expectations;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
 
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -627,8 +623,8 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 // root -> [ child ] -> [ root ] -> [ child ] ...
                 var root = new Node() { Name = "root" };
                 var child = new Node() { Name = "child" };
-                root.Children = new[] { child };
-                child.Children = new[] { root };
+                root.Children = [child];
+                child.Children = [root];
                 // Act
                 var sut = Create(root, options: WrapOptions.WrapRecursively);
                 // Assert
@@ -706,7 +702,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     // Arrange
                     var root = GetRandom<Node>();
                     var child = GetRandom<Node>();
-                    root.Children = new[] { child };
+                    root.Children = [child];
                     var expected = GetRandomString(20);
                     var sut = Create(root, options: WrapOptions.WrapRecursively);
                     // Act

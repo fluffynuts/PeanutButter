@@ -2,10 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using NExpect;
-using NUnit.Framework;
-using static NExpect.Expectations;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace PeanutButter.Utils.Tests;
 
@@ -47,15 +43,14 @@ public class TestTextStatusSteps
                 var s1 = $"{expectedStartMarker} {prefix}{label}";
                 Expect(collected)
                     .To.Equal(
-                        new[]
-                        {
+                        [
                             s1,
                             FLUSH_MARKER,
                             $"-- action --",
                             $"\r{new String(' ', s1.Length)}\r",
                             $"{ok} {prefix}{label}\n",
                             FLUSH_MARKER
-                        }
+                        ]
                     );
             }
 
@@ -86,15 +81,14 @@ public class TestTextStatusSteps
                 var s1 = $"{new String(' ', fail.Length + 1)}{prefix}{label}";
                 Expect(collected)
                     .To.Equal(
-                        new[]
-                        {
+                        [
                             s1,
                             FLUSH_MARKER,
                             $"-- action --",
                             $"\r{new String(' ', s1.Length)}\r",
                             $"{ok} {prefix}{label}\n",
                             FLUSH_MARKER
-                        }
+                        ]
                     );
             }
         }
@@ -135,14 +129,13 @@ public class TestTextStatusSteps
                 var s1 = $"{new String(' ', ok.Length + 1)}{prefix}{label}";
                 Expect(collected)
                     .To.Equal(
-                        new[]
-                        {
+                        [
                             s1,
                             FLUSH_MARKER,
                             $"\r{new String(' ', s1.Length)}\r",
                             $"{fail} {prefix}{label}\n",
                             FLUSH_MARKER
-                        }
+                        ]
                     );
             }
         }
@@ -183,15 +176,14 @@ public class TestTextStatusSteps
                 var s1 = $"{expectedStartMarker} {prefix}{label}";
                 Expect(collected)
                     .To.Equal(
-                        new[]
-                        {
+                        [
                             s1,
                             FLUSH_MARKER,
                             $"-- action --",
                             $"\r{new String(' ', s1.Length)}\r",
                             $"{ok} {prefix}{label}\n",
                             FLUSH_MARKER
-                        }
+                        ]
                     );
             }
 
@@ -222,15 +214,14 @@ public class TestTextStatusSteps
                 var s1 = $"{new String(' ', fail.Length + 1)}{prefix}{label}";
                 Expect(collected)
                     .To.Equal(
-                        new[]
-                        {
+                        [
                             s1,
                             FLUSH_MARKER,
                             $"-- action --",
                             $"\r{new String(' ', s1.Length)}\r",
                             $"{ok} {prefix}{label}\n",
                             FLUSH_MARKER
-                        }
+                        ]
                     );
             }
         }
@@ -271,14 +262,13 @@ public class TestTextStatusSteps
                 var s1 = $"{new String(' ', ok.Length + 1)}{prefix}{label}";
                 Expect(collected)
                     .To.Equal(
-                        new[]
-                        {
+                        [
                             s1,
                             FLUSH_MARKER,
                             $"\r{new String(' ', s1.Length)}\r",
                             $"{fail} {prefix}{label}\n",
                             FLUSH_MARKER
-                        }
+                        ]
                     );
             }
         }

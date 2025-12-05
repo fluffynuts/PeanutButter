@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
 using PeanutButter.Utils.Dictionaries;
-using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests.Dictionaries;
 

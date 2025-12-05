@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NExpect;
-using NUnit.Framework;
-using static NExpect.Expectations;
+﻿using System.Collections.Generic;
 
 namespace PeanutButter.Utils.Tests
 {

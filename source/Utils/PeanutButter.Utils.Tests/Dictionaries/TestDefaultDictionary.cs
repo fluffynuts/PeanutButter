@@ -2,10 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils.Dictionaries;
-using static PeanutButter.RandomGenerators.RandomValueGen;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable CollectionNeverUpdated.Local

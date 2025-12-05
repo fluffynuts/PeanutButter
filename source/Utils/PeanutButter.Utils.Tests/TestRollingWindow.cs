@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Linq;
-using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
-using static NExpect.Expectations;
+
 #pragma warning disable CS0618 // Type or member is obsolete
 
 namespace PeanutButter.Utils.Tests
@@ -20,22 +17,22 @@ namespace PeanutButter.Utils.Tests
             // Act
             sut.Add(1);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 1 } );
+                .To.Equal([1]);
             sut.Add(2);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 1, 2 } );
+                .To.Equal([1, 2]);
             sut.Add(3);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 1, 2, 3 } );
+                .To.Equal([1, 2, 3]);
             sut.Add(4);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 1, 2, 3, 4 } );
+                .To.Equal([1, 2, 3, 4]);
             sut.Add(5);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 1, 2, 3, 4, 5 } );
+                .To.Equal([1, 2, 3, 4, 5]);
             sut.Add(6);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 2, 3, 4, 5, 6 } );
+                .To.Equal([2, 3, 4, 5, 6]);
             // Assert
         }
 
@@ -47,25 +44,25 @@ namespace PeanutButter.Utils.Tests
             // Act
             sut.Add(1);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 1 } );
+                .To.Equal([1]);
             sut.Add(2);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 1, 2 } );
+                .To.Equal([1, 2]);
             sut.Add(3);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 1, 2, 3 } );
+                .To.Equal([1, 2, 3]);
             sut.Add(4);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 1, 2, 3, 4 } );
+                .To.Equal([1, 2, 3, 4]);
             sut.Add(5);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 1, 2, 3, 4, 5 } );
+                .To.Equal([1, 2, 3, 4, 5]);
             sut.MaxSize = 3;
             Expect(sut.ToArray())
-                .To.Equal(new[] { 3, 4, 5 });
+                .To.Equal([3, 4, 5]);
             sut.Add(6);
             Expect(sut.ToArray())
-                .To.Equal(new[] { 4, 5, 6 } );
+                .To.Equal([4, 5, 6]);
             // Assert
         }
 
@@ -95,7 +92,7 @@ namespace PeanutButter.Utils.Tests
             
             var all = sut.ToArray();
             Expect(all)
-                .To.Equal(new[] { 1, 2, 3, 4, 5 });
+                .To.Equal([1, 2, 3, 4, 5]);
             var avg = sut.Average();
             var count = sut.Count();
             // Assert

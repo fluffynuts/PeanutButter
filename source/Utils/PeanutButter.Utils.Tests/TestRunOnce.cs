@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-
-namespace PeanutButter.Utils.Tests;
+﻿namespace PeanutButter.Utils.Tests;
 
 [TestFixture]
 public class TestRunOnce

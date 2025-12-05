@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NExpect;
-using NUnit.Framework;
 using PeanutButter.TestUtils.Generic;
 using PeanutButter.Utils.Dictionaries;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using static NExpect.Expectations;
 using static PeanutButter.Utils.PyLike;
 
 // ReSharper disable ExpressionIsAlwaysNull
@@ -202,11 +198,11 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 // Arrange
                 var key1 = GetRandomString();
                 var key2 = GetAnother(key1);
-                var key3 = GetAnother<string>(new[] { key1, key2 });
+                var key3 = GetAnother<string>([key1, key2]);
                 var expected1 = GetRandomString();
                 var expected2 = GetAnother(expected1);
-                var expected3 = GetAnother<string>(new[] { expected1, expected2 });
-                var unexpected = GetAnother<string>(new[] { expected1, expected2, expected3 });
+                var expected3 = GetAnother<string>([expected1, expected2]);
+                var unexpected = GetAnother<string>([expected1, expected2, expected3]);
                 var sut = Create(
                     new Dictionary<string, string>()
                     {
@@ -241,11 +237,11 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 // Arrange
                 var key1 = GetRandomString();
                 var key2 = GetAnother(key1);
-                var key3 = GetAnother<string>(new[] { key1, key2 });
+                var key3 = GetAnother<string>([key1, key2]);
                 var expected1 = GetRandomString();
                 var expected2 = GetAnother(expected1);
-                var expected3 = GetAnother<string>(new[] { expected1, expected2 });
-                var unexpected = GetAnother<string>(new[] { expected1, expected2, expected3 });
+                var expected3 = GetAnother<string>([expected1, expected2]);
+                var unexpected = GetAnother<string>([expected1, expected2, expected3]);
                 var sut = Create(
                     new Dictionary<string, string>()
                     {
@@ -581,7 +577,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 var k2 = GetAnother(k1);
                 var v1 = GetRandomString();
                 var v2 = GetAnother(v1);
-                var v3 = GetAnother<string>(new[] { v1, v2 });
+                var v3 = GetAnother<string>([v1, v2]);
                 var sut = Create(
                     new Dictionary<string, string>()
                     {

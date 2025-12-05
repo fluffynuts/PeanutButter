@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using static PeanutButter.Utils.Benchmark;
 // ReSharper disable ExpressionIsAlwaysNull
@@ -52,11 +51,10 @@ namespace PeanutButter.Utils.Tests
                 //---------------Test Result -----------------------
                 Expect(result)
                     .To.Equal(
-                        new[]
-                        {
+                        [
                             typeof(object),
                             typeof(SimpleType)
-                        }
+                        ]
                     );
             }
 
@@ -74,12 +72,11 @@ namespace PeanutButter.Utils.Tests
                 //---------------Test Result -----------------------
                 Expect(result)
                     .To.Equal(
-                        new[]
-                        {
+                        [
                             typeof(object),
                             typeof(SimpleType),
                             typeof(InheritedType)
-                        }
+                        ]
                     );
             }
 
@@ -565,14 +562,13 @@ namespace PeanutButter.Utils.Tests
                 //--------------- Assert -----------------------
                 Expect(result)
                     .To.Be.Equivalent.To(
-                        new[]
-                        {
+                        [
                             typeof(ILevel1),
                             typeof(ILevel2),
                             typeof(ILevel3),
                             typeof(ILevel4),
                             typeof(ILevel4Again)
-                        }
+                        ]
                     );
             }
         }

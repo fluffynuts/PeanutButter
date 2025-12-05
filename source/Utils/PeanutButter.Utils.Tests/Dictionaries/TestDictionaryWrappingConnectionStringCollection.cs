@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using NUnit.Framework;
 using PeanutButter.Utils.Dictionaries;
 using static PeanutButter.Utils.PyLike;
 

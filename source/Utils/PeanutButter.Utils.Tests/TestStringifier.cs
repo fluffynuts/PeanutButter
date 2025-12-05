@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using NUnit.Framework;
 
 namespace PeanutButter.Utils.Tests;
 
@@ -33,7 +32,7 @@ public class TestStringifier
     }
 
     private static readonly Tuple<object, string>[] ComplexSource =
-    {
+    [
         Tuple.Create(
             new
             {
@@ -59,7 +58,7 @@ public class TestStringifier
   }
 }"
         )
-    };
+    ];
 
     [TestCaseSource(nameof(ComplexSource))]
     public void Stringify_GivenObject_ShouldReturnExpected(

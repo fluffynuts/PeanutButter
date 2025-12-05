@@ -5,11 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
-using NExpect;
 using PeanutButter.SimpleHTTPServer;
-using static NExpect.Expectations;
 
 // ReSharper disable ExpressionIsAlwaysNull
 // ReSharper disable RedundantArgumentDefaultValue
@@ -447,7 +443,7 @@ namespace PeanutButter.Utils.Tests
                 var stream = new MemoryStream(buffer);
                 // Pre-assert
                 // Act
-                Expect(() => stream.WriteAllBytes(new byte[0]))
+                Expect(() => stream.WriteAllBytes([]))
                     .Not.To.Throw();
                 // Assert
                 Expect(buffer).To.Equal(copy);
@@ -570,7 +566,7 @@ namespace PeanutButter.Utils.Tests
                 var stream = new MemoryStream(buffer);
                 // Pre-assert
                 // Act
-                Expect(async () => await stream.WriteAllBytesAsync(new byte[0]))
+                Expect(async () => await stream.WriteAllBytesAsync([]))
                     .Not.To.Throw();
                 // Assert
                 Expect(buffer).To.Equal(copy);
@@ -759,11 +755,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             public static Encoding[] Encodings { get; } =
-            {
+            [
                 Encoding.UTF8,
                 Encoding.ASCII,
                 Encoding.UTF7
-            };
+            ];
 
             [TestCaseSource(nameof(Encodings))]
             public void OperatingOnStream_GivenDataAndEncoding_ShouldWriteToStream(Encoding encoding)
@@ -849,11 +845,11 @@ namespace PeanutButter.Utils.Tests
             }
 
             public static Encoding[] Encodings { get; } =
-            {
+            [
                 Encoding.UTF8,
                 Encoding.ASCII,
                 Encoding.UTF7
-            };
+            ];
 
             [TestCaseSource(nameof(Encodings))]
             public async Task OperatingOnStream_GivenDataAndEncoding_ShouldWriteToStream(Encoding encoding)

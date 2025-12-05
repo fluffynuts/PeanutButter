@@ -1,9 +1,6 @@
 using System;
-using NUnit.Framework;
-using NExpect;
 using NExpect.MatcherLogic;
 using PeanutButter.Utils.Tests.TypeFinderTypes;
-using static NExpect.Expectations;
 
 namespace PeanutButter.Utils.Tests
 {
