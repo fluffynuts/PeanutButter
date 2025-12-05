@@ -315,8 +315,7 @@ public class TestParserExtensions
             .To.Contain.Only(1).Item(() => lines.JoinWith("\n"));
         Expect(lines)
             .To.Contain.Only(1)
-            .Matched.By(
-                line => line.Contains("--listen-port specified more than once but only accepts one value")
+            .Matched.By(line => line.Contains("--listen-port specified more than once but only accepts one value")
             );
     }
 
@@ -341,8 +340,7 @@ public class TestParserExtensions
             .To.Contain.Only(1).Item(() => lines.JoinWith("\n"));
         Expect(lines)
             .To.Contain.Only(1)
-            .Matched.By(
-                line => line.Contains("unknown option: --port")
+            .Matched.By(line => line.Contains("unknown option: --port")
             );
     }
 
@@ -979,8 +977,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 // Assert
                 Expect(lines)
                     .To.Contain.Exactly(1)
-                    .Matched.By(
-                        l => l.EndsWith(
+                    .Matched.By(l => l.EndsWith(
                             "set the SERVER environment variable appropriately"
                         )
                     );
@@ -1006,8 +1003,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 // Assert
                 Expect(lines)
                     .To.Contain.Exactly(1)
-                    .Matched.By(
-                        l => l.EndsWith(
+                    .Matched.By(l => l.EndsWith(
                             "set the REMOTE_HOST environment variable appropriately"
                         )
                     );
@@ -1261,10 +1257,9 @@ Report bugs to <no-one-cares@whatevs.org>
                     .To.Equal(ExitCodes.ARGUMENT_ERROR);
                 Expect(output)
                     .To.Contain.Exactly(1)
-                    .Matched.By(
-                        l => l.Contains("--some-number") &&
-                            l.Contains("should be at least 5") &&
-                            l.Contains("received: 4")
+                    .Matched.By(l => l.Contains("--some-number") &&
+                        l.Contains("should be at least 5") &&
+                        l.Contains("received: 4")
                     );
             }
 
@@ -1294,10 +1289,9 @@ Report bugs to <no-one-cares@whatevs.org>
                     .To.Equal(ExitCodes.ARGUMENT_ERROR);
                 Expect(output)
                     .To.Contain.Exactly(1)
-                    .Matched.By(
-                        l => l.Contains("--some-number") &&
-                            l.Contains("should be at most 10") &&
-                            l.Contains("received: 14")
+                    .Matched.By(l => l.Contains("--some-number") &&
+                        l.Contains("should be at most 10") &&
+                        l.Contains("received: 14")
                     );
             }
         }
@@ -1309,6 +1303,22 @@ Report bugs to <no-one-cares@whatevs.org>
             public int SomeNumber { get; set; }
         }
     }
+
+
+    private static void NoOp(int exitCode)
+    {
+        // intentionally left blank
+    }
+
+    /// <summary>
+    /// EasyArgs will automatically exit for some scenarios
+    /// -> these options prevent the test process from exiting
+    ///    when EasyArgs has decided it should exit
+    /// </summary>
+    private static readonly ParserOptions NoExitOptions = new()
+    {
+        ExitAction = NoOp
+    };
 
     [TestFixture]
     public class IgnoredProperties
@@ -1328,7 +1338,8 @@ Report bugs to <no-one-cares@whatevs.org>
             var result = args.ParseTo<IOptionsWithIgnoredProperty>(
                 new ParserOptions()
                 {
-                    ExitOnError = false
+                    ExitOnError = false,
+                    ExitAction = NoOp
                 }
             );
             // Assert
@@ -1352,18 +1363,14 @@ Report bugs to <no-one-cares@whatevs.org>
                 new ParserOptions()
                 {
                     LineWriter = captured.Add,
-                    ExitAction = _ =>
-                    {
-                        /* intentionally blank - --help should make the program exit */
-                    }
+                    ExitAction = NoOp
                 }
             );
             // Assert
             Expect(captured)
                 .Not.To.Contain.Any
-                .Matched.By(
-                    s => s.Contains("--ignored") ||
-                        s.Contains("-i ")
+                .Matched.By(s => s.Contains("--ignored") ||
+                    s.Contains("-i ")
                 );
         }
 
@@ -1393,7 +1400,7 @@ Report bugs to <no-one-cares@whatevs.org>
             var exitCode = 0;
             // Act
             var result = args.ParseTo<HasDecimal>(
-                out var _,
+                out _,
                 new ParserOptions()
                 {
                     ExitAction = c => exitCode = c
@@ -1421,7 +1428,9 @@ Report bugs to <no-one-cares@whatevs.org>
                         // Arrange
                         var args = Array.Empty<string>();
                         // Act
-                        var result = args.ParseTo<HasDefaultPositiveFlag>();
+                        var result = args.ParseTo<HasDefaultPositiveFlag>(
+                            NoExitOptions
+                        );
                         // Assert
                         Expect(result.Flag)
                             .To.Be.True();
@@ -1443,7 +1452,9 @@ Report bugs to <no-one-cares@whatevs.org>
                                 "--flag"
                             };
                             // Act
-                            var result = args.ParseTo<HasDefaultPositiveFlag>();
+                            var result = args.ParseTo<HasDefaultPositiveFlag>(
+                                NoExitOptions
+                            );
                             // Assert
                             Expect(result.Flag)
                                 .To.Be.True();
@@ -1462,7 +1473,9 @@ Report bugs to <no-one-cares@whatevs.org>
                                 "--no-flag"
                             };
                             // Act
-                            var result = args.ParseTo<HasDefaultPositiveFlag>();
+                            var result = args.ParseTo<HasDefaultPositiveFlag>(
+                                NoExitOptions
+                            );
                             // Assert
                             Expect(result.Flag)
                                 .To.Be.False();
@@ -1489,7 +1502,9 @@ Report bugs to <no-one-cares@whatevs.org>
                         // Arrange
                         var args = Array.Empty<string>();
                         // Act
-                        var result = args.ParseTo<HasDefaultNegativeFlag>();
+                        var result = args.ParseTo<HasDefaultNegativeFlag>(
+                            NoExitOptions
+                        );
                         // Assert
                         Expect(result.Flag)
                             .To.Be.False();
@@ -1511,7 +1526,9 @@ Report bugs to <no-one-cares@whatevs.org>
                                 "--flag"
                             };
                             // Act
-                            var result = args.ParseTo<HasDefaultNegativeFlag>();
+                            var result = args.ParseTo<HasDefaultNegativeFlag>(
+                                NoExitOptions
+                            );
                             // Assert
                             Expect(result.Flag)
                                 .To.Be.True();
@@ -1530,7 +1547,9 @@ Report bugs to <no-one-cares@whatevs.org>
                                 "--no-flag"
                             };
                             // Act
-                            var result = args.ParseTo<HasDefaultNegativeFlag>();
+                            var result = args.ParseTo<HasDefaultNegativeFlag>(
+                                NoExitOptions
+                            );
                             // Assert
                             Expect(result.Flag)
                                 .To.Be.False();
@@ -1570,7 +1589,9 @@ Report bugs to <no-one-cares@whatevs.org>
                             );
 
                             // Act
-                            var result = new string[0].ParseTo<HasEnvironmentDefaultOption>();
+                            var result = new string[0].ParseTo<HasEnvironmentDefaultOption>(
+                                NoExitOptions
+                            );
                             // Assert
                             Expect(result.SomeFlag)
                                 .To.Be.True();
@@ -1653,7 +1674,7 @@ Report bugs to <no-one-cares@whatevs.org>
                     nameof(VehicleTypes.Car)
                 };
                 // Act
-                var result = args.ParseTo<IVehicle>();
+                var result = args.ParseTo<IVehicle>(NoExitOptions);
                 // Assert
                 Expect(result.Type)
                     .To.Equal(VehicleTypes.Car);
@@ -1665,7 +1686,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 // Arrange
                 var args = new string[0];
                 // Act
-                var result = args.ParseTo<IVehicle>();
+                var result = args.ParseTo<IVehicle>(NoExitOptions);
                 // Assert
                 Expect(result.Type)
                     .To.Equal(VehicleTypes.Bike);
@@ -1708,7 +1729,8 @@ Report bugs to <no-one-cares@whatevs.org>
             args.ParseTo<IOptions>(
                 new ParserOptions()
                 {
-                    ExitWhenShowingHelp = false
+                    ExitWhenShowingHelp = false,
+                    ExitAction = NoOp
                 }
             );
             // Assert
@@ -1742,7 +1764,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 $"{date.Year}/{date.Month}/{date.Day}"
             };
             // Act
-            var result = args.ParseTo<HasDateTime>();
+            var result = args.ParseTo<HasDateTime>(NoExitOptions);
             // Assert
             Expect(result.DateTime)
                 .To.Equal(date.Date);
@@ -1754,7 +1776,7 @@ Report bugs to <no-one-cares@whatevs.org>
             // Arrange
             var args = new string[0];
             // Act
-            var result = args.ParseTo<HasDateTime>();
+            var result = args.ParseTo<HasDateTime>(NoExitOptions);
             // Assert
             Expect(result.DateTime)
                 .To.Equal(DateTime.Now.AddDays(-7).Date);
@@ -1837,7 +1859,7 @@ Report bugs to <no-one-cares@whatevs.org>
             string[] args = ["--since", $"{days} days ago"];
 
             // Act
-            var result = args.ParseTo<IHasSince>();
+            var result = args.ParseTo<IHasSince>(NoExitOptions);
             // Assert
             Expect(result.Since)
                 .To.Approximately.Equal(expected);
@@ -1852,7 +1874,7 @@ Report bugs to <no-one-cares@whatevs.org>
             string[] args = ["--since", $"{days} days ago"];
 
             // Act
-            var result = args.ParseTo<IHasNullableSince>();
+            var result = args.ParseTo<IHasNullableSince>(NoExitOptions);
             // Assert
             Expect(result.Since)
                 .To.Approximately.Equal(expected);
@@ -1865,7 +1887,7 @@ Report bugs to <no-one-cares@whatevs.org>
             var expected = DateTime.Now.AddHours(2);
             string[] args = ["--since", "2h"];
             // Act
-            var result = args.ParseTo<IHasSince>();
+            var result = args.ParseTo<IHasSince>(NoExitOptions);
             // Assert
             Expect(result.Since)
                 .To.Approximately.Equal(expected);
@@ -1878,7 +1900,7 @@ Report bugs to <no-one-cares@whatevs.org>
             string[] args = [];
             var expected = DateTime.Now.AddMinutes(10);
             // Act
-            var result = args.ParseTo<IHasSince>();
+            var result = args.ParseTo<IHasSince>(NoExitOptions);
             // Assert
             Expect(result.Since)
                 .To.Approximately.Equal(expected);
@@ -1908,7 +1930,7 @@ Report bugs to <no-one-cares@whatevs.org>
                 "--ignore-ssl-errors"
             };
             // Act
-            var result = args.ParseTo<IOptions>();
+            var result = args.ParseTo<IOptions>(NoExitOptions);
             // Assert
             Expect(result.IgnoreSslErrors)
                 .To.Be.True();
