@@ -40,6 +40,19 @@ namespace PeanutButter.FileSystem.Tests
             }
         }
 
+        [Test]
+        public void NAME()
+        {
+            // Arrange
+            var fs = new LocalFileSystem("/usr");
+            // Act
+            foreach (var item in fs.ListRecursive("mysqld"))
+            {
+                Console.Error.WriteLine(item);
+            }
+            // Assert
+        }
+
         [TestFixture]
         public class SetCurrentDirectory
         {
