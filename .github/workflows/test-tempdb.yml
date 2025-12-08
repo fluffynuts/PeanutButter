@@ -74,6 +74,7 @@ jobs:
           npm run test-ci-tempdb
 
   test-tempdb-osx:
+    if: false # disabled until I can figure out reliable running on OSX (sqlite lib issue)
     runs-on: macos-latest
     steps:
       - name: Setup mysql via homebrew
