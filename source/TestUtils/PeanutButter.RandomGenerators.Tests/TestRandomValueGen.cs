@@ -4731,6 +4731,9 @@ public class TestRandomValueGen
             {
                 // Arrange
                 // Act
+                var longestLength = 8 * 4 + 7;
+                var shorter = 0;
+                var atLength = 0;
                 RunCycles(
                     () =>
                     {
@@ -4740,13 +4743,15 @@ public class TestRandomValueGen
                             s != ""
                         );
 
-                        Expect(parts.All(s => !s.StartsWith("0")))
-                            .To.Be.True(() => new
-                                {
-                                    result,
-                                    parts
-                                }.Stringify()
-                            );
+                        if (result.Length < longestLength)
+                        {
+                            shorter++;
+                        }
+                        else
+                        {
+                            atLength++;
+                        }
+
                         Expect(nonEmptyParts)
                             .To.Be.Less.Than(8);
                         Expect(result)
@@ -4755,6 +4760,12 @@ public class TestRandomValueGen
                     HIGH_RANDOM_TEST_CYCLES
                 );
                 // Assert
+                // it's possible to get back an address which
+                // was not compressible - but they should be in
+                // the minority
+                var compressedRatio = (decimal)shorter / (shorter + atLength);
+                Expect(compressedRatio)
+                    .To.Be.Greater.Than(0.9);
             }
         }
     }

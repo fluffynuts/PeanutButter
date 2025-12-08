@@ -335,7 +335,7 @@ public class TestExpiringDictionary
         }
 
         Expect(collected)
-            .To.Be.Empty(() => 
+            .To.Be.Empty(() =>
                 collected.Select(e => e.ToString()).JoinWith("\n")
             );
     }
@@ -401,8 +401,11 @@ public class TestExpiringDictionary
             return;
         }
 
-        var toRemove = dict.First();
-        dict.Remove(toRemove);
+        var toRemove = dict.FirstOrDefault();
+        if (toRemove.Key is not null)
+        {
+            dict.Remove(toRemove);
+        }
     }
 
     private static void EnumerateItems(IDictionary<string, string> dict)
