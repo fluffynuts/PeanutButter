@@ -1,9 +1,9 @@
 var namespacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils =
 [
     [ "DefaultMvcOptions", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1DefaultMvcOptions.html", null ],
+    [ "DefaultOptions&lt; T &gt;", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1DefaultOptions-1-g.html", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1DefaultOptions-1-g" ],
+    [ "DefaultOptionsWithFactory&lt; T &gt;", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1DefaultOptionsWithFactory-1-g.html", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1DefaultOptionsWithFactory-1-g" ],
     [ "DefaultObjectModelValidator", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1DefaultObjectModelValidator.html", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1DefaultObjectModelValidator" ],
-    [ "DefaultOptions< T >", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1DefaultOptions-1-g.html", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1DefaultOptions-1-g" ],
-    [ "DefaultOptionsWithFactory< T >", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1DefaultOptionsWithFactory-1-g.html", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1DefaultOptionsWithFactory-1-g" ],
     [ "FeatureIsObsoleteException", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1FeatureIsObsoleteException.html", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1FeatureIsObsoleteException" ],
     [ "FormDecoder", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1FormDecoder.html", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1FormDecoder" ],
     [ "FormFileExtensions", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1FormFileExtensions.html", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Utils_1_1FormFileExtensions" ],

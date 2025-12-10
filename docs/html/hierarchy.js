@@ -58,7 +58,7 @@ var hierarchy =
     [ "PeanutButter.MVC.AutoInclude", "classPeanutButter_1_1MVC_1_1AutoInclude.html", null ],
     [ "PeanutButter.Utils.Benchmark", "classPeanutButter_1_1Utils_1_1Benchmark.html", null ],
     [ "PeanutButter.Utils.BooleanExtensions", "classPeanutButter_1_1Utils_1_1BooleanExtensions.html", null ],
-    [ "PeanutButter.TestUtils.AspNetCore.Builders.Builder< TBuilder, TSubject >", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1Builder-2-g.html", [
+    [ "PeanutButter.TestUtils.AspNetCore.Builders.Builder&lt; TBuilder, TSubject &gt;", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1Builder-2-g.html", [
       [ "PeanutButter.TestUtils.AspNetCore.Builders.ActionExecutedContextBuilder", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ActionExecutedContextBuilder.html", null ],
       [ "PeanutButter.TestUtils.AspNetCore.Builders.ActionExecutingContextBuilder", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ActionExecutingContextBuilder.html", null ],
       [ "PeanutButter.TestUtils.AspNetCore.Builders.AuthorizationFilterContextBuilder< TController >", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1AuthorizationFilterContextBuilder-1-g.html", null ],
@@ -118,7 +118,7 @@ var hierarchy =
     [ "PeanutButter.DuckTyping.Extensions.DuckTypingExtensionSharedMethods", "classPeanutButter_1_1DuckTyping_1_1Extensions_1_1DuckTypingExtensionSharedMethods.html", null ],
     [ "PeanutButter.DuckTyping.Extensions.DuckTypingNameValueCollectionExtensions", "classPeanutButter_1_1DuckTyping_1_1Extensions_1_1DuckTypingNameValueCollectionExtensions.html", null ],
     [ "PeanutButter.DuckTyping.Extensions.DuckTypingObjectExtensions", "classPeanutButter_1_1DuckTyping_1_1Extensions_1_1DuckTypingObjectExtensions.html", null ],
-    [ "PeanutButter.Utils.ExtensionsForIEnumerables.DuplicateResult< TKey, TItem >", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables_1_1DuplicateResult-2-g.html", null ],
+    [ "PeanutButter.Utils.ExtensionsForIEnumerables.DuplicateResult&lt; TKey, TItem &gt;", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables_1_1DuplicateResult-2-g.html", null ],
     [ "PeanutButter.RandomGenerators.EnumerableExtensions", "classPeanutButter_1_1RandomGenerators_1_1EnumerableExtensions.html", null ],
     [ "PeanutButter.TestUtils.Generic.EnumerableExtensions", "classPeanutButter_1_1TestUtils_1_1Generic_1_1EnumerableExtensions.html", null ],
     [ "PeanutButter.Utils.Env", "classPeanutButter_1_1Utils_1_1Env.html", null ],
@@ -207,13 +207,13 @@ var hierarchy =
       [ "PeanutButter.Utils.ConstantTimeBackoffStrategy", "classPeanutButter_1_1Utils_1_1ConstantTimeBackoffStrategy.html", null ],
       [ "PeanutButter.Utils.DefaultBackoffStrategy", "classPeanutButter_1_1Utils_1_1DefaultBackoffStrategy.html", null ]
     ] ],
-    [ "PeanutButter.Utils.IBuilder< TBuilder, TEntity >", "interfacePeanutButter_1_1Utils_1_1IBuilder-2-g.html", [
+    [ "PeanutButter.Utils.IBuilder&lt; TBuilder, TEntity &gt;", "interfacePeanutButter_1_1Utils_1_1IBuilder-2-g.html", [
       [ "PeanutButter.RandomGenerators.GenericBuilder< TBuilder, TEntity >", "classPeanutButter_1_1RandomGenerators_1_1GenericBuilder-2-g.html", null ],
       [ "PeanutButter.Utils.Builder< TBuilder, TEntity >", "classPeanutButter_1_1Utils_1_1Builder-2-g.html", [
         [ "PeanutButter.TempDb.MySql.Base.TempDbMySqlServerSettingsBuilder", "classPeanutButter_1_1TempDb_1_1MySql_1_1Base_1_1TempDbMySqlServerSettingsBuilder.html", null ]
       ] ]
     ] ],
-    [ "PeanutButter.TestUtils.AspNetCore.Fakes.ICanBeIndexedBy< in T >", "interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1ICanBeIndexedBy-1-g.html", [
+    [ "PeanutButter.TestUtils.AspNetCore.Fakes.ICanBeIndexedBy&lt; in T &gt;", "interfacePeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1ICanBeIndexedBy-1-g.html", [
       [ "PeanutButter.TestUtils.AspNetCore.Fakes.StringValueMap", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1StringValueMap.html", [
         [ "PeanutButter.TestUtils.AspNetCore.Fakes.FakeFormCollection", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeFormCollection.html", null ],
         [ "PeanutButter.TestUtils.AspNetCore.Fakes.FakeHeaderDictionary", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHeaderDictionary.html", null ],
@@ -407,7 +407,7 @@ var hierarchy =
     [ "PeanutButter.INI.IINIFile", "interfacePeanutButter_1_1INI_1_1IINIFile.html", [
       [ "PeanutButter.INI.INIFile", "classPeanutButter_1_1INI_1_1INIFile.html", null ]
     ] ],
-    [ "PeanutButter.Utils.ILazyWithContext< TValue >", "interfacePeanutButter_1_1Utils_1_1ILazyWithContext-1-g.html", [
+    [ "PeanutButter.Utils.ILazyWithContext&lt; TValue &gt;", "interfacePeanutButter_1_1Utils_1_1ILazyWithContext-1-g.html", [
       [ "PeanutButter.Utils.LazyWithContext< TContext, TValue >", "classPeanutButter_1_1Utils_1_1LazyWithContext-2-g.html", null ]
     ] ],
     [ "PeanutButter.INI.ILineParser", "interfacePeanutButter_1_1INI_1_1ILineParser.html", [
@@ -437,11 +437,11 @@ var hierarchy =
         ] ]
       ] ]
     ] ],
-    [ "PeanutButter.Utils.IParallelWorker< T >", "interfacePeanutButter_1_1Utils_1_1IParallelWorker-1-g.html", [
+    [ "PeanutButter.Utils.IParallelWorker&lt; T &gt;", "interfacePeanutButter_1_1Utils_1_1IParallelWorker-1-g.html", [
       [ "PeanutButter.Utils.ParallelWorker< T >", "classPeanutButter_1_1Utils_1_1ParallelWorker-1-g.html", null ]
     ] ],
     [ "PeanutButter.INI.IParsedLine", "interfacePeanutButter_1_1INI_1_1IParsedLine.html", null ],
-    [ "PeanutButter.Utils.IPool< T >", "interfacePeanutButter_1_1Utils_1_1IPool-1-g.html", [
+    [ "PeanutButter.Utils.IPool&lt; T &gt;", "interfacePeanutButter_1_1Utils_1_1IPool-1-g.html", [
       [ "PeanutButter.SimpleHTTPServer.IHttpServerFactory", "interfacePeanutButter_1_1SimpleHTTPServer_1_1IHttpServerFactory.html", [
         [ "PeanutButter.SimpleHTTPServer.HttpServerFactory", "classPeanutButter_1_1SimpleHTTPServer_1_1HttpServerFactory.html", null ]
       ] ],
@@ -502,10 +502,10 @@ var hierarchy =
     [ "PeanutButter.ServiceShell.ISimpleLogger", "interfacePeanutButter_1_1ServiceShell_1_1ISimpleLogger.html", [
       [ "PeanutButter.ServiceShell.Shell", "classPeanutButter_1_1ServiceShell_1_1Shell.html", null ]
     ] ],
-    [ "PeanutButter.Utils.ISingleItemCache< T >", "interfacePeanutButter_1_1Utils_1_1ISingleItemCache-1-g.html", [
+    [ "PeanutButter.Utils.ISingleItemCache&lt; T &gt;", "interfacePeanutButter_1_1Utils_1_1ISingleItemCache-1-g.html", [
       [ "PeanutButter.Utils.SingleItemCache< T >", "classPeanutButter_1_1Utils_1_1SingleItemCache-1-g.html", null ]
     ] ],
-    [ "PeanutButter.Utils.ISlidingWindowItem< out T >", "interfacePeanutButter_1_1Utils_1_1ISlidingWindowItem-1-g.html", null ],
+    [ "PeanutButter.Utils.ISlidingWindowItem&lt; out T &gt;", "interfacePeanutButter_1_1Utils_1_1ISlidingWindowItem-1-g.html", null ],
     [ "PeanutButter.MVC.IStyleBundle", "interfacePeanutButter_1_1MVC_1_1IStyleBundle.html", [
       [ "PeanutButter.MVC.StyleBundleFacade", "classPeanutButter_1_1MVC_1_1StyleBundleFacade.html", null ]
     ] ],
@@ -559,7 +559,7 @@ var hierarchy =
     [ "PeanutButter.TempDb.MySql.Base.MySqlConfigGenerator", "classPeanutButter_1_1TempDb_1_1MySql_1_1Base_1_1MySqlConfigGenerator.html", null ],
     [ "PeanutButter.TempDb.MySql.Connector.MySqlPoolStatsFetcher", "classPeanutButter_1_1TempDb_1_1MySql_1_1Connector_1_1MySqlPoolStatsFetcher.html", null ],
     [ "PeanutButter.TempDb.MySql.Data.MySqlPoolStatsFetcher", "classPeanutButter_1_1TempDb_1_1MySql_1_1Data_1_1MySqlPoolStatsFetcher.html", null ],
-    [ "PeanutButter.TempDb.MySql.Base.TempDBMySqlBase< T >.MySqlVersionInfo", "classPeanutButter_1_1TempDb_1_1MySql_1_1Base_1_1TempDBMySqlBase-1-g_1_1MySqlVersionInfo.html", null ],
+    [ "PeanutButter.TempDb.MySql.Base.TempDBMySqlBase&lt; T &gt;.MySqlVersionInfo", "classPeanutButter_1_1TempDb_1_1MySql_1_1Base_1_1TempDBMySqlBase-1-g_1_1MySqlVersionInfo.html", null ],
     [ "PeanutButter.TempDb.MySql.Base.MySqlWindowsServiceFinder", "classPeanutButter_1_1TempDb_1_1MySql_1_1Base_1_1MySqlWindowsServiceFinder.html", null ],
     [ "PeanutButter.RandomGenerators.NaturalData", "classPeanutButter_1_1RandomGenerators_1_1NaturalData.html", null ],
     [ "NotImplementedException", null, [
@@ -614,7 +614,7 @@ var hierarchy =
     [ "PeanutButter.Utils.StreamExtensions", "classPeanutButter_1_1Utils_1_1StreamExtensions.html", null ],
     [ "PeanutButter.Utils.StringExtensions", "classPeanutButter_1_1Utils_1_1StringExtensions.html", null ],
     [ "PeanutButter.Utils.Stringifier", "classPeanutButter_1_1Utils_1_1Stringifier.html", null ],
-    [ "PeanutButter.TinyEventAggregator.Subscription< TPayload >", "classPeanutButter_1_1TinyEventAggregator_1_1Subscription-1-g.html", null ],
+    [ "PeanutButter.TinyEventAggregator.Subscription&lt; TPayload &gt;", "classPeanutButter_1_1TinyEventAggregator_1_1Subscription-1-g.html", null ],
     [ "PeanutButter.TinyEventAggregator.SubscriptionsChangedEventArgs", "classPeanutButter_1_1TinyEventAggregator_1_1SubscriptionsChangedEventArgs.html", null ],
     [ "PeanutButter.TinyEventAggregator.SubscriptionToken", "classPeanutButter_1_1TinyEventAggregator_1_1SubscriptionToken.html", null ],
     [ "PeanutButter.TestUtils.Generic.SubstituteExtensions", "classPeanutButter_1_1TestUtils_1_1Generic_1_1SubstituteExtensions.html", null ],

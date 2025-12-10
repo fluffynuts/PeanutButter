@@ -26,6 +26,7 @@ var classPeanutButter_1_1EasyArgs_1_1ParserOptions =
     [ "ExitWhenShowingHelp", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#ade0a74bb7470b314f1c39634fb1eacd1", null ],
     [ "ExitWhenShowingVersion", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a970069f8ae714dcaf790765c1bc8df6f", null ],
     [ "FallbackOnEnvironmentVariables", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#adaae1cd49dffc974723ce4c802955dba", null ],
+    [ "ForceConsoleWidth", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a9c4e1944caa25d021a3f9501688595c8", null ],
     [ "IgnoreUnknownSwitches", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a749363d57eb1ea86ace145e96b89eb90", null ],
     [ "IncludeDefaultDescription", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#a3f11ef177285d57162f1c91e281e73db", null ],
     [ "LineWriter", "classPeanutButter_1_1EasyArgs_1_1ParserOptions.html#af1c2f21752789eb77d5b0f2dfe1e78d4", null ],

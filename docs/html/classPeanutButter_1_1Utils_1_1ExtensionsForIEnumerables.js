@@ -1,6 +1,6 @@
 var classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables =
 [
-    [ "DuplicateResult< TKey, TItem >", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables_1_1DuplicateResult-2-g.html", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables_1_1DuplicateResult-2-g" ],
+    [ "DuplicateResult&lt; TKey, TItem &gt;", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables_1_1DuplicateResult-2-g.html", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables_1_1DuplicateResult-2-g" ],
     [ "AddRange< TCollection, TItem >", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html#a1bcc6f676e92dac8efd5176ad7432947", null ],
     [ "AddRange< TCollection, TItem >", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html#a60e7f2a0bd1f370bab59399473ecda7e", null ],
     [ "And< T >", "classPeanutButter_1_1Utils_1_1ExtensionsForIEnumerables.html#a773c986bb031ac617c01e9b8dead3098", null ],

@@ -6,6 +6,7 @@ var classPeanutButter_1_1Utils_1_1ListExtensions =
     [ "EjectLast< T >", "classPeanutButter_1_1Utils_1_1ListExtensions.html#a29a51bbfc998294de75da31ef0ab228c", null ],
     [ "Pop< T >", "classPeanutButter_1_1Utils_1_1ListExtensions.html#af9fa5d21a00eb2310cdf0167b05599e2", null ],
     [ "Push< T >", "classPeanutButter_1_1Utils_1_1ListExtensions.html#a296288c8eccfd420492081d4724dbb9b", null ],
+    [ "Reversed< T >", "classPeanutButter_1_1Utils_1_1ListExtensions.html#a251e32921080b0194836b44889282289", null ],
     [ "Reversed< T >", "classPeanutButter_1_1Utils_1_1ListExtensions.html#a393e1e1872ecb5e8d90c57f7c24f5564", null ],
     [ "ReversedInPlace< T >", "classPeanutButter_1_1Utils_1_1ListExtensions.html#a6eb75f4c14ab3b53ff56e38313feffcc", null ],
     [ "ReversedInPlace< T >", "classPeanutButter_1_1Utils_1_1ListExtensions.html#ab297f4b3abbb15a84304eb4551ccd7d2", null ],

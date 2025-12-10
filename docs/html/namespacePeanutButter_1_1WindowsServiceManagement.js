@@ -1,11 +1,11 @@
 var namespacePeanutButter_1_1WindowsServiceManagement =
 [
     [ "Exceptions", "namespacePeanutButter_1_1WindowsServiceManagement_1_1Exceptions.html", "namespacePeanutButter_1_1WindowsServiceManagement_1_1Exceptions" ],
-    [ "IServiceControlInterface", "interfacePeanutButter_1_1WindowsServiceManagement_1_1IServiceControlInterface.html", "interfacePeanutButter_1_1WindowsServiceManagement_1_1IServiceControlInterface" ],
-    [ "IWindowsServiceUtil", "interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html", "interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil" ],
     [ "NativeWindowsServiceUtil", "classPeanutButter_1_1WindowsServiceManagement_1_1NativeWindowsServiceUtil.html", "classPeanutButter_1_1WindowsServiceManagement_1_1NativeWindowsServiceUtil" ],
     [ "ServiceControlException", "classPeanutButter_1_1WindowsServiceManagement_1_1ServiceControlException.html", "classPeanutButter_1_1WindowsServiceManagement_1_1ServiceControlException" ],
+    [ "IServiceControlInterface", "interfacePeanutButter_1_1WindowsServiceManagement_1_1IServiceControlInterface.html", "interfacePeanutButter_1_1WindowsServiceManagement_1_1IServiceControlInterface" ],
     [ "ServiceControlInterface", "classPeanutButter_1_1WindowsServiceManagement_1_1ServiceControlInterface.html", "classPeanutButter_1_1WindowsServiceManagement_1_1ServiceControlInterface" ],
+    [ "IWindowsServiceUtil", "interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html", "interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil" ],
     [ "WindowsServiceUtil", "classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html", "classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil" ],
     [ "ControlOptions", "namespacePeanutButter_1_1WindowsServiceManagement.html#ae50e5d9728c29232e78e7ad50e453346", [
       [ "None", "namespacePeanutButter_1_1WindowsServiceManagement.html#ae50e5d9728c29232e78e7ad50e453346a6adf97f83acf6453d4a6a4b1070f3754", null ],

@@ -7,8 +7,8 @@ var namespacePeanutButter_1_1TempDb =
     [ "Sqlite", "namespacePeanutButter_1_1TempDb_1_1Sqlite.html", "namespacePeanutButter_1_1TempDb_1_1Sqlite" ],
     [ "FatalTempDbInitializationException", "classPeanutButter_1_1TempDb_1_1FatalTempDbInitializationException.html", null ],
     [ "ITempDB", "interfacePeanutButter_1_1TempDb_1_1ITempDB.html", "interfacePeanutButter_1_1TempDb_1_1ITempDB" ],
-    [ "TempDB< TDatabaseConnection >", "classPeanutButter_1_1TempDb_1_1TempDB-1-g.html", "classPeanutButter_1_1TempDb_1_1TempDB-1-g" ],
+    [ "TempDbTracker", "classPeanutButter_1_1TempDb_1_1TempDbTracker.html", null ],
+    [ "TempDB&lt; TDatabaseConnection &gt;", "classPeanutButter_1_1TempDb_1_1TempDB-1-g.html", "classPeanutButter_1_1TempDb_1_1TempDB-1-g" ],
     [ "TempDbDisposedEventArgs", "classPeanutButter_1_1TempDb_1_1TempDbDisposedEventArgs.html", null ],
-    [ "TempDbHints", "classPeanutButter_1_1TempDb_1_1TempDbHints.html", null ],
-    [ "TempDbTracker", "classPeanutButter_1_1TempDb_1_1TempDbTracker.html", null ]
+    [ "TempDbHints", "classPeanutButter_1_1TempDb_1_1TempDbHints.html", null ]
 ];
