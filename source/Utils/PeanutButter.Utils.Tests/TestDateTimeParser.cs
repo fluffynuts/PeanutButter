@@ -25,14 +25,14 @@ public class TestDateTimeParser
     )
     {
         // Arrange
-        var expected = DateTime.Parse(input)
-            .WithKind(DateTimeKind.Local);
         var sut = Create();
 
         // Act
         var result = sut.Parse(input);
 
         // Assert
+        var expected = DateTime.Parse(input)
+            .WithKind(DateTimeKind.Local);
         Expect(result)
             .To.Equal(expected);
     }
@@ -53,13 +53,13 @@ public class TestDateTimeParser
     )
     {
         // Arrange
-        var expected = DateTime.Now
-            .TruncateMilliseconds()
-            .AddSeconds(expectedSeconds);
         var sut = Create();
         // Act
         var result = sut.Parse(input);
         // Assert
+        var expected = DateTime.Now
+            .TruncateMilliseconds()
+            .AddSeconds(expectedSeconds);
         Expect(result)
             .To.Approximately.Equal(
                 expected,
@@ -83,13 +83,13 @@ public class TestDateTimeParser
     )
     {
         // Arrange
-        var expected = DateTime.Now
-            .TruncateMilliseconds()
-            .AddMinutes(expectedSeconds);
         var sut = Create();
         // Act
         var result = sut.Parse(input);
         // Assert
+        var expected = DateTime.Now
+            .TruncateMilliseconds()
+            .AddMinutes(expectedSeconds);
         Expect(result)
             .To.Approximately.Equal(
                 expected,
@@ -112,13 +112,13 @@ public class TestDateTimeParser
     )
     {
         // Arrange
-        var expected = DateTime.Now
-            .TruncateMilliseconds()
-            .AddHours(expectedSeconds);
         var sut = Create();
         // Act
         var result = sut.Parse(input);
         // Assert
+        var expected = DateTime.Now
+            .TruncateMilliseconds()
+            .AddHours(expectedSeconds);
         Expect(result)
             .To.Approximately.Equal(
                 expected,
@@ -141,13 +141,13 @@ public class TestDateTimeParser
     )
     {
         // Arrange
-        var expected = DateTime.Now
-            .TruncateMilliseconds()
-            .AddDays(expectedSeconds);
         var sut = Create();
         // Act
         var result = sut.Parse(input);
         // Assert
+        var expected = DateTime.Now
+            .TruncateMilliseconds()
+            .AddDays(expectedSeconds);
         Expect(result)
             .To.Approximately.Equal(
                 expected,
@@ -167,13 +167,13 @@ public class TestDateTimeParser
     )
     {
         // Arrange
-        var expected = DateTime.Now
-            .TruncateMilliseconds()
-            .AddMonths(expectedSeconds);
         var sut = Create();
         // Act
         var result = sut.Parse(input);
         // Assert
+        var expected = DateTime.Now
+            .TruncateMilliseconds()
+            .AddMonths(expectedSeconds);
         Expect(result)
             .To.Approximately.Equal(
                 expected,
@@ -195,13 +195,13 @@ public class TestDateTimeParser
     )
     {
         // Arrange
-        var expected = DateTime.Now
-            .TruncateMilliseconds()
-            .AddYears(expectedSeconds);
         var sut = Create();
         // Act
         var result = sut.Parse(input);
         // Assert
+        var expected = DateTime.Now
+            .TruncateMilliseconds()
+            .AddYears(expectedSeconds);
         Expect(result)
             .To.Approximately.Equal(
                 expected,
@@ -219,12 +219,12 @@ public class TestDateTimeParser
     )
     {
         // Arrange
-        var expected = DateTime.Now.TruncateMilliseconds()
-            .AddDays(expectedDays);
         var sut = Create();
         // Act
         var result = sut.Parse(input);
         // Assert
+        var expected = DateTime.Now.TruncateMilliseconds()
+            .AddDays(expectedDays);
         Expect(result)
             .To.Approximately.Equal(
                 expected,
