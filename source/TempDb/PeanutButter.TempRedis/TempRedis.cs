@@ -211,6 +211,12 @@ namespace
         /// flush all data
         /// </summary>
         void Reset();
+
+		/// <summary>
+		/// Generates connection options for redis connections
+        /// from the configuration for the server
+        /// </summary>
+        ConfigurationOptions GenerateConnectionConfig();
     }
 
     /// <summary>
@@ -459,11 +465,12 @@ namespace
         }
 
         private ConfigurationOptions DefaultConfigurationOptions
-            => _defaultConfigurationOptions ??= GenerateDefaultConfigurationOptions();
+            => _defaultConfigurationOptions ??= GenerateConnectionConfig();
 
         private ConfigurationOptions _defaultConfigurationOptions;
 
-        private ConfigurationOptions GenerateDefaultConfigurationOptions()
+        /// <inheritdoc />
+        public ConfigurationOptions GenerateConnectionConfig()
         {
             return new()
             {
@@ -535,10 +542,7 @@ namespace
                 );
             }
 
-            if (options is null)
-            {
-                options = GenerateDefaultConfigurationOptions();
-            }
+            options ??= GenerateConnectionConfig();
 
             options.EndPoints.Clear();
             options.EndPoints.Add("127.0.0.1", Port);

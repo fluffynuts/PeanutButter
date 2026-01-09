@@ -169,6 +169,37 @@ public class TestTempRedis
     }
 
     [Test]
+    public void ShouldExposeConnectionConfigGeneration()
+    {
+        // Arrange
+        var user = GetRandomUserName();
+        var password = GetRandomString();
+        using var sut = Create(
+            new()
+            {
+                User = user,
+                Password = password
+            }
+        );
+        // Act
+        var result = sut.GenerateConnectionConfig();
+        // Assert
+        Expect(result.EndPoints.Count)
+            .To.Equal(1);
+        var endpoint = result.EndPoints[0] as IPEndPoint;
+        Expect(endpoint)
+            .Not.To.Be.Null();
+        Expect(endpoint!.Address.ToString())
+            .To.Equal("127.0.0.1");
+        Expect(endpoint.Port)
+            .To.Equal(sut.Port);
+        Expect(result.User)
+            .To.Equal(user);
+        Expect(result.Password)
+            .To.Equal(password);
+    }
+
+    [Test]
     public void ShouldRestartOnAccidentalDeath()
     {
         // Arrange
@@ -208,39 +239,41 @@ public class TestTempRedis
     public void ShouldSurviveSeeSawOperation()
     {
         Retry.Max(3).Times(() =>
-        {
-            // Arrange
-            using var sut = new TempRedis(
-                new TempRedisOptions()
-                {
-                    DebugLogger = Console.Error.WriteLine
-                }
-            );
-            // Act
-            for (var i = 0; i < 10; i++)
             {
-                sut.Restart();
-                using var conn = sut.Connect();
-                var db = conn.GetDatabase();
-                var expected = $"test-value-{i}";
-                TryDo(() => db.StringSet("test-key", expected));
-                sut.Restart();
-                var stored = TryDo(() => db.StringGet("test-key"));
-                Expect(stored)
-                    .To.Equal(expected);
-            }
+                // Arrange
+                using var sut = new TempRedis(
+                    new TempRedisOptions()
+                    {
+                        DebugLogger = Console.Error.WriteLine
+                    }
+                );
+                // Act
+                for (var i = 0; i < 10; i++)
+                {
+                    sut.Restart();
+                    using var conn = sut.Connect();
+                    var db = conn.GetDatabase();
+                    var expected = $"test-value-{i}";
+                    TryDo(() => db.StringSet("test-key", expected));
+                    sut.Restart();
+                    var stored = TryDo(() => db.StringGet("test-key"));
+                    Expect(stored)
+                        .To.Equal(expected);
+                }
 
-            // Assert
-        });
+                // Assert
+            }
+        );
     }
 
     private void TryDo(Action action, int retries = 3)
     {
         TryDo(() =>
-        {
-            action();
-            return true;
-        });
+            {
+                action();
+                return true;
+            }
+        );
     }
 
     private T TryDo<T>(Func<T> func, int retries = 3)
@@ -257,6 +290,7 @@ public class TestTempRedis
                 lastException = ex;
             }
         }
+
         throw lastException ?? new Exception("no captured last exception");
     }
 
