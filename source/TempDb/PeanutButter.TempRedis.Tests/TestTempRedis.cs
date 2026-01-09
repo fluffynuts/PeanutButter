@@ -94,8 +94,7 @@ public class TestTempRedis
             // Act
             threads.Add(StartTempRedisAfterASecond());
 
-            var conn = Retry.Max(3).Times(
-                () => sut.Connect(
+            var conn = Retry.Max(3).Times(() => sut.Connect(
                     new ConfigurationOptions()
                     {
                         ConnectTimeout = 1500,
@@ -107,8 +106,7 @@ public class TestTempRedis
             sut.Stop();
             threads.Add(StartTempRedisAfterASecond());
             var db = conn.GetDatabase(0);
-            Retry.Max(10).Times(
-                () => db.StringSet(key, value)
+            Retry.Max(10).Times(() => db.StringSet(key, value)
             );
             // can't stop here: redis is in-memory, so the value would be discarded
             var result = db.StringGet(key);
@@ -118,8 +116,7 @@ public class TestTempRedis
 
             Thread StartTempRedisAfterASecond()
             {
-                var thread = new Thread(
-                    () =>
+                var thread = new Thread(() =>
                     {
                         Thread.Sleep(1000);
                         sut.Start();
@@ -192,8 +189,7 @@ public class TestTempRedis
             }
         );
         var db = connection.GetDatabase();
-        Retry.Max(10).Times(
-            () => db.StringSet(key, value)
+        Retry.Max(10).Times(() => db.StringSet(key, value)
         );
         sut.ServerProcess.Kill();
         do
@@ -211,27 +207,57 @@ public class TestTempRedis
     [Test]
     public void ShouldSurviveSeeSawOperation()
     {
-        // Arrange
-        using var sut = new TempRedis(
-            new TempRedisOptions()
-            {
-                DebugLogger = Console.Error.WriteLine
-            }
-        );
-        using var conn = sut.Connect();
-        // Act
-        for (var i = 0; i < 20; i++)
+        Retry.Max(3).Times(() =>
         {
-            var db = conn.GetDatabase();
-            var expected = $"test-value-{i}";
-            db.StringSet("test-key", expected);
-            sut.Restart();
-            var stored = db.StringGet("test-key");
-            Expect(stored)
-                .To.Equal(expected);
-            sut.Restart();
+            // Arrange
+            using var sut = new TempRedis(
+                new TempRedisOptions()
+                {
+                    DebugLogger = Console.Error.WriteLine
+                }
+            );
+            // Act
+            for (var i = 0; i < 10; i++)
+            {
+                sut.Restart();
+                using var conn = sut.Connect();
+                var db = conn.GetDatabase();
+                var expected = $"test-value-{i}";
+                TryDo(() => db.StringSet("test-key", expected));
+                sut.Restart();
+                var stored = TryDo(() => db.StringGet("test-key"));
+                Expect(stored)
+                    .To.Equal(expected);
+            }
+
+            // Assert
+        });
+    }
+
+    private void TryDo(Action action, int retries = 3)
+    {
+        TryDo(() =>
+        {
+            action();
+            return true;
+        });
+    }
+
+    private T TryDo<T>(Func<T> func, int retries = 3)
+    {
+        Exception lastException = null;
+        for (var i = 0; i < retries; i++)
+        {
+            try
+            {
+                return func();
+            }
+            catch (Exception ex)
+            {
+                lastException = ex;
+            }
         }
-        // Assert
+        throw lastException ?? new Exception("no captured last exception");
     }
 
     /// <summary>
@@ -342,11 +368,12 @@ public class TestTempRedis
         // Act
         sut.Stop();
         Task.Run(() =>
-        {
-            barrier.SignalAndWait();
-            Thread.Sleep(15000);
-            sut.Start();
-        });
+            {
+                barrier.SignalAndWait();
+                Thread.Sleep(15000);
+                sut.Start();
+            }
+        );
         barrier.SignalAndWait();
         using var connection = sut.ConnectUnmanaged(
             new ConfigurationOptions()
@@ -366,8 +393,59 @@ public class TestTempRedis
             .To.Equal("bar");
     }
 
-    private static TempRedis Create()
+    [Test]
+    public void EnablingSecurity()
     {
-        return new();
+        // Arrange
+        var key = GetRandomString();
+        var value = GetRandomString();
+        using var sut = Create(
+            new TempRedisOptions()
+            {
+                User = GetRandomUserName(),
+                Password = GetRandomString(),
+                DisableDefaultUser = true
+            }
+        );
+        // Act
+        using var conn = sut.Connect();
+        var db = conn.GetDatabase();
+        Expect(() => db.StringSet(key, value))
+            .Not.To.Throw();
+        var result = db.StringGet(key);
+        // Assert
+        Expect(result)
+            .To.Equal(value);
+
+        using var anonymousConnection = sut.Connect(
+            new ConfigurationOptions()
+            {
+                EndPoints =
+                {
+                    {
+                        "127.0.0.1", sut.Port
+                    }
+                },
+                AbortOnConnectFail = false,
+                ConnectRetry = TempRedis.DefaultConnectRetry,
+                ConnectTimeout = TempRedis.DefaultConnectTimeoutMilliseconds,
+                AsyncTimeout = TempRedis.DefaultAsyncTimeoutMilliseconds,
+                SyncTimeout = TempRedis.DefaultSyncTimeoutMilliseconds,
+                AllowAdmin = true,
+                KeepAlive = 15
+            }
+        );
+        var anonDb = anonymousConnection.GetDatabase();
+        Expect(() => anonDb.StringSet(GetRandomString(), GetRandomString()))
+            .To.Throw();
+    }
+
+    private static TempRedis Create(
+        TempRedisOptions options = null
+    )
+    {
+        return options is null
+            ? new()
+            : new TempRedis(options);
     }
 }

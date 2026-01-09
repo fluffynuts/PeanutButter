@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using PeanutButter.Utils;
@@ -296,6 +298,33 @@ namespace
         /// Set this to get debug logs, eg around startup and restart
         /// </summary>
         public Action<string> DebugLogger { get; set; }
+
+        /// <summary>
+        /// Password for the redis server
+        /// - if no User is supplied, this becomes the global password
+        /// - if a User is specified, this is used to set up an ACL'd user
+        ///   and you should probably also set DisableDefaultUser to true
+        /// </summary>
+        public string Password { get; set; }
+
+        /// <summary>
+        /// The username to set up when using an ACL'd user
+        /// - only works on redis 6+
+        /// </summary>
+        public string User { get; set; }
+
+        /// <summary>
+        /// When setting a User and Password via ACLs,
+        /// you may also disable the default user so
+        /// that all connections require authentication
+        /// </summary>
+        public bool DisableDefaultUser { get; set; }
+
+        /// <summary>
+        /// Escape hatch: raw options that will be appended
+        /// to the end of the generated config
+        /// </summary>
+        public string RawOptions { get; set; }
     }
 
     /// <inheritdoc />
@@ -345,8 +374,7 @@ namespace
 
         private static void CloseConnection(IDisposable conn)
         {
-            TryDo(
-                () =>
+            TryDo(() =>
                 {
                     if (conn is IConnectionMultiplexer c)
                     {
@@ -363,16 +391,17 @@ namespace
         public string RedisExecutable =>
             _executable ??= RedisExecutableFinder.FindRedisExecutable(LocatorStrategies);
 
+        private string _executable;
+
         /// <inheritdoc />
         public bool IsRunning => _running;
 
-        private string _executable;
+        private bool _running;
 
         private Thread _watcherThread;
         private AutoTempFile _configFile;
         private AutoTempFile _saveFile;
         private readonly Action<string> _logger;
-        private bool _running;
         private readonly SemaphoreSlim _runningLock = new(1, 1);
 
         /// <summary>
@@ -446,6 +475,8 @@ namespace
                 SyncTimeout = DefaultSyncTimeoutMilliseconds,
                 AllowAdmin = true,
                 KeepAlive = 15,
+                User = _user,
+                Password = _password,
                 EndPoints =
                 {
                     {
@@ -487,8 +518,7 @@ namespace
         )
         {
             return new ConnectionMultiplexerFacade(
-                IfNotDisposed(
-                    () => ConnectInternal(options, forceNewConnection: false)
+                IfNotDisposed(() => ConnectInternal(options, forceNewConnection: false)
                 )
             );
         }
@@ -546,6 +576,8 @@ namespace
                 ? PortFinder.FindOpenPortFrom(options.PortHint.Value)
                 : PortFinder.FindOpenPort();
             GenerateConfig(options);
+            _user = options.User;
+            _password = options.Password;
             if (options.AutoStart)
             {
                 Start();
@@ -562,21 +594,91 @@ namespace
             _saveFile = new AutoTempFile();
             _configFile = new AutoTempFile();
             _logger.Invoke($"writing config at {_configFile.Path} with append storage at {_saveFile.Path}");
+            var contents = new List<string>()
+            {
+                $"""
+                 # putting in the port for completeness, though it will be
+                 # specified on the commandline to make it easier to find
+                 # this instance via process monitoring
+                 port {Port}
+                 {(options.BindToLocalhostOnly ? $"bind {ListLocalHostAddresses()}" : "")}
+                 databases {options.DatabaseCount}
+                 aof-load-truncated yes
+                 appendfsync {(options.EnableSaveToDisk ? "always" : "no")}
+                 appendonly yes
+                 appendfilename {Path.GetFileName(_saveFile.Path)}
+                 """
+            };
+            SecureIfNecessary(contents, options);
+            if (!string.IsNullOrWhiteSpace(options.RawOptions))
+            {
+                contents.Add(options.RawOptions);
+            }
+
             File.WriteAllText(
                 _configFile.Path,
-                @$"
-# putting in the port for completeness, though it will be
-# specified on the commandline to make it easier to find
-# this instance via process monitoring
-port {Port}
-{(options.BindToLocalhostOnly ? $"bind {ListLocalHostAddresses()}" : "")}
-databases {options.DatabaseCount}
-aof-load-truncated yes
-appendfsync {(options.EnableSaveToDisk ? "always" : "no")}
-appendonly yes
-appendfilename {Path.GetFileName(_saveFile.Path)}
-".Trim()
+                contents.JoinWith("\n")
             );
+        }
+
+        private void SecureIfNecessary(
+            List<string> contents,
+            TempRedisOptions options
+        )
+        {
+            if (string.IsNullOrEmpty(options.Password))
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(options.User))
+            {
+                SetGlobalPassword(
+                    contents,
+                    options.Password
+                );
+                return;
+            }
+
+            if (options.DisableDefaultUser)
+            {
+                DisableDefaultUser(contents);
+            }
+
+            SetupAclUser(contents, options);
+        }
+
+        private void DisableDefaultUser(List<string> contents)
+        {
+            contents.Add(
+                """
+                user default off
+                """
+            );
+        }
+
+        private void SetupAclUser(List<string> contents, TempRedisOptions options)
+        {
+            using var hash = SHA256.Create();
+            var hashedPassword = hash.ComputeHash(
+                    Encoding.UTF8.GetBytes(
+                        options.Password
+                    )
+                ).Select(b => b.ToString("x2"))
+                .JoinWith("");
+            contents.Add(
+                $"""
+                 user {options.User} on sanitize-payload #{hashedPassword} ~* resetchannels +@all
+                 """
+            );
+        }
+
+        private void SetGlobalPassword(
+            List<string> contents,
+            string password
+        )
+        {
+            contents.Add($"requirepass {password}");
         }
 
         private string ListLocalHostAddresses()
@@ -595,8 +697,7 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
         /// <inheritdoc />
         public void Start()
         {
-            IfNotDisposed(
-                () => StartInternal(startWatcher: true)
+            IfNotDisposed(() => StartInternal(startWatcher: true)
             );
         }
 
@@ -632,9 +733,8 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
             {
                 if (ServerProcessIsRunning)
                 {
-                    Log(
-                        () =>
-                            $"{nameof(TempRedis)} already running with pid: {_serverProcess.Id}"
+                    Log(() =>
+                        $"{nameof(TempRedis)} already running with pid: {_serverProcess.Id}"
                     );
                     return;
                 }
@@ -648,9 +748,8 @@ appendfilename {Path.GetFileName(_saveFile.Path)}
                     else
                     {
                         // server process may have bean dead and restarted in time
-                        Log(
-                            () =>
-                                $"{nameof(TempRedis)} already running with pid: {ServerProcessId}"
+                        Log(() =>
+                            $"{nameof(TempRedis)} already running with pid: {ServerProcessId}"
                         );
                         return;
                     }
@@ -753,8 +852,7 @@ stderr:
             }
 
             _watcherCancellationTokenSource = new CancellationTokenSource();
-            _watcherThread = new Thread(
-                () =>
+            _watcherThread = new Thread(() =>
                 {
                     try
                     {
@@ -928,8 +1026,7 @@ stderr:
             //    I connected to", this is not a great DX.
             var conn = OpenOrReUseDefaultConnectionInternal();
             var endpoints = conn.GetEndPoints();
-            var target = endpoints.FirstOrDefault(
-                o => o.AddressFamily != AddressFamily.InterNetworkV6
+            var target = endpoints.FirstOrDefault(o => o.AddressFamily != AddressFamily.InterNetworkV6
             ) ?? endpoints.FirstOrDefault();
             var server = conn.GetServer(target);
             return server;
@@ -938,8 +1035,7 @@ stderr:
         /// <inheritdoc />
         public void FlushAll()
         {
-            Retry.Max(10).Times(
-                () =>
+            Retry.Max(10).Times(() =>
                 {
                     if (DefaultConnection is null)
                     {
@@ -1110,6 +1206,8 @@ stderr:
         private readonly SemaphoreSlim _disposedLock = new(1, 1);
         private string _localHostIp;
         private CancellationTokenSource _watcherCancellationTokenSource;
+        private readonly string _user;
+        private readonly string _password;
 
         /// <inheritdoc />
         public void Dispose()
@@ -1130,8 +1228,7 @@ stderr:
             _disposed = true;
             TryDispose(ref _configFile);
             TryDispose(ref _saveFile);
-            TryDo(
-                () =>
+            TryDo(() =>
                 {
                     _defaultConnection?.Close(allowCommandsToComplete: false);
                     _defaultConnection?.Dispose();
@@ -1145,8 +1242,7 @@ stderr:
         {
             var d = disposable;
             disposable = default;
-            TryDo(
-                () =>
+            TryDo(() =>
                 {
                     d?.Dispose();
                 }
@@ -1340,6 +1436,11 @@ stderr:
         public IServer GetServer(EndPoint endpoint, object asyncState = null)
         {
             return _actual.GetServer(endpoint, asyncState);
+        }
+
+        public IServer GetServer(RedisKey key, object asyncState = null, CommandFlags flags = CommandFlags.None)
+        {
+            return _actual.GetServer(key, asyncState, flags);
         }
 
         public IServer[] GetServers()
