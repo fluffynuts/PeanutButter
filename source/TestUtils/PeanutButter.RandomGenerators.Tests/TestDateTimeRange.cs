@@ -1,8 +1,6 @@
 using System;
-using NExpect;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
-using static NExpect.Expectations;
 
 namespace PeanutButter.RandomGenerators.Tests;
 
@@ -14,7 +12,7 @@ public class TestDateTimeRange
     {
         //---------------Set up test pack-------------------
         var from = GetRandomDate();
-        var to = GetAnother(from, () => GetRandomDate(), (d1, d2) => d1 >= d2);
+        var to = GetAnother(from, () => GetRandomDate(from.AddYears(1)), (d1, d2) => d1 >= d2);
 
         //---------------Assert Precondition----------------
         Expect(from).To.Be.Less.Than(to);
@@ -32,7 +30,7 @@ public class TestDateTimeRange
     {
         //---------------Set up test pack-------------------
         var from = GetRandomDate();
-        var to = GetAnother(from, () => GetRandomDate(), (d1, d2) => d1 >= d2);
+        var to = GetAnother(from, () => GetRandomDate(from.AddYears(1)), (d1, d2) => d1 >= d2);
 
         //---------------Assert Precondition----------------
         Expect(from).To.Be.Less.Than(to);

@@ -37,6 +37,12 @@ import { Stream } from "stream";
         stderr: console.error.bind(console),
         lowPriority: true
       } as DotNetBuildOptions;
+    if (process.env.MAX_CONCURRENCY !== undefined) {
+      const maxConcurrency = parseInt(process.env.MAX_CONCURRENCY, 10);
+      if (!isNaN(maxConcurrency)) {
+        opts.maxCPUs = maxConcurrency;
+      }
+    }
     await clean(opts);
     await build(opts);
   });
