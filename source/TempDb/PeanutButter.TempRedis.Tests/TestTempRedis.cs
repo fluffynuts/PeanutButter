@@ -435,13 +435,23 @@ public class TestTempRedis
             // Arrange
             var key = GetRandomString();
             var value = GetRandomString();
+
+            var options = new TempRedisOptions()
+            {
+                User = GetRandomUserName(),
+                Password = GetRandomString(),
+                DisableDefaultUser = true
+            };
+            if (Platform.IsWindows)
+            {
+                // the windows redis binary used for testing
+                // is too old to do acl'd users
+                options.User = null;
+                options.DisableDefaultUser = false;
+            }
+
             using var sut = Create(
-                new TempRedisOptions()
-                {
-                    User = GetRandomUserName(),
-                    Password = GetRandomString(),
-                    DisableDefaultUser = true
-                }
+                options
             );
             // Act
             using var conn = sut.Connect();
