@@ -34,7 +34,8 @@ import { Stream } from "stream";
         configuration,
         verbosity: "minimal",
         stdout: console.log.bind(console),
-        stderr: console.error.bind(console)
+        stderr: console.error.bind(console),
+        lowPriority: true
       } as DotNetBuildOptions;
     await clean(opts);
     await build(opts);

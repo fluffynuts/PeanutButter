@@ -194,6 +194,23 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempElasticsea
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeanutButter.TempElasticsearch.Tests", "TempDb\PeanutButter.TempElasticsearch.Tests\PeanutButter.TempElasticsearch.Tests.csproj", "{E4404F2D-F206-4284-8452-B5F7619AB0B5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "local-tasks", "local-tasks", "{44E02DD0-0628-4606-8304-ADAD624F6DEF}"
+	ProjectSection(SolutionItems) = preProject
+		..\local-tasks\commit-release.js = ..\local-tasks\commit-release.js
+		..\local-tasks\echo.js = ..\local-tasks\echo.js
+		..\local-tasks\generate-docs.generated.js = ..\local-tasks\generate-docs.generated.js
+		..\local-tasks\generate-docs.ts = ..\local-tasks\generate-docs.ts
+		..\local-tasks\list-project-assemblies.js = ..\local-tasks\list-project-assemblies.js
+		..\local-tasks\release.generated.js = ..\local-tasks\release.generated.js
+		..\local-tasks\release.ts = ..\local-tasks\release.ts
+		..\local-tasks\tag-and-push.js = ..\local-tasks\tag-and-push.js
+		..\local-tasks\test-zarro.generated.js = ..\local-tasks\test-zarro.generated.js
+		..\local-tasks\test-zarro.ts = ..\local-tasks\test-zarro.ts
+		..\local-tasks\update-nuget-package-incrementer.js = ..\local-tasks\update-nuget-package-incrementer.js
+		..\local-tasks\update-tempdb-runner-files.generated.js = ..\local-tasks\update-tempdb-runner-files.generated.js
+		..\local-tasks\update-tempdb-runner-files.ts = ..\local-tasks\update-tempdb-runner-files.ts
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1136,6 +1153,7 @@ Global
 		{45EF2DC5-0706-4E15-97AD-9495DCF5756E} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
 		{91E0CBD7-001F-4880-8FD3-DE32E6E16969} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
 		{E4404F2D-F206-4284-8452-B5F7619AB0B5} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
+		{44E02DD0-0628-4606-8304-ADAD624F6DEF} = {905D8BA4-13FC-4FE2-8290-9263E0180961}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3024A467-FC9C-430A-821A-448AF0866E32}
