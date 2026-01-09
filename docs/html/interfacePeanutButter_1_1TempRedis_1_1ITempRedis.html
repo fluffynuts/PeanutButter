@@ -114,9 +114,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a3401970b46796419c119ced504120804"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides a simple mechanism to connect to the redis instance with an <em>unmanaged</em> connection - you will be responsible for disposing of it.  <br /></td></tr>
 <tr class="memitem:a475785119ed75024331f284cf72a6baa" id="r_a475785119ed75024331f284cf72a6baa"><td class="memItemLeft" align="right" valign="top">IConnectionMultiplexer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a475785119ed75024331f284cf72a6baa">ConnectUnmanaged</a> (ConfigurationOptions options)</td></tr>
 <tr class="memdesc:a475785119ed75024331f284cf72a6baa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides a simple mechanism to connect to the redis instance with an <em>unmanaged</em> connection - you will be responsible for disposing of it.  <br /></td></tr>
-<tr class="memitem:aa0cd70c7d740a6d1135673389e84519f" id="r_aa0cd70c7d740a6d1135673389e84519f"><td class="memItemLeft" align="right" valign="top"><a id="aa0cd70c7d740a6d1135673389e84519f" name="aa0cd70c7d740a6d1135673389e84519f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Start</b> ()</td></tr>
-<tr class="memdesc:aa0cd70c7d740a6d1135673389e84519f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts up the server, if not auto-started at construction time (default is to auto-start). <br /></td></tr>
+<tr class="memitem:aa0cd70c7d740a6d1135673389e84519f" id="r_aa0cd70c7d740a6d1135673389e84519f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa0cd70c7d740a6d1135673389e84519f">Start</a> ()</td></tr>
+<tr class="memdesc:aa0cd70c7d740a6d1135673389e84519f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts up the server, if not auto-started at construction time (default is to auto-start).  <br /></td></tr>
 <tr class="memitem:a82e576c8a31f8b06d024a2597330ec99" id="r_a82e576c8a31f8b06d024a2597330ec99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a82e576c8a31f8b06d024a2597330ec99">Stop</a> ()</td></tr>
 <tr class="memdesc:a82e576c8a31f8b06d024a2597330ec99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops the redis server. You probably don't need to call this as the server will automatically be stopped when disposed.  <br /></td></tr>
 <tr class="memitem:ac03f815bde52c2fb55955cd845855530" id="r_ac03f815bde52c2fb55955cd845855530"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac03f815bde52c2fb55955cd845855530">Restart</a> ()</td></tr>
@@ -135,9 +134,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Start</b> ()</td></tr
 <tr class="memdesc:a96e636366a246e08f3724ca944a2f33f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fetch all keys at the default database.  <br /></td></tr>
 <tr class="memitem:a9ddf8a838dd797cbb4c658f41efe279d" id="r_a9ddf8a838dd797cbb4c658f41efe279d"><td class="memItemLeft" align="right" valign="top">IEnumerable&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9ddf8a838dd797cbb4c658f41efe279d">FetchKeys</a> (string matching)</td></tr>
 <tr class="memdesc:a9ddf8a838dd797cbb4c658f41efe279d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fetch all keys matching.  <br /></td></tr>
-<tr class="memitem:ac5b8b699fe773faa05971ea4e7e23a30" id="r_ac5b8b699fe773faa05971ea4e7e23a30"><td class="memItemLeft" align="right" valign="top"><a id="ac5b8b699fe773faa05971ea4e7e23a30" name="ac5b8b699fe773faa05971ea4e7e23a30"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>FlushAll</b> ()</td></tr>
-<tr class="memdesc:ac5b8b699fe773faa05971ea4e7e23a30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flush all keys from the default database (0). <br /></td></tr>
+<tr class="memitem:ac5b8b699fe773faa05971ea4e7e23a30" id="r_ac5b8b699fe773faa05971ea4e7e23a30"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac5b8b699fe773faa05971ea4e7e23a30">FlushAll</a> ()</td></tr>
+<tr class="memdesc:ac5b8b699fe773faa05971ea4e7e23a30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flush all keys from the default database (0).  <br /></td></tr>
 <tr class="memitem:a30f99193e0bcbe293423662945997cd1" id="r_a30f99193e0bcbe293423662945997cd1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a30f99193e0bcbe293423662945997cd1">Reset</a> ()</td></tr>
 <tr class="memdesc:a30f99193e0bcbe293423662945997cd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close all managed connections, restart the server, flush all data.  <br /></td></tr>
 </table><table class="memberdecls">
@@ -310,6 +308,8 @@ Properties</h2></td></tr>
   </dd>
 </dl>
 
+<p>Implemented in <a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html#a39d4c931146abc30c7f5e69d606cae51">PeanutButter.TempRedis.TempRedis</a>.</p>
+
 </div>
 </div>
 <a id="aa8119a82ba3b49351a3027cd95a3e4e5" name="aa8119a82ba3b49351a3027cd95a3e4e5"></a>
@@ -343,6 +343,8 @@ Properties</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+<p>Implemented in <a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html#a347fe97a2b5c68320dcc819c091f53d0">PeanutButter.TempRedis.TempRedis</a>.</p>
 
 </div>
 </div>
@@ -396,6 +398,27 @@ Properties</h2></td></tr>
 
 </div>
 </div>
+<a id="ac5b8b699fe773faa05971ea4e7e23a30" name="ac5b8b699fe773faa05971ea4e7e23a30"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5b8b699fe773faa05971ea4e7e23a30">&#9670;&#160;</a></span>FlushAll()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PeanutButter.TempRedis.ITempRedis.FlushAll </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Flush all keys from the default database (0). </p>
+
+<p>Implemented in <a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html#a0aa56a6524e6899a9c7e3273debd00ba">PeanutButter.TempRedis.TempRedis</a>.</p>
+
+</div>
+</div>
 <a id="a30f99193e0bcbe293423662945997cd1" name="a30f99193e0bcbe293423662945997cd1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a30f99193e0bcbe293423662945997cd1">&#9670;&#160;</a></span>Reset()</h2>
 
@@ -435,6 +458,27 @@ Properties</h2></td></tr>
 <p>Restarts the server process (shortcut for Stop/Start). </p>
 
 <p>Implemented in <a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html#aae0794f44ac4f200d7f6322ca5aa9fee">PeanutButter.TempRedis.TempRedis</a>.</p>
+
+</div>
+</div>
+<a id="aa0cd70c7d740a6d1135673389e84519f" name="aa0cd70c7d740a6d1135673389e84519f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0cd70c7d740a6d1135673389e84519f">&#9670;&#160;</a></span>Start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PeanutButter.TempRedis.ITempRedis.Start </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Starts up the server, if not auto-started at construction time (default is to auto-start). </p>
+
+<p>Implemented in <a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html#a37e4b2bfa6081e6ef475f07be26f3dbb">PeanutButter.TempRedis.TempRedis</a>.</p>
 
 </div>
 </div>
@@ -493,6 +537,8 @@ Properties</h2></td></tr>
   </dd>
 </dl>
 
+<p>Implemented in <a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html#a52081edcfb623bc7fb2eb1d3da4932b7">PeanutButter.TempRedis.TempRedis</a>.</p>
+
 </div>
 </div>
 <a id="a53ab26db2f2406075b785ddd2343ede8" name="a53ab26db2f2406075b785ddd2343ede8"></a>
@@ -529,6 +575,8 @@ Properties</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p>Implemented in <a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html#a92348921295c7e8fc0264f95a5434b9e">PeanutButter.TempRedis.TempRedis</a>.</p>
 
 </div>
 </div>

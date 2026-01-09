@@ -107,6 +107,7 @@ Classes</h2></td></tr>
 <tr class="memitem:TempRedisOptions" id="r_TempRedisOptions"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedisOptions.html">TempRedisOptions</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Options for construction of a <a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html">TempRedis</a> instance.  <a href="classPeanutButter_1_1TempRedis_1_1TempRedisOptions.html#details">More...</a><br /></td></tr>
 <tr class="memitem:TempRedis" id="r_TempRedis"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html">TempRedis</a></td></tr>
+<tr class="memitem:ConnectionMultiplexerFacade" id="r_ConnectionMultiplexerFacade"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><b>ConnectionMultiplexerFacade</b></td></tr>
 <tr class="memitem:ITempRedisFactory" id="r_ITempRedisFactory"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfacePeanutButter_1_1TempRedis_1_1ITempRedisFactory.html">ITempRedisFactory</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes a <a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html">TempRedis</a> leasing factory.  <a href="interfacePeanutButter_1_1TempRedis_1_1ITempRedisFactory.html#details">More...</a><br /></td></tr>
 <tr class="memitem:TempRedisFactory" id="r_TempRedisFactory"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedisFactory.html">TempRedisFactory</a></td></tr>
@@ -118,21 +119,6 @@ Enumerations</h2></td></tr>
 , <a class="el" href="#abfa806a17b9386e2c411bb65773387b9a426b95b371e009a9aa1bffdc9451264f">DownloadForWindowsIfNecessary</a> = 4
  }</td></tr>
 <tr class="memdesc:abfa806a17b9386e2c411bb65773387b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strategies for resolving a temporary redis server executable.  <a href="#abfa806a17b9386e2c411bb65773387b9">More...</a><br /></td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a3d29894f32faca4aba7181666833e748" id="r_a3d29894f32faca4aba7181666833e748"><td class="memItemLeft" align="right" valign="top"><a id="a3d29894f32faca4aba7181666833e748" name="a3d29894f32faca4aba7181666833e748"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>FlushAll</b> ()</td></tr>
-<tr class="memitem:ad49aaaf869d77aacf18b25ee7ed94adc" id="r_ad49aaaf869d77aacf18b25ee7ed94adc"><td class="memItemLeft" align="right" valign="top"><a id="ad49aaaf869d77aacf18b25ee7ed94adc" name="ad49aaaf869d77aacf18b25ee7ed94adc"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Store&lt; T &gt;</b> (string key, T value)</td></tr>
-<tr class="memitem:a4f096636a4ed948a58bc5b3c0eb6dcc3" id="r_a4f096636a4ed948a58bc5b3c0eb6dcc3"><td class="memItemLeft" align="right" valign="top"><a id="a4f096636a4ed948a58bc5b3c0eb6dcc3" name="a4f096636a4ed948a58bc5b3c0eb6dcc3"></a>
-T&#160;</td><td class="memItemRight" valign="bottom"><b>Fetch&lt; T &gt;</b> (string key)</td></tr>
-<tr class="memitem:a35fc9e9341b86d331678f6eb49aa5a4f" id="r_a35fc9e9341b86d331678f6eb49aa5a4f"><td class="memItemLeft" align="right" valign="top"><a id="a35fc9e9341b86d331678f6eb49aa5a4f" name="a35fc9e9341b86d331678f6eb49aa5a4f"></a>
-string&#160;</td><td class="memItemRight" valign="bottom"><b>Fetch</b> (string key)</td></tr>
-<tr class="memitem:a7d5cfccee1f8ff76fd4e413dbf2bcddc" id="r_a7d5cfccee1f8ff76fd4e413dbf2bcddc"><td class="memItemLeft" align="right" valign="top"><a id="a7d5cfccee1f8ff76fd4e413dbf2bcddc" name="a7d5cfccee1f8ff76fd4e413dbf2bcddc"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>TryFetch&lt; T &gt;</b> (string key, out T result)</td></tr>
-<tr class="memitem:a0e1ae87e97190dfb8fd4e57f04ecc323" id="r_a0e1ae87e97190dfb8fd4e57f04ecc323"><td class="memItemLeft" align="right" valign="top"><a id="a0e1ae87e97190dfb8fd4e57f04ecc323" name="a0e1ae87e97190dfb8fd4e57f04ecc323"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Dispose</b> ()</td></tr>
 </table>
 <a name="doc-enum-members" id="doc-enum-members"></a><h2 id="header-doc-enum-members" class="groupheader">Enumeration Type Documentation</h2>
 <a id="abfa806a17b9386e2c411bb65773387b9" name="abfa806a17b9386e2c411bb65773387b9"></a>

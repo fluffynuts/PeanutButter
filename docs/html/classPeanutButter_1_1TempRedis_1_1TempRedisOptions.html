@@ -126,6 +126,16 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>DatabaseCount</b> = 1<
 <tr class="memitem:a5c0741f18de5089634ae410d43d89683" id="r_a5c0741f18de5089634ae410d43d89683"><td class="memItemLeft" align="right" valign="top"><a id="a5c0741f18de5089634ae410d43d89683" name="a5c0741f18de5089634ae410d43d89683"></a>
 Action&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>DebugLogger</b><code> [get, set]</code></td></tr>
 <tr class="memdesc:a5c0741f18de5089634ae410d43d89683"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set this to get debug logs, eg around startup and restart. <br /></td></tr>
+<tr class="memitem:a6e4c5ffc5cfa14098974db755bc204a7" id="r_a6e4c5ffc5cfa14098974db755bc204a7"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6e4c5ffc5cfa14098974db755bc204a7">Password</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a6e4c5ffc5cfa14098974db755bc204a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Password for the redis server.  <br /></td></tr>
+<tr class="memitem:a11d9c785bf2271b7687131de12cc3a5d" id="r_a11d9c785bf2271b7687131de12cc3a5d"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a11d9c785bf2271b7687131de12cc3a5d">User</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a11d9c785bf2271b7687131de12cc3a5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The username to set up when using an ACL'd user.  <br /></td></tr>
+<tr class="memitem:a4f8a54fc8ead2d1a3ded2142cefb6d0d" id="r_a4f8a54fc8ead2d1a3ded2142cefb6d0d"><td class="memItemLeft" align="right" valign="top"><a id="a4f8a54fc8ead2d1a3ded2142cefb6d0d" name="a4f8a54fc8ead2d1a3ded2142cefb6d0d"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>DisableDefaultUser</b><code> [get, set]</code></td></tr>
+<tr class="memdesc:a4f8a54fc8ead2d1a3ded2142cefb6d0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">When setting a User and Password via ACLs, you may also disable the default user so that all connections require authentication. <br /></td></tr>
+<tr class="memitem:ad30579cfb824401b419ab0e2b444c5f2" id="r_ad30579cfb824401b419ab0e2b444c5f2"><td class="memItemLeft" align="right" valign="top"><a id="ad30579cfb824401b419ab0e2b444c5f2" name="ad30579cfb824401b419ab0e2b444c5f2"></a>
+string&#160;</td><td class="memItemRight" valign="bottom"><b>RawOptions</b><code> [get, set]</code></td></tr>
+<tr class="memdesc:ad30579cfb824401b419ab0e2b444c5f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Escape hatch: raw options that will be appended to the end of the generated config. <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Options for construction of a <a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html">TempRedis</a> instance. </p>
@@ -183,7 +193,7 @@ Action&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Deb
 <div class="line">                ?? <span class="stringliteral">&quot;1&quot;</span></div>
 <div class="line">            )</div>
 <div class="line">            .AsBoolean()</div>
-<div class="ttc" id="aclassPeanutButter_1_1TempRedis_1_1TempRedisOptions_html_a8aaff849d19a68803c080daa032a0760"><div class="ttname"><a href="#a8aaff849d19a68803c080daa032a0760">PeanutButter.TempRedis.TempRedisOptions.ENV_VAR_DISABLE_DISK</a></div><div class="ttdeci">const string ENV_VAR_DISABLE_DISK</div><div class="ttdoc">name of the environment variable which is observed to disable the automatically-enabled feature to st...</div><div class="ttdef"><b>Definition</b> TempRedis.cs:228</div></div>
+<div class="ttc" id="aclassPeanutButter_1_1TempRedis_1_1TempRedisOptions_html_a8aaff849d19a68803c080daa032a0760"><div class="ttname"><a href="#a8aaff849d19a68803c080daa032a0760">PeanutButter.TempRedis.TempRedisOptions.ENV_VAR_DISABLE_DISK</a></div><div class="ttdeci">const string ENV_VAR_DISABLE_DISK</div><div class="ttdoc">name of the environment variable which is observed to disable the automatically-enabled feature to st...</div><div class="ttdef"><b>Definition</b> TempRedis.cs:230</div></div>
 </div><!-- fragment -->
 <p>Enables save-to-disk, which means redis-server should (mostly) survive a crash. </p>
 
@@ -212,11 +222,39 @@ Action&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Deb
 <div class="line">            <a class="code hl_enumvalue" href="namespacePeanutButter_1_1TempRedis.html#abfa806a17b9386e2c411bb65773387b9a9c14e8a7d351cbf1580b6c1a8181fb18">RedisLocatorStrategies.FindInPath</a> |</div>
 <div class="line">            <a class="code hl_enumvalue" href="namespacePeanutButter_1_1TempRedis.html#abfa806a17b9386e2c411bb65773387b9a309bfc7dee1b26b6259d0e4a49964e68">RedisLocatorStrategies.FindAsWindowsService</a> |</div>
 <div class="line">            <a class="code hl_enumeration" href="namespacePeanutButter_1_1TempRedis.html#abfa806a17b9386e2c411bb65773387b9">RedisLocatorStrategies</a>.DownloadForWindowsIfNecessary</div>
-<div class="ttc" id="anamespacePeanutButter_1_1TempRedis_html_abfa806a17b9386e2c411bb65773387b9"><div class="ttname"><a href="namespacePeanutButter_1_1TempRedis.html#abfa806a17b9386e2c411bb65773387b9">PeanutButter.TempRedis.RedisLocatorStrategies</a></div><div class="ttdeci">RedisLocatorStrategies</div><div class="ttdoc">Strategies for resolving a temporary redis server executable.</div><div class="ttdef"><b>Definition</b> TempRedis.cs:32</div></div>
-<div class="ttc" id="anamespacePeanutButter_1_1TempRedis_html_abfa806a17b9386e2c411bb65773387b9a309bfc7dee1b26b6259d0e4a49964e68"><div class="ttname"><a href="namespacePeanutButter_1_1TempRedis.html#abfa806a17b9386e2c411bb65773387b9a309bfc7dee1b26b6259d0e4a49964e68">PeanutButter.TempRedis.RedisLocatorStrategies.FindAsWindowsService</a></div><div class="ttdeci">@ FindAsWindowsService</div><div class="ttdoc">Look for an installed Redis service on windows (does not apply to linux/osx) The service must be call...</div><div class="ttdef"><b>Definition</b> TempRedis.cs:42</div></div>
-<div class="ttc" id="anamespacePeanutButter_1_1TempRedis_html_abfa806a17b9386e2c411bb65773387b9a9c14e8a7d351cbf1580b6c1a8181fb18"><div class="ttname"><a href="namespacePeanutButter_1_1TempRedis.html#abfa806a17b9386e2c411bb65773387b9a9c14e8a7d351cbf1580b6c1a8181fb18">PeanutButter.TempRedis.RedisLocatorStrategies.FindInPath</a></div><div class="ttdeci">@ FindInPath</div><div class="ttdoc">Look for redis-server.exe or redis-server (linux/osx) in the path.</div><div class="ttdef"><b>Definition</b> TempRedis.cs:36</div></div>
+<div class="ttc" id="anamespacePeanutButter_1_1TempRedis_html_abfa806a17b9386e2c411bb65773387b9"><div class="ttname"><a href="namespacePeanutButter_1_1TempRedis.html#abfa806a17b9386e2c411bb65773387b9">PeanutButter.TempRedis.RedisLocatorStrategies</a></div><div class="ttdeci">RedisLocatorStrategies</div><div class="ttdoc">Strategies for resolving a temporary redis server executable.</div><div class="ttdef"><b>Definition</b> TempRedis.cs:34</div></div>
+<div class="ttc" id="anamespacePeanutButter_1_1TempRedis_html_abfa806a17b9386e2c411bb65773387b9a309bfc7dee1b26b6259d0e4a49964e68"><div class="ttname"><a href="namespacePeanutButter_1_1TempRedis.html#abfa806a17b9386e2c411bb65773387b9a309bfc7dee1b26b6259d0e4a49964e68">PeanutButter.TempRedis.RedisLocatorStrategies.FindAsWindowsService</a></div><div class="ttdeci">@ FindAsWindowsService</div><div class="ttdoc">Look for an installed Redis service on windows (does not apply to linux/osx) The service must be call...</div><div class="ttdef"><b>Definition</b> TempRedis.cs:44</div></div>
+<div class="ttc" id="anamespacePeanutButter_1_1TempRedis_html_abfa806a17b9386e2c411bb65773387b9a9c14e8a7d351cbf1580b6c1a8181fb18"><div class="ttname"><a href="namespacePeanutButter_1_1TempRedis.html#abfa806a17b9386e2c411bb65773387b9a9c14e8a7d351cbf1580b6c1a8181fb18">PeanutButter.TempRedis.RedisLocatorStrategies.FindInPath</a></div><div class="ttdeci">@ FindInPath</div><div class="ttdoc">Look for redis-server.exe or redis-server (linux/osx) in the path.</div><div class="ttdef"><b>Definition</b> TempRedis.cs:38</div></div>
 </div><!-- fragment -->
 <p>Strategies which may be employed to locate redis This is a flag set (default: all strategies). </p>
+
+</div>
+</div>
+<a id="a6e4c5ffc5cfa14098974db755bc204a7" name="a6e4c5ffc5cfa14098974db755bc204a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e4c5ffc5cfa14098974db755bc204a7">&#9670;&#160;</a></span>Password</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string PeanutButter.TempRedis.TempRedisOptions.Password</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span><span class="mlabel set">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Password for the redis server. </p>
+<ul>
+<li>if no User is supplied, this becomes the global password</li>
+<li>if a User is specified, this is used to set up an ACL'd user and you should probably also set DisableDefaultUser to true </li>
+</ul>
 
 </div>
 </div>
@@ -243,9 +281,36 @@ Action&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Deb
 <div class="line">            <span class="keywordtype">int</span>.TryParse(Environment.GetEnvironmentVariable(<a class="code hl_variable" href="#a3cf05c29041efda2b6603882512b2d8b">TEMPREDIS_PORT_HINT</a>), out var env)</div>
 <div class="line">                ? env</div>
 <div class="line">                : <span class="keyword">null</span></div>
-<div class="ttc" id="aclassPeanutButter_1_1TempRedis_1_1TempRedisOptions_html_a3cf05c29041efda2b6603882512b2d8b"><div class="ttname"><a href="#a3cf05c29041efda2b6603882512b2d8b">PeanutButter.TempRedis.TempRedisOptions.TEMPREDIS_PORT_HINT</a></div><div class="ttdeci">const string TEMPREDIS_PORT_HINT</div><div class="ttdoc">Environment variable observed for a preference of port to run on (may make debugging easier)....</div><div class="ttdef"><b>Definition</b> TempRedis.cs:282</div></div>
+<div class="ttc" id="aclassPeanutButter_1_1TempRedis_1_1TempRedisOptions_html_a3cf05c29041efda2b6603882512b2d8b"><div class="ttname"><a href="#a3cf05c29041efda2b6603882512b2d8b">PeanutButter.TempRedis.TempRedisOptions.TEMPREDIS_PORT_HINT</a></div><div class="ttdeci">const string TEMPREDIS_PORT_HINT</div><div class="ttdoc">Environment variable observed for a preference of port to run on (may make debugging easier)....</div><div class="ttdef"><b>Definition</b> TempRedis.cs:284</div></div>
 </div><!-- fragment -->
 <p>The preferred port to run on. If set, <a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html">TempRedis</a> will attempt to start a server on this port. If not available, ports will be sequentially tested from this value upward to find an available one. May make debugging easier. </p>
+
+</div>
+</div>
+<a id="a11d9c785bf2271b7687131de12cc3a5d" name="a11d9c785bf2271b7687131de12cc3a5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11d9c785bf2271b7687131de12cc3a5d">&#9670;&#160;</a></span>User</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string PeanutButter.TempRedis.TempRedisOptions.User</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span><span class="mlabel set">set</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The username to set up when using an ACL'd user. </p>
+<ul>
+<li>only works on redis 6+ </li>
+</ul>
 
 </div>
 </div>
