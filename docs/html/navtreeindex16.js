@@ -1,5 +1,7 @@
 var NAVTREEINDEX16 =
 {
+"classPeanutButter_1_1Utils_1_1AutoResettingFile.html#a5b1c74cf58e630802ab14b7835640169":[2,0,0,15,10,0],
+"classPeanutButter_1_1Utils_1_1AutoResettingFile.html#a6e3f4e630bd586214ae9f86bfc15f6f2":[1,0,0,15,11,1],
 "classPeanutButter_1_1Utils_1_1AutoResettingFile.html#a6e3f4e630bd586214ae9f86bfc15f6f2":[2,0,0,15,10,1],
 "classPeanutButter_1_1Utils_1_1AutoTempEnvironmentVariable.html":[1,0,0,15,12],
 "classPeanutButter_1_1Utils_1_1AutoTempEnvironmentVariable.html":[2,0,0,15,11],
@@ -247,7 +249,5 @@ var NAVTREEINDEX16 =
 "classPeanutButter_1_1Utils_1_1ConstantTimeBackoffStrategy.html":[2,0,0,15,33],
 "classPeanutButter_1_1Utils_1_1ConstantTimeBackoffStrategy.html#a9a2f1b7afc490c957cf74c438109cec2":[1,0,0,15,34,0],
 "classPeanutButter_1_1Utils_1_1ConstantTimeBackoffStrategy.html#a9a2f1b7afc490c957cf74c438109cec2":[2,0,0,15,33,0],
-"classPeanutButter_1_1Utils_1_1ConstantTimeBackoffStrategy.html#ac2b74e71a376e9b5401b5cd8eef99d79":[1,0,0,15,34,1],
-"classPeanutButter_1_1Utils_1_1ConstantTimeBackoffStrategy.html#ac2b74e71a376e9b5401b5cd8eef99d79":[2,0,0,15,33,1],
-"classPeanutButter_1_1Utils_1_1DateTimeExtensions.html":[1,0,0,15,28]
+"classPeanutButter_1_1Utils_1_1ConstantTimeBackoffStrategy.html#ac2b74e71a376e9b5401b5cd8eef99d79":[1,0,0,15,34,1]
 };

@@ -193,7 +193,7 @@ string&#160;</td><td class="memItemRight" valign="bottom"><b>RawOptions</b><code
 <div class="line">                ?? <span class="stringliteral">&quot;1&quot;</span></div>
 <div class="line">            )</div>
 <div class="line">            .AsBoolean()</div>
-<div class="ttc" id="aclassPeanutButter_1_1TempRedis_1_1TempRedisOptions_html_a8aaff849d19a68803c080daa032a0760"><div class="ttname"><a href="#a8aaff849d19a68803c080daa032a0760">PeanutButter.TempRedis.TempRedisOptions.ENV_VAR_DISABLE_DISK</a></div><div class="ttdeci">const string ENV_VAR_DISABLE_DISK</div><div class="ttdoc">name of the environment variable which is observed to disable the automatically-enabled feature to st...</div><div class="ttdef"><b>Definition</b> TempRedis.cs:230</div></div>
+<div class="ttc" id="aclassPeanutButter_1_1TempRedis_1_1TempRedisOptions_html_a8aaff849d19a68803c080daa032a0760"><div class="ttname"><a href="#a8aaff849d19a68803c080daa032a0760">PeanutButter.TempRedis.TempRedisOptions.ENV_VAR_DISABLE_DISK</a></div><div class="ttdeci">const string ENV_VAR_DISABLE_DISK</div><div class="ttdoc">name of the environment variable which is observed to disable the automatically-enabled feature to st...</div><div class="ttdef"><b>Definition</b> TempRedis.cs:236</div></div>
 </div><!-- fragment -->
 <p>Enables save-to-disk, which means redis-server should (mostly) survive a crash. </p>
 
@@ -281,7 +281,7 @@ string&#160;</td><td class="memItemRight" valign="bottom"><b>RawOptions</b><code
 <div class="line">            <span class="keywordtype">int</span>.TryParse(Environment.GetEnvironmentVariable(<a class="code hl_variable" href="#a3cf05c29041efda2b6603882512b2d8b">TEMPREDIS_PORT_HINT</a>), out var env)</div>
 <div class="line">                ? env</div>
 <div class="line">                : <span class="keyword">null</span></div>
-<div class="ttc" id="aclassPeanutButter_1_1TempRedis_1_1TempRedisOptions_html_a3cf05c29041efda2b6603882512b2d8b"><div class="ttname"><a href="#a3cf05c29041efda2b6603882512b2d8b">PeanutButter.TempRedis.TempRedisOptions.TEMPREDIS_PORT_HINT</a></div><div class="ttdeci">const string TEMPREDIS_PORT_HINT</div><div class="ttdoc">Environment variable observed for a preference of port to run on (may make debugging easier)....</div><div class="ttdef"><b>Definition</b> TempRedis.cs:284</div></div>
+<div class="ttc" id="aclassPeanutButter_1_1TempRedis_1_1TempRedisOptions_html_a3cf05c29041efda2b6603882512b2d8b"><div class="ttname"><a href="#a3cf05c29041efda2b6603882512b2d8b">PeanutButter.TempRedis.TempRedisOptions.TEMPREDIS_PORT_HINT</a></div><div class="ttdeci">const string TEMPREDIS_PORT_HINT</div><div class="ttdoc">Environment variable observed for a preference of port to run on (may make debugging easier)....</div><div class="ttdef"><b>Definition</b> TempRedis.cs:290</div></div>
 </div><!-- fragment -->
 <p>The preferred port to run on. If set, <a class="el" href="classPeanutButter_1_1TempRedis_1_1TempRedis.html">TempRedis</a> will attempt to start a server on this port. If not available, ports will be sequentially tested from this value upward to find an available one. May make debugging easier. </p>
 

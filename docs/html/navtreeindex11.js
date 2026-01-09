@@ -1,5 +1,7 @@
 var NAVTREEINDEX11 =
 {
+"classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1RequestCookieCollectionBuilder.html#a149954b5087230440cea8fde60e5f12d":[2,0,0,7,0,0,24,2],
+"classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1RequestCookieCollectionBuilder.html#a9b9768ec8689620c91584291f60b02a3":[1,0,0,7,0,0,24,0],
 "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1RequestCookieCollectionBuilder.html#a9b9768ec8689620c91584291f60b02a3":[2,0,0,7,0,0,24,0],
 "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1RequestCookieCollectionBuilder.html#afd0d9729d5963d426a5a47f0e9cb7365":[1,0,0,7,0,0,24,1],
 "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1RequestCookieCollectionBuilder.html#afd0d9729d5963d426a5a47f0e9cb7365":[2,0,0,7,0,0,24,1],
@@ -247,7 +249,5 @@ var NAVTREEINDEX11 =
 "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpContext.html#a2d459ee2028dc14aafe3dbc590c8dc13":[2,0,0,7,0,1,10,4],
 "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpContext.html#a2ed60e5a20ae894b317da8048b4fcd9f":[1,0,0,7,0,1,11,12],
 "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpContext.html#a2ed60e5a20ae894b317da8048b4fcd9f":[2,0,0,7,0,1,10,12],
-"classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpContext.html#a308e4da3f6b2dcb09cb2c81406a3bd26":[1,0,0,7,0,1,11,9],
-"classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpContext.html#a308e4da3f6b2dcb09cb2c81406a3bd26":[2,0,0,7,0,1,10,9],
-"classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpContext.html#a4ea3b92f2b419d3c35a97c1c88eca3ff":[1,0,0,7,0,1,11,14]
+"classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1FakeHttpContext.html#a308e4da3f6b2dcb09cb2c81406a3bd26":[1,0,0,7,0,1,11,9]
 };

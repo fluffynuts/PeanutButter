@@ -1,5 +1,7 @@
 var NAVTREEINDEX21 =
 {
+"classPeanutButter_1_1Utils_1_1MaxAttemptsRetryContext.html#a79c930274e27bb29a2ba2a4ad2463479":[2,0,0,15,58,4],
+"classPeanutButter_1_1Utils_1_1MaxAttemptsRetryContext.html#a7cce46ffd1d3841acb955bec31470bd6":[1,0,0,15,59,10],
 "classPeanutButter_1_1Utils_1_1MaxAttemptsRetryContext.html#a7cce46ffd1d3841acb955bec31470bd6":[2,0,0,15,58,10],
 "classPeanutButter_1_1Utils_1_1MaxAttemptsRetryContext.html#a7dc4cee2786c69a568b0238d6bbcea89":[1,0,0,15,59,16],
 "classPeanutButter_1_1Utils_1_1MaxAttemptsRetryContext.html#a7dc4cee2786c69a568b0238d6bbcea89":[2,0,0,15,58,16],
@@ -247,7 +249,5 @@ var NAVTREEINDEX21 =
 "classPeanutButter_1_1Utils_1_1Platform.html#a2279b1cd4f10c57a3708d41a0eba6fc2":[2,0,0,15,72,1],
 "classPeanutButter_1_1Utils_1_1Platform.html#a2bf5b6683077b09d9bdec80609088636":[1,0,0,15,73,2],
 "classPeanutButter_1_1Utils_1_1Platform.html#a2bf5b6683077b09d9bdec80609088636":[2,0,0,15,72,2],
-"classPeanutButter_1_1Utils_1_1Platform.html#a65b4e39d1afe6b55bdd189e5f61c41d5":[1,0,0,15,73,4],
-"classPeanutButter_1_1Utils_1_1Platform.html#a65b4e39d1afe6b55bdd189e5f61c41d5":[2,0,0,15,72,4],
-"classPeanutButter_1_1Utils_1_1Platform.html#a8d4b880ef17480c171c98d41b5f83b17":[1,0,0,15,73,5]
+"classPeanutButter_1_1Utils_1_1Platform.html#a65b4e39d1afe6b55bdd189e5f61c41d5":[1,0,0,15,73,4]
 };

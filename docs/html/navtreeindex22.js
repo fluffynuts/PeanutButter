@@ -1,5 +1,7 @@
 var NAVTREEINDEX22 =
 {
+"classPeanutButter_1_1Utils_1_1Platform.html#a65b4e39d1afe6b55bdd189e5f61c41d5":[2,0,0,15,72,4],
+"classPeanutButter_1_1Utils_1_1Platform.html#a8d4b880ef17480c171c98d41b5f83b17":[1,0,0,15,73,5],
 "classPeanutButter_1_1Utils_1_1Platform.html#a8d4b880ef17480c171c98d41b5f83b17":[2,0,0,15,72,5],
 "classPeanutButter_1_1Utils_1_1Platform.html#aa1185f73b17bba04a9b8ab67ac56050f":[1,0,0,15,73,0],
 "classPeanutButter_1_1Utils_1_1Platform.html#aa1185f73b17bba04a9b8ab67ac56050f":[2,0,0,15,72,0],
@@ -247,7 +249,5 @@ var NAVTREEINDEX22 =
 "classPeanutButter_1_1Utils_1_1PyLike.html#ac6ec903dc52b5f4b60add0d028047c67":[2,0,0,15,85,2],
 "classPeanutButter_1_1Utils_1_1PyLike.html#afc9a8f3cb3a038257441a7d219c26ecd":[1,0,0,15,86,4],
 "classPeanutButter_1_1Utils_1_1PyLike.html#afc9a8f3cb3a038257441a7d219c26ecd":[2,0,0,15,85,4],
-"classPeanutButter_1_1Utils_1_1PyLike.html#afdeffbd819cc10e32507e315c580b4ff":[1,0,0,15,86,3],
-"classPeanutButter_1_1Utils_1_1PyLike.html#afdeffbd819cc10e32507e315c580b4ff":[2,0,0,15,85,3],
-"classPeanutButter_1_1Utils_1_1QueueExtensions.html":[1,0,0,15,87]
+"classPeanutButter_1_1Utils_1_1PyLike.html#afdeffbd819cc10e32507e315c580b4ff":[1,0,0,15,86,3]
 };

@@ -1,5 +1,7 @@
 var NAVTREEINDEX14 =
 {
+"classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1StringValueMap.html#a2a527c39827b01ce4c1005684a5df5d4":[2,0,0,7,0,1,35,6],
+"classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1StringValueMap.html#a2af0c9aa375d2d4455de1743dd26b263":[1,0,0,7,0,1,36,1],
 "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1StringValueMap.html#a2af0c9aa375d2d4455de1743dd26b263":[2,0,0,7,0,1,35,1],
 "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1StringValueMap.html#a324e344c55ed4a6eb0085d35020f73bf":[1,0,0,7,0,1,36,16],
 "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1StringValueMap.html#a324e344c55ed4a6eb0085d35020f73bf":[2,0,0,7,0,1,35,16],
@@ -247,7 +249,5 @@ var NAVTREEINDEX14 =
 "classPeanutButter_1_1TestUtils_1_1Generic_1_1TypeExtensions.html#a1356aea778b0b649a395bfb6856007db":[2,0,0,7,1,6,12],
 "classPeanutButter_1_1TestUtils_1_1Generic_1_1TypeExtensions.html#a20883fc880608e4ea07aef7edccf528e":[1,0,0,7,1,7,13],
 "classPeanutButter_1_1TestUtils_1_1Generic_1_1TypeExtensions.html#a20883fc880608e4ea07aef7edccf528e":[2,0,0,7,1,6,13],
-"classPeanutButter_1_1TestUtils_1_1Generic_1_1TypeExtensions.html#a40e0a4cf010721cfeee7dc2b29ad0304":[1,0,0,7,1,7,23],
-"classPeanutButter_1_1TestUtils_1_1Generic_1_1TypeExtensions.html#a40e0a4cf010721cfeee7dc2b29ad0304":[2,0,0,7,1,6,23],
-"classPeanutButter_1_1TestUtils_1_1Generic_1_1TypeExtensions.html#a4a509e32f553f8d1d55a72583e1e9a06":[1,0,0,7,1,7,20]
+"classPeanutButter_1_1TestUtils_1_1Generic_1_1TypeExtensions.html#a40e0a4cf010721cfeee7dc2b29ad0304":[1,0,0,7,1,7,23]
 };

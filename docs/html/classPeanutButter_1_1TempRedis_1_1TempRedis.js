@@ -13,6 +13,7 @@ var classPeanutButter_1_1TempRedis_1_1TempRedis =
     [ "FetchKeys", "classPeanutButter_1_1TempRedis_1_1TempRedis.html#a76b4fe53708df2b47df1c3441e9397d7", null ],
     [ "FetchKeys", "classPeanutButter_1_1TempRedis_1_1TempRedis.html#a67c65527fd34cc8d06dc70332ab738d0", null ],
     [ "FlushAll", "classPeanutButter_1_1TempRedis_1_1TempRedis.html#a0aa56a6524e6899a9c7e3273debd00ba", null ],
+    [ "GenerateConnectionConfig", "classPeanutButter_1_1TempRedis_1_1TempRedis.html#a965901f5c01d07fb70cd1490e7861f43", null ],
     [ "Reset", "classPeanutButter_1_1TempRedis_1_1TempRedis.html#abde588c436769b401d5bb30456b77d75", null ],
     [ "Restart", "classPeanutButter_1_1TempRedis_1_1TempRedis.html#aae0794f44ac4f200d7f6322ca5aa9fee", null ],
     [ "Start", "classPeanutButter_1_1TempRedis_1_1TempRedis.html#a37e4b2bfa6081e6ef475f07be26f3dbb", null ],

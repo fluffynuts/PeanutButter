@@ -115,6 +115,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afbd891ab7e4b1a56b48f37bd66e7dbd8" id="r_afbd891ab7e4b1a56b48f37bd66e7dbd8"><td class="memItemLeft" align="right" valign="top">IConnectionMultiplexer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afbd891ab7e4b1a56b48f37bd66e7dbd8">ConnectUnmanaged</a> (ConfigurationOptions options)</td></tr>
 <tr class="memdesc:afbd891ab7e4b1a56b48f37bd66e7dbd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides a simple mechanism to connect to the redis instance with an <em>unmanaged</em> connection - you will be responsible for disposing of it.<dl class="section return"><dt>Returns</dt><dd></dd></dl>
   <br /></td></tr>
+<tr class="memitem:a965901f5c01d07fb70cd1490e7861f43" id="r_a965901f5c01d07fb70cd1490e7861f43"><td class="memItemLeft" align="right" valign="top">ConfigurationOptions&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a965901f5c01d07fb70cd1490e7861f43">GenerateConnectionConfig</a> ()</td></tr>
+<tr class="memdesc:a965901f5c01d07fb70cd1490e7861f43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates connection options for redis connections from the configuration for the server.  <br /></td></tr>
 <tr class="memitem:abde588c436769b401d5bb30456b77d75" id="r_abde588c436769b401d5bb30456b77d75"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abde588c436769b401d5bb30456b77d75">Reset</a> ()</td></tr>
 <tr class="memdesc:abde588c436769b401d5bb30456b77d75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close all managed connections, restart the server, flush all data.  <br /></td></tr>
 <tr class="memitem:a65ee96dfbde13a41162c4f24077f4105" id="r_a65ee96dfbde13a41162c4f24077f4105"><td class="memItemLeft" align="right" valign="top">IConnectionMultiplexer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a65ee96dfbde13a41162c4f24077f4105">Connect</a> (ConfigurationOptions options)</td></tr>
@@ -546,6 +548,27 @@ IConnectionMultiplexer&#160;</td><td class="memItemRight" valign="bottom"><b>Def
 <p>Flush all keys from the default database (0). </p>
 
 <p>Implements <a class="el" href="interfacePeanutButter_1_1TempRedis_1_1ITempRedis.html#ac5b8b699fe773faa05971ea4e7e23a30">PeanutButter.TempRedis.ITempRedis</a>.</p>
+
+</div>
+</div>
+<a id="a965901f5c01d07fb70cd1490e7861f43" name="a965901f5c01d07fb70cd1490e7861f43"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a965901f5c01d07fb70cd1490e7861f43">&#9670;&#160;</a></span>GenerateConnectionConfig()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ConfigurationOptions PeanutButter.TempRedis.TempRedis.GenerateConnectionConfig </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generates connection options for redis connections from the configuration for the server. </p>
+
+<p>Implements <a class="el" href="interfacePeanutButter_1_1TempRedis_1_1ITempRedis.html#a0d07bf5d67e041d010ffca453c3e3bac">PeanutButter.TempRedis.ITempRedis</a>.</p>
 
 </div>
 </div>
