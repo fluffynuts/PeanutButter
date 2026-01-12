@@ -203,6 +203,12 @@ public class TestTempRedis
     public void ShouldEnablePubSubForUser()
     {
         // Arrange
+        if (Platform.IsWindows)
+        {
+            Assert.Ignore("Windows tests are run with a very old redis binary");
+            return;
+        }
+
         var user = "bob";
         var password = "saget";
         using var sut = Create(
@@ -218,12 +224,13 @@ public class TestTempRedis
         using var conn = sut.Connect();
         var sub = conn.GetSubscriber();
         var barrier = new Barrier(2);
-        sub.Subscribe("messages", (channel, message) =>
+        var channel = new RedisChannel("messages", RedisChannel.PatternMode.Auto);
+        sub.Subscribe(channel, (c, message) =>
         {
             collected.Add(message);
             barrier.SignalAndWait();
         });
-        sub.Publish("messages", "hello");
+        sub.Publish(channel, "hello");
         // Assert
         Expect(barrier.SignalAndWait(TimeSpan.FromSeconds(2)))
             .To.Be.True();
