@@ -200,6 +200,40 @@ public class TestTempRedis
     }
 
     [Test]
+    public void ShouldEnablePubSubForUser()
+    {
+        // Arrange
+        var user = "bob";
+        var password = "saget";
+        using var sut = Create(
+            new()
+            {
+                User = user,
+                Password = password
+            }
+        );
+        var collected = new List<string>();
+
+        // Act
+        using var conn = sut.Connect();
+        var sub = conn.GetSubscriber();
+        var barrier = new Barrier(2);
+        sub.Subscribe("messages", (channel, message) =>
+        {
+            collected.Add(message);
+            barrier.SignalAndWait();
+        });
+        sub.Publish("messages", "hello");
+        // Assert
+        Expect(barrier.SignalAndWait(TimeSpan.FromSeconds(2)))
+            .To.Be.True();
+        Expect(collected)
+            .To.Contain.Only(1)
+            .Equal.To("hello");
+        
+    }
+
+    [Test]
     public void ShouldRestartOnAccidentalDeath()
     {
         // Arrange
@@ -431,60 +465,61 @@ public class TestTempRedis
     public void EnablingSecurity()
     {
         Retry.Max(3).Times(() =>
-        {
-            // Arrange
-            var key = GetRandomString();
-            var value = GetRandomString();
-
-            var options = new TempRedisOptions()
             {
-                User = GetRandomUserName(),
-                Password = GetRandomString(),
-                DisableDefaultUser = true
-            };
-            if (Platform.IsWindows)
-            {
-                // the windows redis binary used for testing
-                // is too old to do acl'd users
-                options.User = null;
-                options.DisableDefaultUser = false;
-            }
+                // Arrange
+                var key = GetRandomString();
+                var value = GetRandomString();
 
-            using var sut = Create(
-                options
-            );
-            // Act
-            using var conn = sut.Connect();
-            var db = conn.GetDatabase();
-            Expect(() => db.StringSet(key, value))
-                .Not.To.Throw();
-            var result = db.StringGet(key);
-            // Assert
-            Expect(result)
-                .To.Equal(value);
-
-            using var anonymousConnection = sut.Connect(
-                new ConfigurationOptions()
+                var options = new TempRedisOptions()
                 {
-                    EndPoints =
-                    {
-                        {
-                            "127.0.0.1", sut.Port
-                        }
-                    },
-                    AbortOnConnectFail = false,
-                    ConnectRetry = TempRedis.DefaultConnectRetry,
-                    ConnectTimeout = TempRedis.DefaultConnectTimeoutMilliseconds,
-                    AsyncTimeout = TempRedis.DefaultAsyncTimeoutMilliseconds,
-                    SyncTimeout = TempRedis.DefaultSyncTimeoutMilliseconds,
-                    AllowAdmin = true,
-                    KeepAlive = 15
+                    User = GetRandomUserName(),
+                    Password = GetRandomString(),
+                    DisableDefaultUser = true
+                };
+                if (Platform.IsWindows)
+                {
+                    // the windows redis binary used for testing
+                    // is too old to do acl'd users
+                    options.User = null;
+                    options.DisableDefaultUser = false;
                 }
-            );
-            var anonDb = anonymousConnection.GetDatabase();
-            Expect(() => anonDb.StringSet(GetRandomString(), GetRandomString()))
-                .To.Throw();
-        });
+
+                using var sut = Create(
+                    options
+                );
+                // Act
+                using var conn = sut.Connect();
+                var db = conn.GetDatabase();
+                Expect(() => db.StringSet(key, value))
+                    .Not.To.Throw();
+                var result = db.StringGet(key);
+                // Assert
+                Expect(result)
+                    .To.Equal(value);
+
+                using var anonymousConnection = sut.Connect(
+                    new ConfigurationOptions()
+                    {
+                        EndPoints =
+                        {
+                            {
+                                "127.0.0.1", sut.Port
+                            }
+                        },
+                        AbortOnConnectFail = false,
+                        ConnectRetry = TempRedis.DefaultConnectRetry,
+                        ConnectTimeout = TempRedis.DefaultConnectTimeoutMilliseconds,
+                        AsyncTimeout = TempRedis.DefaultAsyncTimeoutMilliseconds,
+                        SyncTimeout = TempRedis.DefaultSyncTimeoutMilliseconds,
+                        AllowAdmin = true,
+                        KeepAlive = 15
+                    }
+                );
+                var anonDb = anonymousConnection.GetDatabase();
+                Expect(() => anonDb.StringSet(GetRandomString(), GetRandomString()))
+                    .To.Throw();
+            }
+        );
     }
 
     private static TempRedis Create(

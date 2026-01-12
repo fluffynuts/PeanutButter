@@ -579,7 +579,7 @@ namespace
             Port = options.PortHint.HasValue
                 ? PortFinder.FindOpenPortFrom(options.PortHint.Value)
                 : PortFinder.FindOpenPort();
-            GenerateConfig(options);
+            GenerateConfigFile(options);
             _user = options.User;
             _password = options.Password;
             if (options.AutoStart)
@@ -593,7 +593,7 @@ namespace
             // intentionally left blank
         }
 
-        private void GenerateConfig(TempRedisOptions options)
+        private void GenerateConfigFile(TempRedisOptions options)
         {
             _saveFile = new AutoTempFile();
             _configFile = new AutoTempFile();
@@ -672,7 +672,7 @@ namespace
                 .JoinWith("");
             contents.Add(
                 $"""
-                 user {options.User} on sanitize-payload #{hashedPassword} ~* resetchannels +@all
+                 user {options.User} on sanitize-payload #{hashedPassword} ~* resetchannels +@all &*
                  """
             );
         }
