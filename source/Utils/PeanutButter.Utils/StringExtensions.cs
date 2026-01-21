@@ -119,7 +119,8 @@ internal
         "y",
         "1",
         "true",
-        "on"
+        "on",
+        "enabled"
     };
 
     /// <summary>

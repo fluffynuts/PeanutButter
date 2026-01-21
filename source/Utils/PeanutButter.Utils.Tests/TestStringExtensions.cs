@@ -576,13 +576,9 @@ public class TestStringExtensions
     [Parallelizable]
     public class AsBoolean
     {
-        [TestCase("Yes", true)]
-        [TestCase("Y", true)]
         [TestCase("yes", true)]
         [TestCase("y", true)]
         [TestCase("1", true)]
-        [TestCase("True", true)]
-        [TestCase("TRUE", true)]
         [TestCase("true", true)]
         [TestCase("On", true)]
         [TestCase("oFf", false)]
@@ -590,6 +586,8 @@ public class TestStringExtensions
         [TestCase(" ", false)]
         [TestCase("\t", false)]
         [TestCase(null, false)]
+        [TestCase("enabled", true)]
+        [TestCase("disabled", false)]
         [Parallelizable]
         public void ShouldResolveToBooleanValue(
             string input,
@@ -601,10 +599,13 @@ public class TestStringExtensions
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = input.AsBoolean();
+            for (var i = 0; i < 10; i++)
+            {
+                var result = input.ToRandomCase().AsBoolean();
 
-            //---------------Test Result -----------------------
-            Expect(result).To.Equal(expected);
+                //---------------Test Result -----------------------
+                Expect(result).To.Equal(expected);
+            }
         }
     }
 
