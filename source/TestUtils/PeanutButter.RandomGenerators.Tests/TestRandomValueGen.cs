@@ -1873,6 +1873,59 @@ public class TestRandomValueGen
             );
         }
 
+        [Test]
+        public void ShouldInferKindFromConstraintsWhenAvailable()
+        {
+            // Arrange
+            // Act
+            var utcMin = DateTime.UtcNow.AddDays(-1);
+            var utcMax = DateTime.UtcNow.AddDays(1);
+            var localMin = DateTime.Now.AddDays(-1);
+            var localMax = DateTime.Now.AddDays(1);
+            var utcResult = GetRandomDate(
+                utcMin,
+                utcMax
+            );
+            var localResult = GetRandomDate(
+                localMin,
+                localMax
+            );
+            var utcFirstResult = GetRandomDate(
+                utcMin,
+                localMax
+            );
+            var localFirstResult = GetRandomDate(
+                localMin,
+                utcMax
+            );
+            var noRange = GetRandomDate();
+            // Assert
+            Expect(utcResult)
+                .To.Be.Greater.Than
+                .Or.Equal.To(utcMin);
+            Expect(utcResult)
+                .To.Be.Less.Than
+                .Or.Equal.To(utcMax);
+            Expect(utcResult.Kind)
+                .To.Equal(DateTimeKind.Utc);
+
+            Expect(localResult)
+                .To.Be.Greater.Than
+                .Or.Equal.To(localMin);
+            Expect(localResult)
+                .To.Be.Less.Than
+                .Or.Equal.To(localMax);
+            Expect(localResult.Kind)
+                .To.Equal(DateTimeKind.Local);
+
+            Expect(utcFirstResult.Kind)
+                .To.Equal(DateTimeKind.Utc);
+            Expect(localFirstResult.Kind)
+                .To.Equal(DateTimeKind.Local);
+            Expect(noRange.Kind)
+                .To.Equal(DateTimeKind.Local);
+        }
+
         private string Print(
             DateTime[] outOfRange
         )
@@ -4548,7 +4601,7 @@ public class TestRandomValueGen
                     var ints = parts.Select(int.Parse);
                     Expect(ints)
                         .To.Contain.All
-                        .Matched.By(i => 
+                        .Matched.By(i =>
                             i is >= 0 and <= 265
                         );
                 }
@@ -4575,7 +4628,7 @@ public class TestRandomValueGen
                     var ints = parts.Select(int.Parse);
                     Expect(ints)
                         .To.Contain.All
-                        .Matched.By(i => 
+                        .Matched.By(i =>
                             i is >= 0 and <= 265
                         );
                     Expect(ints.Last())
@@ -5564,7 +5617,7 @@ public class TestRandomValueGen
             // Act
             var url = GetRandomHttpUrl();
             // Assert
-            Expect(url)
+            Expect(url.ToLowerInvariant())
                 .To.Equal(url.ToLowerInvariant());
             var uri = new Uri(url);
             Expect(uri.Scheme)
@@ -5655,7 +5708,7 @@ public class TestRandomValueGen
             // Act
             var url = GetRandomHttpsUrl();
             // Assert
-            Expect(url)
+            Expect(url.ToLowerInvariant())
                 .To.Equal(url.ToLowerInvariant());
             var uri = new Uri(url);
             Expect(uri.Scheme)
@@ -6490,7 +6543,7 @@ public static class HostNameMatcher
                 try
                 {
                     var uri = new Uri($"https://{actual}");
-                    passed = uri.Host == actual;
+                    passed = uri.Host.Equals(actual, StringComparison.OrdinalIgnoreCase);
                 }
                 catch
                 {

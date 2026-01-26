@@ -655,8 +655,9 @@ public
         DateTime? maxTime
     )
     {
+        var kind = ResolveRequiredDateTimeKind(minDate, maxDate);
         return GetRandomDate(
-            DateTimeKind.Local,
+            kind,
             minDate,
             maxDate,
             dateOnly,
@@ -764,14 +765,26 @@ public
         TimeSpan? maxTime = null
     )
     {
+        var kind = ResolveRequiredDateTimeKind(minDate, maxDate);
         return GetRandomDate(
-            DateTimeKind.Local,
+            kind,
             minDate,
             maxDate,
             dateOnly,
             minTime,
             maxTime
         );
+    }
+
+    private static DateTimeKind ResolveRequiredDateTimeKind(
+        DateTime? minDate,
+        DateTime? maxDate
+    )
+    {
+        var kind = minDate?.Kind ?? maxDate?.Kind ?? DateTimeKind.Local;
+        return kind == DateTimeKind.Unspecified
+            ? DateTimeKind.Local
+            : kind;
     }
 
     /// <summary>
@@ -946,8 +959,9 @@ public
         DateTime? maxTime = null
     )
     {
+        var kind = ResolveRequiredDateTimeKind(minDate, maxDate);
         return GetRandomDateRange(
-            DateTimeKind.Local,
+            kind,
             minDate,
             maxDate,
             dateOnly,
@@ -3379,7 +3393,7 @@ public
         try
         {
             var uri = new Uri($"https://{arg}");
-            return uri.Host == arg;
+            return uri.Host.Equals(arg, StringComparison.OrdinalIgnoreCase);
         }
         catch
         {
