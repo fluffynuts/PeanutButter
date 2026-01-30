@@ -161,6 +161,11 @@ public class TempElasticsearch : ITempElasticsearch
     private void StartContainer(Action<string> ioReceiver)
     {
         ContainerName = $"temp_es_{Id.ToString().Replace("-", "").ToLower()}";
+        Console.Error.WriteLine(
+            $"""
+             Starting elasticsearch docker container '{ContainerName}'
+             """
+        );
         var args = new List<string>()
         {
             "run",
