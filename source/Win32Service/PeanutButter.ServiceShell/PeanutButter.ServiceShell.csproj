@@ -32,7 +32,7 @@
         <ProjectReference Include="..\PeanutButter.WindowsServiceManagement\PeanutButter.WindowsServiceManagement.csproj"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="log4net" Version="2.0.15"/>
+        <PackageReference Include="log4net" Version="3.3.0"/>
         <PackageReference 
             Include="System.ServiceProcess.ServiceController" 
             Version="8.0.0" 
