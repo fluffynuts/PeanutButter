@@ -867,12 +867,7 @@ public class TestRandomValueGen
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new List<object>
-            {
-                o1,
-                o2,
-                o3
-            };
+            var items = new List<object> { o1, o2, o3 };
             var results = new List<object>();
             //---------------Assert Precondition----------------
 
@@ -904,12 +899,7 @@ public class TestRandomValueGen
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[]
-            {
-                o1,
-                o2,
-                o3
-            };
+            var items = new[] { o1, o2, o3 };
             var results = new List<object>();
             //---------------Assert Precondition----------------
 
@@ -943,12 +933,7 @@ public class TestRandomValueGen
             var o2 = new object();
             var o3 = new object();
             var items = new ConcurrentBag<object>(
-                new[]
-                {
-                    o1,
-                    o2,
-                    o3
-                }
+                new[] { o1, o2, o3 }
             );
             var results = new List<object>();
             //---------------Assert Precondition----------------
@@ -982,15 +967,8 @@ public class TestRandomValueGen
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[]
-            {
-                o1
-            }.Union(
-                new[]
-                {
-                    o2,
-                    o3
-                }
+            var items = new[] { o1 }.Union(
+                new[] { o2, o3 }
             );
             var results = new List<object>();
             //---------------Assert Precondition----------------
@@ -1029,12 +1007,7 @@ public class TestRandomValueGen
             );
             // Assert
             Expect(
-                    new[]
-                    {
-                        1,
-                        2,
-                        3
-                    }
+                    new[] { 1, 2, 3 }
                 )
                 .To.Contain(result);
         }
@@ -1050,12 +1023,7 @@ public class TestRandomValueGen
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[]
-            {
-                o1,
-                o2,
-                o3
-            };
+            var items = new[] { o1, o2, o3 };
             var results = new List<IEnumerable<object>>();
             const int runs = NORMAL_RANDOM_TEST_CYCLES;
             //---------------Assert Precondition----------------
@@ -1090,12 +1058,7 @@ public class TestRandomValueGen
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[]
-            {
-                o1,
-                o2,
-                o3
-            };
+            var items = new[] { o1, o2, o3 };
             const int runs = NORMAL_RANDOM_TEST_CYCLES;
 
             //---------------Assert Precondition----------------
@@ -1120,15 +1083,7 @@ public class TestRandomValueGen
             var o4 = new object();
             var o5 = new object();
             var o6 = new object();
-            var items = new[]
-            {
-                o1,
-                o2,
-                o3,
-                o4,
-                o5,
-                o6
-            };
+            var items = new[] { o1, o2, o3, o4, o5, o6 };
             var min = GetRandomInt(
                 1,
                 3
@@ -3059,7 +3014,7 @@ public class TestRandomValueGen
             VarianceAssert.IsVariant(deltas);
             Expect(allResults).To.Contain.All
                 .Matched.By(dt => dt.From.Kind == DateTimeKind.Local &&
-                    dt.To.Kind == DateTimeKind.Local
+                                  dt.To.Kind == DateTimeKind.Local
                 );
         }
 
@@ -3900,7 +3855,8 @@ public class TestRandomValueGen
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                Assert.Throws<CannotGetAnotherDifferentRandomValueException<string[]>>(() => GetAnother(
+                Expect(() =>
+                    GetAnother(
                         notAnyOfThese,
                         () => GetRandomString(),
                         (
@@ -3908,7 +3864,7 @@ public class TestRandomValueGen
                             _
                         ) => true
                     )
-                );
+                ).To.Throw<CannotGetAnotherDifferentRandomValueException<string[]>>();
                 Expect(() =>
                     GetAnother(
                         notAnyOfThese,
@@ -4765,11 +4721,7 @@ public class TestRandomValueGen
                         var result = GetRandomIPv6Address();
                         var parts = result.Split(':');
                         Expect(parts.All(s => !s.StartsWith("0")))
-                            .To.Be.True(() => new
-                                {
-                                    result,
-                                    parts
-                                }.Stringify()
+                            .To.Be.True(() => new { result, parts }.Stringify()
                             );
                         Expect(result)
                             .To.Be.An.IPv6Address();
@@ -4833,12 +4785,8 @@ public class TestRandomValueGen
             var allowed = new HashSet<string>(
                 new[]
                 {
-                    HttpMethod.Delete.ToString(),
-                    HttpMethod.Get.ToString(),
-                    HttpMethod.Head.ToString(),
-                    HttpMethod.Options.ToString(),
-                    HttpMethod.Post.ToString(),
-                    HttpMethod.Put.ToString(),
+                    HttpMethod.Delete.ToString(), HttpMethod.Get.ToString(), HttpMethod.Head.ToString(),
+                    HttpMethod.Options.ToString(), HttpMethod.Post.ToString(), HttpMethod.Put.ToString(),
                     HttpMethod.Trace.ToString()
                 }
             );
@@ -4863,9 +4811,7 @@ public class TestRandomValueGen
             var allowed = new HashSet<string>(
                 new[]
                 {
-                    HttpMethod.Get.ToString(),
-                    HttpMethod.Post.ToString(),
-                    HttpMethod.Delete.ToString(),
+                    HttpMethod.Get.ToString(), HttpMethod.Post.ToString(), HttpMethod.Delete.ToString(),
                     HttpMethod.Put.ToString(),
                 }
             );
@@ -5797,10 +5743,7 @@ public class TestRandomValueGen
             Expect(uri.Query).Not.To.Be.Null.Or.Empty();
             var parameters = uri.Query.Substring(1)
                 .Split(
-                    new[]
-                    {
-                        "&"
-                    },
+                    new[] { "&" },
                     StringSplitOptions.RemoveEmptyEntries
                 );
             Expect(parameters).Not.To.Be.Empty();
@@ -6297,12 +6240,7 @@ public class TestRandomValueGen
         {
             // Arrange
             var allowed = new HashSet<string>(
-                new[]
-                {
-                    "bob",
-                    "sally",
-                    "margaret"
-                }
+                new[] { "bob", "sally", "margaret" }
             );
             // Act
             RunCycles(() =>
@@ -6451,18 +6389,9 @@ public class SomePOCO
     {
         var parts = new[]
         {
-            $"Id: {Id}",
-            $"Name: {Name}",
-            $"FirstName: {FirstName}",
-            $"LastName: {LastName}",
-            $"Login: {Login}",
-            $"Email: {Email}",
-            $"Street: {StreetAddress}",
-            $"City: {City}",
-            $"PostalCode: {PostalCode}",
-            $"Address: {Address}",
-            $"Country: {Country}",
-            $"Country Code: {CountryCode}"
+            $"Id: {Id}", $"Name: {Name}", $"FirstName: {FirstName}", $"LastName: {LastName}", $"Login: {Login}",
+            $"Email: {Email}", $"Street: {StreetAddress}", $"City: {City}", $"PostalCode: {PostalCode}",
+            $"Address: {Address}", $"Country: {Country}", $"Country Code: {CountryCode}"
         };
         return string.Join(
             Environment.NewLine,

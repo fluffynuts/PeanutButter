@@ -13,7 +13,8 @@ public class TestVarianceAssert
         //---------------Assert Precondition----------------
 
         //---------------Execute Test ----------------------
-        Assert.DoesNotThrow(() => VarianceAssert.IsVariant(new string[] { }));
+        Expect(() => VarianceAssert.IsVariant(new string[] { }))
+            .Not.To.Throw();
 
         //---------------Test Result -----------------------
     }
@@ -26,7 +27,8 @@ public class TestVarianceAssert
         //---------------Assert Precondition----------------
 
         //---------------Execute Test ----------------------
-        Assert.DoesNotThrow(() => VarianceAssert.IsVariant(new[] { RandomValueGen.GetRandomString() }));
+        Expect(() => VarianceAssert.IsVariant(new[] { RandomValueGen.GetRandomString() }))
+            .Not.To.Throw();
 
         //---------------Test Result -----------------------
     }
@@ -42,7 +44,8 @@ public class TestVarianceAssert
         //---------------Assert Precondition----------------
 
         //---------------Execute Test ----------------------
-        Assert.DoesNotThrow(() => VarianceAssert.IsVariant(input));
+        Expect(() => VarianceAssert.IsVariant(input))
+            .Not.To.Throw();
 
         //---------------Test Result -----------------------
     }
@@ -57,7 +60,8 @@ public class TestVarianceAssert
         //---------------Assert Precondition----------------
 
         //---------------Execute Test ----------------------
-        Assert.Throws<AssertionException>(() => VarianceAssert.IsVariant(input));
+        Expect(() => VarianceAssert.IsVariant(input))
+            .To.Throw<AssertionException>();
 
         //---------------Test Result -----------------------
     }

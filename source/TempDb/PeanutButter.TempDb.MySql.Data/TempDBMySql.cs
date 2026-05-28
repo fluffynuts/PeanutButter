@@ -79,10 +79,8 @@ namespace PeanutButter.TempDb.MySql.Data
                 Port = (uint) Port,
                 Pooling = true,
                 MaximumPoolSize = 100,
-                UserID = "root",
-                Password = RootPasswordSet
-                    ? Settings.Options.RootUserPassword
-                    : "",
+                UserID = CurrentUser,
+                Password = DetermineRootPassword(),
                 Server = "localhost",
                 AllowUserVariables = true,
                 SslMode = MySqlSslMode.Disabled,

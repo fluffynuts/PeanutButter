@@ -4,6 +4,7 @@ using System.Net;
 using NUnit.Framework;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+
 // ReSharper disable AccessToDisposedClosure
 
 // ReSharper disable PossibleMultipleEnumeration
@@ -62,9 +63,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             //---------------Test Result -----------------------
             Expect(result)
                 .To.Contain.Only(2)
-                .Matched.By(
-                    req => req.Path == $"/{requests.First()}" ||
-                        req.Path == $"/{requests.Last()}"
+                .Matched.By(req => req.Path == $"/{requests.First()}" ||
+                                   req.Path == $"/{requests.Last()}"
                 );
         }
 
@@ -114,7 +114,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => server.ShouldHaveReceivedRequestFor(path));
+            Expect(() => server.ShouldHaveReceivedRequestFor(path))
+                .To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -133,7 +134,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => server.ShouldHaveReceivedRequestFor(path, httpMethod));
+            Expect(() => server.ShouldHaveReceivedRequestFor(path, httpMethod))
+                .To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -153,7 +155,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => server.ShouldHaveReceivedRequestFor(path, httpMethod));
+            Expect(() => server.ShouldHaveReceivedRequestFor(path, httpMethod))
+                .To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -172,9 +175,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<HttpServerAssertionException>(
-                () => server.ShouldHaveReceivedRequestFor(path, httpMethod)
-            );
+            Expect(() => server.ShouldHaveReceivedRequestFor(path, httpMethod))
+                .To.Throw<HttpServerAssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -194,7 +196,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(() => server.ShouldNotHaveReceivedRequestFor(path, httpMethod));
+            Expect(() => server.ShouldNotHaveReceivedRequestFor(path, httpMethod))
+                .Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -214,9 +217,8 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<HttpServerAssertionException>(
-                () => server.ShouldNotHaveReceivedRequestFor(path, httpMethod)
-            );
+            Expect(() => server.ShouldNotHaveReceivedRequestFor(path, httpMethod))
+                .To.Throw<HttpServerAssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -230,19 +232,14 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             var path = "/" + GetRandomString();
             var expectedHeader1 = "X-" + GetRandomString();
             var expectedValue1 = GetRandomString();
-            var headers = new Dictionary<string, string>()
-            {
-                {
-                    expectedHeader1, expectedValue1
-                }
-            };
+            var headers = new Dictionary<string, string>() { { expectedHeader1, expectedValue1 } };
             RequestSuppressed(server, path, "GET", headers);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(
-                () => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
-            );
+            Expect(() =>
+                server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            ).Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -255,19 +252,14 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             var path = "/" + GetRandomString();
             var expectedHeader1 = "X-" + GetRandomString();
             var expectedValue1 = GetRandomString();
-            var headers = new Dictionary<string, string>()
-            {
-                {
-                    "X-" + GetAnother(expectedHeader1), expectedValue1
-                }
-            };
+            var headers = new Dictionary<string, string>() { { "X-" + GetAnother(expectedHeader1), expectedValue1 } };
             RequestSuppressed(server, path, "GET", headers);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<HttpServerAssertionException>(
-                () => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
-            );
+            Expect(() =>
+                server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            ).To.Throw<HttpServerAssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -280,19 +272,14 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             var path = "/" + GetRandomString();
             var expectedHeader1 = "X-" + GetRandomString();
             var expectedValue1 = GetRandomString();
-            var headers = new Dictionary<string, string>()
-            {
-                {
-                    expectedHeader1, GetAnother(expectedValue1)
-                }
-            };
+            var headers = new Dictionary<string, string>() { { expectedHeader1, GetAnother(expectedValue1) } };
             RequestSuppressed(server, path, "GET", headers);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<HttpServerAssertionException>(
-                () => server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
-            );
+            Expect(() =>
+                server.ShouldHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            ).To.Throw<HttpServerAssertionException>();
 
             //---------------Test Result -----------------------
         }
@@ -307,17 +294,15 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             var expectedValue1 = GetRandomString();
             var headers = new Dictionary<string, string>()
             {
-                {
-                    expectedHeader1 + GetRandomString(), GetAnother(expectedValue1) + GetRandomString()
-                }
+                { expectedHeader1 + GetRandomString(), GetAnother(expectedValue1) + GetRandomString() }
             };
             RequestSuppressed(server, path, "GET", headers);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(
-                () => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
-            );
+            Expect(() =>
+                server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            ).Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -332,17 +317,15 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             var expectedValue1 = GetRandomString();
             var headers = new Dictionary<string, string>()
             {
-                {
-                    expectedHeader1 + GetRandomString(), GetAnother(expectedValue1)
-                }
+                { expectedHeader1 + GetRandomString(), GetAnother(expectedValue1) }
             };
             RequestSuppressed(server, path, "GET", headers);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(
-                () => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
-            );
+            Expect(() =>
+                server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            ).Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -357,17 +340,15 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             var expectedValue1 = GetRandomString();
             var headers = new Dictionary<string, string>()
             {
-                {
-                    expectedHeader1, GetAnother(expectedValue1) + GetRandomString()
-                }
+                { expectedHeader1, GetAnother(expectedValue1) + GetRandomString() }
             };
             RequestSuppressed(server, path, "GET", headers);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.DoesNotThrow(
-                () => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
-            );
+            Expect(() =>
+                server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            ).Not.To.Throw();
 
             //---------------Test Result -----------------------
         }
@@ -381,19 +362,14 @@ namespace PeanutButter.SimpleHTTPServer.Testability.Tests
             var path = "/" + GetRandomString();
             var expectedHeader1 = "X-" + GetRandomString();
             var expectedValue1 = GetRandomString();
-            var headers = new Dictionary<string, string>()
-            {
-                {
-                    expectedHeader1, expectedValue1
-                }
-            };
+            var headers = new Dictionary<string, string>() { { expectedHeader1, expectedValue1 } };
             RequestSuppressed(server, path, "GET", headers);
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            Assert.Throws<HttpServerAssertionException>(
-                () => server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
-            );
+            Expect(() =>
+                server.ShouldNotHaveHadHeaderFor(path, HttpMethods.Any, expectedHeader1, expectedValue1)
+            ).To.Throw<HttpServerAssertionException>();
 
             //---------------Test Result -----------------------
         }

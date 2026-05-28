@@ -7,6 +7,7 @@ using System.Linq;
 using System.ServiceProcess;
 using System.Threading;
 using Dapper;
+using MySqlConnector;
 using NExpect;
 using NUnit.Framework;
 using PeanutButter.TempDb.MySql.Base;
@@ -63,8 +64,11 @@ namespace PeanutButter.TempDb.MySql.Connector.Tests
                 // Pre-Assert
                 // Act
                 using var db = Create(mysqld);
-                var builder = new MySqlConnectionStringUtil(db.ConnectionString);
-                Expect(builder.Database).Not.To.Be.Null.Or.Empty();
+                var builder = new MySqlConnectionStringBuilder(db.ConnectionString);
+                Expect(builder.Database)
+                    .Not.To.Be.Null.Or.Empty();
+                Expect(builder.UserID)
+                    .To.Equal(TempDBMySql.DEFAULT_USER);
                 using (var connection = db.OpenConnection())
                 using (var command = connection.CreateCommand())
                 {

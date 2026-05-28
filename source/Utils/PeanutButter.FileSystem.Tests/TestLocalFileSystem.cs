@@ -660,7 +660,8 @@ namespace PeanutButter.FileSystem.Tests
                         .Not.To.Be.Empty();
 
                     //---------------Execute Test ----------------------
-                    Assert.Throws<IOException>(() => sut.Delete(folderName));
+                    Expect(() => sut.Delete(folderName))
+                        .To.Throw<IOException>();
 
                     //---------------Test Result -----------------------
                     Expect(fullPath)
@@ -717,7 +718,8 @@ namespace PeanutButter.FileSystem.Tests
                         .To.Be.A.File();
 
                     //---------------Execute Test ----------------------
-                    Assert.DoesNotThrow(() => sut.DeleteRecursive(toDelete));
+                    Expect(() => sut.DeleteRecursive(toDelete))
+                        .Not.To.Throw();
 
                     //---------------Test Result -----------------------
                     Expect(fullPath)
@@ -744,7 +746,8 @@ namespace PeanutButter.FileSystem.Tests
                         .To.Be.A.Folder();
 
                     //---------------Execute Test ----------------------
-                    Assert.DoesNotThrow(() => sut.DeleteRecursive(toDelete));
+                    Expect(() => sut.DeleteRecursive(toDelete))
+                        .Not.To.Throw();
 
                     //---------------Test Result -----------------------
                     Expect(fullPath)
@@ -772,7 +775,8 @@ namespace PeanutButter.FileSystem.Tests
                         .To.Be.A.Folder();
 
                     //---------------Execute Test ----------------------
-                    Assert.DoesNotThrow(() => sut.DeleteRecursive(toDelete));
+                    Expect(() => sut.DeleteRecursive(toDelete))
+                        .Not.To.Throw();
 
                     //---------------Test Result -----------------------
                     Expect(fullPath)
@@ -1377,7 +1381,8 @@ namespace PeanutButter.FileSystem.Tests
                                 .To.Be.A.File();
 
                             //---------------Execute Test ----------------------
-                            Assert.DoesNotThrow(() => sut.Move(sourceRelativePath, target, true));
+                            Expect(() => sut.Move(sourceRelativePath, target, true))
+                                .Not.To.Throw();
 
                             //---------------Test Result -----------------------
                             Expect(sourceAbsolutePath)

@@ -159,11 +159,9 @@ public class TestTempDbMySqlData
         }
 
         [Test]
-        [Retry(DEFAULT_RETRIES)]
         public void ShouldBeAbleToSnapshotAndReuseDatabaseFilesSpecified()
         {
-            Assert.That(
-                () =>
+            Retry.Max(DEFAULT_RETRIES).Times(() =>
                 {
                     // Arrange
                     using var tempFolder = new AutoTempFolder();
@@ -197,8 +195,7 @@ public class TestTempDbMySqlData
                     Expect(result)
                         .To.Contain.Only(1)
                         .Matched.By(o => o.Id > 0 && o.Name == "bob");
-                },
-                Throws.Nothing
+                }
             );
         }
 
@@ -234,8 +231,12 @@ public class TestTempDbMySqlData
             // Pre-Assert
             // Act
             using var db = Create(mysqld);
-            var util = new MySqlConnectionStringUtil(db.ConnectionString);
-            Expect(util.Database).Not.To.Be.Null.Or.Empty();
+            var builder = new MySqlConnectionStringBuilder(db.ConnectionString);
+            Expect(builder.Database)
+                .Not.To.Be.Null.Or.Empty();
+            Expect(builder.UserID)
+                .To.Equal(TempDBMySql.DEFAULT_USER);
+
             using (var connection = db.OpenConnection())
             using (var command = connection.CreateCommand())
             {

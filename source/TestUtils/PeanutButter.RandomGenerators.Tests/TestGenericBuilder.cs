@@ -927,11 +927,10 @@ public class TestGenericBuilder
         //---------------Assert Precondition----------------
 
         //---------------Execute Test ----------------------
-        Assert.DoesNotThrow(
-            () =>
-                result = SomeInterfaceWithNoImplementationBuilder
-                    .BuildRandom()
-        );
+        Expect(() =>
+            result = SomeInterfaceWithNoImplementationBuilder
+                .BuildRandom()
+        ).Not.To.Throw();
 
         //---------------Test Result -----------------------
         Expect(result)

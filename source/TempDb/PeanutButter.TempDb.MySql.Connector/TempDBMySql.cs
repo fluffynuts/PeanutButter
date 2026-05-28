@@ -82,10 +82,8 @@ public class TempDBMySql : TempDBMySqlBase<MySqlConnection>
         var builder = new MySqlConnectionStringBuilder
         {
             Port = (uint)Port,
-            UserID = "root",
-            Password = RootPasswordSet
-                ? Settings.Options.RootUserPassword
-                : "",
+            UserID = CurrentUser,
+            Password = DetermineRootPassword(),
             Server = "localhost",
             AllowUserVariables = true,
             SslMode = MySqlSslMode.None,

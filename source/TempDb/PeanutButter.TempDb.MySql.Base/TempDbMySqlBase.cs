@@ -62,6 +62,9 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     /// </summary>
     public string ConfigFilePath { get; set; }
 
+    public string CurrentUser { get; set; } = "root";
+    public const string DEFAULT_USER = "tempdb_user";
+
     private static int DetermineMaxSecondsToWaitForMySqlToStart()
     {
         var env = Environment.GetEnvironmentVariable(
@@ -181,11 +184,7 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
             () =>
             {
                 var parts = path.Split(
-                    new[]
-                    {
-                        "\\",
-                        "/"
-                    },
+                    new[] { "\\", "/" },
                     StringSplitOptions.RemoveEmptyEntries
                 );
                 foreach (var part in parts)
@@ -213,10 +212,10 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     private int _conflictingPortRetries;
 
 #if NETSTANDARD
-        private readonly FatalTempDbInitializationException _noMySqlFoundException =
-            new FatalTempDbInitializationException(
-                "Unable to detect an installed mysqld. Either supply a path as part of your initializing parameters or ensure that mysqld is in your PATH"
-            );
+    private readonly FatalTempDbInitializationException _noMySqlFoundException =
+        new FatalTempDbInitializationException(
+            "Unable to detect an installed mysqld. Either supply a path as part of your initializing parameters or ensure that mysqld is in your PATH"
+        );
 #else
     private readonly FatalTempDbInitializationException _noMySqlFoundException =
         new FatalTempDbInitializationException(
@@ -295,7 +294,7 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     )
     {
         return path is not null &&
-            Directory.Exists(path);
+               Directory.Exists(path);
     }
 
     private static void EnsureFolderDoesNotExist(
@@ -417,9 +416,7 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     // ReSharper disable once StaticMemberInGenericType
     private static readonly string[] DeleteDataFilesOnSnapshot =
     {
-        "mysql-err.log",
-        "start-upinfo.log",
-        "tempdb-debug.log"
+        "mysql-err.log", "start-upinfo.log", "tempdb-debug.log"
     };
 
     private string FindInstalledMySqlD()
@@ -466,9 +463,9 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     }
 
     private const string HOMEBREW_CELLAR_PATH = "/opt/homebrew/Cellar";
+
     private string TryFindHomeBrewInstallation()
     {
-
         if (!Directory.Exists(HOMEBREW_CELLAR_PATH))
         {
             Log($"unable to find mysqld in the PATH, and unable to find homebrew cellar at {HOMEBREW_CELLAR_PATH}");
@@ -483,6 +480,7 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
             Log($"unable to find mysqld in the PATH or under {HOMEBREW_CELLAR_PATH}");
             throw _noMySqlFoundException;
         }
+
         return fs.GetFullPathFor(contents.First());
     }
 
@@ -595,7 +593,43 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
 
         StartServer(MySqld);
         CreateInitialSchema();
+        AddAndUseNonSuperUser();
         SetUpAutoDisposeIfRequired();
+    }
+
+    private void AddAndUseNonSuperUser()
+    {
+        CreateDefaultUser();
+        UseDefaultUser();
+    }
+
+    private void CreateDefaultUser()
+    {
+        Execute(
+            $"""
+             CREATE USER IF NOT EXISTS '{DEFAULT_USER}'@'%' IDENTIFIED BY '{DetermineRootPassword()}';
+             GRANT ALL PRIVILEGES ON *.* TO '{DEFAULT_USER}'@'%' WITH GRANT OPTION;
+             REVOKE SUPER ON *.* FROM '{DEFAULT_USER}'@'%';
+             FLUSH PRIVILEGES;
+             """
+        );
+    }
+
+    protected string DetermineRootPassword()
+    {
+        return ((RootPasswordSet
+            ? Settings.Options.RootUserPassword
+            : "") ?? "").Replace("'", "''");
+    }
+
+    public void UseDefaultUser()
+    {
+        CurrentUser = DEFAULT_USER;
+    }
+
+    public void UseSuperUser()
+    {
+        CurrentUser = "root";
     }
 
     private void DisableHostNameLookupsIfRequired()
@@ -621,9 +655,9 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     private void BootstrapFromScratchOrSharedTemplate()
     {
         var enableSharedTemplates = Settings?.Options?.AutoTemplate ??
-            // mysql8 is particularly slow at startup, default
-            // to using a shared template when available & not disabled
-            IsMySql8();
+                                    // mysql8 is particularly slow at startup, default
+                                    // to using a shared template when available & not disabled
+                                    IsMySql8();
 
         var shouldUseSharedTemplate =
             SharedTemplateFolderExists &&
@@ -785,11 +819,8 @@ SHUTDOWN;".Replace("\r", "")
         );
         var args = new[]
         {
-            $"\"--defaults-file={DefaultMyCnf}\"",
-            $"\"--basedir={BaseDirOf(MySqld)}\"",
-            $"\"--datadir={DataDir}\"",
-            $"--port={Port}",
-            $"\"--init-file={tmpFile.Path}\"",
+            $"\"--defaults-file={DefaultMyCnf}\"", $"\"--basedir={BaseDirOf(MySqld)}\"", $"\"--datadir={DataDir}\"",
+            $"--port={Port}", $"\"--init-file={tmpFile.Path}\"",
         };
         args = DisableMonitoring(args);
         args = AddSocketIfRequired(args);
@@ -866,8 +897,7 @@ Please report this, attaching a zip file of '{DatabasePath}'"
     {
         try
         {
-            Retry.Max(5).Times(
-                () =>
+            Retry.Max(5).Times(() =>
                 {
                     if (Platform.IsUnixy)
                     {
@@ -1120,8 +1150,7 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         Execute(
             $"create user {Quote(user)}@'%' identified with mysql_native_password by {Quote(password)}"
         );
-        forSchemas.ForEach(
-            schema =>
+        forSchemas.ForEach(schema =>
             {
                 GrantAllPermissionsFor(user, schema, "%");
             }
@@ -1508,9 +1537,7 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         PauseWatcher();
         var args = new[]
         {
-            $"\"--defaults-file={DefaultMyCnf}\"",
-            $"\"--basedir={BaseDirOf(mysqld)}\"",
-            $"\"--datadir={DataDir}\"",
+            $"\"--defaults-file={DefaultMyCnf}\"", $"\"--basedir={BaseDirOf(mysqld)}\"", $"\"--datadir={DataDir}\"",
             $"--port={Port}"
         };
 
@@ -1879,8 +1906,7 @@ where `variable` = '__tempdb_id__';";
         var stderr = "(unknown)";
         var stdout = "(unknown)";
 
-        TryDo(
-            () =>
+        TryDo(() =>
             {
                 if (_serverProcess is not null)
                 {
@@ -1919,11 +1945,7 @@ stderr: {stderr}"
     )
     {
         processIoLines ??= [];
-        foreach (var source in new[]
-                 {
-                     processIoLines,
-                     TryReadErrorLogs()
-                 })
+        foreach (var source in new[] { processIoLines, TryReadErrorLogs() })
         {
             foreach (var line in source)
             {
@@ -2042,10 +2064,8 @@ stderr: {stderr}"
         Log($"Initializing MySql in {DatabasePath}");
         var args = new[]
         {
-            $"\"--defaults-file={tempDefaultsFile}\"",
-            "--initialize-insecure",
-            $"\"--basedir={BaseDirOf(mysqld)}\"",
-            $"\"--datadir={DataDir}\""
+            $"\"--defaults-file={tempDefaultsFile}\"", "--initialize-insecure",
+            $"\"--basedir={BaseDirOf(mysqld)}\"", $"\"--datadir={DataDir}\""
         };
 
         args = EnableVerboseLoggingIfRequested(args);
@@ -2190,8 +2210,8 @@ stderr: {stderr}"
     )
     {
         return (mysqlVersion.Platform?.StartsWith("win") ?? false) &&
-            mysqlVersion.Version.Major <= 5 &&
-            mysqlVersion.Version.Minor <= 6;
+               mysqlVersion.Version.Major <= 5 &&
+               mysqlVersion.Version.Minor <= 6;
     }
 
     public class MySqlVersionInfo
@@ -2216,8 +2236,7 @@ stderr: {stderr}"
         var parts = result.ToLower().Split(' ');
         var versionInfo = new MySqlVersionInfo();
         var last = "";
-        parts.ForEach(
-            p =>
+        parts.ForEach(p =>
             {
                 if (last == "ver")
                 {
@@ -2319,9 +2338,9 @@ stderr: {stderr}"
     )
     {
         var minPort = Settings?.Options?.RandomPortMin
-            ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MIN;
+                      ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MIN;
         var maxPort = Settings?.Options?.RandomPortMax
-            ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MAX;
+                      ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MAX;
         return PortFinder.FindOpenPort(
             IPAddress.Loopback,
             minPort,
@@ -2340,9 +2359,9 @@ stderr: {stderr}"
     protected virtual int FindRandomOpenPort()
     {
         var minPort = Settings?.Options?.RandomPortMin
-            ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MIN;
+                      ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MIN;
         var maxPort = Settings?.Options?.RandomPortMax
-            ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MAX;
+                      ?? TempDbMySqlServerSettings.TempDbOptions.DEFAULT_RANDOM_PORT_MAX;
         return PortFinder.FindOpenPort(
             IPAddress.Loopback,
             minPort,
