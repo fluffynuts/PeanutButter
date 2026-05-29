@@ -79,10 +79,17 @@ public class TempDBMySql : TempDBMySqlBase<MySqlConnection>
     /// <returns></returns>
     protected override string GenerateConnectionString()
     {
+        return GenerateConnectionString(false);
+    }
+
+    private string GenerateConnectionString(
+        bool forceSuperuser
+    )
+    {
         var builder = new MySqlConnectionStringBuilder
         {
             Port = (uint)Port,
-            UserID = CurrentUser,
+            UserID = forceSuperuser ? "root" : CurrentUser,
             Password = DetermineRootPassword(),
             Server = "localhost",
             AllowUserVariables = true,
@@ -99,73 +106,8 @@ public class TempDBMySql : TempDBMySqlBase<MySqlConnection>
 
     protected override int FetchCurrentConnectionCount()
     {
-        return MySqlPoolStatsFetcher.FetchSessionCountFor(
-            ConnectionString
-        );
-    }
-}
-
-/// <summary>
-/// Fetches stats from the MySqlConnector pool using reflection
-/// </summary>
-public class MySqlPoolStatsFetcher
-{
-    private static readonly Type[] MySqlConnectorTypes = typeof(MySqlConnection)
-        .GetAssembly()
-        .GetTypes();
-
-    private static readonly Type ConnectionPoolType =
-        MySqlConnectorTypes.Single(t => t.Name == "ConnectionPool");
-
-    private static readonly BindingFlags PrivateInstance =
-        BindingFlags.Instance | BindingFlags.NonPublic;
-
-    private static readonly FieldInfo LeasedSessionsField
-        = ConnectionPoolType.GetFields(PrivateInstance)
-            .Single(fi => fi.Name.ToLowerInvariant() == "m_leasedsessions");
-
-    private static readonly BindingFlags PublicStatic =
-        BindingFlags.Public | BindingFlags.Static;
-
-    private static MethodInfo GetPoolMethod =
-        ConnectionPoolType.GetMethods(PublicStatic)
-            .FirstOrDefault(
-                mi =>
-                {
-                    if (mi.Name.ToLowerInvariant() != "getpool")
-                    {
-                        return false;
-                    }
-
-                    var parameters = mi.GetParameters();
-                    return parameters.Length == 3 &&
-                        parameters[0].ParameterType == typeof(string) &&
-                        // parameters[1] is the internal type MySqlConnectorLoggingConfiguration
-                        // but we shouldn't need it when querying without creating
-                        parameters[2].ParameterType == typeof(bool);
-                }
-            );
-
-    public static int FetchSessionCountFor(string connectionString)
-    {
-        var pool =  GetPoolMethod.Invoke(null, new object[] { connectionString, null, false });
-        if (pool is null)
-        {
-            return 0;
-        }
-            
-        var field = LeasedSessionsField.GetValue(pool);
-        if (field is null)
-        {
-            throw new Exception("Can't find leased sessions field on connection pool");
-        }
-            
-        var collection = new EnumerableWrapper(field);
-        var result = 0;
-        foreach (var item in collection)
-        {
-            result++;
-        }
-        return result;
+        var connectionString = GenerateConnectionString(true);
+        using var conn = CreateOpenDatabaseConnection(connectionString);
+        return FetchCurrentConnectionCount(conn);
     }
 }

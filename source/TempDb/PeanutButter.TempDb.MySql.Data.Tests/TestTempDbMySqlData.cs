@@ -139,10 +139,7 @@ public class TestTempDbMySqlData
                     Expect(snapshotPath)
                         .To.Be.A.Folder();
                     Console.Error.WriteLine(
-                        new
-                        {
-                            snapshotPath
-                        }.Stringify()
+                        new { snapshotPath }.Stringify()
                     );
 
                     // Act
@@ -181,10 +178,7 @@ public class TestTempDbMySqlData
                     Expect(snapshotPath)
                         .To.Equal(tempFolder.Path);
                     Console.Error.WriteLine(
-                        new
-                        {
-                            snapshotPath
-                        }.Stringify()
+                        new { snapshotPath }.Stringify()
                     );
 
                     // Act
@@ -204,6 +198,92 @@ public class TestTempDbMySqlData
             public int Id { get; set; }
             public string Name { get; set; }
         }
+    }
+
+    [Test]
+    public void ShouldBeAbleToRunSuperUserStuffWhenSelectingSuperUser()
+    {
+        // Arrange
+        var sql = "set global unique_checks = 0;";
+        using var sut = Create();
+        var builder = new MySqlConnectionStringBuilder(sut.ConnectionString);
+        Expect(builder.UserID)
+            .Not.To.Equal("root");
+        // Act
+        Expect(() => sut.Execute(sql))
+            .To.Throw();
+        sut.UseSuperUser();
+        Expect(() => sut.Execute(sql))
+            .Not.To.Throw();
+
+        // Assert
+    }
+
+    [Test]
+    public void DefaultUserShouldExperienceConnectInit()
+    {
+        // Arrange
+        var opts = new TempDbMySqlServerSettings()
+        {
+            PerformanceSchema = 0,
+            MaxAllowedPacket = "128M",
+            MaxConnections = 151,
+            TableOpenCache = 2000,
+            CharacterSetServer = "utf8mb4",
+            DefaultClientCharacterSet = "utf8mb4",
+            InnodbBufferPoolSize = "256M",
+            SlowQueryLog = 0,
+            InnodbFlushLogAtTrxCommit = 2, // reduce disk thrashing: only flush to disk once per second
+            CustomConfiguration =
+            {
+                ["mysqld"] =
+                {
+                    ["init-connect"] = "SET NAMES utf8mb4 collate utf8mb4_unicode_ci",
+                    ["collation-server"] = "utf8mb4_unicode_ci",
+
+                    // https://www.percona.com/blog/how-to-deal-with-mysql-deadlocks/
+                    ["innodb_print_all_deadlocks"] = "ON",
+
+                    // https://stackoverflow.com/a/53528421
+                    ["key-buffer-size"] = "16M",
+                    ["tmp_table_size"] = "1M",
+                    ["max_connections"] = "25",
+                    ["sort_buffer_size"] = "512M",
+                    ["read_buffer_size"] = "265K",
+                    ["read_rnd_buffer_size"] = "512K",
+                    ["join_buffer_size"] = "128K",
+                    ["thread_stack"] = "196K"
+                }
+            }
+        };
+
+        // Act
+        using var sut = Create(opts);
+        var result = sut.ExecuteReader(
+            "select @@session.collation_connection"
+        ).First();
+        
+        // Assert
+        Expect(result)
+            .To.Contain.Key("@@session.collation_connection")
+            .With.Value("utf8mb4_unicode_ci");
+    }
+
+    [Test]
+    public void WhatDoIGet()
+    {
+        // Arrange
+        var builder = new MySqlConnectionStringBuilder()
+        {
+            Server = "localhost",
+            Database = "test_db",
+            UserID = "moo_cow",
+            Password = "beefcake",
+            ConnectionReset = false
+        };
+        // Act
+        Console.WriteLine(builder.ToString());
+        // Assert
     }
 
     [Test]
@@ -337,9 +417,7 @@ public class TestTempDbMySqlData
             {
                 command.CommandText = new[]
                 {
-                    "create schema moocakes;",
-                    "use moocakes;",
-                    "create table `users` (id int, name varchar(100));",
+                    "create schema moocakes;", "use moocakes;", "create table `users` (id int, name varchar(100));",
                     "insert into `users` (id, name) values (1, 'Daisy the cow');"
                 }.JoinWith("\n");
                 command.ExecuteNonQuery();
@@ -350,14 +428,10 @@ public class TestTempDbMySqlData
                 // Assert
                 var users = connection.Query<User>(
                     "use moocakes; select * from users where id > @id; ",
-                    new
-                    {
-                        id = 0
-                    }
+                    new { id = 0 }
                 );
-                Expect(users).To.Contain.Only(1).Matched.By(
-                    u =>
-                        u.Id == 1 && u.Name == "Daisy the cow"
+                Expect(users).To.Contain.Only(1).Matched.By(u =>
+                    u.Id == 1 && u.Name == "Daisy the cow"
                 );
             }
         }
@@ -369,18 +443,14 @@ public class TestTempDbMySqlData
             return new[]
                 {
                     null, // will try to seek out the mysql installation
-                    "C:\\apps\\mysql-5.7\\bin\\mysqld.exe",
-                    "C:\\apps\\mysql-5.7.36-winx64\\bin\\mysqld.exe",
-                    "C:\\apps\\mysql-5.7.36-win32\\bin\\mysqld.exe",
-                    "C:\\apps\\mysql-5.7-grant\\bin\\mysqld.exe",
-                    "C:\\apps\\mysql-5.6\\bin\\mysqld.exe",
-                    "C:\\apps\\mysql-8.0\\bin\\mysqld.exe",
+                    "C:\\apps\\mysql-5.7\\bin\\mysqld.exe", "C:\\apps\\mysql-5.7.36-winx64\\bin\\mysqld.exe",
+                    "C:\\apps\\mysql-5.7.36-win32\\bin\\mysqld.exe", "C:\\apps\\mysql-5.7-grant\\bin\\mysqld.exe",
+                    "C:\\apps\\mysql-5.6\\bin\\mysqld.exe", "C:\\apps\\mysql-8.0\\bin\\mysqld.exe",
                     "C:\\apps\\spaced folder\\mysql-5.7.36-winx64\\bin\\mysqld.exe",
                     "C:\\apps\\spaced folder\\mysql-5.7.36-win32\\bin\\mysqld.exe",
                     "C:\\apps\\spaced folder\\mysql-5.7-grant\\bin\\mysqld.exe",
                     "C:\\apps\\spaced folder\\mysql-8.0\\bin\\mysqld.exe",
-                }.Where(
-                    p =>
+                }.Where(p =>
                     {
                         if (p == null)
                         {
@@ -411,8 +481,7 @@ public class TestTempDbMySqlData
         public void ShouldBeAbleToStartNewInstance()
         {
             // Arrange
-            Expect(
-                () =>
+            Expect(() =>
                 {
                     using var db = Create();
                     Expect(db.ConfigFilePath)
@@ -434,8 +503,7 @@ public class TestTempDbMySqlData
         public void ShouldBeAbleToRestart()
         {
             // Arrange
-            Expect(
-                () =>
+            Expect(() =>
                 {
                     using var db = Create();
                     Expect(db.ConfigFilePath)
@@ -468,24 +536,13 @@ public class TestTempDbMySqlData
         {
             // Arrange
             // Act
-            Expect(
-                    () =>
+            Expect(() =>
                     {
                         using var db = new TempDBMySql(
                             new TempDbMySqlServerSettings()
                             {
-                                Options =
-                                {
-                                    LogAction = Console.Error.WriteLine,
-                                    EnableVerboseLogging = true,
-                                },
-                                CustomConfiguration =
-                                {
-                                    ["mysqld"] =
-                                    {
-                                        ["default-character-set"] = "utf8mb4"
-                                    }
-                                }
+                                Options = { LogAction = Console.Error.WriteLine, EnableVerboseLogging = true, },
+                                CustomConfiguration = { ["mysqld"] = { ["default-character-set"] = "utf8mb4" } }
                             }
                         );
                     }
@@ -557,8 +614,7 @@ public class TestTempDbMySqlData
             }
 
             // Arrange
-            Expect(
-                () =>
+            Expect(() =>
                 {
                     using var db1 = Create();
                     using var db2 = Create();
@@ -597,8 +653,7 @@ public class TestTempDbMySqlData
 
             var search = new[]
             {
-                "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin",
-                "C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin"
+                "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin", "C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin"
             };
             foreach (var item in search)
             {
@@ -636,21 +691,19 @@ public class TestTempDbMySqlData
             var contents = File.ReadAllLines(logFile);
             Expect(contents)
                 .To.Contain.Exactly(1)
-                .Matched.By(
-                    s => s.StartsWith("CLI:", StringComparison.OrdinalIgnoreCase) &&
-                        s.Contains("mysqld.exe", StringComparison.OrdinalIgnoreCase)
+                .Matched.By(s => s.StartsWith("CLI:", StringComparison.OrdinalIgnoreCase) &&
+                                 s.Contains("mysqld.exe", StringComparison.OrdinalIgnoreCase)
                 );
             Expect(contents)
                 .To.Contain.Exactly(1)
                 .Matched.By(s => s.StartsWith("Environment"));
             Expect(contents)
                 .To.Contain.Exactly(1)
-                .Matched.By(
-                    s =>
+                .Matched.By(s =>
                     {
                         var trimmed = s.Trim();
                         return trimmed.StartsWith("LOG_PROCESS_STARTUP_TEST") &&
-                            trimmed.EndsWith(expected);
+                               trimmed.EndsWith(expected);
                     }
                 );
         }
@@ -673,10 +726,7 @@ public class TestTempDbMySqlData
             var sut = new TempDBMySql(
                 new TempDbMySqlServerSettings()
                 {
-                    Options =
-                    {
-                        LogAction = s => Console.Error.WriteLine($"debug: {s}"),
-                    }
+                    Options = { LogAction = s => Console.Error.WriteLine($"debug: {s}"), }
                 }
             );
             // Act
@@ -728,13 +778,7 @@ public class TestTempDbMySqlData
         {
             // Arrange
             using var db = new TempDBMySql(
-                new TempDbMySqlServerSettings()
-                {
-                    Options =
-                    {
-                        MaxTimeToConnectAtStartInSeconds = 0
-                    }
-                }
+                new TempDbMySqlServerSettings() { Options = { MaxTimeToConnectAtStartInSeconds = 0 } }
             );
             // Act
             using (var conn = db.OpenConnection())
@@ -898,10 +942,7 @@ public class TestTempDbMySqlData
                         {
                             var settings = new TempDbMySqlServerSettings()
                             {
-                                Options =
-                                {
-                                    EnableVerboseLogging = true
-                                }
+                                Options = { EnableVerboseLogging = true }
                             };
                             using (var db = new TempDBMySql(settings))
                             {
@@ -948,13 +989,7 @@ public class TestTempDbMySqlData
             int port
         )
         {
-            return new TempDbMySqlServerSettings()
-            {
-                Options =
-                {
-                    PortHint = port
-                }
-            };
+            return new TempDbMySqlServerSettings() { Options = { PortHint = port } };
         }
 
         private static int GrokPortFrom(
@@ -965,10 +1000,7 @@ public class TestTempDbMySqlData
             //  of a conflict between Connector and .Data
             return connectionString
                 .Split(
-                    new[]
-                    {
-                        ";"
-                    },
+                    new[] { ";" },
                     StringSplitOptions.RemoveEmptyEntries
                 )
                 .First(part => part.StartsWith("port", StringComparison.OrdinalIgnoreCase))
@@ -1200,12 +1232,7 @@ public class TestTempDbMySqlData
             ) : base(
                 new TempDbMySqlServerSettings()
                 {
-                    Options =
-                    {
-                        LogAction = logger,
-                        LogRandomPortDiscovery = true,
-                        EnableVerboseLogging = true
-                    }
+                    Options = { LogAction = logger, LogRandomPortDiscovery = true, EnableVerboseLogging = true }
                 }
             )
             {
@@ -1227,8 +1254,7 @@ public class TestTempDbMySqlData
             using (db = Create(inactivityTimeout: TimeSpan.FromSeconds(2)))
             {
                 // Act
-                Expect(
-                    () =>
+                Expect(() =>
                     {
                         using var conn = db.OpenConnection();
                     }
@@ -1239,8 +1265,7 @@ public class TestTempDbMySqlData
                 }
             }
 
-            Expect(
-                    () =>
+            Expect(() =>
                     {
                         using var conn = db.OpenConnection();
                     }
@@ -1250,14 +1275,13 @@ public class TestTempDbMySqlData
         }
 
         [Test]
-        [Retry(3)]
         public void ConnectionUseShouldExtendLifetime()
         {
-            Assert.That(
+            Retry.Max(3).Times(
                 () =>
                 {
                     // Arrange
-                    var inactivitySeconds = 1;
+                    var inactivitySeconds = 2;
                     var disposed = new ConcurrentQueue<bool>();
                     TempDBMySql db;
                     using (db = Create(inactivityTimeout: TimeSpan.FromSeconds(inactivitySeconds)))
@@ -1271,10 +1295,9 @@ public class TestTempDbMySqlData
                             disposed.Enqueue(true);
                         };
                         // Act
-                        for (var i = 0; i < 5; i++)
+                        for (var i = 0; i < 10; i++)
                         {
-                            Expect(
-                                () =>
+                            Expect(() =>
                                 {
                                     using var conn = db.OpenConnection();
                                     Thread.Sleep(500);
@@ -1309,32 +1332,26 @@ public class TestTempDbMySqlData
                         .To.Be.False(() => $"db still running against {db.DatabasePath}");
                     Expect(disposed.ToArray())
                         .To.Equal(
-                            new[]
-                            {
-                                true
-                            },
+                            new[] { true },
                             () => disposed.Count == 0
                                 ? $"dispose event not triggered"
                                 : $"Received multiple dispose events: {disposed.ToArray().StringifyCollection()}"
                         );
 
-                    Expect(
-                            () =>
+                    Expect(() =>
                             {
                                 using var conn = db.OpenConnection();
                             }
                         ).To.Throw<InvalidOperationException>()
                         .With.Message.Containing("not running");
-                },
-                Throws.Nothing
+                }
             );
         }
 
         [Test]
         public void AbsoluteLifespanShouldOverrideConnectionActivity()
         {
-            Retry.Max(3).Times(
-                () =>
+            Retry.Max(3).Times(() =>
                 {
                     // Arrange
                     using var db = Create(
@@ -1343,8 +1360,7 @@ public class TestTempDbMySqlData
                     );
                     var connections = 0;
                     // Act
-                    Expect(
-                            () =>
+                    Expect(() =>
                             {
                                 while (true)
                                 {
@@ -1383,9 +1399,7 @@ public class TestTempDbMySqlData
             var builder =
                 new MySqlConnectionStringBuilder(db.ConnectionString)
                 {
-                    UserID = user,
-                    Password = password,
-                    Database = schema
+                    UserID = user, Password = password, Database = schema
                 };
             var connectionString = builder.ToString();
             using var connection = new MySqlConnection(connectionString);
@@ -1417,8 +1431,7 @@ public class TestTempDbMySqlData
             }
 
             // Act
-            Expect(
-                () =>
+            Expect(() =>
                 {
                     using var db = Create(pathToMySql: seek);
                     Expect(db.MySqlVersion.Version)
@@ -1462,13 +1475,22 @@ public class TestTempDbMySqlData
     }
 
     private static TempDBMySql Create(
+        TempDbMySqlServerSettings settings
+    )
+    {
+        return new TempDBMySql(
+            settings
+        );
+    }
+
+    private static TempDBMySql Create(
         string pathToMySql = null,
         TimeSpan? inactivityTimeout = null,
         TimeSpan? absoluteLifespan = null,
         string templatePath = null
     )
     {
-        return new TempDBMySql(
+        return Create(
             new TempDbMySqlServerSettings()
             {
                 Options =
@@ -1566,8 +1588,7 @@ public static class IniMatchers
         string expected
     )
     {
-        return have.Compose(
-            actual =>
+        return have.Compose(actual =>
             {
                 Expect(actual.HasSection(expected))
                     .To.Be.True(() => $"Expected to find section '{expected}' in ini file");

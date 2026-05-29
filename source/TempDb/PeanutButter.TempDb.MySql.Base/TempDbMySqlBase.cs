@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
@@ -607,11 +608,23 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     {
         Execute(
             $"""
-             CREATE USER IF NOT EXISTS '{DEFAULT_USER}'@'%' IDENTIFIED BY '{DetermineRootPassword()}';
-             GRANT ALL PRIVILEGES ON *.* TO '{DEFAULT_USER}'@'%' WITH GRANT OPTION;
-             REVOKE SUPER ON *.* FROM '{DEFAULT_USER}'@'%';
-             FLUSH PRIVILEGES;
-             """
+              CREATE USER IF NOT EXISTS '{DEFAULT_USER}'@'%' IDENTIFIED BY '{DetermineRootPassword()}';
+              GRANT ALL PRIVILEGES ON *.* TO '{DEFAULT_USER}'@'%' WITH GRANT OPTION;
+              REVOKE SUPER,
+                     SYSTEM_VARIABLES_ADMIN,
+                     CONNECTION_ADMIN,
+                     SESSION_VARIABLES_ADMIN,
+                     BINLOG_ADMIN,
+                     REPLICATION_SLAVE_ADMIN,
+                     GROUP_REPLICATION_ADMIN,
+                     PERSIST_RO_VARIABLES_ADMIN,
+                     RESOURCE_GROUP_ADMIN,
+                     RESOURCE_GROUP_USER,
+                     SET_USER_ID,
+                     SHOW_ROUTINE
+              ON *.* FROM '{DEFAULT_USER}'@'%';
+              FLUSH PRIVILEGES;
+              """
         );
     }
 
@@ -1730,7 +1743,7 @@ Please report this, attaching a zip file of '{DatabasePath}'"
     {
         return Path.GetDirectoryName(Path.GetDirectoryName(mysqld));
     }
-
+    
     public override DbConnection OpenConnection()
     {
         if (!_running)
@@ -1741,6 +1754,47 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         }
 
         return base.OpenConnection();
+    }
+
+    protected int FetchCurrentConnectionCount(
+        IDbConnection conn
+    )
+    {
+        var inactivityTimeout = (
+            Settings?.Options?.InactivityTimeout ?? TimeSpan.FromSeconds(0)
+        ).TotalSeconds;
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText =
+            $"""
+             select count(*)
+             from (
+                 SELECT
+               t.processlist_id,
+               t.processlist_command,
+               CASE
+                 WHEN s.timer_end = 0 THEN 0  -- still running, 0 seconds ago
+                 ELSE (
+                   (SELECT VARIABLE_VALUE FROM performance_schema.global_status
+                     WHERE VARIABLE_NAME = 'Uptime')
+                   - s.timer_end / 1000000000000
+                 )
+               END AS seconds_since_last_activity,
+               LEFT(s.sql_text, 80) AS last_sql
+             FROM performance_schema.threads t
+             LEFT JOIN performance_schema.events_statements_current s
+                    ON s.thread_id = t.thread_id
+             WHERE t.processlist_user = 'tempdb_user'
+               AND t.processlist_id != CONNECTION_ID();
+             ) vw where vw.seconds_since_last_activity < {inactivityTimeout};
+             """;
+        using var reader = cmd.ExecuteReader();
+        if (!reader.Read())
+        {
+            return -1; // unable to figure it out, things will die
+        }
+
+        var connectionCount = reader.GetInt32(0);
+        return connectionCount;
     }
 
     protected virtual bool IsMyInstance(

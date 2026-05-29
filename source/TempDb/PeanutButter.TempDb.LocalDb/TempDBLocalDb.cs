@@ -127,7 +127,7 @@ namespace PeanutButter.TempDb.LocalDb
                 DataSource = $"(localdb)\\{InstanceName}",
                 AttachDBFilename = DatabasePath,
                 InitialCatalog = DatabaseName,
-                ConnectTimeout = (int) DefaultTimeout,
+                ConnectTimeout = (int)DefaultTimeout,
             };
             return builder.ToString();
         }

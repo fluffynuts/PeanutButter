@@ -162,7 +162,7 @@ public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConne
 
     public Action<string> LogAction { get; set; }
 
-    public TempDB(params string[] creationScripts): this(null, creationScripts)
+    public TempDB(params string[] creationScripts) : this(null, creationScripts)
     {
     }
 
@@ -405,14 +405,16 @@ public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConne
         return connection;
     }
 
-    private DbConnection CreateOpenDatabaseConnection()
+    protected DbConnection CreateOpenDatabaseConnection(
+        string overrideConnectionString = null
+    )
     {
         var connection = Activator.CreateInstance(
             typeof(TDatabaseConnection),
-            ConnectionString
+            overrideConnectionString ?? ConnectionString
         ) as DbConnection;
 
-        if (connection == null)
+        if (connection is null)
             throw new InvalidOperationException(
                 $"Unable to instantiate connection of type {typeof(TDatabaseConnection)} as a DbConnection"
             );
@@ -461,6 +463,7 @@ public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConne
             {
                 return;
             }
+
             TempDbTracker.Forget(this);
 
             _disposed = true;
