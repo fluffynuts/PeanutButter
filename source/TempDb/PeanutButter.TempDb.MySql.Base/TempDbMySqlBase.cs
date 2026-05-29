@@ -608,23 +608,35 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     {
         Execute(
             $"""
-              CREATE USER IF NOT EXISTS '{DEFAULT_USER}'@'%' IDENTIFIED BY '{DetermineRootPassword()}';
-              GRANT ALL PRIVILEGES ON *.* TO '{DEFAULT_USER}'@'%' WITH GRANT OPTION;
-              REVOKE SUPER,
-                     SYSTEM_VARIABLES_ADMIN,
-                     CONNECTION_ADMIN,
-                     SESSION_VARIABLES_ADMIN,
-                     BINLOG_ADMIN,
-                     REPLICATION_SLAVE_ADMIN,
-                     GROUP_REPLICATION_ADMIN,
-                     PERSIST_RO_VARIABLES_ADMIN,
-                     RESOURCE_GROUP_ADMIN,
-                     RESOURCE_GROUP_USER,
-                     SET_USER_ID,
-                     SHOW_ROUTINE
-              ON *.* FROM '{DEFAULT_USER}'@'%';
-              FLUSH PRIVILEGES;
-              """
+             CREATE USER IF NOT EXISTS '{DEFAULT_USER}'@'%' IDENTIFIED BY '{DetermineRootPassword()}';
+             """
+        );
+        GrantAllNonSuperPrivilegesToUser(DEFAULT_USER);
+    }
+
+    private void GrantAllNonSuperPrivilegesToUser(
+        string user
+    )
+    {
+        Execute(
+            $"""
+             GRANT ALL PRIVILEGES ON *.* TO {Quote(user)}@'%' WITH GRANT OPTION;
+             REVOKE SUPER,
+                    SYSTEM_VARIABLES_ADMIN,
+                    CONNECTION_ADMIN,
+                    SESSION_VARIABLES_ADMIN,
+                    BINLOG_ADMIN,
+                    REPLICATION_SLAVE_ADMIN,
+                    GROUP_REPLICATION_ADMIN,
+                    PERSIST_RO_VARIABLES_ADMIN,
+                    RESOURCE_GROUP_ADMIN,
+                    RESOURCE_GROUP_USER,
+                    SET_USER_ID,
+                    SHOW_ROUTINE
+             ON *.* FROM {Quote(user)}@'%';
+             FLUSH PRIVILEGES;
+
+             """
         );
     }
 
@@ -640,9 +652,11 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
         CurrentUser = DEFAULT_USER;
     }
 
-    public void UseSuperUser()
+    public bool UseSuperUser()
     {
+        var wasSet = CurrentUser != "root";
         CurrentUser = "root";
+        return wasSet;
     }
 
     private void DisableHostNameLookupsIfRequired()
@@ -872,7 +886,7 @@ SHUTDOWN;".Replace("\r", "")
             throw new UnableToInitializeMySqlException(
                 @$"Timed out attempting to set up root users. 
 Full output from attempted server startup:
-Ran command: {io.Commandline }
+Ran command: {io.Commandline}
 outputs:
 {string.Join("\n", io.StandardOutputAndErrorInterleavedSnapshot)}
 
@@ -1151,8 +1165,8 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             Execute($"create schema `{Escape(schema)}`");
         }
 
-        GrantAllPermissionsFor("root", schema, "localhost");
-        GrantAllPermissionsFor("root", schema, "%");
+        // GrantAllPermissionsFor("root", schema, "localhost");
+        // GrantAllPermissionsFor("root", schema, "%");
     }
 
     public void CreateUser(
@@ -1161,14 +1175,28 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         params string[] forSchemas
     )
     {
+        var revert = UseSuperUser();
         Execute(
             $"create user {Quote(user)}@'%' identified with mysql_native_password by {Quote(password)}"
         );
-        forSchemas.ForEach(schema =>
-            {
-                GrantAllPermissionsFor(user, schema, "%");
-            }
-        );
+        if (forSchemas.IsEmpty())
+        {
+            GrantAllNonSuperPrivilegesToUser(user);
+        }
+        else
+        {
+            forSchemas.ForEach(schema =>
+                {
+                    CreateSchemaIfNotExists(schema);
+                    GrantAllPermissionsFor(user, schema, "%");
+                }
+            );
+        }
+
+        if (revert)
+        {
+            UseDefaultUser();
+        }
     }
 
     public void GrantAllPermissionsFor(
@@ -1177,7 +1205,12 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         string host
     )
     {
-        Execute($"grant all privileges on `{Escape(schema)}`.* to {Quote(user)}@{Quote(host)}");
+        Execute(
+            $"""
+             grant all privileges on `{Escape(schema)}`.* to {Quote(user)}@{Quote(host)} with grant option;
+             flush privileges;
+             """
+        );
     }
 
 
@@ -1744,7 +1777,7 @@ Please report this, attaching a zip file of '{DatabasePath}'"
     {
         return Path.GetDirectoryName(Path.GetDirectoryName(mysqld));
     }
-    
+
     public override DbConnection OpenConnection()
     {
         if (!_running)

@@ -1406,6 +1406,30 @@ public class TestTempDbMySqlData
             Expect(() => connection.Open())
                 .Not.To.Throw();
         }
+        [Test]
+        public void ShouldBeAbleToCreateTheUserAndConnectWithThoseCredentialsAndFullNonSuperAccess()
+        {
+            // Arrange
+            using var db = Create();
+            var user = "testuser";
+            var password = "testuser";
+            // Act
+            db.CreateUser(user, password);
+            // Assert
+            var builder =
+                new MySqlConnectionStringBuilder(db.ConnectionString)
+                {
+                    UserID = user, Password = password
+                };
+            var connectionString = builder.ToString();
+            using var connection = new MySqlConnection(connectionString);
+            Expect(() => connection.Open())
+                .Not.To.Throw();
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText = "create table __test(id int primary key not null, name text);";
+            Expect(() => cmd.ExecuteNonQuery())
+                .Not.To.Throw();
+        }
     }
 
     [TestFixture]
