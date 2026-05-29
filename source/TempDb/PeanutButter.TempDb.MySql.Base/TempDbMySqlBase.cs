@@ -872,7 +872,8 @@ SHUTDOWN;".Replace("\r", "")
             throw new UnableToInitializeMySqlException(
                 @$"Timed out attempting to set up root users. 
 Full output from attempted server startup:
-
+Ran command: {io.Commandline }
+outputs:
 {string.Join("\n", io.StandardOutputAndErrorInterleavedSnapshot)}
 
 Please report this, attaching a zip file of '{DatabasePath}'"
