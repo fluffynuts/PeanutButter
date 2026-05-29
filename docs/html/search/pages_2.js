@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['quick_20links_0',['Quick links',['../index.html#autotoc_md1',1,'']]]
+  ['peanutbutter_20easyargs_0',['PeanutButter.EasyArgs',['../md_source_2Utils_2PeanutButter_8EasyArgs_2README.html',1,'']]]
 ];

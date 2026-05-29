@@ -1,10 +1,10 @@
 var searchData=
 [
   ['callwrapper_0',['CallWrapper',['../classPeanutButter_1_1TestUtils_1_1Generic_1_1SubstituteExtensions_1_1CallWrapper.html',1,'PeanutButter::TestUtils::Generic::SubstituteExtensions']]],
-  ['cannotgetanotherdifferentrandomvalueexception_2d1_2dg_1',['CannotGetAnotherDifferentRandomValueException-1-g',['../classPeanutButter_1_1RandomGenerators_1_1CannotGetAnotherDifferentRandomValueException-1-g.html',1,'PeanutButter::RandomGenerators']]],
+  ['cannotgetanotherdifferentrandomvalueexception_1',['CannotGetAnotherDifferentRandomValueException',['../classPeanutButter_1_1RandomGenerators_1_1CannotGetAnotherDifferentRandomValueException.html',1,'PeanutButter::RandomGenerators']]],
   ['cannotzipnullexception_2',['CannotZipNullException',['../classPeanutButter_1_1Utils_1_1CannotZipNullException.html',1,'PeanutButter::Utils']]],
-  ['casewarpingdictionarywrapper_2d1_2dg_3',['CaseWarpingDictionaryWrapper-1-g',['../classPeanutButter_1_1Utils_1_1Dictionaries_1_1CaseWarpingDictionaryWrapper-1-g.html',1,'PeanutButter::Utils::Dictionaries']]],
-  ['circularlist_2d1_2dg_4',['CircularList-1-g',['../classPeanutButter_1_1Utils_1_1CircularList-1-g.html',1,'PeanutButter::Utils']]],
+  ['casewarpingdictionarywrapper_3',['CaseWarpingDictionaryWrapper',['../classPeanutButter_1_1Utils_1_1Dictionaries_1_1CaseWarpingDictionaryWrapper.html',1,'PeanutButter::Utils::Dictionaries']]],
+  ['circularlist_4',['CircularList',['../classPeanutButter_1_1Utils_1_1CircularList.html',1,'PeanutButter::Utils']]],
   ['commandline_5',['Commandline',['../classPeanutButter_1_1Utils_1_1Commandline.html',1,'PeanutButter::Utils']]],
   ['commandlineargument_6',['CommandlineArgument',['../classPeanutButter_1_1EasyArgs_1_1CommandlineArgument.html',1,'PeanutButter::EasyArgs']]],
   ['concurrentcollectionextensions_7',['ConcurrentCollectionExtensions',['../classPeanutButter_1_1Utils_1_1ConcurrentCollectionExtensions.html',1,'PeanutButter::Utils']]],
@@ -14,13 +14,12 @@ var searchData=
   ['constructortestutils_11',['ConstructorTestUtils',['../classPeanutButter_1_1TestUtils_1_1Generic_1_1ConstructorTestUtils.html',1,'PeanutButter::TestUtils::Generic']]],
   ['controlleractiondescriptorbuilder_12',['ControllerActionDescriptorBuilder',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ControllerActionDescriptorBuilder.html',1,'PeanutButter::TestUtils::AspNetCore::Builders']]],
   ['controllerbuilder_13',['ControllerBuilder',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ControllerBuilder.html',1,'PeanutButter::TestUtils::AspNetCore::Builders']]],
-  ['controllerbuilder_2d1_2dg_14',['ControllerBuilder-1-g',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ControllerBuilder-1-g.html',1,'PeanutButter::TestUtils::AspNetCore::Builders']]],
-  ['controllercontextbuilder_15',['ControllerContextBuilder',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ControllerContextBuilder.html',1,'PeanutButter::TestUtils::AspNetCore::Builders']]],
-  ['conversionextensions_16',['ConversionExtensions',['../classPeanutButter_1_1DuckTyping_1_1Extensions_1_1ConversionExtensions.html',1,'PeanutButter::DuckTyping::Extensions']]],
-  ['converterextensions_17',['ConverterExtensions',['../classPeanutButter_1_1DuckTyping_1_1AutoConversion_1_1ConverterExtensions.html',1,'PeanutButter::DuckTyping::AutoConversion']]],
-  ['converterlocator_18',['ConverterLocator',['../classPeanutButter_1_1DuckTyping_1_1AutoConversion_1_1ConverterLocator.html',1,'PeanutButter::DuckTyping::AutoConversion']]],
-  ['cookienotfoundexception_19',['CookieNotFoundException',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1CookieNotFoundException.html',1,'PeanutButter::TestUtils::AspNetCore']]],
-  ['copyrightattribute_20',['CopyrightAttribute',['../classPeanutButter_1_1EasyArgs_1_1Attributes_1_1CopyrightAttribute.html',1,'PeanutButter::EasyArgs::Attributes']]],
-  ['create_21',['Create',['../classPeanutButter_1_1DuckTyping_1_1Create.html',1,'PeanutButter::DuckTyping']]],
-  ['customattributehelperextensions_22',['CustomAttributeHelperExtensions',['../classPeanutButter_1_1DuckTyping_1_1Extensions_1_1CustomAttributeHelperExtensions.html',1,'PeanutButter::DuckTyping::Extensions']]]
+  ['controllercontextbuilder_14',['ControllerContextBuilder',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ControllerContextBuilder.html',1,'PeanutButter::TestUtils::AspNetCore::Builders']]],
+  ['conversionextensions_15',['ConversionExtensions',['../classPeanutButter_1_1DuckTyping_1_1Extensions_1_1ConversionExtensions.html',1,'PeanutButter::DuckTyping::Extensions']]],
+  ['converterextensions_16',['ConverterExtensions',['../classPeanutButter_1_1DuckTyping_1_1AutoConversion_1_1ConverterExtensions.html',1,'PeanutButter::DuckTyping::AutoConversion']]],
+  ['converterlocator_17',['ConverterLocator',['../classPeanutButter_1_1DuckTyping_1_1AutoConversion_1_1ConverterLocator.html',1,'PeanutButter::DuckTyping::AutoConversion']]],
+  ['cookienotfoundexception_18',['CookieNotFoundException',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1CookieNotFoundException.html',1,'PeanutButter::TestUtils::AspNetCore']]],
+  ['copyrightattribute_19',['CopyrightAttribute',['../classPeanutButter_1_1EasyArgs_1_1Attributes_1_1CopyrightAttribute.html',1,'PeanutButter::EasyArgs::Attributes']]],
+  ['create_20',['Create',['../classPeanutButter_1_1DuckTyping_1_1Create.html',1,'PeanutButter::DuckTyping']]],
+  ['customattributehelperextensions_21',['CustomAttributeHelperExtensions',['../classPeanutButter_1_1DuckTyping_1_1Extensions_1_1CustomAttributeHelperExtensions.html',1,'PeanutButter::DuckTyping::Extensions']]]
 ];

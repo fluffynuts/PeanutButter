@@ -8,7 +8,6 @@ var searchData=
   ['windowsserviceutilexception_5',['WindowsServiceUtilException',['../classPeanutButter_1_1WindowsServiceManagement_1_1Exceptions_1_1WindowsServiceUtilException.html',1,'PeanutButter::WindowsServiceManagement::Exceptions']]],
   ['worker_6',['Worker',['../classPeanutButter_1_1Utils_1_1Worker.html',1,'PeanutButter::Utils']]],
   ['workresult_7',['WorkResult',['../classPeanutButter_1_1Utils_1_1WorkResult.html',1,'PeanutButter::Utils']]],
-  ['workresult_2d1_2dg_8',['WorkResult-1-g',['../classPeanutButter_1_1Utils_1_1WorkResult-1-g.html',1,'PeanutButter::Utils']]],
-  ['workresultextensions_9',['WorkResultExtensions',['../classPeanutButter_1_1Utils_1_1WorkResultExtensions.html',1,'PeanutButter::Utils']]],
-  ['writeonlypropertyexception_10',['WriteOnlyPropertyException',['../classPeanutButter_1_1DuckTyping_1_1Exceptions_1_1WriteOnlyPropertyException.html',1,'PeanutButter::DuckTyping::Exceptions']]]
+  ['workresultextensions_8',['WorkResultExtensions',['../classPeanutButter_1_1Utils_1_1WorkResultExtensions.html',1,'PeanutButter::Utils']]],
+  ['writeonlypropertyexception_9',['WriteOnlyPropertyException',['../classPeanutButter_1_1DuckTyping_1_1Exceptions_1_1WriteOnlyPropertyException.html',1,'PeanutButter::DuckTyping::Exceptions']]]
 ];

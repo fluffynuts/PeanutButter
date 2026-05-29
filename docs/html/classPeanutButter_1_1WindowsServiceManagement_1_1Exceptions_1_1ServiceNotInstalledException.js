@@ -1,4 +1,0 @@
-var classPeanutButter_1_1WindowsServiceManagement_1_1Exceptions_1_1ServiceNotInstalledException =
-[
-    [ "ServiceNotInstalledException", "classPeanutButter_1_1WindowsServiceManagement_1_1Exceptions_1_1ServiceNotInstalledException.html#ab5954b2d9a1293153973b58dffae9d53", null ]
-];

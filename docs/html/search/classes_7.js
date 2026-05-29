@@ -8,7 +8,7 @@ var searchData=
   ['httpmethodsextensions_5',['HttpMethodsExtensions',['../classPeanutButter_1_1SimpleHTTPServer_1_1HttpMethodsExtensions.html',1,'PeanutButter::SimpleHTTPServer']]],
   ['httpprocessor_6',['HttpProcessor',['../classPeanutButter_1_1SimpleHTTPServer_1_1HttpProcessor.html',1,'PeanutButter::SimpleHTTPServer']]],
   ['httprequestbuilder_7',['HttpRequestBuilder',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1HttpRequestBuilder.html',1,'PeanutButter::TestUtils::AspNetCore::Builders']]],
-  ['httprequestextensions_8',['HttpRequestExtensions',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1HttpRequestExtensions.html',1,'PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestExtensions'],['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1HttpRequestExtensions.html',1,'PeanutButter.TestUtils.AspNetCore.HttpRequestExtensions']]],
+  ['httprequestextensions_8',['httprequestextensions',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1HttpRequestExtensions.html',1,'PeanutButter.TestUtils.AspNetCore.Builders.HttpRequestExtensions'],['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1HttpRequestExtensions.html',1,'PeanutButter.TestUtils.AspNetCore.HttpRequestExtensions']]],
   ['httpresponsebuilder_9',['HttpResponseBuilder',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1HttpResponseBuilder.html',1,'PeanutButter::TestUtils::AspNetCore::Builders']]],
   ['httpresponseextensions_10',['HttpResponseExtensions',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1HttpResponseExtensions.html',1,'PeanutButter::TestUtils::AspNetCore']]],
   ['httpserver_11',['HttpServer',['../classPeanutButter_1_1SimpleHTTPServer_1_1HttpServer.html',1,'PeanutButter::SimpleHTTPServer']]],
