@@ -66,7 +66,20 @@ public static class VarianceAssert
 
         if (collection.Distinct(comparer).Count() == 1)
         {
-            Assert.Fail(string.Format(failMessage, collection.Count()));
+            throw new CollectionDoesNotVaryException(
+                failMessage, 
+                collection.Count()
+            );
         }
+    }
+}
+
+public class CollectionDoesNotVaryException : Exception
+{
+    public CollectionDoesNotVaryException(
+        string message,
+        int collectionSize
+    ) : base(string.Format(message, collectionSize))
+    {
     }
 }

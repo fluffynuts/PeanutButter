@@ -61,7 +61,7 @@ public class TestVarianceAssert
 
         //---------------Execute Test ----------------------
         Expect(() => VarianceAssert.IsVariant(input))
-            .To.Throw<AssertionException>();
+            .To.Throw<CollectionDoesNotVaryException>();
 
         //---------------Test Result -----------------------
     }
