@@ -108,9 +108,20 @@ public class TempDBMySql : TempDBMySqlBase<MySqlConnection>
     /// <returns></returns>
     protected override int FetchCurrentConnectionCount()
     {
-        var connectionString = GenerateConnectionString(true);
-        using var conn = CreateOpenDatabaseConnection(connectionString);
-        return FetchCurrentConnectionCount(conn);
+        try
+        {
+            var connectionString = GenerateConnectionString(true);
+            using var conn = CreateOpenDatabaseConnection(connectionString);
+            return FetchCurrentConnectionCount(conn);
+        }
+        catch (Exception e)
+        {
+            // it's possible that we start polling before mysqld is ready
+            // to accept connections, or that the server is restarted
+            // "at the wrong time" - fail over to "no-one is connected"
+            Log($"WARNING: unable to query active connection count: {e.Message}");
+            return 0;
+        }
     }
 
     private MySqlPoolStatsFetcher PoolStatsFetcher

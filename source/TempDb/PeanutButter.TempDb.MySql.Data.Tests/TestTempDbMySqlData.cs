@@ -1430,6 +1430,32 @@ public class TestTempDbMySqlData
             Expect(() => cmd.ExecuteNonQuery())
                 .Not.To.Throw();
         }
+
+        [Test]
+        public void ShouldBeAbleToCreateUserAndSwitchUsers()
+        {
+            // Arrange
+            using var db = Create();
+            var user = "moocow";
+            var password = "beef";
+            var invalidUser = GetRandomString(10);
+            
+            // Act
+            db.CreateUser(user, password);
+            Expect(db.ConnectionString)
+                .Not.To.Contain("moocow");
+            db.UseUser("moocow");
+            Expect(db.ConnectionString)
+                .To.Contain("moocow");
+            db.UseDefaultUser();
+            
+            Expect(() => db.UseUser(invalidUser))
+                .To.Throw();
+            Expect(db.ConnectionString)
+                .Not.To.Contain(invalidUser);
+            
+            // Assert
+        }
     }
 
     [TestFixture]

@@ -185,7 +185,11 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
             () =>
             {
                 var parts = path.Split(
-                    new[] { "\\", "/" },
+                    new[]
+                    {
+                        "\\",
+                        "/"
+                    },
                     StringSplitOptions.RemoveEmptyEntries
                 );
                 foreach (var part in parts)
@@ -417,7 +421,9 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
     // ReSharper disable once StaticMemberInGenericType
     private static readonly string[] DeleteDataFilesOnSnapshot =
     {
-        "mysql-err.log", "start-upinfo.log", "tempdb-debug.log"
+        "mysql-err.log",
+        "start-upinfo.log",
+        "tempdb-debug.log"
     };
 
     private string FindInstalledMySqlD()
@@ -652,6 +658,40 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
         CurrentUser = DEFAULT_USER;
     }
 
+    public void UseUser(string user)
+    {
+        AsSuperUser(() =>
+        {
+            VerifyUserExists(user);
+            CurrentUser = user;
+        });
+    }
+
+    private void VerifyUserExists(string user)
+    {
+        using var conn = OpenConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText =
+            $"""
+             select count(*) from mysql.user where user = @{nameof(user)};
+             """;
+        var parameter = cmd.CreateParameter();
+        parameter.ParameterName = nameof(user);
+        parameter.Value = user;
+        cmd.Parameters.Add(parameter);
+        using var reader = cmd.ExecuteReader();
+        if (!reader.Read())
+        {
+            throw new Exception($"Unable to verify if user '{user}' exists");
+        }
+
+        var count = reader.GetInt32(0);
+        if (count < 1)
+        {
+            throw new Exception($"Cannot use user '{user}': please issue a CreateUser first");
+        }
+    }
+
     public bool UseSuperUser()
     {
         var wasSet = CurrentUser != "root";
@@ -846,8 +886,11 @@ SHUTDOWN;".Replace("\r", "")
         );
         var args = new[]
         {
-            $"\"--defaults-file={DefaultMyCnf}\"", $"\"--basedir={BaseDirOf(MySqld)}\"", $"\"--datadir={DataDir}\"",
-            $"--port={Port}", $"\"--init-file={tmpFile.Path}\"",
+            $"\"--defaults-file={DefaultMyCnf}\"",
+            $"\"--basedir={BaseDirOf(MySqld)}\"",
+            $"\"--datadir={DataDir}\"",
+            $"--port={Port}",
+            $"\"--init-file={tmpFile.Path}\"",
         };
         args = DisableMonitoring(args);
         args = AddSocketIfRequired(args);
@@ -1157,16 +1200,16 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         string schema
     )
     {
-        var schemaCount = QueryFirst<int>(
-            $"select count(*) from information_schema.schemata where schema_name = {Quote(schema)};"
-        );
-        if (schemaCount < 1)
+        AsSuperUser(() =>
         {
-            Execute($"create schema `{Escape(schema)}`");
-        }
-
-        // GrantAllPermissionsFor("root", schema, "localhost");
-        // GrantAllPermissionsFor("root", schema, "%");
+            var schemaCount = QueryFirst<int>(
+                $"select count(*) from information_schema.schemata where schema_name = {Quote(schema)};"
+            );
+            if (schemaCount < 1)
+            {
+                Execute($"create schema `{Escape(schema)}`");
+            }
+        });
     }
 
     public void CreateUser(
@@ -1175,27 +1218,41 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         params string[] forSchemas
     )
     {
-        var revert = UseSuperUser();
-        Execute(
-            $"create user {Quote(user)}@'%' identified with mysql_native_password by {Quote(password)}"
-        );
-        if (forSchemas.IsEmpty())
+        AsSuperUser(() =>
         {
-            GrantAllNonSuperPrivilegesToUser(user);
-        }
-        else
-        {
-            forSchemas.ForEach(schema =>
-                {
-                    CreateSchemaIfNotExists(schema);
-                    GrantAllPermissionsFor(user, schema, "%");
-                }
+            Execute(
+                $"create user {Quote(user)}@'%' identified with mysql_native_password by {Quote(password)}"
             );
-        }
+            if (forSchemas.IsEmpty())
+            {
+                GrantAllNonSuperPrivilegesToUser(user);
+            }
+            else
+            {
+                forSchemas.ForEach(schema =>
+                    {
+                        CreateSchemaIfNotExists(schema);
+                        GrantAllPermissionsFor(user, schema, "%");
+                    }
+                );
+            }
+        });
+    }
 
-        if (revert)
+    private void AsSuperUser(Action toRun)
+    {
+        var originalUser = CurrentUser;
+        var revert = UseSuperUser();
+        try
         {
-            UseDefaultUser();
+            toRun();
+        }
+        finally
+        {
+            if (revert)
+            {
+                UseUser(originalUser);
+            }
         }
     }
 
@@ -1584,7 +1641,9 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         PauseWatcher();
         var args = new[]
         {
-            $"\"--defaults-file={DefaultMyCnf}\"", $"\"--basedir={BaseDirOf(mysqld)}\"", $"\"--datadir={DataDir}\"",
+            $"\"--defaults-file={DefaultMyCnf}\"",
+            $"\"--basedir={BaseDirOf(mysqld)}\"",
+            $"\"--datadir={DataDir}\"",
             $"--port={Port}"
         };
 
@@ -1818,7 +1877,7 @@ Please report this, attaching a zip file of '{DatabasePath}'"
              LEFT JOIN performance_schema.events_statements_current s
                     ON s.thread_id = t.thread_id
              WHERE t.processlist_user = 'tempdb_user'
-               AND t.processlist_id != CONNECTION_ID();
+               AND t.processlist_id != CONNECTION_ID()
              ) vw where vw.seconds_since_last_activity < {inactivityTimeout};
              """;
         using var reader = cmd.ExecuteReader();
@@ -2033,7 +2092,11 @@ stderr: {stderr}"
     )
     {
         processIoLines ??= [];
-        foreach (var source in new[] { processIoLines, TryReadErrorLogs() })
+        foreach (var source in new[]
+                 {
+                     processIoLines,
+                     TryReadErrorLogs()
+                 })
         {
             foreach (var line in source)
             {
@@ -2152,8 +2215,10 @@ stderr: {stderr}"
         Log($"Initializing MySql in {DatabasePath}");
         var args = new[]
         {
-            $"\"--defaults-file={tempDefaultsFile}\"", "--initialize-insecure",
-            $"\"--basedir={BaseDirOf(mysqld)}\"", $"\"--datadir={DataDir}\""
+            $"\"--defaults-file={tempDefaultsFile}\"",
+            "--initialize-insecure",
+            $"\"--basedir={BaseDirOf(mysqld)}\"",
+            $"\"--datadir={DataDir}\""
         };
 
         args = EnableVerboseLoggingIfRequested(args);
