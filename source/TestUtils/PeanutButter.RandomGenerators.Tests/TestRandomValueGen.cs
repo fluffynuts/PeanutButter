@@ -1274,7 +1274,8 @@ public class TestRandomValueGen
             // Arrange
             // Act
             var result = GetRandomCollection<SomePOCO, ISomePOCO>(
-                GetRandom<SomePOCO>
+                GetRandom<SomePOCO>,
+                1
             );
             
             // Assert
@@ -3624,7 +3625,8 @@ public class TestRandomValueGen
             // Arrange
             // Act
             var result = GetRandomCollection<SomePOCO, ISomePOCO>(
-                GetRandom<SomePOCO>
+                GetRandom<SomePOCO>,
+                1
             );
             
             // Assert
