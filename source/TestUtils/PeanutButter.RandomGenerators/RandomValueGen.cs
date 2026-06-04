@@ -2754,11 +2754,52 @@ public
         int maxValues = DefaultRanges.MAX_ITEMS
     )
     {
-        return GetRandomCollectionGenerator(
+        return GetRandomCollectionInternal<T>(
             generator,
             minValues,
             maxValues
-        ).ToArray();
+        );
+    }
+
+    private static IEnumerable<T> GetRandomCollectionInternal<T>(
+        Func<T> generator,
+        int minValues,
+        int maxValues,
+        bool materialise = true
+    )
+    {
+        var result = GetRandomCollectionGenerator(
+            generator,
+            minValues,
+            maxValues
+        );
+        return materialise
+            ? result.ToArray()
+            : result;
+    }
+
+    /// <summary>
+    /// Produces an array of TActual, packaged as TOut
+    /// - useful for, eg, creating an array with an interface
+    ///   type for items
+    /// </summary>
+    /// <param name="minValues"></param>
+    /// <param name="maxValues"></param>
+    /// <typeparam name="TActual"></typeparam>
+    /// <typeparam name="TOut"></typeparam>
+    /// <returns></returns>
+    public static TOut[] GetRandomArray<TActual, TOut>(
+        int minValues = DefaultRanges.MIN_ITEMS,
+        int maxValues = DefaultRanges.MAX_ITEMS
+    )
+        where TActual : TOut
+        where TOut : class
+    {
+        return GetRandomArray<TActual, TOut>(
+            GetRandom<TActual>,
+            minValues,
+            maxValues
+        );
     }
 
     /// <summary>
@@ -2780,12 +2821,37 @@ public
         where TActual : TOut
         where TOut : class
     {
-        var result = GetRandomCollection<TActual, TOut>(
-            generator,
+        var result = GetRandomCollectionInternal(
+            () => generator() as TOut,
+            minValues,
+            maxValues,
+            false
+        );
+        return result.ToArray();
+    }
+
+    /// <summary>
+    /// Produces a collection of TActual, packaged as TOut
+    /// - useful for, eg, creating an array with an interface
+    ///   type for items
+    /// </summary>
+    /// <param name="minValues"></param>
+    /// <param name="maxValues"></param>
+    /// <typeparam name="TActual"></typeparam>
+    /// <typeparam name="TOut"></typeparam>
+    /// <returns></returns>
+    public static IEnumerable<TOut> GetRandomCollection<TActual, TOut>(
+        int minValues = DefaultRanges.MIN_ITEMS,
+        int maxValues = DefaultRanges.MAX_ITEMS
+    )
+        where TActual : TOut
+        where TOut : class
+    {
+        return GetRandomCollection<TActual, TOut>(
+            GetRandom<TActual>,
             minValues,
             maxValues
         );
-        return result as TOut[] ?? result.ToArray();
     }
 
     /// <summary>
@@ -2978,6 +3044,57 @@ public
             minValues,
             maxValues
         ).ToArray();
+    }
+
+    /// <summary>
+    /// Produces a list of TActual, packaged as TOut
+    /// - useful for, eg, creating an array with an interface
+    ///   type for items
+    /// </summary>
+    /// <param name="minValues"></param>
+    /// <param name="maxValues"></param>
+    /// <typeparam name="TActual"></typeparam>
+    /// <typeparam name="TOut"></typeparam>
+    /// <returns></returns>
+    public static List<TOut> GetRandomList<TActual, TOut>(
+        int minValues = DefaultRanges.MIN_ITEMS,
+        int maxValues = DefaultRanges.MAX_ITEMS
+    )
+        where TActual : TOut
+        where TOut : class
+    {
+        return GetRandomList<TActual, TOut>(
+            GetRandom<TActual>,
+            minValues,
+            maxValues
+        );
+    }
+
+    /// <summary>
+    /// Produces a list of TActual, packaged as TOut
+    /// - useful for, eg, creating an array with an interface
+    ///   type for items
+    /// </summary>
+    /// <param name="generator"></param>
+    /// <param name="minValues"></param>
+    /// <param name="maxValues"></param>
+    /// <typeparam name="TActual"></typeparam>
+    /// <typeparam name="TOut"></typeparam>
+    /// <returns></returns>
+    public static List<TOut> GetRandomList<TActual, TOut>(
+        Func<TActual> generator,
+        int minValues = DefaultRanges.MIN_ITEMS,
+        int maxValues = DefaultRanges.MAX_ITEMS
+    )
+        where TActual : TOut
+        where TOut : class
+    {
+        return GetRandomCollectionInternal(
+            () => generator() as TOut,
+            minValues,
+            maxValues,
+            false
+        ).ToList();
     }
 
     /// <summary>

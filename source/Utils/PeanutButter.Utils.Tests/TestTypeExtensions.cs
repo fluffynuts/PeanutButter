@@ -42,11 +42,6 @@ public class TestTypeExtensions
             bool Flag { get; set; }
         }
 
-        public interface Main2 : Main
-        {
-            bool Flag { get; set; }
-        }
-
         [Test]
         public void ShouldReturnAllPropertiesFromAllInterfaces()
         {

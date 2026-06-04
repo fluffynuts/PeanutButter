@@ -1287,6 +1287,24 @@ public class TestRandomValueGen
                 .To.Contain.All
                 .Matched.By(o => o is SomePOCO);
         }
+        [Test]
+        public void ShouldBeAbleToCreateCastArrayWithoutGenerator()
+        {
+            // Arrange
+            // Act
+            var result = GetRandomArray<SomePOCO, ISomePOCO>(
+                1
+            );
+            
+            // Assert
+            Expect(result.GetType())
+                .To.Equal(typeof(ISomePOCO[]));
+            Expect(result)
+                .Not.To.Be.Empty();
+            Expect(result)
+                .To.Contain.All
+                .Matched.By(o => o is not null && o is SomePOCO);
+        }
     }
 
     [TestFixture]
@@ -1438,6 +1456,46 @@ public class TestRandomValueGen
                 result,
                 "Date"
             );
+        }
+
+
+        [Test]
+        public void ShouldBeAbleToCreateCastList()
+        {
+            // Arrange
+            // Act
+            var result = GetRandomList<SomePOCO, ISomePOCO>(
+                GetRandom<SomePOCO>,
+                1
+            );
+            
+            // Assert
+            Expect(result.GetType())
+                .To.Equal(typeof(List<ISomePOCO>));
+            Expect(result)
+                .Not.To.Be.Empty();
+            Expect(result)
+                .To.Contain.All
+                .Matched.By(o => o is SomePOCO);
+        }
+
+        [Test]
+        public void ShouldBeAbleToCreateCastCollectionWithoutGenerator()
+        {
+            // Arrange
+            // Act
+            var result = GetRandomList<SomePOCO, ISomePOCO>(
+                1
+            );
+            
+            // Assert
+            Expect(result.GetType())
+                .To.Equal(typeof(List<ISomePOCO>));
+            Expect(result)
+                .Not.To.Be.Empty();
+            Expect(result)
+                .To.Contain.All
+                .Matched.By(o => o is not null && o is SomePOCO);
         }
     }
 
@@ -3637,6 +3695,25 @@ public class TestRandomValueGen
             Expect(result)
                 .To.Contain.All
                 .Matched.By(o => o is SomePOCO);
+        }
+
+        [Test]
+        public void ShouldBeAbleToCreateCastCollectionWithoutGenerator()
+        {
+            // Arrange
+            // Act
+            var result = GetRandomCollection<SomePOCO, ISomePOCO>(
+                1
+            );
+            
+            // Assert
+            Expect(result.GetType())
+                .To.Equal(typeof(ISomePOCO[]));
+            Expect(result)
+                .Not.To.Be.Empty();
+            Expect(result)
+                .To.Contain.All
+                .Matched.By(o => o is not null && o is SomePOCO);
         }
     }
 
