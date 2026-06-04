@@ -1,5 +1,11 @@
 var NAVTREEINDEX26 =
 {
+"classPeanutButter_1_1Utils_1_1TypeExtensions.html#af0897484b5a46428a93bd3381ffb00e0":[2,0,0,16,117,57],
+"classPeanutButter_1_1Utils_1_1TypeExtensions.html#af0c3311ad66c9c3793e64d5088e70fea":[3,0,0,16,116,78],
+"classPeanutButter_1_1Utils_1_1TypeExtensions.html#af0c3311ad66c9c3793e64d5088e70fea":[2,0,0,16,117,78],
+"classPeanutButter_1_1Utils_1_1TypeExtensions.html#af6dcad37989665169646f4b36586c240":[3,0,0,16,116,63],
+"classPeanutButter_1_1Utils_1_1TypeExtensions.html#af6dcad37989665169646f4b36586c240":[2,0,0,16,117,63],
+"classPeanutButter_1_1Utils_1_1TypeExtensions.html#af7b2e43db9cfa8bf92ed4e254c5ea771":[3,0,0,16,116,87],
 "classPeanutButter_1_1Utils_1_1TypeExtensions.html#af7b2e43db9cfa8bf92ed4e254c5ea771":[2,0,0,16,117,87],
 "classPeanutButter_1_1Utils_1_1TypeExtensions.html#afc760ddeec61f2b29da484309d98ec7b":[2,0,0,16,117,34],
 "classPeanutButter_1_1Utils_1_1TypeExtensions.html#afc760ddeec61f2b29da484309d98ec7b":[3,0,0,16,116,34],
@@ -243,11 +249,5 @@ var NAVTREEINDEX26 =
 "classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#aa0b19cca19757f4b8a0dfbf1a2d0a676":[2,0,0,17,6,10],
 "classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#aa24a844843b1c5f0aad8b9f259f984e8":[2,0,0,17,6,36],
 "classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#aa24a844843b1c5f0aad8b9f259f984e8":[3,0,0,17,6,36],
-"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ab30a7a9c6396be2548307e31d5908153":[2,0,0,17,6,19],
-"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ab30a7a9c6396be2548307e31d5908153":[3,0,0,17,6,19],
-"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#abba6e5c620b6731afd1c39540847f704":[2,0,0,17,6,13],
-"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#abba6e5c620b6731afd1c39540847f704":[3,0,0,17,6,13],
-"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ac00cd00a4798ac0cf23ac1e28fd375f9":[2,0,0,17,6,15],
-"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ac00cd00a4798ac0cf23ac1e28fd375f9":[3,0,0,17,6,15],
-"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ac3d44dff144ea916dd874e5f886997c8":[2,0,0,17,6,33]
+"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ab30a7a9c6396be2548307e31d5908153":[2,0,0,17,6,19]
 };

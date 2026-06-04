@@ -1,5 +1,11 @@
 var NAVTREEINDEX27 =
 {
+"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ab30a7a9c6396be2548307e31d5908153":[3,0,0,17,6,19],
+"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#abba6e5c620b6731afd1c39540847f704":[2,0,0,17,6,13],
+"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#abba6e5c620b6731afd1c39540847f704":[3,0,0,17,6,13],
+"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ac00cd00a4798ac0cf23ac1e28fd375f9":[2,0,0,17,6,15],
+"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ac00cd00a4798ac0cf23ac1e28fd375f9":[3,0,0,17,6,15],
+"classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ac3d44dff144ea916dd874e5f886997c8":[2,0,0,17,6,33],
 "classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ac3d44dff144ea916dd874e5f886997c8":[3,0,0,17,6,33],
 "classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ac7074a50d2f7ff0c68075d75a1d099ab":[2,0,0,17,6,1],
 "classPeanutButter_1_1WindowsServiceManagement_1_1WindowsServiceUtil.html#ac7074a50d2f7ff0c68075d75a1d099ab":[3,0,0,17,6,1],
@@ -243,11 +249,5 @@ var NAVTREEINDEX27 =
 "interfacePeanutButter_1_1INI_1_1IINIFile.html#a497f8285f562f2bbc7abb5210f402025":[3,0,0,3,1,30],
 "interfacePeanutButter_1_1INI_1_1IINIFile.html#a54c928b4cc85ba5b2f55a8cf959be182":[2,0,0,3,1,11],
 "interfacePeanutButter_1_1INI_1_1IINIFile.html#a54c928b4cc85ba5b2f55a8cf959be182":[3,0,0,3,1,11],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#a604a4792dfc2ed9a847936b6cdbd91aa":[2,0,0,3,1,36],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#a604a4792dfc2ed9a847936b6cdbd91aa":[3,0,0,3,1,36],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#a6153c92c9164ee1ea98a71051035ed01":[3,0,0,3,1,2],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#a6153c92c9164ee1ea98a71051035ed01":[2,0,0,3,1,2],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#a65314bef4eded02dbb5e45fc70dc34f2":[3,0,0,3,1,24],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#a65314bef4eded02dbb5e45fc70dc34f2":[2,0,0,3,1,24],
-"interfacePeanutButter_1_1INI_1_1IINIFile.html#a6bca79812310d63a0916258b075caad5":[3,0,0,3,1,37]
+"interfacePeanutButter_1_1INI_1_1IINIFile.html#a604a4792dfc2ed9a847936b6cdbd91aa":[2,0,0,3,1,36]
 };

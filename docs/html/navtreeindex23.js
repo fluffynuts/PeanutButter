@@ -1,5 +1,11 @@
 var NAVTREEINDEX23 =
 {
+"classPeanutButter_1_1Utils_1_1RateLimiter.html#af71de2e300ff607b4defae500a867a5d":[3,0,0,16,91,7],
+"classPeanutButter_1_1Utils_1_1RetriesExceededException.html":[3,0,0,16,92],
+"classPeanutButter_1_1Utils_1_1RetriesExceededException.html":[2,0,0,16,93],
+"classPeanutButter_1_1Utils_1_1RetriesExceededException.html#aaf7b9777b0515023864bccf97150f2b3":[2,0,0,16,93,2],
+"classPeanutButter_1_1Utils_1_1RetriesExceededException.html#aaf7b9777b0515023864bccf97150f2b3":[3,0,0,16,92,2],
+"classPeanutButter_1_1Utils_1_1RetriesExceededException.html#abaa6a164e76d71d1391d7e936b5fadff":[3,0,0,16,92,0],
 "classPeanutButter_1_1Utils_1_1RetriesExceededException.html#abaa6a164e76d71d1391d7e936b5fadff":[2,0,0,16,93,0],
 "classPeanutButter_1_1Utils_1_1RetriesExceededException.html#ae9d602539e95902f9467024f3e953218":[2,0,0,16,93,1],
 "classPeanutButter_1_1Utils_1_1RetriesExceededException.html#ae9d602539e95902f9467024f3e953218":[3,0,0,16,92,1],
@@ -243,11 +249,5 @@ var NAVTREEINDEX23 =
 "classPeanutButter_1_1Utils_1_1StreamExtensions.html#a4a6310f9c18c04d4c8f2456000e52638":[3,0,0,16,107,10],
 "classPeanutButter_1_1Utils_1_1StreamExtensions.html#a4cc958846a54a01fb0884fa4799e84da":[3,0,0,16,107,6],
 "classPeanutButter_1_1Utils_1_1StreamExtensions.html#a4cc958846a54a01fb0884fa4799e84da":[2,0,0,16,108,6],
-"classPeanutButter_1_1Utils_1_1StreamExtensions.html#a4d409a37db1091415ee9d9cee5e00506":[3,0,0,16,107,20],
-"classPeanutButter_1_1Utils_1_1StreamExtensions.html#a4d409a37db1091415ee9d9cee5e00506":[2,0,0,16,108,20],
-"classPeanutButter_1_1Utils_1_1StreamExtensions.html#a56fd050ae06e9407423dded70fa6a65f":[3,0,0,16,107,0],
-"classPeanutButter_1_1Utils_1_1StreamExtensions.html#a56fd050ae06e9407423dded70fa6a65f":[2,0,0,16,108,0],
-"classPeanutButter_1_1Utils_1_1StreamExtensions.html#a707162d44272d5e073d4937834019fd5":[3,0,0,16,107,18],
-"classPeanutButter_1_1Utils_1_1StreamExtensions.html#a707162d44272d5e073d4937834019fd5":[2,0,0,16,108,18],
-"classPeanutButter_1_1Utils_1_1StreamExtensions.html#a716aadd8a55cace02b3de18934e487ac":[3,0,0,16,107,25]
+"classPeanutButter_1_1Utils_1_1StreamExtensions.html#a4d409a37db1091415ee9d9cee5e00506":[3,0,0,16,107,20]
 };
