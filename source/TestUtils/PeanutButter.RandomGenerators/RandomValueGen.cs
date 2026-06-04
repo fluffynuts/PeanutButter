@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
+using System.Runtime;
 // ReSharper disable ConstantNullCoalescingCondition
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -247,7 +248,8 @@ public
     private static readonly Type[] EmptyTypes = new Type[0];
 
     private static readonly Type[] LoadedTypes = AppDomain.CurrentDomain.GetAssemblies()
-        .Select(asm =>
+        .Select(
+            asm =>
             {
                 try
                 {
@@ -316,7 +318,7 @@ public
     )
     {
         var builderType = GenericBuilderLocator.TryFindExistingBuilderFor(type)
-            ?? GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(type);
+                          ?? GenericBuilderLocator.FindOrGenerateDynamicBuilderFor(type);
         return builderType == null
             ? null
             : Activator.CreateInstance(builderType) as IGenericBuilder;
@@ -691,7 +693,12 @@ public
         );
     }
 
-    private static readonly DateTime DefaultMinimumDate = new(1990, 1, 1);
+    private static readonly DateTime DefaultMinimumDate = new(
+        1990,
+        1,
+        1
+    );
+
     private const int RANDOM_DATE_AUTOMATIC_RANGE_YEARS = 30;
 
     /// <summary>
@@ -740,7 +747,11 @@ public
         );
         return dateOnly
             ? sanitised.StartOfDay()
-            : RangeCheckTimeOnRandomDate(minTime, maxTime, sanitised);
+            : RangeCheckTimeOnRandomDate(
+                minTime,
+                maxTime,
+                sanitised
+            );
     }
 
     /// <summary>
@@ -807,7 +818,11 @@ public
         TimeSpan? maxTime = null
     )
     {
-        var dateRangeLower = new DateTime(1990, 1, 1);
+        var dateRangeLower = new DateTime(
+            1990,
+            1,
+            1
+        );
         const int dateRangeYears = 30;
 
         if (minDate is not null &&
@@ -845,7 +860,11 @@ public
         );
         return dateOnly
             ? sanitised.StartOfDay()
-            : RangeCheckTimeOnRandomDate(minTime, maxTime, sanitised);
+            : RangeCheckTimeOnRandomDate(
+                minTime,
+                maxTime,
+                sanitised
+            );
     }
 
     /// <summary>
@@ -1097,7 +1116,11 @@ public
         DateTime value
     )
     {
-        var baseDate = new DateTime(value.Year, value.Month, value.Day);
+        var baseDate = new DateTime(
+            value.Year,
+            value.Month,
+            value.Day
+        );
         var minDate = baseDate.Add(minTime ?? TimeSpan.FromSeconds(0));
         var maxDate = baseDate.Add(maxTime ?? TimeSpan.FromDays(1).Subtract(TimeSpan.FromTicks(1)));
 
@@ -1119,7 +1142,11 @@ public
         DateTime value
     )
     {
-        var baseDate = new DateTime(value.Year, value.Month, value.Day);
+        var baseDate = new DateTime(
+            value.Year,
+            value.Month,
+            value.Day
+        );
         minTime = baseDate.Add(minTime?.TimeOfDay ?? TimeSpan.FromSeconds(0));
         maxTime = baseDate.Add(maxTime?.TimeOfDay ?? TimeSpan.FromDays(1).Subtract(TimeSpan.FromTicks(1)));
 
@@ -1632,10 +1659,7 @@ public
         string lastName
     )
     {
-        var result = new List<string>
-        {
-            firstName ?? GetRandomFirstName()
-        };
+        var result = new List<string> { firstName ?? GetRandomFirstName() };
 
         if (GetRandomBoolean())
         {
@@ -1770,7 +1794,11 @@ public
     /// <returns></returns>
     public static string GetRandomAddress()
     {
-        return GetRandomAddress(null, null, null);
+        return GetRandomAddress(
+            null,
+            null,
+            null
+        );
     }
 
     internal static string GetRandomAddress(
@@ -1888,14 +1916,15 @@ public
     {
         var folders = GetRandomCollection<string>(1, 4);
         // ReSharper disable once StringLiteralTypo
-        var drive = GetRandomString(1, 1, "ABCDEGHIJKLMNOPQRSTUVWXYZ") + ":";
+        var drive = GetRandomString(
+            1,
+            1,
+            "ABCDEGHIJKLMNOPQRSTUVWXYZ"
+        ) + ":";
         // ReSharper disable once ImpureMethodCallOnReadonlyValueField
         return string.Join(
             "\\",
-            new[]
-            {
-                drive
-            }.And(folders.ToArray())
+            new[] { drive }.And(folders.ToArray())
         );
     }
 
@@ -2142,7 +2171,8 @@ public
     /// <returns></returns>
     public static string GetRandomUrlParameters()
     {
-        return Range(1, GetRandomInt(2, 5)).Select(_ => $"{GetRandomString(1)}={GetRandomString(1)}"
+        return Range(1, GetRandomInt(2, 5)).Select(
+            _ => $"{GetRandomString(1)}={GetRandomString(1)}"
         ).JoinWith("&");
     }
 
@@ -2176,11 +2206,12 @@ public
     )
     {
         return Range(0, GetRandomInt(minChars, maxChars))
-            .Select(_ =>
-                GetRandom(
-                    c => c < 'A' || c > 'z',
-                    () => (char)GetRandomInt(32, 255)
-                )
+            .Select(
+                _ =>
+                    GetRandom(
+                        c => c < 'A' || c > 'z',
+                        () => (char)GetRandomInt(32, 255)
+                    )
             )
             .JoinWith("");
     }
@@ -2196,7 +2227,11 @@ public
         int? maxLength = null
     )
     {
-        return GetRandomString(minLength, maxLength, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        return GetRandomString(
+            minLength,
+            maxLength,
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        );
     }
 
     /// <summary>
@@ -2210,7 +2245,11 @@ public
         int? maxLength = null
     )
     {
-        return GetRandomString(minLength, maxLength, "1234567890");
+        return GetRandomString(
+            minLength,
+            maxLength,
+            "1234567890"
+        );
     }
 
     /// <summary>
@@ -2243,7 +2282,8 @@ public
         params T[] excludingValues
     ) where T : struct, IConvertible
     {
-        return GetRandomEnum<T>(e => !excludingValues.Contains(e)
+        return GetRandomEnum<T>(
+            e => !excludingValues.Contains(e)
         );
     }
 
@@ -2644,9 +2684,7 @@ public
         var itemArray = items as T[] ?? items.ToArray();
         if (itemArray.Length == 0)
         {
-            return new T[]
-            {
-            };
+            return new T[] { };
         }
 
         if (minValues >= itemArray.Length)
@@ -2721,6 +2759,59 @@ public
             minValues,
             maxValues
         ).ToArray();
+    }
+
+    /// <summary>
+    /// Produces an array of TActual, packaged as TOut
+    /// - useful for, eg, creating an array with an interface
+    ///   type for items
+    /// </summary>
+    /// <param name="generator"></param>
+    /// <param name="minValues"></param>
+    /// <param name="maxValues"></param>
+    /// <typeparam name="TActual"></typeparam>
+    /// <typeparam name="TOut"></typeparam>
+    /// <returns></returns>
+    public static TOut[] GetRandomArray<TActual, TOut>(
+        Func<TActual> generator,
+        int minValues = DefaultRanges.MIN_ITEMS,
+        int maxValues = DefaultRanges.MAX_ITEMS
+    )
+        where TActual : TOut
+        where TOut : class
+    {
+        var result = GetRandomCollection<TActual, TOut>(
+            generator,
+            minValues,
+            maxValues
+        );
+        return result as TOut[] ?? result.ToArray();
+    }
+
+    /// <summary>
+    /// Produces a collection of TActual, packaged as TOut
+    /// - useful for, eg, creating an array with an interface
+    ///   type for items
+    /// </summary>
+    /// <param name="generator"></param>
+    /// <param name="minValues"></param>
+    /// <param name="maxValues"></param>
+    /// <typeparam name="TActual"></typeparam>
+    /// <typeparam name="TOut"></typeparam>
+    /// <returns></returns>
+    public static IEnumerable<TOut> GetRandomCollection<TActual, TOut>(
+        Func<TActual> generator,
+        int minValues = DefaultRanges.MIN_ITEMS,
+        int maxValues = DefaultRanges.MAX_ITEMS
+    )
+        where TActual : TOut
+        where TOut : class
+    {
+        return GetRandomCollection(
+            () => generator() as TOut,
+            minValues,
+            maxValues
+        );
     }
 
     /// <summary>
@@ -2882,7 +2973,11 @@ public
         int maxValues = DefaultRanges.MAX_ITEMS
     )
     {
-        return GetRandomCollection(generator, minValues, maxValues).ToArray();
+        return GetRandomCollection(
+            generator,
+            minValues,
+            maxValues
+        ).ToArray();
     }
 
     /// <summary>
@@ -2897,7 +2992,11 @@ public
         int maxValues = DefaultRanges.MAX_ITEMS
     )
     {
-        return GetRandomList(GetRandom<T>, minValues, maxValues);
+        return GetRandomList(
+            GetRandom<T>,
+            minValues,
+            maxValues
+        );
     }
 
     /// <summary>
@@ -2914,7 +3013,11 @@ public
         int maxValues = DefaultRanges.MAX_ITEMS
     )
     {
-        return GetRandomCollection(generator, minValues, maxValues)
+        return GetRandomCollection(
+                generator,
+                minValues,
+                maxValues
+            )
             .ToList();
     }
 
@@ -3048,7 +3151,11 @@ public
     )
     {
         shouldRegenerateIf = shouldRegenerateIf ?? DefaultEqualityTest;
-        return GetANewRandomValueUsing(differentFromThisValue, usingThisGenerator, IsANewValue);
+        return GetANewRandomValueUsing(
+            differentFromThisValue,
+            usingThisGenerator,
+            IsANewValue
+        );
 
         bool IsANewValue(T o) => !shouldRegenerateIf(differentFromThisValue, o);
     }
@@ -3099,7 +3206,11 @@ public
         Func<T> usingThisGenerator
     )
     {
-        return GetANewRandomValueUsing(default(T), usingThisGenerator ?? GetRandom<T>, validator);
+        return GetANewRandomValueUsing(
+            default(T),
+            usingThisGenerator ?? GetRandom<T>,
+            validator
+        );
     }
 
     /// <summary>
@@ -3148,7 +3259,11 @@ public
         areEqual = areEqual ?? DefaultEqualityTest;
         var notTheseArray = notAnyOfThese.ToArray();
         bool IsANewValue(T o) => notTheseArray.All(i => !areEqual(o, i));
-        return GetANewRandomValueUsing(notTheseArray, usingThisGenerator, IsANewValue);
+        return GetANewRandomValueUsing(
+            notTheseArray,
+            usingThisGenerator,
+            IsANewValue
+        );
     }
 
     private static bool DefaultEqualityTest<T>(
@@ -3460,7 +3575,8 @@ public
     )
     {
         var toCreate = GetRandomCollection<string>(1).ToList();
-        toCreate.ToArray().ForEach(f =>
+        toCreate.ToArray().ForEach(
+            f =>
             {
                 Directory.CreateDirectory(Path.Combine(path, f));
                 if (depth > 1)
@@ -3532,10 +3648,12 @@ public
     {
         var folders = CreateRandomFoldersIn(path, depth).ToArray();
         var result = new List<string>(folders);
-        folders.ForEach(f =>
+        folders.ForEach(
+            f =>
             {
                 var numberOfFiles = GetRandomInt(1);
-                numberOfFiles.TimesDo(() =>
+                numberOfFiles.TimesDo(
+                    () =>
                     {
                         var createdFile = CreateRandomFileIn(Path.Combine(path, f));
                         result.Add(Path.Combine(f, createdFile));

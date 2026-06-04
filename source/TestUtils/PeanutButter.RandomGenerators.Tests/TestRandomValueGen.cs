@@ -43,14 +43,16 @@ public class TestRandomValueGen
             // Arrange
             var ints = new List<int>();
             // Act
-            RunCycles(() => ints.Add(
+            RunCycles(
+                () => ints.Add(
                     GetRandomIntKey()
                 )
             );
             // Assert
             Expect(ints)
                 .To.Contain.All
-                .Matched.By(i => i is > 0 and < 1001
+                .Matched.By(
+                    i => i is > 0 and < 1001
                 );
             VarianceAssert.IsVariant(ints);
         }
@@ -566,7 +568,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() => ints.Add(
+            RunCycles(
+                () => ints.Add(
                     GetRandomLong(
                         min,
                         max
@@ -609,7 +612,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() => strings.Add(
+            RunCycles(
+                () => strings.Add(
                     GetRandomString(
                         minLength,
                         maxLength
@@ -636,7 +640,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var minLength = GetRandomInt(
                         10,
@@ -672,7 +677,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var minLength = GetRandomInt(
                         10,
@@ -755,7 +761,8 @@ public class TestRandomValueGen
             var results = new List<TestEnum>();
             var type = typeof(TestEnum);
             // Act
-            RunCycles(() => results.Add(
+            RunCycles(
+                () => results.Add(
                     (TestEnum)GetRandomEnum(type, e => (TestEnum)e != TestEnum.Two)
                 )
             );
@@ -772,7 +779,8 @@ public class TestRandomValueGen
             var results = new List<TestEnum>();
             var type = typeof(TestEnum);
             // Act
-            RunCycles(() => results.Add(
+            RunCycles(
+                () => results.Add(
                     (TestEnum)GetRandomEnum(type, TestEnum.Two)
                 )
             );
@@ -837,11 +845,18 @@ public class TestRandomValueGen
 
             //---------------Execute Test ----------------------
             // warm up
-            var time = Benchmark.Time(() =>
+            var time = Benchmark.Time(
+                () =>
                 {
                     for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
                     {
-                        results.Add(AnyOneOf(o1, o2, o3));
+                        results.Add(
+                            AnyOneOf(
+                                o1,
+                                o2,
+                                o3
+                            )
+                        );
                     }
                 }
             );
@@ -850,8 +865,16 @@ public class TestRandomValueGen
 
             //---------------Test Result -----------------------
             Expect(results)
-                .To.Contain.All.Of(o1, o2, o3);
-            Expect(o1, o2, o3)
+                .To.Contain.All.Of(
+                    o1,
+                    o2,
+                    o3
+                );
+            Expect(
+                    o1,
+                    o2,
+                    o3
+                )
                 .To.Contain.All.Of(results);
         }
     }
@@ -867,13 +890,19 @@ public class TestRandomValueGen
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new List<object> { o1, o2, o3 };
+            var items = new List<object>
+            {
+                o1,
+                o2,
+                o3
+            };
             var results = new List<object>();
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
             // warm up
-            var time = Benchmark.Time(() =>
+            var time = Benchmark.Time(
+                () =>
                 {
                     for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
                     {
@@ -899,14 +928,20 @@ public class TestRandomValueGen
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[] { o1, o2, o3 };
+            var items = new[]
+            {
+                o1,
+                o2,
+                o3
+            };
             var results = new List<object>();
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
             // warm up
             var _ = GetRandomFrom(items);
-            var time = Benchmark.Time(() =>
+            var time = Benchmark.Time(
+                () =>
                 {
                     for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
                     {
@@ -933,7 +968,12 @@ public class TestRandomValueGen
             var o2 = new object();
             var o3 = new object();
             var items = new ConcurrentBag<object>(
-                new[] { o1, o2, o3 }
+                new[]
+                {
+                    o1,
+                    o2,
+                    o3
+                }
             );
             var results = new List<object>();
             //---------------Assert Precondition----------------
@@ -941,7 +981,8 @@ public class TestRandomValueGen
             //---------------Execute Test ----------------------
             // warm up
             var _ = GetRandomFrom(items);
-            var time = Benchmark.Time(() =>
+            var time = Benchmark.Time(
+                () =>
                 {
                     for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
                     {
@@ -968,7 +1009,11 @@ public class TestRandomValueGen
             var o2 = new object();
             var o3 = new object();
             var items = new[] { o1 }.Union(
-                new[] { o2, o3 }
+                new[]
+                {
+                    o2,
+                    o3
+                }
             );
             var results = new List<object>();
             //---------------Assert Precondition----------------
@@ -976,7 +1021,8 @@ public class TestRandomValueGen
             //---------------Execute Test ----------------------
             // warm up
             var _ = GetRandomFrom(items);
-            var time = Benchmark.Time(() =>
+            var time = Benchmark.Time(
+                () =>
                 {
                     for (var i = 0; i < RIDICULOUS_RANDOM_TEST_CYCLES; i++)
                     {
@@ -1007,7 +1053,12 @@ public class TestRandomValueGen
             );
             // Assert
             Expect(
-                    new[] { 1, 2, 3 }
+                    new[]
+                    {
+                        1,
+                        2,
+                        3
+                    }
                 )
                 .To.Contain(result);
         }
@@ -1023,7 +1074,12 @@ public class TestRandomValueGen
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[] { o1, o2, o3 };
+            var items = new[]
+            {
+                o1,
+                o2,
+                o3
+            };
             var results = new List<IEnumerable<object>>();
             const int runs = NORMAL_RANDOM_TEST_CYCLES;
             //---------------Assert Precondition----------------
@@ -1035,7 +1091,8 @@ public class TestRandomValueGen
             }
 
             //---------------Test Result -----------------------
-            var flattened = results.SelectMany(r =>
+            var flattened = results.SelectMany(
+                r =>
                 {
                     var collections = r as object[] ?? r.ToArray();
                     return collections;
@@ -1058,7 +1115,12 @@ public class TestRandomValueGen
             var o1 = new object();
             var o2 = new object();
             var o3 = new object();
-            var items = new[] { o1, o2, o3 };
+            var items = new[]
+            {
+                o1,
+                o2,
+                o3
+            };
             const int runs = NORMAL_RANDOM_TEST_CYCLES;
 
             //---------------Assert Precondition----------------
@@ -1083,7 +1145,15 @@ public class TestRandomValueGen
             var o4 = new object();
             var o5 = new object();
             var o6 = new object();
-            var items = new[] { o1, o2, o3, o4, o5, o6 };
+            var items = new[]
+            {
+                o1,
+                o2,
+                o3,
+                o4,
+                o5,
+                o6
+            };
             var min = GetRandomInt(
                 1,
                 3
@@ -1137,7 +1207,11 @@ public class TestRandomValueGen
             //---------------Execute Test ----------------------
             for (var i = 0; i < runs; i++)
             {
-                var result = GetRandomArray(factory, 3, 8);
+                var result = GetRandomArray(
+                    factory,
+                    3,
+                    8
+                );
                 //---------------Test Result -----------------------
                 Expect(result)
                     .To.Contain.At.Least(3).Items()
@@ -1192,6 +1266,25 @@ public class TestRandomValueGen
                 result,
                 "Date"
             );
+        }
+
+        [Test]
+        public void ShouldBeAbleToCreateCastArray()
+        {
+            // Arrange
+            // Act
+            var result = GetRandomCollection<SomePOCO, ISomePOCO>(
+                GetRandom<SomePOCO>
+            );
+            
+            // Assert
+            Expect(result.GetType())
+                .To.Equal(typeof(ISomePOCO[]));
+            Expect(result)
+                .Not.To.Be.Empty();
+            Expect(result)
+                .To.Contain.All
+                .Matched.By(o => o is SomePOCO);
         }
     }
 
@@ -1375,7 +1468,8 @@ public class TestRandomValueGen
         [Test]
         public void ShouldReturnRandomDateTimeForDefaultCall()
         {
-            Retry.Max(3).Times(() =>
+            Retry.Max(3).Times(
+                () =>
                 {
                     // Arrange
                     var collected = new List<DateTime>();
@@ -1440,7 +1534,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() => results.Add(
+            RunCycles(
+                () => results.Add(
                     GetRandomDate(
                         range.From,
                         range.To,
@@ -1554,7 +1649,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() => results.Add(
+            RunCycles(
+                () => results.Add(
                     GetRandomDate(
                         range.From,
                         range.To
@@ -1655,7 +1751,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() => results.Add(
+            RunCycles(
+                () => results.Add(
                     GetRandomDate(
                         minTime: minTime,
                         maxTime: maxTime
@@ -1813,8 +1910,9 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
-                results.Add(GetRandomDate(maxTime: maxTime))
+            RunCycles(
+                () =>
+                    results.Add(GetRandomDate(maxTime: maxTime))
             );
 
             //---------------Test Result -----------------------
@@ -1915,7 +2013,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomDate(
                         minDate,
@@ -1965,7 +2064,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomDate(
                         minDate,
@@ -2054,7 +2154,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() => results.Add(
+            RunCycles(
+                () => results.Add(
                     GetRandomUtcDate(
                         range.From,
                         range.To,
@@ -2171,7 +2272,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() => results.Add(
+            RunCycles(
+                () => results.Add(
                     GetRandomUtcDate(
                         range.From,
                         range.To
@@ -2231,7 +2333,8 @@ public class TestRandomValueGen
             //---------------Test Result -----------------------
             Expect(results)
                 .To.Contain.All
-                .Matched.By(d => min <= d && d <= max
+                .Matched.By(
+                    d => min <= d && d <= max
                 );
         }
 
@@ -2265,7 +2368,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() => results.Add(
+            RunCycles(
+                () => results.Add(
                     GetRandomUtcDate(
                         minTime: minTime,
                         maxTime: maxTime
@@ -2468,7 +2572,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomUtcDate(
                         minDate,
@@ -2518,7 +2623,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomUtcDate(
                         minDate,
@@ -2560,7 +2666,8 @@ public class TestRandomValueGen
                         0,
                         NORMAL_RANDOM_TEST_CYCLES
                     )
-                    .Select(_ =>
+                    .Select(
+                        _ =>
                         {
                             var result = GetRandomTimeSpan(
                                 1,
@@ -2589,7 +2696,8 @@ public class TestRandomValueGen
                         0,
                         NORMAL_RANDOM_TEST_CYCLES
                     )
-                    .Select(_ =>
+                    .Select(
+                        _ =>
                         {
                             var result = GetRandomTimeSpan(TimeSpan.FromSeconds(2));
                             // Assert
@@ -2617,7 +2725,8 @@ public class TestRandomValueGen
                         0,
                         NORMAL_RANDOM_TEST_CYCLES
                     )
-                    .Select(_ =>
+                    .Select(
+                        _ =>
                         {
                             var result = GetRandomTimeSpan(
                                 1,
@@ -2650,7 +2759,8 @@ public class TestRandomValueGen
                         0,
                         NORMAL_RANDOM_TEST_CYCLES
                     )
-                    .Select(_ =>
+                    .Select(
+                        _ =>
                         {
                             var result = GetRandomTimeSpan(
                                 1,
@@ -2684,7 +2794,8 @@ public class TestRandomValueGen
                         0,
                         NORMAL_RANDOM_TEST_CYCLES
                     )
-                    .Select(_ =>
+                    .Select(
+                        _ =>
                         {
                             var result = GetRandomTimeSpan(
                                 1,
@@ -2717,7 +2828,8 @@ public class TestRandomValueGen
                         0,
                         NORMAL_RANDOM_TEST_CYCLES
                     )
-                    .Select(_ =>
+                    .Select(
+                        _ =>
                         {
                             var result = GetRandomTimeSpan(
                                 1,
@@ -2796,7 +2908,8 @@ public class TestRandomValueGen
                     0,
                     NORMAL_RANDOM_TEST_CYCLES
                 )
-                .Select(_ =>
+                .Select(
+                    _ =>
                     {
                         var result = GetRandomTimeSpan();
                         // Assert
@@ -2840,7 +2953,8 @@ public class TestRandomValueGen
                 var min = DateTimeOffset.Now;
                 var results = new List<DateTimeOffset>();
                 // Act
-                RunCycles(() => results.Add(GetRandomDateTimeOffset(min))
+                RunCycles(
+                    () => results.Add(GetRandomDateTimeOffset(min))
                 );
                 // Assert
                 Expect(results)
@@ -2855,7 +2969,8 @@ public class TestRandomValueGen
                 var max = DateTimeOffset.Now;
                 var results = new List<DateTimeOffset>();
                 // Act
-                RunCycles(() => results.Add(GetRandomDateTimeOffset(maxDate: max))
+                RunCycles(
+                    () => results.Add(GetRandomDateTimeOffset(maxDate: max))
                 );
                 // Assert
                 Expect(results)
@@ -2876,7 +2991,8 @@ public class TestRandomValueGen
                 var results = new List<DateTimeOffset>();
                 var verify = new List<DateTime>();
                 // Act
-                RunCycles(() =>
+                RunCycles(
+                    () =>
                     {
                         verify.Add(
                             GetRandomDate(
@@ -2917,7 +3033,8 @@ public class TestRandomValueGen
                 var results = new List<DateTimeOffset>();
                 var verify = new List<DateTime>();
                 // Act
-                RunCycles(() =>
+                RunCycles(
+                    () =>
                     {
                         verify.Add(
                             GetRandomDate(
@@ -2964,7 +3081,8 @@ public class TestRandomValueGen
                 var results = new List<DateTimeOffset>();
 
                 // Act
-                RunCycles(() => results.Add(
+                RunCycles(
+                    () => results.Add(
                         GetRandomDateTimeOffset(
                             minTime: minTime,
                             maxTime: maxTime
@@ -2994,7 +3112,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var thisResult = GetRandomDateRange();
                     Expect(thisResult)
@@ -3013,8 +3132,9 @@ public class TestRandomValueGen
             VarianceAssert.IsVariant(tos);
             VarianceAssert.IsVariant(deltas);
             Expect(allResults).To.Contain.All
-                .Matched.By(dt => dt.From.Kind == DateTimeKind.Local &&
-                                  dt.To.Kind == DateTimeKind.Local
+                .Matched.By(
+                    dt => dt.From.Kind == DateTimeKind.Local &&
+                          dt.To.Kind == DateTimeKind.Local
                 );
         }
 
@@ -3117,7 +3237,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomDateRange(minTime: minTime);
 
@@ -3139,7 +3260,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomDateRange(maxTime: maxTime);
 
@@ -3155,7 +3277,8 @@ public class TestRandomValueGen
         [Test]
         public void GivenDateKind_ShouldReturnBothDatesWithThatKind()
         {
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     //---------------Set up test pack-------------------
                     var expected = GetRandom<DateTimeKind>();
@@ -3186,7 +3309,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var thisResult = GetRandomUtcDateRange();
                     Expect(thisResult.From)
@@ -3299,7 +3423,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomUtcDateRange(minTime: minTime);
 
@@ -3321,7 +3446,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomUtcDateRange(maxTime: maxTime);
 
@@ -3470,11 +3596,13 @@ public class TestRandomValueGen
                 .Not.To.Be.Empty();
             Expect(result)
                 .To.Contain.All
-                .Matched.By(o => o is not null
+                .Matched.By(
+                    o => o is not null
                 );
             Expect(result)
                 .To.Contain.All
-                .Matched.By(o => o.GetType() == typeof(SomePOCO)
+                .Matched.By(
+                    o => o.GetType() == typeof(SomePOCO)
                 );
             VarianceAssert.IsVariant<SomePOCO, int>(
                 result,
@@ -3489,6 +3617,25 @@ public class TestRandomValueGen
                 "Date"
             );
         }
+
+        [Test]
+        public void ShouldBeAbleToCreateCastCollection()
+        {
+            // Arrange
+            // Act
+            var result = GetRandomCollection<SomePOCO, ISomePOCO>(
+                GetRandom<SomePOCO>
+            );
+            
+            // Assert
+            Expect(result.GetType())
+                .To.Equal(typeof(ISomePOCO[]));
+            Expect(result)
+                .Not.To.Be.Empty();
+            Expect(result)
+                .To.Contain.All
+                .Matched.By(o => o is SomePOCO);
+        }
     }
 
     [TestFixture]
@@ -3498,7 +3645,8 @@ public class TestRandomValueGen
         public void ShouldProduceRandomStringWithOnlyAlphaNumericCharacters()
         {
             var allResults = new List<Tuple<string, int, int>>();
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     //---------------Set up test pack-------------------
                     var minLength = GetRandomInt(
@@ -3568,7 +3716,8 @@ public class TestRandomValueGen
         public void ShouldProduceRandomStringWithOnlyAlphaCharacters()
         {
             var allResults = new List<Tuple<string, int, int>>();
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     //---------------Set up test pack-------------------
                     var minLength = GetRandomInt(
@@ -3657,7 +3806,8 @@ public class TestRandomValueGen
         public void ShouldProduceRandomStringWithOnlyNumericCharacters()
         {
             var allResults = new List<Tuple<string, int, int>>();
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     //---------------Set up test pack-------------------
                     var minLength = GetRandomInt(
@@ -3723,7 +3873,8 @@ public class TestRandomValueGen
             [Test]
             public void GivenOriginalValueCollectionAndNoGenerator_ShouldReturnThatValue()
             {
-                RunCycles(() =>
+                RunCycles(
+                    () =>
                     {
                         //---------------Set up test pack-------------------
                         var notThis = "abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW".ToCharArray()
@@ -3744,7 +3895,8 @@ public class TestRandomValueGen
             [Test]
             public void GivenOriginalValueAndGenerator_ShouldReturnANewValue()
             {
-                RunCycles(() =>
+                RunCycles(
+                    () =>
                     {
                         //---------------Set up test pack-------------------
                         var notThis = GetRandomString(
@@ -3773,7 +3925,8 @@ public class TestRandomValueGen
             [Test]
             public void GivenOriginalValueAndNoGenerator_ShouldReturnANewValue()
             {
-                RunCycles(() =>
+                RunCycles(
+                    () =>
                     {
                         //---------------Set up test pack-------------------
                         var notThis = GetRandomString(
@@ -3855,25 +4008,27 @@ public class TestRandomValueGen
                 //---------------Assert Precondition----------------
 
                 //---------------Execute Test ----------------------
-                Expect(() =>
-                    GetAnother(
-                        notAnyOfThese,
-                        () => GetRandomString(),
-                        (
-                            _,
-                            _
-                        ) => true
-                    )
+                Expect(
+                    () =>
+                        GetAnother(
+                            notAnyOfThese,
+                            () => GetRandomString(),
+                            (
+                                _,
+                                _
+                            ) => true
+                        )
                 ).To.Throw<CannotGetAnotherDifferentRandomValueException<string[]>>();
-                Expect(() =>
-                    GetAnother(
-                        notAnyOfThese,
-                        () => GetRandomString(),
-                        (
-                            _,
-                            _
-                        ) => true
-                    )
+                Expect(
+                    () =>
+                        GetAnother(
+                            notAnyOfThese,
+                            () => GetRandomString(),
+                            (
+                                _,
+                                _
+                            ) => true
+                        )
                 ).To.Throw<CannotGetAnotherDifferentRandomValueException<string[]>>();
 
                 //---------------Test Result -----------------------
@@ -3886,7 +4041,8 @@ public class TestRandomValueGen
             [Test]
             public void ShouldReturnThatValue()
             {
-                RunCycles(() =>
+                RunCycles(
+                    () =>
                     {
                         //---------------Set up test pack-------------------
                         var notThis = "abcdefghijklmnopqrstuvwABCDEFGHIJKLMNOPQRSTUVW".ToCharArray()
@@ -3930,7 +4086,8 @@ public class TestRandomValueGen
             VarianceAssert.IsVariant(result);
             Expect(result)
                 .To.Contain.All
-                .Matched.By(i => i is >= DefaultRanges.MIN_INT_VALUE and <= DefaultRanges.MAX_INT_VALUE
+                .Matched.By(
+                    i => i is >= DefaultRanges.MIN_INT_VALUE and <= DefaultRanges.MAX_INT_VALUE
                 );
         }
 
@@ -3949,7 +4106,8 @@ public class TestRandomValueGen
             VarianceAssert.IsVariant(result);
             Expect(result)
                 .To.Contain.All
-                .Matched.By(i => i is >= DefaultRanges.MIN_LONG_VALUE and <= DefaultRanges.MAX_LONG_VALUE
+                .Matched.By(
+                    i => i is >= DefaultRanges.MIN_LONG_VALUE and <= DefaultRanges.MAX_LONG_VALUE
                 );
         }
 
@@ -3968,9 +4126,10 @@ public class TestRandomValueGen
             //---------------Test Result -----------------------
             Expect(strings)
                 .To.Contain.All
-                .Matched.By(s =>
-                    s.Length >= DefaultRanges.MINLENGTH_STRING &&
-                    s.Length <= max
+                .Matched.By(
+                    s =>
+                        s.Length >= DefaultRanges.MINLENGTH_STRING &&
+                        s.Length <= max
                 );
         }
 
@@ -4101,7 +4260,8 @@ public class TestRandomValueGen
         [Test]
         public void GetRandom_GivenAValidatorFunction_ShouldReturnADifferentValue()
         {
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     //--------------- Arrange -------------------
                     var first = GetRandom<IHasAnId>();
@@ -4109,7 +4269,8 @@ public class TestRandomValueGen
                     //--------------- Assume ----------------
 
                     //--------------- Act ----------------------
-                    var other = GetRandom<IHasAnId>(test => test.Id != first.Id
+                    var other = GetRandom<IHasAnId>(
+                        test => test.Id != first.Id
                     );
 
                     //--------------- Assert -----------------------
@@ -4128,7 +4289,8 @@ public class TestRandomValueGen
         {
             //--------------- Arrange -------------------
             var first = GetRandom<IHasAnId>();
-            var expected = GetRandom<IHasAnId>(o => o.Id != first.Id
+            var expected = GetRandom<IHasAnId>(
+                o => o.Id != first.Id
             );
 
             //--------------- Assume ----------------
@@ -4241,7 +4403,8 @@ public class TestRandomValueGen
             // Pre-assert
 
             // Act
-            Expect(() =>
+            Expect(
+                    () =>
                     {
                         var parent = GetRandom<Parent>();
                         Expect(parent.Children).Not.To.Be.Empty();
@@ -4286,7 +4449,8 @@ public class TestRandomValueGen
         {
             // Arrange
             // Act
-            var result = GetRandom<SomePOCO>(o =>
+            var result = GetRandom<SomePOCO>(
+                o =>
                 {
                     o.Id = -42;
                 }
@@ -4445,7 +4609,8 @@ public class TestRandomValueGen
         public override SomePOCOWithBuilderBuilder WithRandomProps()
         {
             return base.WithRandomProps()
-                .WithProp(o => o.Id = GetRandomInt(
+                .WithProp(
+                    o => o.Id = GetRandomInt(
                         1000,
                         2000
                     )
@@ -4461,7 +4626,8 @@ public class TestRandomValueGen
         public void EncodingNonPrintableCharacters_ShouldNotThrow()
         {
             //---------------Set up test pack-------------------
-            var bytes = GetRandomCollection(() => GetRandomInt(
+            var bytes = GetRandomCollection(
+                    () => GetRandomInt(
                         0,
                         255
                     )
@@ -4490,7 +4656,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var minLength = GetRandomInt(
                         10,
@@ -4547,7 +4714,8 @@ public class TestRandomValueGen
 
             //---------------Execute Test ----------------------
             var allResults = new List<string>();
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomIPv4Address();
                     allResults.Add(result);
@@ -4557,8 +4725,9 @@ public class TestRandomValueGen
                     var ints = parts.Select(int.Parse);
                     Expect(ints)
                         .To.Contain.All
-                        .Matched.By(i =>
-                            i is >= 0 and <= 265
+                        .Matched.By(
+                            i =>
+                                i is >= 0 and <= 265
                         );
                 }
             );
@@ -4575,7 +4744,8 @@ public class TestRandomValueGen
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomIPv4Address();
                     var parts = result.Split('.');
@@ -4584,8 +4754,9 @@ public class TestRandomValueGen
                     var ints = parts.Select(int.Parse);
                     Expect(ints)
                         .To.Contain.All
-                        .Matched.By(i =>
-                            i is >= 0 and <= 265
+                        .Matched.By(
+                            i =>
+                                i is >= 0 and <= 265
                         );
                     Expect(ints.Last())
                         .To.Be.Greater.Than(0);
@@ -4695,7 +4866,8 @@ public class TestRandomValueGen
             // Arrange
             var allResults = new List<string>();
             // Act
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomIPv6Address();
                     Expect(result)
@@ -4721,7 +4893,12 @@ public class TestRandomValueGen
                         var result = GetRandomIPv6Address();
                         var parts = result.Split(':');
                         Expect(parts.All(s => !s.StartsWith("0")))
-                            .To.Be.True(() => new { result, parts }.Stringify()
+                            .To.Be.True(
+                                () => new
+                                {
+                                    result,
+                                    parts
+                                }.Stringify()
                             );
                         Expect(result)
                             .To.Be.An.IPv6Address();
@@ -4744,8 +4921,9 @@ public class TestRandomValueGen
                     {
                         var result = GetRandomIPv6Address(ensureCompressed: true);
                         var parts = result.Split(':');
-                        var nonEmptyParts = parts.Count(s =>
-                            s != ""
+                        var nonEmptyParts = parts.Count(
+                            s =>
+                                s != ""
                         );
 
                         if (result.Length < longestLength)
@@ -4785,8 +4963,12 @@ public class TestRandomValueGen
             var allowed = new HashSet<string>(
                 new[]
                 {
-                    HttpMethod.Delete.ToString(), HttpMethod.Get.ToString(), HttpMethod.Head.ToString(),
-                    HttpMethod.Options.ToString(), HttpMethod.Post.ToString(), HttpMethod.Put.ToString(),
+                    HttpMethod.Delete.ToString(),
+                    HttpMethod.Get.ToString(),
+                    HttpMethod.Head.ToString(),
+                    HttpMethod.Options.ToString(),
+                    HttpMethod.Post.ToString(),
+                    HttpMethod.Put.ToString(),
                     HttpMethod.Trace.ToString()
                 }
             );
@@ -4811,7 +4993,9 @@ public class TestRandomValueGen
             var allowed = new HashSet<string>(
                 new[]
                 {
-                    HttpMethod.Get.ToString(), HttpMethod.Post.ToString(), HttpMethod.Delete.ToString(),
+                    HttpMethod.Get.ToString(),
+                    HttpMethod.Post.ToString(),
+                    HttpMethod.Delete.ToString(),
                     HttpMethod.Put.ToString(),
                 }
             );
@@ -4872,9 +5056,10 @@ public class TestRandomValueGen
                     var parts = result.Split('.');
                     Expect(parts)
                         .To.Contain.All
-                        .Matched.By(s =>
-                            re.IsMatch(s) &&
-                            s.Length < 64
+                        .Matched.By(
+                            s =>
+                                re.IsMatch(s) &&
+                                s.Length < 64
                         );
                     allResults.Add(result);
                 },
@@ -4890,7 +5075,8 @@ public class TestRandomValueGen
         {
             // Arrange
             // Act
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var min = GetRandomInt(
                         3,
@@ -4910,7 +5096,8 @@ public class TestRandomValueGen
         {
             // Arrange
             // Act
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var min = GetRandomInt(
                         4,
@@ -4947,7 +5134,8 @@ public class TestRandomValueGen
 
             //---------------Execute Test ----------------------
             var allResults = new List<string>();
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomVersionString();
                     var parts = result.Split('.');
@@ -4973,7 +5161,8 @@ public class TestRandomValueGen
 
             //---------------Execute Test ----------------------
             var allResults = new List<string>();
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var partCount = GetRandomInt(
                         2,
@@ -5003,7 +5192,8 @@ public class TestRandomValueGen
 
             //---------------Execute Test ----------------------
             var allResults = new List<Version>();
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandomVersion();
                     allResults.Add(result);
@@ -5027,7 +5217,8 @@ public class TestRandomValueGen
 
             //---------------Execute Test ----------------------
             var allResults = new List<string>();
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var thisResult = GetRandomWindowsPath();
                     var parts = thisResult.Split('\\');
@@ -5182,7 +5373,8 @@ public class TestRandomValueGen
             Expect(lines)
                 .Not.To.Be.Empty();
             var areAllSafe =
-                lines.All(l =>
+                lines.All(
+                    l =>
                     {
                         return l.All(c => !char.IsControl(c));
                     }
@@ -5205,7 +5397,8 @@ public class TestRandomValueGen
             Expect(result)
                 .Not.To.Be.Empty();
             var allExist =
-                result.All(r => PathExists(
+                result.All(
+                    r => PathExists(
                         Path.Combine(
                             folder.Path,
                             r
@@ -5213,7 +5406,8 @@ public class TestRandomValueGen
                     )
                 );
             var haveFile =
-                result.Any(r => File.Exists(
+                result.Any(
+                    r => File.Exists(
                         Path.Combine(
                             folder.Path,
                             r
@@ -5221,7 +5415,8 @@ public class TestRandomValueGen
                     )
                 );
             var haveFolder =
-                result.Any(r => Directory.Exists(
+                result.Any(
+                    r => Directory.Exists(
                         Path.Combine(
                             folder.Path,
                             r
@@ -5243,7 +5438,8 @@ public class TestRandomValueGen
         [Test]
         public void WhenGivenDateWithTimeExceedingMaxTime_ShouldReturnDateWithTimeAtMaxTime()
         {
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     //---------------Set up test pack-------------------
                     var input = new DateTime(
@@ -5357,7 +5553,8 @@ public class TestRandomValueGen
 
         public ParentBuilder WithRandomChildren()
         {
-            return WithProp(_ => WithChildren(
+            return WithProp(
+                _ => WithChildren(
                     GetRandomCollection<ChildNode>(
                         2,
                         4
@@ -6071,7 +6268,8 @@ public class TestRandomValueGen
             var source = new HashSet<string>(MimeTypes.KnownMimeTypes);
             var collected = new List<string>();
             // Act
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     collected.Add(GetRandomMimeType());
                 }
@@ -6105,7 +6303,8 @@ public class TestRandomValueGen
         [Test]
         public void ShouldReturnValuesFromCollectionWithMinValues()
         {
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     // Arrange
                     var ints = GetRandomArray<int>(10, 20);
@@ -6126,14 +6325,19 @@ public class TestRandomValueGen
         [Test]
         public void ShouldReturnValuesFromCollectionWithinProvidedRange()
         {
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     // Arrange
                     var ints = GetRandomArray<int>(15, 20);
                     var min = GetRandomInt(5, 10);
                     var max = GetRandomInt(11, 14);
                     // Act
-                    var subset = GetSubSetOf(ints, min, max)
+                    var subset = GetSubSetOf(
+                            ints,
+                            min,
+                            max
+                        )
                         .ToArray();
 
                     // Assert
@@ -6163,7 +6367,8 @@ public class TestRandomValueGen
         [Test]
         public void ShouldNormalizeMinValue()
         {
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     // Arrange
                     var ints = GetRandomArray<int>(10, 20);
@@ -6240,10 +6445,16 @@ public class TestRandomValueGen
         {
             // Arrange
             var allowed = new HashSet<string>(
-                new[] { "bob", "sally", "margaret" }
+                new[]
+                {
+                    "bob",
+                    "sally",
+                    "margaret"
+                }
             );
             // Act
-            RunCycles(() =>
+            RunCycles(
+                () =>
                 {
                     var result = GetRandom<Person>();
                     Expect(allowed)
@@ -6269,9 +6480,22 @@ public class TestRandomValueGen
             Four
         }
 
-        [Restrict(nameof(Person.Name), "bob", "sally", "margaret")]
-        [Restrict(nameof(Person.OddNumber), Numbers.One, Numbers.Three)]
-        [Restrict(nameof(Person.EvenNumber), "Two", "Four")]
+        [Restrict(
+            nameof(Person.Name),
+            "bob",
+            "sally",
+            "margaret"
+        )]
+        [Restrict(
+            nameof(Person.OddNumber),
+            Numbers.One,
+            Numbers.Three
+        )]
+        [Restrict(
+            nameof(Person.EvenNumber),
+            "Two",
+            "Four"
+        )]
         public class PersonBuilder : GenericBuilder<PersonBuilder, Person>
         {
         }
@@ -6284,7 +6508,8 @@ internal static class Matchers
         this ICollectionTo<T> continuation
     )
     {
-        return continuation.AddMatcher(actual =>
+        return continuation.AddMatcher(
+            actual =>
             {
                 if (actual is null)
                 {
@@ -6318,15 +6543,17 @@ internal static class Matchers
         string basePath
     )
     {
-        be.Compose(actual =>
+        be.Compose(
+            actual =>
             {
-                actual.ForEach(sub =>
-                    Expect(
-                        Path.Combine(
-                            basePath,
-                            sub
-                        )
-                    ).To.Be.A.Folder()
+                actual.ForEach(
+                    sub =>
+                        Expect(
+                            Path.Combine(
+                                basePath,
+                                sub
+                            )
+                        ).To.Be.A.Folder()
                 );
             }
         );
@@ -6337,14 +6564,16 @@ internal static class Matchers
         string folder
     )
     {
-        be.Compose(actual =>
+        be.Compose(
+            actual =>
             {
                 var existing = Directory.EnumerateDirectories(
                         folder,
                         "*",
                         SearchOption.AllDirectories
                     )
-                    .Select(p => p.Substring(folder.Length + 1)
+                    .Select(
+                        p => p.Substring(folder.Length + 1)
                     );
                 Expect(existing).To.Be.Equivalent.To(actual);
             }
@@ -6355,13 +6584,39 @@ internal static class Matchers
         this IA<string> a
     )
     {
-        a.Compose(path =>
-            Expect(Directory.Exists(path)).To.Be.True()
+        a.Compose(
+            path =>
+                Expect(Directory.Exists(path)).To.Be.True()
         );
     }
 }
 
-public class SomePOCO
+public interface ISomePOCO
+{
+    int? Id { get; set; }
+    string Name { get; set; }
+    string FirstName { get; set; }
+    string LastName { get; set; }
+    string Email { get; set; }
+    string Login { get; set; }
+    string StreetAddress { get; set; }
+    string Address { get; set; }
+    string City { get; set; }
+    string PostalCode { get; set; }
+    string Country { get; set; }
+    string CountryCode { get; set; }
+    DateTime? Date { get; set; }
+    decimal Price { get; set; }
+    decimal Cost { get; set; }
+    decimal Tax { get; set; }
+    decimal VATRate { get; set; }
+    decimal? InterestPerc { get; set; }
+    decimal TaxPercent { get; set; }
+    decimal? Discount { get; set; }
+    decimal DiscountPercent { get; set; }
+}
+
+public class SomePOCO : ISomePOCO
 {
     public int? Id { get; set; }
     public string Name { get; set; }
@@ -6389,9 +6644,18 @@ public class SomePOCO
     {
         var parts = new[]
         {
-            $"Id: {Id}", $"Name: {Name}", $"FirstName: {FirstName}", $"LastName: {LastName}", $"Login: {Login}",
-            $"Email: {Email}", $"Street: {StreetAddress}", $"City: {City}", $"PostalCode: {PostalCode}",
-            $"Address: {Address}", $"Country: {Country}", $"Country Code: {CountryCode}"
+            $"Id: {Id}",
+            $"Name: {Name}",
+            $"FirstName: {FirstName}",
+            $"LastName: {LastName}",
+            $"Login: {Login}",
+            $"Email: {Email}",
+            $"Street: {StreetAddress}",
+            $"City: {City}",
+            $"PostalCode: {PostalCode}",
+            $"Address: {Address}",
+            $"Country: {Country}",
+            $"Country Code: {CountryCode}"
         };
         return string.Join(
             Environment.NewLine,
@@ -6406,7 +6670,8 @@ public static class IpAddressMatchers
         this IAn<string> continuation
     )
     {
-        return continuation.AddMatcher(actual =>
+        return continuation.AddMatcher(
+            actual =>
             {
                 var addressFamily = DetermineAddressFamilyFor(
                     actual,
@@ -6426,7 +6691,8 @@ public static class IpAddressMatchers
         this IAn<string> continuation
     )
     {
-        return continuation.AddMatcher(actual =>
+        return continuation.AddMatcher(
+            actual =>
             {
                 var addressFamily = DetermineAddressFamilyFor(
                     actual,
@@ -6466,7 +6732,8 @@ public static class HostNameMatcher
         this IValid<string> valid
     )
     {
-        return valid.AddMatcher(actual =>
+        return valid.AddMatcher(
+            actual =>
             {
                 var passed = false;
                 try
