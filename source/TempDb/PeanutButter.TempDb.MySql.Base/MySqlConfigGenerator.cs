@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using PeanutButter.Utils;
@@ -10,6 +11,27 @@ namespace PeanutButter.TempDb.MySql.Base;
 /// </summary>
 public class MySqlConfigGenerator
 {
+    private class ConfigLine
+    {
+        public string Name { get; }
+        public string Value { get; }
+
+        public ConfigLine(string name, string value)
+        {
+            Name = name;
+            Value = value;
+        }
+    }
+
+    private static readonly List<ConfigLine> PerformanceSchemaOptionsForInactivityTimeout = new()
+    {
+        new("performance_schema_instrument", "'%=OFF'"),
+        new("performance_schema_instrument", "'statement/%=ON'"),
+        new("performance_schema_consumer_global_instrumentation", "ON"),
+        new("performance_schema_consumer_thread_instrumentation", "ON"),
+        new("performance_schema_consumer_events_statements_current", "ON")
+    };
+
     /// <summary>
     /// Generates MySql configuration from TempDbMySqlServerSettings
     /// </summary>
@@ -27,6 +49,17 @@ public class MySqlConfigGenerator
 
         var iniFile = new INI.INIFile();
         iniFile.AddSection(SettingAttribute.DEFAULT_SECTION);
+        var autoPerformanceSchema = false;
+        if (tempDbMySqlSettings.Options.InactivityTimeout is not null)
+        {
+            if (tempDbMySqlSettings.PerformanceSchema == 0)
+            {
+                autoPerformanceSchema = true;
+            }
+
+            tempDbMySqlSettings.PerformanceSchema = 1;
+        }
+
         tempDbMySqlSettings.GetType()
             .GetProperties()
             .Select(prop => GetSetting(prop, tempDbMySqlSettings))
@@ -36,9 +69,18 @@ public class MySqlConfigGenerator
         {
             foreach (var kvp in customSetting.Value)
             {
-                WriteSetting(iniFile, new IniSetting(customSetting.Key, kvp.Key, kvp.Value, true));
+                WriteSetting(
+                    iniFile,
+                    new IniSetting(
+                        customSetting.Key,
+                        kvp.Key,
+                        kvp.Value,
+                        true
+                    )
+                );
             }
         }
+
 
         if (Environment.GetEnvironmentVariable("TEMPDB_DUMP_CONFIG").AsBoolean())
         {
@@ -52,7 +94,25 @@ public class MySqlConfigGenerator
             );
         }
 
-        return iniFile.ToString();
+        var result = iniFile.ToString();
+        if (!autoPerformanceSchema)
+        {
+            return result;
+        }
+
+        // when automatically enabling the performance schema 
+        // for inactivity watches, keep it as light as possible
+        // -> this requires first turning off all performance options
+        //    and then re-enabling the ones we want, which results in
+        //    a duplicated line for performance_schema_instrument, which
+        //    INIFile cannot handle, by design. So we do the work "raw", here.
+        var parts = new List<string>() { result };
+        foreach (var item in PerformanceSchemaOptionsForInactivityTimeout)
+        {
+            parts.Add($"{item.Name}={item.Value}");
+        }
+
+        return parts.JoinWith(Environment.NewLine);
     }
 
     private void WriteSetting(
@@ -90,7 +150,12 @@ public class MySqlConfigGenerator
 
         public static IniSetting Empty()
         {
-            return new(null, null, null, true);
+            return new(
+                null,
+                null,
+                null,
+                true
+            );
         }
     }
 
@@ -144,7 +209,12 @@ public class MySqlConfigGenerator
             bool ignoreIfNull
         )
         {
-            return new(section, key, value, ignoreIfNull);
+            return new(
+                section,
+                key,
+                value,
+                ignoreIfNull
+            );
         }
 
         IniSetting emptySetting()

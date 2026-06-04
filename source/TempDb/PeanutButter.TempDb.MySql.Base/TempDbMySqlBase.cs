@@ -275,7 +275,11 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
         Action<object> beforeInit,
         params string[] creationScripts
     ) : base(
-        o => BeforeInit(o as TempDBMySqlBase<T>, beforeInit, settings),
+        o => BeforeInit(
+            o as TempDBMySqlBase<T>,
+            beforeInit,
+            settings
+        ),
         creationScripts
     )
     {
@@ -386,7 +390,11 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
         fs.Copy(DatabasePath, result);
         foreach (var f in DeleteDataFilesOnSnapshot)
         {
-            var toDelete = Path.Combine(result, "data", f);
+            var toDelete = Path.Combine(
+                result,
+                "data",
+                f
+            );
             if (File.Exists(toDelete))
             {
                 File.Delete(toDelete);
@@ -510,14 +518,22 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
             return pathToMySqlD;
         }
 
-        using var io = ProcessIO.Start(pathToMySqlD, "--help", "--verbose");
+        using var io = ProcessIO.Start(
+            pathToMySqlD,
+            "--help",
+            "--verbose"
+        );
         var collected = new List<string>();
         foreach (var line in io.StandardOutput)
         {
             var trimmed = line.Trim();
             if (trimmed.StartsWith("-"))
             {
-                var sw = trimmed.Split(' ', '=', '[');
+                var sw = trimmed.Split(
+                    ' ',
+                    '=',
+                    '['
+                );
                 foreach (var sub in sw)
                 {
                     if (sub.StartsWith("-"))
@@ -653,45 +669,65 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
             : "") ?? "").Replace("'", "''");
     }
 
+    /// <summary>
+    /// Switch to the default tempdb_user user
+    /// </summary>
     public void UseDefaultUser()
     {
         CurrentUser = DEFAULT_USER;
     }
 
+    /// <summary>
+    /// Selects the user to be used when calling OpenConnection
+    /// or reading the connection string. The user must already
+    /// exist, otherwise this will throw. Use CreateUser to create
+    /// a user.
+    /// </summary>
+    /// <param name="user"></param>
     public void UseUser(string user)
     {
-        AsSuperUser(() =>
-        {
-            VerifyUserExists(user);
-            CurrentUser = user;
-        });
+        VerifyUserExists(user);
+        CurrentUser = user;
+    }
+
+    private void UseUserInternal(string user)
+    {
+        CurrentUser = user;
     }
 
     private void VerifyUserExists(string user)
     {
-        using var conn = OpenConnection();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText =
-            $"""
-             select count(*) from mysql.user where user = @{nameof(user)};
-             """;
-        var parameter = cmd.CreateParameter();
-        parameter.ParameterName = nameof(user);
-        parameter.Value = user;
-        cmd.Parameters.Add(parameter);
-        using var reader = cmd.ExecuteReader();
-        if (!reader.Read())
-        {
-            throw new Exception($"Unable to verify if user '{user}' exists");
-        }
+        AsSuperUser(
+            () =>
+            {
+                using var conn = OpenConnection();
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText =
+                    $"""
+                     select count(*) from mysql.user where user = @{nameof(user)};
+                     """;
+                var parameter = cmd.CreateParameter();
+                parameter.ParameterName = nameof(user);
+                parameter.Value = user;
+                cmd.Parameters.Add(parameter);
+                using var reader = cmd.ExecuteReader();
+                if (!reader.Read())
+                {
+                    throw new Exception($"Unable to verify if user '{user}' exists");
+                }
 
-        var count = reader.GetInt32(0);
-        if (count < 1)
-        {
-            throw new Exception($"Cannot use user '{user}': please issue a CreateUser first");
-        }
+                var count = reader.GetInt32(0);
+                if (count < 1)
+                {
+                    throw new Exception($"Cannot use user '{user}': please issue a CreateUser first");
+                }
+            }
+        );
     }
 
+    /// <summary>
+    /// Switch to the root user
+    /// </summary>
     public bool UseSuperUser()
     {
         var wasSet = CurrentUser != "root";
@@ -767,7 +803,11 @@ public abstract class TempDBMySqlBase<T> : TempDB<T> where T : DbConnection
                 return;
             }
 
-            Snapshot(SharedTemplateFolder, stop: false, restart: false);
+            Snapshot(
+                SharedTemplateFolder,
+                stop: false,
+                restart: false
+            );
         }
         catch (Exception ex)
         {
@@ -968,7 +1008,8 @@ Please report this, attaching a zip file of '{DatabasePath}'"
     {
         try
         {
-            Retry.Max(5).Times(() =>
+            Retry.Max(5).Times(
+                () =>
                 {
                     if (Platform.IsUnixy)
                     {
@@ -1200,16 +1241,18 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         string schema
     )
     {
-        AsSuperUser(() =>
-        {
-            var schemaCount = QueryFirst<int>(
-                $"select count(*) from information_schema.schemata where schema_name = {Quote(schema)};"
-            );
-            if (schemaCount < 1)
+        AsSuperUser(
+            () =>
             {
-                Execute($"create schema `{Escape(schema)}`");
+                var schemaCount = QueryFirst<int>(
+                    $"select count(*) from information_schema.schemata where schema_name = {Quote(schema)};"
+                );
+                if (schemaCount < 1)
+                {
+                    Execute($"create schema `{Escape(schema)}`");
+                }
             }
-        });
+        );
     }
 
     public void CreateUser(
@@ -1218,25 +1261,32 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         params string[] forSchemas
     )
     {
-        AsSuperUser(() =>
-        {
-            Execute(
-                $"create user {Quote(user)}@'%' identified with mysql_native_password by {Quote(password)}"
-            );
-            if (forSchemas.IsEmpty())
+        AsSuperUser(
+            () =>
             {
-                GrantAllNonSuperPrivilegesToUser(user);
-            }
-            else
-            {
-                forSchemas.ForEach(schema =>
-                    {
-                        CreateSchemaIfNotExists(schema);
-                        GrantAllPermissionsFor(user, schema, "%");
-                    }
+                Execute(
+                    $"create user {Quote(user)}@'%' identified with mysql_native_password by {Quote(password)}"
                 );
+                if (forSchemas.IsEmpty())
+                {
+                    GrantAllNonSuperPrivilegesToUser(user);
+                }
+                else
+                {
+                    forSchemas.ForEach(
+                        schema =>
+                        {
+                            CreateSchemaIfNotExists(schema);
+                            GrantAllPermissionsFor(
+                                user,
+                                schema,
+                                "%"
+                            );
+                        }
+                    );
+                }
             }
-        });
+        );
     }
 
     private void AsSuperUser(Action toRun)
@@ -1251,7 +1301,7 @@ Please report this, attaching a zip file of '{DatabasePath}'"
         {
             if (revert)
             {
-                UseUser(originalUser);
+                UseUserInternal(originalUser);
             }
         }
     }
@@ -1374,7 +1424,11 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             Directory.CreateDirectory(containingFolder);
         }
 
-        if (MySqlVersion.Version > new Version(8, 4, 0))
+        if (MySqlVersion.Version > new Version(
+                8,
+                4,
+                0
+            ))
         {
             Settings.MySqlNativePassword = "ON";
         }
@@ -1886,8 +1940,7 @@ Please report this, attaching a zip file of '{DatabasePath}'"
             return -1; // unable to figure it out, things will die
         }
 
-        var connectionCount = reader.GetInt32(0);
-        return connectionCount;
+        return reader.GetInt32(0);
     }
 
     protected virtual bool IsMyInstance(
@@ -2053,7 +2106,8 @@ where `variable` = '__tempdb_id__';";
         var stderr = "(unknown)";
         var stdout = "(unknown)";
 
-        TryDo(() =>
+        TryDo(
+            () =>
             {
                 if (_serverProcess is not null)
                 {
@@ -2332,7 +2386,11 @@ stderr: {stderr}"
         string targetFolder
     )
     {
-        CopyItemToFolder(srcFolder, targetFolder, CopyFolder);
+        CopyItemToFolder(
+            srcFolder,
+            targetFolder,
+            CopyFolder
+        );
     }
 
     private static void CopyItemToFolder(
@@ -2355,7 +2413,11 @@ stderr: {stderr}"
         string targetFolder
     )
     {
-        CopyItemToFolder(srcFile, targetFolder, File.Copy);
+        CopyItemToFolder(
+            srcFile,
+            targetFolder,
+            File.Copy
+        );
     }
 
     private bool IsWindowsAndMySql56OrLower(
@@ -2382,14 +2444,19 @@ stderr: {stderr}"
         string mysqld
     )
     {
-        using var process = RunCommand(false, mysqld, "--version");
+        using var process = RunCommand(
+            false,
+            mysqld,
+            "--version"
+        );
         process.WaitForExit();
 
         var result = process.StandardOutput.JoinWith("\n");
         var parts = result.ToLower().Split(' ');
         var versionInfo = new MySqlVersionInfo();
         var last = "";
-        parts.ForEach(p =>
+        parts.ForEach(
+            p =>
             {
                 if (last == "ver")
                 {

@@ -113,17 +113,19 @@ public static class TempDbTracker
 
         foreach (var db in toDestroy)
         {
-            Task.Run(() =>
-            {
-                try
+            Task.Run(
+                () =>
                 {
-                    db.Dispose();
+                    try
+                    {
+                        db.Dispose();
+                    }
+                    catch
+                    {
+                        // suppress
+                    }
                 }
-                catch
-                {
-                    // suppress
-                }
-            });
+            );
         }
     }
 }
@@ -269,6 +271,7 @@ public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConne
     {
         try
         {
+            var inGracePeriod = false;
             while (!_disposed)
             {
                 try
@@ -277,7 +280,16 @@ public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConne
                     var now = DateTime.Now;
                     if (connectionCount != 0)
                     {
+                        inGracePeriod = false;
                         _eol = now.Add(_timeout);
+                    }
+                    else
+                    {
+                        if (!inGracePeriod)
+                        {
+                            inGracePeriod = true;
+                            _eol = now.Add(_timeout);
+                        }
                     }
 
                     var eolExceeded = now > _eol;
@@ -306,7 +318,7 @@ public abstract class TempDB<TDatabaseConnection> : ITempDB where TDatabaseConne
                     // Suppress; this is a background thread; nothing we can really do about it anyway
                 }
 
-                Thread.Sleep(500);
+                Thread.Sleep(1000);
             }
         }
         catch (ThreadAbortException)
