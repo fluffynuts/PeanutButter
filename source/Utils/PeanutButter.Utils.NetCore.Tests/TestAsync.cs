@@ -32,10 +32,12 @@
         {
             // Arrange
             // Act
-            Expect(() =>
-                    Async.RunSync(() =>
-                        Task.Run(() => throw new InvalidOperationException("Moo"))
-                    )
+            Expect(
+                    () =>
+                        Async.RunSync(
+                            () =>
+                                Task.Run(() => throw new InvalidOperationException("Moo"))
+                        )
                 ).To.Throw<InvalidOperationException>()
                 .With.Message("Moo");
             // Assert
@@ -46,22 +48,74 @@
         {
             // Arrange
             // Act
-            Expect(() =>
-                    Async.RunSync(() =>
-                        Task.Run(() =>
-                        {
-                            if (true)
-                            {
-                                throw new InvalidOperationException("Moo");
-                            }
+            Expect(
+                    () =>
+                        Async.RunSync(
+                            () =>
+                                Task.Run(
+                                    () =>
+                                    {
+                                        if (true)
+                                        {
+                                            throw new InvalidOperationException("Moo");
+                                        }
 #pragma warning disable CS0162
-                            return 0;
+                                        return 0;
 #pragma warning restore CS0162
-                        })
-                    )
+                                    }
+                                )
+                        )
                 ).To.Throw<InvalidOperationException>()
                 .With.Message("Moo");
             // Assert
+        }
+
+        [Test]
+        public void ShouldRestoreSynchronizationContextOnHappyPath()
+        {
+            // Arrange
+            var expected = new SynchronizationContext();
+            SynchronizationContext.SetSynchronizationContext(expected);
+
+            // Act
+            Async.RunSync(
+                () =>
+                    Task.Run(
+                        () =>
+                        {
+                        }
+                    )
+            );
+            // Assert
+            Expect(SynchronizationContext.Current)
+                .To.Be(expected);
+        }
+
+        [Test]
+        public void ShouldRestoreSynchronizationContextOnUnhappyPath()
+        {
+            // Arrange
+            var expected = new SynchronizationContext();
+            SynchronizationContext.SetSynchronizationContext(expected);
+            // Act
+            try
+            {
+                Async.RunSync(
+                    () =>
+                        Task.Run(
+                            () =>
+                            {
+                                throw new Exception("not today");
+                            }
+                        )
+                );
+            }
+            catch
+            {
+                // Assert
+                Expect(SynchronizationContext.Current)
+                    .To.Be(expected);
+            }
         }
     }
 }

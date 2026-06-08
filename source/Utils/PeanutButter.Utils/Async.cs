@@ -34,25 +34,26 @@ namespace PeanutButter.Utils
             SynchronizationContext.SetSynchronizationContext(context);
             try
             {
-                context.Post(async _ =>
-                {
-                    try
+                context.Post(
+                    async _ =>
                     {
-                        await task();
-                    }
-                    catch (Exception e)
-                    {
-                        context.InnerException = e;
-                        throw;
-                    }
-                    finally
-                    {
-                        context.EndMessageLoop();
-                    }
-                }, null);
+                        try
+                        {
+                            await task();
+                        }
+                        catch (Exception e)
+                        {
+                            context.InnerException = e;
+                            throw;
+                        }
+                        finally
+                        {
+                            context.EndMessageLoop();
+                        }
+                    },
+                    null
+                );
                 context.BeginMessageLoop();
-
-                SynchronizationContext.SetSynchronizationContext(oldContext);
             }
             catch (AggregateException ex)
             {
@@ -64,6 +65,10 @@ namespace PeanutButter.Utils
                 ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
                 // shouldn't actually get here
                 throw;
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(oldContext);
             }
         }
 
@@ -83,22 +88,25 @@ namespace PeanutButter.Utils
             var ret = default(T);
             try
             {
-                context.Post(async _ =>
-                {
-                    try
+                context.Post(
+                    async _ =>
                     {
-                        ret = await task();
-                    }
-                    catch (Exception e)
-                    {
-                        context.InnerException = e;
-                        throw;
-                    }
-                    finally
-                    {
-                        context.EndMessageLoop();
-                    }
-                }, null);
+                        try
+                        {
+                            ret = await task();
+                        }
+                        catch (Exception e)
+                        {
+                            context.InnerException = e;
+                            throw;
+                        }
+                        finally
+                        {
+                            context.EndMessageLoop();
+                        }
+                    },
+                    null
+                );
                 context.BeginMessageLoop();
                 SynchronizationContext.SetSynchronizationContext(oldContext);
                 return ret;
