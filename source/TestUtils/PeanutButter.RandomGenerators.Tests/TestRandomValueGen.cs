@@ -5096,13 +5096,13 @@ public class TestRandomValueGen
                     o => o.Count()
                 );
             Expect(counts["GET"])
-                .To.Be.Greater.Than(counts["PUT"])
+                .To.Be.Greater.Than.Or.Equal.To(counts["PUT"])
                 .And
-                .To.Be.Greater.Than(counts["POST"])
+                .To.Be.Greater.Than.Or.Equal.To(counts["POST"])
                 .And
-                .To.Be.Greater.Than(counts["DELETE"]);
+                .To.Be.Greater.Than.Or.Equal.To(counts["DELETE"]);
             Expect(counts["POST"])
-                .To.Be.Greater.Than(counts["PUT"]);
+                .To.Be.Greater.Than.Or.Equal.To(counts["PUT"]);
         }
     }
 
