@@ -526,6 +526,7 @@ var hierarchy =
     [ "PeanutButter.Utils.KeyValueCollectionExtensions", "classPeanutButter_1_1Utils_1_1KeyValueCollectionExtensions.html", null ],
     [ "PeanutButter.Utils.ListExtensions", "classPeanutButter_1_1Utils_1_1ListExtensions.html", null ],
     [ "PeanutButter.TempDb.LocalDb.LocalDbInstanceEnumerator", "classPeanutButter_1_1TempDb_1_1LocalDb_1_1LocalDbInstanceEnumerator.html", null ],
+    [ "PeanutButter.Utils.Logic", "classPeanutButter_1_1Utils_1_1Logic.html", null ],
     [ "PeanutButter.Utils.MaxAttemptsRetryContext", "classPeanutButter_1_1Utils_1_1MaxAttemptsRetryContext.html", null ],
     [ "PeanutButter.Utils.MedianExtensions", "classPeanutButter_1_1Utils_1_1MedianExtensions.html", null ],
     [ "PeanutButter.DuckTyping.Extensions.MergingExtensions", "classPeanutButter_1_1DuckTyping_1_1Extensions_1_1MergingExtensions.html", null ],

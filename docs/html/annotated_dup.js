@@ -418,6 +418,7 @@ var annotated_dup =
         [ "KeyValueCollectionExtensions", "classPeanutButter_1_1Utils_1_1KeyValueCollectionExtensions.html", "classPeanutButter_1_1Utils_1_1KeyValueCollectionExtensions" ],
         [ "LazyWithContext", "classPeanutButter_1_1Utils_1_1LazyWithContext.html", "classPeanutButter_1_1Utils_1_1LazyWithContext" ],
         [ "ListExtensions", "classPeanutButter_1_1Utils_1_1ListExtensions.html", "classPeanutButter_1_1Utils_1_1ListExtensions" ],
+        [ "Logic", "classPeanutButter_1_1Utils_1_1Logic.html", "classPeanutButter_1_1Utils_1_1Logic" ],
         [ "MaxAttemptsRetryContext", "classPeanutButter_1_1Utils_1_1MaxAttemptsRetryContext.html", "classPeanutButter_1_1Utils_1_1MaxAttemptsRetryContext" ],
         [ "MedianExtensions", "classPeanutButter_1_1Utils_1_1MedianExtensions.html", "classPeanutButter_1_1Utils_1_1MedianExtensions" ],
         [ "MemberNotFoundException", "classPeanutButter_1_1Utils_1_1MemberNotFoundException.html", "classPeanutButter_1_1Utils_1_1MemberNotFoundException" ],
