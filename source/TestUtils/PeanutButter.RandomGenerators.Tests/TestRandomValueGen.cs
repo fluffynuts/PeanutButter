@@ -28,7 +28,6 @@ using static NExpect.Implementations.MessageHelpers;
 // ReSharper disable InconsistentNaming
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedMember.Global
-
 namespace PeanutButter.RandomGenerators.Tests;
 
 [TestFixture]
@@ -707,7 +706,6 @@ public class TestRandomValueGen
         }
     }
 
-
     private enum TestEnum
     {
         One,
@@ -1277,7 +1275,7 @@ public class TestRandomValueGen
                 GetRandom<SomePOCO>,
                 1
             );
-            
+
             // Assert
             Expect(result.GetType())
                 .To.Equal(typeof(ISomePOCO[]));
@@ -1287,6 +1285,7 @@ public class TestRandomValueGen
                 .To.Contain.All
                 .Matched.By(o => o is SomePOCO);
         }
+
         [Test]
         public void ShouldBeAbleToCreateCastArrayWithoutGenerator()
         {
@@ -1295,7 +1294,7 @@ public class TestRandomValueGen
             var result = GetRandomArray<SomePOCO, ISomePOCO>(
                 1
             );
-            
+
             // Assert
             Expect(result.GetType())
                 .To.Equal(typeof(ISomePOCO[]));
@@ -1458,7 +1457,6 @@ public class TestRandomValueGen
             );
         }
 
-
         [Test]
         public void ShouldBeAbleToCreateCastList()
         {
@@ -1468,7 +1466,7 @@ public class TestRandomValueGen
                 GetRandom<SomePOCO>,
                 1
             );
-            
+
             // Assert
             Expect(result.GetType())
                 .To.Equal(typeof(List<ISomePOCO>));
@@ -1487,7 +1485,7 @@ public class TestRandomValueGen
             var result = GetRandomList<SomePOCO, ISomePOCO>(
                 1
             );
-            
+
             // Assert
             Expect(result.GetType())
                 .To.Equal(typeof(List<ISomePOCO>));
@@ -3686,7 +3684,7 @@ public class TestRandomValueGen
                 GetRandom<SomePOCO>,
                 1
             );
-            
+
             // Assert
             Expect(result.GetType())
                 .To.Equal(typeof(ISomePOCO[]));
@@ -3705,7 +3703,7 @@ public class TestRandomValueGen
             var result = GetRandomCollection<SomePOCO, ISomePOCO>(
                 1
             );
-            
+
             // Assert
             Expect(result.GetType())
                 .To.Equal(typeof(ISomePOCO[]));
@@ -4678,7 +4676,6 @@ public class TestRandomValueGen
         }
     }
 
-
     public class SomePOCOWithBuilder : SomePOCO
     {
     }
@@ -4722,7 +4719,6 @@ public class TestRandomValueGen
             Console.WriteLine(result);
         }
     }
-
 
     [TestFixture]
     public class GetRandomAlphaString
@@ -5346,7 +5342,6 @@ public class TestRandomValueGen
                 .To.Be.A.Folder();
         }
 
-
         [Test]
         public void GivenPath_ShouldCreateSomeRandomFoldersThereAndReturnTheRelativePaths()
         {
@@ -5608,7 +5603,6 @@ public class TestRandomValueGen
         public TimeSpan Moo { get; set; }
     }
 
-
     public class Parent
     {
         public string Name { get; set; }
@@ -5657,7 +5651,6 @@ public class TestRandomValueGen
     {
         return File.Exists(path) || Directory.Exists(path);
     }
-
 
     private static string BuildErrorMessageFor(
         IEnumerable<Tuple<string, int, int>> tooShort,
@@ -5710,7 +5703,6 @@ public class TestRandomValueGen
 
         return message.JoinWith("\n");
     }
-
 
     private static void RunCycles(
         Action toRun,
@@ -5895,6 +5887,30 @@ public class TestRandomValueGen
                 .Not.To.Be.Empty();
             Expect(uri.Scheme)
                 .To.Equal("http");
+        }
+    }
+
+    [TestFixture]
+    public class GetRandomUrlParameters
+    {
+        [Repeat(HIGH_RANDOM_TEST_CYCLES)]
+        [Test]
+        public void ShouldNeverDoubleUpParameters()
+        {
+            // Arrange
+            // Act
+            var result = GetRandomUrlParameters();
+            // Assert
+            var parameters = result.Split("&")
+                .Map(
+                    s =>
+                    {
+                        var parts = s.Split("=");
+                        return parts[0];
+                    }
+                );
+            Expect(parameters)
+                .To.Be.Distinct();
         }
     }
 
@@ -6495,23 +6511,14 @@ public class TestRandomValueGen
         public interface IMooCakes
         {
             long Id { get; set; }
-
             string Channel { get; set; }
-
             Guid UniqueIdentifier { get; set; }
-
             long? ReferenceId { get; set; }
-
             string Type { get; set; }
-
             string Info { get; set; }
-
             string Meta { get; set; }
-
             DateTime DateTime { get; set; }
-
             long? OverallRunTime { get; set; }
-
             long? StepRunTime { get; set; }
         }
     }

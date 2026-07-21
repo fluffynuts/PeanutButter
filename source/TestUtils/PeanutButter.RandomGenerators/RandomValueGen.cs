@@ -17,7 +17,6 @@ using System.Runtime;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ClassNeverInstantiated.Global
-
 #if BUILD_PEANUTBUTTER_INTERNAL
 using Imported.PeanutButter.Utils;
 using static Imported.PeanutButter.Utils.PyLike;
@@ -667,7 +666,6 @@ public
             maxTime
         );
     }
-
 
     /// <summary>
     /// Returns a local random datetime
@@ -2171,8 +2169,18 @@ public
     /// <returns></returns>
     public static string GetRandomUrlParameters()
     {
+        var usedKeys = new HashSet<string>();
         return Range(1, GetRandomInt(2, 5)).Select(
-            _ => $"{GetRandomString(1)}={GetRandomString(1)}"
+            _ =>
+            {
+                string key;
+                do
+                {
+                    key = GetRandomString(1);
+                } while (!usedKeys.Add(key));
+
+                return $"{key}={GetRandomString(1)}";
+            }
         ).JoinWith("&");
     }
 
