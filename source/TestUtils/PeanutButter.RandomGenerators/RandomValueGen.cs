@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using System.Runtime;
+using System.Threading.Tasks;
 // ReSharper disable ConstantNullCoalescingCondition
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -288,6 +289,19 @@ public
             );
         }
 
+        if (type == typeof(Task))
+        {
+            return Task.CompletedTask;
+        }
+
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
+        {
+            var resultType = type.GetGenericArguments().First();
+            var value = GetRandom(resultType);
+            var method = GenericWrapValueInTaskMethod.MakeGenericMethod(resultType);
+            return method.Invoke(null, [value]);
+        }
+
         return PrimitiveGenerators.TryGetValue(
             type ?? throw new ArgumentNullException(nameof(type)),
             out var randomGenerator
@@ -295,6 +309,14 @@ public
             ? randomGenerator()
             : GetRandomValueForType(type);
     }
+
+    private static Task<T> WrapValueInTask<T>(T value)
+    {
+        return Task.FromResult(value);
+    }
+
+    private static readonly MethodInfo GenericWrapValueInTaskMethod = typeof(RandomValueGen)
+        .GetMethod(nameof(WrapValueInTask), BindingFlags.Static | BindingFlags.NonPublic);
 
     private static object GetRandomValueForType(
         Type type
@@ -3383,7 +3405,9 @@ public
     {
         areEqual = areEqual ?? DefaultEqualityTest;
         var notTheseArray = notAnyOfThese.ToArray();
+
         bool IsANewValue(T o) => notTheseArray.All(i => !areEqual(o, i));
+
         return GetANewRandomValueUsing(
             notTheseArray,
             usingThisGenerator,

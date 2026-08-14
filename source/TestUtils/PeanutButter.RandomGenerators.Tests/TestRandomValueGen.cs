@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using GenericBuilderTestArtifactBuilders;
 using GenericBuilderTestArtifactEntities;
 using NExpect.Interfaces;
@@ -6584,6 +6585,36 @@ public class TestRandomValueGen
         )]
         public class PersonBuilder : GenericBuilder<PersonBuilder, Person>
         {
+        }
+    }
+
+    [TestFixture]
+    public class Tasks
+    {
+        [Test]
+        public void ShouldCreateCompletedTaskForNonValueTask()
+        {
+            // Arrange
+            // Act
+            var result = GetRandom<Task>();
+            
+            // Assert
+            Expect(result)
+                .To.Be(Task.CompletedTask);
+        }
+        
+        [Test]
+        public async Task ShouldCreateTheInnerValueAndWrapInATask()
+        {
+            // Arrange
+            // Act
+            var result = GetRandom<Task<int>>();
+            // Assert
+            var innerResult = await result;
+            Expect(innerResult)
+                .To.Be.Greater.Than.Or.Equal.To(DefaultRanges.MIN_INT_VALUE)
+                .And
+                .To.Be.Less.Than.Or.Equal.To(DefaultRanges.MAX_INT_VALUE);
         }
     }
 }
