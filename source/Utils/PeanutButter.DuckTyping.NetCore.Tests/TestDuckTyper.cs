@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 using NExpect;
 using PeanutButter.DuckTyping.Extensions;
+using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -144,6 +146,48 @@ public class TestDuckTyper
         // Assert
         Expect(opts.Url)
             .To.Equal(expected);
+    }
+
+    [Test]
+    public void ForcedEnumCoercionShouldResultInDefaultValue()
+    {
+        // Arrange
+        var badData = new Dictionary<string, string>()
+        {
+            ["MySqlDriver"] = "monkeys"
+        };
+        var good1 = new Dictionary<string, string>()
+        {
+            ["MySqlDriver"] = "MySqlData"
+        };
+        var good2 = new Dictionary<string, string>()
+        {
+            ["MySqlDriver"] = "MySqlConnector"
+        };
+        // Act
+        var badDataResult = badData.ForceFuzzyDuckAs<IHasDriver>();
+        var good1Result = good1.ForceFuzzyDuckAs<IHasDriver>();
+        var good2Result = good2.ForceFuzzyDuckAs<IHasDriver>();
+        
+        // Assert
+        Expect(badDataResult.MySqlDriver)
+            .To.Equal(MySqlDrivers.Unknown);
+        Expect(good1Result.MySqlDriver)
+            .To.Equal(MySqlDrivers.MySqlData);
+        Expect(good2Result.MySqlDriver)
+            .To.Equal(MySqlDrivers.MySqlConnector);
+    }
+
+    public enum MySqlDrivers
+    {
+        Unknown,
+        MySqlData,
+        MySqlConnector
+    }
+
+    public interface IHasDriver
+    {
+        MySqlDrivers MySqlDriver { get; }
     }
 
     public interface IOptions
