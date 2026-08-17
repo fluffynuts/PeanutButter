@@ -5,7 +5,7 @@ import { Stream } from "stream";
   const
     gulp = requireModule<Gulp>("gulp"),
     { build, clean, nugetPush, pack, run } = require("dotnet-cli"),
-    { ls, fileExists, readTextFileLines } = require("yafs"),
+    { ls, fileExists, readTextFileLines, rm } = require("yafs"),
     runSequence = requireModule<RunSequence>("run-sequence"),
     del = require("del"),
     { system } = require("system-wrapper"),
@@ -143,7 +143,7 @@ import { Stream } from "stream";
   }
 
   gulp.task("clean-nuget-releasedir", function () {
-    return del(nugetReleaseDir);
+    return rm(nugetReleaseDir);
   });
 
   gulp.task(

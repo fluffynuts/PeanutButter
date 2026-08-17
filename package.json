@@ -43,7 +43,7 @@
     "system-wrapper": "^1.7.0",
     "typescript": "^5.2.2",
     "which": "^5.0.0",
-    "yafs": "^1.48.0",
+    "yafs": "^1.51.0",
     "zarro": "^1.210.0"
   }
 }
