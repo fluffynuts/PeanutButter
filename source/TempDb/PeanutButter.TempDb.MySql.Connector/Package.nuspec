@@ -21,12 +21,14 @@
     <copyright>Copyright  2015</copyright>
     <dependencies>
       <group targetFramework="net462">
+        <dependency id="PeanutButter.FileSystem" version="3.0.431" />
         <dependency id="PeanutButter.TempDb" version="3.0.431" />
         <dependency id="PeanutButter.Utils" version="3.0.431" />
         <dependency id="PeanutButter.INI" version="3.0.431" />
         <dependency id="MySqlConnector" version="2.2.1" />
       </group>
       <group targetFramework="netstandard2.0">
+        <dependency id="PeanutButter.FileSystem" version="3.0.431" />
         <dependency id="PeanutButter.TempDb" version="3.0.431" />
         <dependency id="PeanutButter.Utils" version="3.0.431" />
         <dependency id="PeanutButter.INI" version="3.0.431" />
