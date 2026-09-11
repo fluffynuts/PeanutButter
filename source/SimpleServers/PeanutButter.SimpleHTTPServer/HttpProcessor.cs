@@ -135,9 +135,10 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
     /// <param name="io"></param>
     protected void HandleRequest(TcpIoWrapper io)
     {
-        if (Method.Equals(Methods.GET))
+        if (Method.Equals(Methods.GET) ||
+            Method.Equals(Methods.HEAD))
         {
-            this.HandleRequestWithoutBody(Method);
+            HandleRequestWithoutBody(Method);
             return;
         }
 
@@ -146,7 +147,7 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
             || Method.Equals(Methods.PATCH)
             || Method.Equals(Methods.POST))
         {
-            this.HandleRequestWithBody(io.RawStream, Method);
+            HandleRequestWithBody(io.RawStream, Method);
         }
     }
 

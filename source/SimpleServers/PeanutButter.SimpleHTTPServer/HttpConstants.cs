@@ -52,6 +52,11 @@ namespace PeanutButter.SimpleHTTPServer
             /// PATCH method.
             /// </summary>
             public const string PATCH = "PATCH";
+            
+            /// <summary>
+            /// HEAD method
+            /// </summary>
+            public const string HEAD = "HEAD";
         }
 
         /// <summary>

@@ -16,13 +16,11 @@ using PeanutButter.Utils;
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
-
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable AssignNullToNotNullAttribute
-
 namespace PeanutButter.SimpleHTTPServer.Tests;
 
 [TestFixture]
@@ -109,7 +107,7 @@ public class TestHttpServer
                 .To.Equal(doc);
         }
     }
-    
+
     [TestCase(HttpVersion.Version11, ExpectedResult = 1)]
     [TestCase(HttpVersion.Version10, ExpectedResult = 0)]
     public int ShouldRespondWithSelectedVersion(HttpVersion selectedVersion)
@@ -244,8 +242,22 @@ public class TestHttpServer
                 out var htmlContentType2,
                 out _
             );
-            DownloadResultFrom(server, HttpMethods.Get, "/json", null, out var jsonContentType, out _);
-            DownloadResultFrom(server, HttpMethods.Get, "/text", null, out var textContentType, out _);
+            DownloadResultFrom(
+                server,
+                HttpMethods.Get,
+                "/json",
+                null,
+                out var jsonContentType,
+                out _
+            );
+            DownloadResultFrom(
+                server,
+                HttpMethods.Get,
+                "/text",
+                null,
+                out var textContentType,
+                out _
+            );
             DownloadResultFrom(
                 server,
                 HttpMethods.Get,
@@ -393,7 +405,6 @@ public class TestHttpServer
             Expect(bodyObject.Name).To.Equal(poco.name);
         }
 
-
         [Test]
         public void ShouldServeJsonDocument()
         {
@@ -462,7 +473,11 @@ public class TestHttpServer
             const string theFileName = "some-file.bin";
             using var server = GlobalSetup.Pool.Borrow();
             //---------------Assert Precondition----------------
-            server.Instance.ServeFile("/" + theFileName, () => theFile, contentType: "application/octet-stream");
+            server.Instance.ServeFile(
+                "/" + theFileName,
+                () => theFile,
+                contentType: "application/octet-stream"
+            );
             //---------------Execute Test ----------------------
             var result = DownloadResultFrom(server, theFileName);
             //---------------Test Result -----------------------
@@ -485,12 +500,21 @@ public class TestHttpServer
                     "plain"
                 }
             );
-            server.Instance.ServeFile("/file.bin", data, contentType);
+            server.Instance.ServeFile(
+                "/file.bin",
+                data,
+                contentType
+            );
 
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, "/file.bin", null, out var servedType);
+            var result = DownloadResultFrom(
+                server,
+                "/file.bin",
+                null,
+                out var servedType
+            );
 
             //---------------Test Result -----------------------
             Expect(result)
@@ -514,7 +538,11 @@ public class TestHttpServer
                     "plain"
                 }
             );
-            server.Instance.ServeFile("/file.bin", data, contentType);
+            server.Instance.ServeFile(
+                "/file.bin",
+                data,
+                contentType
+            );
 
             //---------------Assert Precondition----------------
 
@@ -577,7 +605,12 @@ public class TestHttpServer
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
-            var result = DownloadResultFrom(server, "/index.html", null, out var contentType);
+            var result = DownloadResultFrom(
+                server,
+                "/index.html",
+                null,
+                out var contentType
+            );
 
             //---------------Test Result -----------------------
             Expect(result.ToUtf8String())
@@ -604,7 +637,11 @@ public class TestHttpServer
                 )
             );
             var path = "/index.html";
-            server.Instance.ServeDocument(path, doc, serveMethod);
+            server.Instance.ServeDocument(
+                path,
+                doc,
+                serveMethod
+            );
 
             //---------------Assert Precondition----------------
             Expect(serveMethod)
@@ -613,11 +650,25 @@ public class TestHttpServer
             //---------------Execute Test ----------------------
             Console.WriteLine("Attempt to download path: " + path);
             string contentType;
-            Expect(() => DownloadResultFrom(server, invalidMethod, path, null, out contentType))
+            Expect(
+                    () => DownloadResultFrom(
+                        server,
+                        invalidMethod,
+                        path,
+                        null,
+                        out contentType
+                    )
+                )
                 .To.Throw<HttpException>()
                 .With.Property(e => e.StatusCode)
                 .Equal.To(HttpStatusCode.NotFound);
-            var result = DownloadResultFrom(server, serveMethod, path, null, out contentType);
+            var result = DownloadResultFrom(
+                server,
+                serveMethod,
+                path,
+                null,
+                out contentType
+            );
 
             //---------------Test Result -----------------------
             Expect(result.ToUtf8String())
@@ -637,7 +688,11 @@ public class TestHttpServer
             );
             const string theDocName = "/index?foo=bar";
             using var server = GlobalSetup.Pool.Borrow();
-            server.Instance.ServeDocument(theDocName, doc, HttpMethods.Get);
+            server.Instance.ServeDocument(
+                theDocName,
+                doc,
+                HttpMethods.Get
+            );
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -662,7 +717,11 @@ public class TestHttpServer
             );
             const string theDocName = "/index?foo=bar";
             using var server = GlobalSetup.Pool.Borrow();
-            server.Instance.ServeDocument(theDocName, doc.ToString(), HttpMethods.Get);
+            server.Instance.ServeDocument(
+                theDocName,
+                doc.ToString(),
+                HttpMethods.Get
+            );
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -686,7 +745,11 @@ public class TestHttpServer
             );
             const string theDocName = "/index?foo=bar";
             using var server = GlobalSetup.Pool.Borrow();
-            server.Instance.ServeDocument(theDocName, () => doc.ToString(), HttpMethods.Get);
+            server.Instance.ServeDocument(
+                theDocName,
+                () => doc.ToString(),
+                HttpMethods.Get
+            );
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -710,7 +773,11 @@ public class TestHttpServer
             );
             const string theDocName = "/index?foo=bar";
             using var server = GlobalSetup.Pool.Borrow();
-            server.Instance.ServeDocument(theDocName, () => doc, HttpMethods.Get);
+            server.Instance.ServeDocument(
+                theDocName,
+                () => doc,
+                HttpMethods.Get
+            );
             //---------------Assert Precondition----------------
 
             //---------------Execute Test ----------------------
@@ -747,7 +814,6 @@ public class TestHttpServer
             //---------------Test Result -----------------------
         }
     }
-
 
     [TestFixture]
     [Parallelizable]
@@ -851,7 +917,11 @@ public class TestHttpServer
                 : HttpMethods.Get;
             var obj = GetRandom<SimpleData>();
             var path = "/api/" + GetRandomString();
-            server.Instance.ServeJsonDocument(path, obj, valid);
+            server.Instance.ServeJsonDocument(
+                path,
+                obj,
+                valid
+            );
 
             //---------------Assert Precondition----------------
 
@@ -919,7 +989,11 @@ public class TestHttpServer
         //---------------Assert Precondition----------------
 
         //---------------Execute Test ----------------------
-        Download(url, fileName, tempFolder);
+        Download(
+            url,
+            fileName,
+            tempFolder
+        );
 
         //---------------Test Result -----------------------
         Expect(expectedFile)
@@ -1003,7 +1077,11 @@ public class TestHttpServer
             .To.Be.Empty();
 
         //---------------Execute Test ----------------------
-        DownloadResultFrom(server, path, headers);
+        DownloadResultFrom(
+            server,
+            path,
+            headers
+        );
 
         //---------------Test Result -----------------------
         var log = requestLogs.Single();
@@ -1156,6 +1234,45 @@ public class TestHttpServer
             var asString = Encoding.UTF8.GetString(result);
             Expect(asString).To.Equal(expected);
         }
+
+        [Test]
+        public void IssueReplicatingHeadRequestHandler()
+        {
+            // Arrange
+            _server.AddHandler(
+                (processor, stream) =>
+                {
+                    processor.WriteOKStatusHeader();
+                    processor.WriteHeader("X-elastic-product", "Elasticsearch");
+                    processor.WriteHeader("Content-Type", "application/vnd.elasticsearch+json;compatible-with=9");
+                    processor.WriteHeader("Content-Length", "0");
+                    processor.WriteConnectionClosesAfterCommsHeader();
+                    processor.WriteEmptyLineToStream();
+                    return HttpServerPipelineResult.HandledExclusively;
+                }
+            );
+            // Act
+            var client = new HttpClient();
+            var res = client.Send(
+                new HttpRequestMessage()
+                {
+                    Method = HttpMethod.Head,
+                    RequestUri = new Uri(_server.GetFullUrlFor("/")),
+                    Headers =
+                    {
+                        {"host", $"localhost:{_server.Port}" },
+                        {"Accept", "application/vnd.elasticsearch+json;compatible-with=9" },
+                        {"User-Agent", "elasticsearch-net/9.2.1+475bdbf70f297c7c3af19063377d1b0bc4af43da (Linux Mint 22.3; .NET 8.0.31; Elastic.Clients.Elasticsearch)"},
+                        {"x-elastic-client-meta", "es=9.2.1,a=1,net=8.0.31,so=8.0.31,t=0.10.1+f868b89d951953ec6a60ea8b4cf87ec530fe92cf" },
+                        { "Accept-Encoding", "gzip, deflate" }
+                    }
+                }
+            );
+
+            // Assert
+            Expect(res.StatusCode)
+                .To.Equal(200);
+        }
     }
 
     private static HttpServer Create(int? port = null)
@@ -1166,7 +1283,11 @@ public class TestHttpServer
     private static HttpServer CreateWithPort(int? port)
     {
         return port.HasValue
-            ? new HttpServer(port.Value, true, Console.WriteLine)
+            ? new HttpServer(
+                port.Value,
+                true,
+                Console.WriteLine
+            )
             : new HttpServer(Console.WriteLine);
     }
 
@@ -1197,8 +1318,17 @@ public class TestHttpServer
         req.Timeout = 90000;
         using var response = req.GetResponse();
         var expectedSize = long.Parse(response.Headers[CONTENT_LENGTH_HEADER]);
-        Console.WriteLine("Should get {0} bytes to {1}", expectedSize, outFile);
-        DownloadFile(response, outFile, expectedSize, expectedSize + existingSize);
+        Console.WriteLine(
+            "Should get {0} bytes to {1}",
+            expectedSize,
+            outFile
+        );
+        DownloadFile(
+            response,
+            outFile,
+            expectedSize,
+            expectedSize + existingSize
+        );
         return outFile;
     }
 
@@ -1234,7 +1364,11 @@ public class TestHttpServer
                 toRead = 8192;
             var readBuf = reader.ReadBytes((int)toRead);
             haveRead += readBuf.Length;
-            writer.Write(readBuf, 0, readBuf.Length);
+            writer.Write(
+                readBuf,
+                0,
+                readBuf.Length
+            );
             writer.Flush();
         }
     }
@@ -1258,7 +1392,12 @@ public class TestHttpServer
         Dictionary<string, string> addHeaders = null
     )
     {
-        return DownloadResultFrom(server, path, addHeaders, out var _);
+        return DownloadResultFrom(
+            server,
+            path,
+            addHeaders,
+            out var _
+        );
     }
 
     private static byte[] DownloadResultFrom(
@@ -1342,9 +1481,7 @@ public class TestHttpServer
 
     private static HttpClient HttpClient
         => _httpClient ??= new HttpClient();
-
     private static HttpClient _httpClient;
-
 
     private static byte[] DownloadResultFrom(
         IPoolItem<HttpServer> poolItem,
@@ -1368,7 +1505,14 @@ public class TestHttpServer
         out string contentType
     )
     {
-        return DownloadResultFrom(server, HttpMethods.Get, path, addHeaders, out contentType, out _);
+        return DownloadResultFrom(
+            server,
+            HttpMethods.Get,
+            path,
+            addHeaders,
+            out contentType,
+            out _
+        );
     }
 
     public class SimpleData
