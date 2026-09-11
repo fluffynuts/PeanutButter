@@ -1,5 +1,7 @@
 var NAVTREEINDEX18 =
 {
+"classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingNameValueCollection.html#a7aec2609b9f2954d339f0f6d09ed24e3":[3,0,0,16,0,3,0],
+"classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingNameValueCollection.html#a7b723e354686f02cecf6d209c56c74aa":[2,0,0,16,0,3,21],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingNameValueCollection.html#a7b723e354686f02cecf6d209c56c74aa":[3,0,0,16,0,3,21],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingNameValueCollection.html#a7bbb891bbc1069d3a24f22f4a8beb12f":[2,0,0,16,0,3,12],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1DictionaryWrappingNameValueCollection.html#a7bbb891bbc1069d3a24f22f4a8beb12f":[3,0,0,16,0,3,12],
@@ -213,8 +215,8 @@ var NAVTREEINDEX18 =
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1TransformingDictionary.html#ab7b364d31cae762e44a45988b51ad9da":[2,0,0,16,0,9,7],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1TransformingDictionary.html#ad03b2bc274ca481616f5c308b748e9b2":[3,0,0,16,0,9,5],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1TransformingDictionary.html#ad03b2bc274ca481616f5c308b748e9b2":[2,0,0,16,0,9,5],
-"classPeanutButter_1_1Utils_1_1Dictionaries_1_1TransformingDictionary.html#adfbb5de1cc1e6a9b299bc40a6f4c2409":[2,0,0,16,0,9,15],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1TransformingDictionary.html#adfbb5de1cc1e6a9b299bc40a6f4c2409":[3,0,0,16,0,9,15],
+"classPeanutButter_1_1Utils_1_1Dictionaries_1_1TransformingDictionary.html#adfbb5de1cc1e6a9b299bc40a6f4c2409":[2,0,0,16,0,9,15],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1TransformingDictionary.html#ae84e7a773a4756aaa160d69eed87d700":[3,0,0,16,0,9,6],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1TransformingDictionary.html#ae84e7a773a4756aaa160d69eed87d700":[2,0,0,16,0,9,6],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html":[3,0,0,16,0,10],
@@ -241,13 +243,11 @@ var NAVTREEINDEX18 =
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#a78ec91d77e241141082c8fd47ace3503":[3,0,0,16,0,10,5],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#a8d19294953d3192bcbcd73bfef3b64d7":[3,0,0,16,0,10,0],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#a8d19294953d3192bcbcd73bfef3b64d7":[2,0,0,16,0,10,0],
-"classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#aa14d03bb833aec9d4933a464edb21a65":[2,0,0,16,0,10,14],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#aa14d03bb833aec9d4933a464edb21a65":[3,0,0,16,0,10,14],
+"classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#aa14d03bb833aec9d4933a464edb21a65":[2,0,0,16,0,10,14],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#abb9ef32861fa9b733af3f5f526f84016":[2,0,0,16,0,10,16],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#abb9ef32861fa9b733af3f5f526f84016":[3,0,0,16,0,10,16],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#acf427c4a1c63ea8654c9272f9c953c47":[3,0,0,16,0,10,12],
 "classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#acf427c4a1c63ea8654c9272f9c953c47":[2,0,0,16,0,10,12],
-"classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#ad448cfbb2c3f23dd102e3d56f1d42f16":[3,0,0,16,0,10,6],
-"classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#ad448cfbb2c3f23dd102e3d56f1d42f16":[2,0,0,16,0,10,6],
-"classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#ad8ccaafabc302c196537d935016563df":[3,0,0,16,0,10,1]
+"classPeanutButter_1_1Utils_1_1Dictionaries_1_1ValidatingDictionary.html#ad448cfbb2c3f23dd102e3d56f1d42f16":[3,0,0,16,0,10,6]
 };
