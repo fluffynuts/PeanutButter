@@ -1,6 +1,7 @@
 var classPeanutButter_1_1Utils_1_1SingleItemCache =
 [
     [ "SingleItemCache", "classPeanutButter_1_1Utils_1_1SingleItemCache.html#a4dd72c603feb8938bcfd6bae5c35c6b4", null ],
+    [ "SingleItemCache", "classPeanutButter_1_1Utils_1_1SingleItemCache.html#a7409228028074e8f90cd045d94aab96c", null ],
     [ "SingleItemCache", "classPeanutButter_1_1Utils_1_1SingleItemCache.html#afa2e21978a4e2c0f51c40d2440008c49", null ],
     [ "Invalidate", "classPeanutButter_1_1Utils_1_1SingleItemCache.html#af1f45877b073d774f06f780499e4af63", null ],
     [ "CacheInvalidator", "classPeanutButter_1_1Utils_1_1SingleItemCache.html#ade07a59b42749772407542934d0a0b8a", null ],

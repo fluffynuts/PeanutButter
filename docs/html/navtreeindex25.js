@@ -1,5 +1,7 @@
 var NAVTREEINDEX25 =
 {
+"classPeanutButter_1_1Utils_1_1StringExtensions.html#af4fe8fdd9ae267b0c82b167b35216b5c":[2,0,0,16,110,3],
+"classPeanutButter_1_1Utils_1_1StringExtensions.html#afa224042ab8e251b65825f53d3c4d7f7":[2,0,0,16,110,39],
 "classPeanutButter_1_1Utils_1_1StringExtensions.html#afa224042ab8e251b65825f53d3c4d7f7":[3,0,0,16,109,39],
 "classPeanutButter_1_1Utils_1_1StringExtensions.html#afd02474d80914b73d4e8fd21d1f6de13":[3,0,0,16,109,87],
 "classPeanutButter_1_1Utils_1_1StringExtensions.html#afd02474d80914b73d4e8fd21d1f6de13":[2,0,0,16,110,87],
@@ -25,8 +27,8 @@ var NAVTREEINDEX25 =
 "classPeanutButter_1_1Utils_1_1TaskExtensions.html":[2,0,0,16,113],
 "classPeanutButter_1_1Utils_1_1TaskExtensions.html#ab33752787cda88beb05b9a6254a021d8":[3,0,0,16,112,1],
 "classPeanutButter_1_1Utils_1_1TaskExtensions.html#ab33752787cda88beb05b9a6254a021d8":[2,0,0,16,113,1],
-"classPeanutButter_1_1Utils_1_1TaskExtensions.html#ae77ab96530083efbcf2bfd48742725dc":[2,0,0,16,113,0],
 "classPeanutButter_1_1Utils_1_1TaskExtensions.html#ae77ab96530083efbcf2bfd48742725dc":[3,0,0,16,112,0],
+"classPeanutButter_1_1Utils_1_1TaskExtensions.html#ae77ab96530083efbcf2bfd48742725dc":[2,0,0,16,113,0],
 "classPeanutButter_1_1Utils_1_1TextStatusSteps.html":[2,0,0,16,114],
 "classPeanutButter_1_1Utils_1_1TextStatusSteps.html":[3,0,0,16,113],
 "classPeanutButter_1_1Utils_1_1TextStatusSteps.html#a0d18ef9881eb837472ddd90fedbf2f48":[2,0,0,16,114,10],
@@ -247,7 +249,5 @@ var NAVTREEINDEX25 =
 "classPeanutButter_1_1Utils_1_1TypeExtensions.html#ae1745662dd4390a42e7d784895bbd6a6":[2,0,0,16,118,33],
 "classPeanutButter_1_1Utils_1_1TypeExtensions.html#ae1e51ce82502edd16d5fff2cd79b6e26":[2,0,0,16,118,70],
 "classPeanutButter_1_1Utils_1_1TypeExtensions.html#ae1e51ce82502edd16d5fff2cd79b6e26":[3,0,0,16,117,70],
-"classPeanutButter_1_1Utils_1_1TypeExtensions.html#ae3dc11ad6a170e5f6805cab0748a7ffc":[2,0,0,16,118,77],
-"classPeanutButter_1_1Utils_1_1TypeExtensions.html#ae3dc11ad6a170e5f6805cab0748a7ffc":[3,0,0,16,117,77],
-"classPeanutButter_1_1Utils_1_1TypeExtensions.html#ae3f67163600bd2b19a8c588837f1748c":[3,0,0,16,117,32]
+"classPeanutButter_1_1Utils_1_1TypeExtensions.html#ae3dc11ad6a170e5f6805cab0748a7ffc":[2,0,0,16,118,77]
 };

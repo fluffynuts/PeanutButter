@@ -114,8 +114,11 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4dd72c603feb8938bcfd6bae5c35c6b4" id="r_a4dd72c603feb8938bcfd6bae5c35c6b4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPeanutButter_1_1Utils_1_1SingleItemCache.html#a4dd72c603feb8938bcfd6bae5c35c6b4">SingleItemCache</a> (Func&lt; T &gt; generator, TimeSpan timeToLive)</td></tr>
 <tr class="memdesc:a4dd72c603feb8938bcfd6bae5c35c6b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">SingleItemCache provides a light, fast, caching wrapper around a function to generate a value with a provided TTL.  <br /></td></tr>
 <tr class="separator:a4dd72c603feb8938bcfd6bae5c35c6b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7409228028074e8f90cd045d94aab96c" id="r_a7409228028074e8f90cd045d94aab96c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPeanutButter_1_1Utils_1_1SingleItemCache.html#a7409228028074e8f90cd045d94aab96c">SingleItemCache</a> (Func&lt; T &gt; generator, Func&lt; TimeSpan &gt; ttlGenerator)</td></tr>
+<tr class="memdesc:a7409228028074e8f90cd045d94aab96c"><td class="mdescLeft">&#160;</td><td class="mdescRight">SingleItemCache provides a light, fast, caching wrapper around a function to generate a value with a provided function to produce a TTL for the data. The ttlGenerator will be called on every access, so it's highly recommended to make it performant.  <br /></td></tr>
+<tr class="separator:a7409228028074e8f90cd045d94aab96c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afa2e21978a4e2c0f51c40d2440008c49" id="r_afa2e21978a4e2c0f51c40d2440008c49"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPeanutButter_1_1Utils_1_1SingleItemCache.html#afa2e21978a4e2c0f51c40d2440008c49">SingleItemCache</a> (Func&lt; T &gt; generator, Func&lt; bool &gt; cacheInvalidator)</td></tr>
-<tr class="memdesc:afa2e21978a4e2c0f51c40d2440008c49"><td class="mdescLeft">&#160;</td><td class="mdescRight">SingleItemCache provides a light, fast, caching wrapper around a function to generate a value with a provided function to test if the cache should be invalidated before the each read.  <br /></td></tr>
+<tr class="memdesc:afa2e21978a4e2c0f51c40d2440008c49"><td class="mdescLeft">&#160;</td><td class="mdescRight">SingleItemCache provides a light, fast, caching wrapper around a function to generate a value with a provided function to test if the cache should be invalidated before each read.  <br /></td></tr>
 <tr class="separator:afa2e21978a4e2c0f51c40d2440008c49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af1f45877b073d774f06f780499e4af63" id="r_af1f45877b073d774f06f780499e4af63"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPeanutButter_1_1Utils_1_1SingleItemCache.html#af1f45877b073d774f06f780499e4af63">Invalidate</a> ()</td></tr>
 <tr class="memdesc:af1f45877b073d774f06f780499e4af63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invalidates the cache such that the next call will definitely regenerate the value.  <br /></td></tr>
@@ -142,7 +145,7 @@ Func&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CacheIn
 <div class="textblock"><p>SingleItemCache provides a light, fast, caching wrapper around a function to generate a value with a provided TTL. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a4dd72c603feb8938bcfd6bae5c35c6b4" name="a4dd72c603feb8938bcfd6bae5c35c6b4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4dd72c603feb8938bcfd6bae5c35c6b4">&#9670;&#160;</a></span>SingleItemCache() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4dd72c603feb8938bcfd6bae5c35c6b4">&#9670;&#160;</a></span>SingleItemCache() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -184,8 +187,45 @@ Func&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CacheIn
 
 </div>
 </div>
+<a id="a7409228028074e8f90cd045d94aab96c" name="a7409228028074e8f90cd045d94aab96c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7409228028074e8f90cd045d94aab96c">&#9670;&#160;</a></span>SingleItemCache() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classPeanutButter_1_1Utils_1_1SingleItemCache.html">PeanutButter.Utils.SingleItemCache</a>&lt; T &gt;.<a class="el" href="classPeanutButter_1_1Utils_1_1SingleItemCache.html">SingleItemCache</a> </td>
+          <td>(</td>
+          <td class="paramtype">Func&lt; T &gt;&#160;</td>
+          <td class="paramname"><em>generator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Func&lt; TimeSpan &gt;&#160;</td>
+          <td class="paramname"><em>ttlGenerator</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>SingleItemCache provides a light, fast, caching wrapper around a function to generate a value with a provided function to produce a TTL for the data. The ttlGenerator will be called on every access, so it's highly recommended to make it performant. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">generator</td><td></td></tr>
+    <tr><td class="paramname">ttlGenerator</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="afa2e21978a4e2c0f51c40d2440008c49" name="afa2e21978a4e2c0f51c40d2440008c49"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afa2e21978a4e2c0f51c40d2440008c49">&#9670;&#160;</a></span>SingleItemCache() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afa2e21978a4e2c0f51c40d2440008c49">&#9670;&#160;</a></span>SingleItemCache() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -210,7 +250,7 @@ Func&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CacheIn
       </table>
 </div><div class="memdoc">
 
-<p>SingleItemCache provides a light, fast, caching wrapper around a function to generate a value with a provided function to test if the cache should be invalidated before the each read. </p>
+<p>SingleItemCache provides a light, fast, caching wrapper around a function to generate a value with a provided function to test if the cache should be invalidated before each read. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">generator</td><td></td></tr>
