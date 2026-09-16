@@ -3,7 +3,6 @@ using System.Threading;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable TypeParameterCanBeVariant
-
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils
 #else
@@ -26,12 +25,10 @@ namespace PeanutButter.Utils
         /// if available and still fresh enough
         /// </summary>
         T Value { get; }
-
         /// <summary>
         /// Expose the generator (might be useful for testing purposes)
         /// </summary>
         Func<T> Generator { get; }
-
         /// <summary>
         /// Expose the provided TimeToLive (might be useful for testing purposes)
         /// </summary>
@@ -59,26 +56,22 @@ namespace PeanutButter.Utils
     {
         private readonly Func<T> _generator;
         private readonly Func<bool> _cacheInvalidator;
-        private readonly long _timeToLive;
+        private readonly Func<TimeSpan> _timeToLive;
         private T _cachedValue;
         private long _lastFetched;
-
         /// <summary>
         /// The value for the generator, or a cached value,
         /// if available and still fresh enough
         /// </summary>
         public T Value => RetrieveValue();
-
         /// <summary>
         /// Expose the generator (might be useful for testing purposes)
         /// </summary>
         public Func<T> Generator => _generator;
-
         /// <summary>
         /// Expose the provided TimeToLive (might be useful for testing purposes)
         /// </summary>
-        public TimeSpan TimeToLive { get; }
-
+        public TimeSpan TimeToLive => _timeToLive();
         /// <summary>
         /// When provided via the alternative constructor
         /// </summary>
@@ -105,7 +98,9 @@ namespace PeanutButter.Utils
         {
             var now = DateTime.Now.Ticks;
             var lastFetched = Interlocked.Exchange(ref _lastFetched, now);
-            if (now - lastFetched < _timeToLive)
+            var ttl = _timeToLive();
+            var delta = now - lastFetched;
+            if (now - lastFetched < ttl.Ticks)
             {
                 return _cachedValue;
             }
@@ -126,15 +121,32 @@ namespace PeanutButter.Utils
         )
         {
             _generator = generator;
-            _timeToLive = timeToLive.Ticks;
-            TimeToLive = timeToLive;
+            _timeToLive = () => timeToLive;
+        }
+
+        /// <summary>
+        /// SingleItemCache provides a light, fast, caching wrapper
+        /// around a function to generate a value with a provided
+        /// function to produce a TTL for the data. The ttlGenerator
+        /// will be called on every access, so it's highly recommended
+        /// to make it performant.
+        /// </summary>
+        /// <param name="generator"></param>
+        /// <param name="ttlGenerator"></param>
+        public SingleItemCache(
+            Func<T> generator,
+            Func<TimeSpan> ttlGenerator
+        )
+        {
+            _generator = generator;
+            _timeToLive = ttlGenerator;
         }
 
         /// <summary>
         /// SingleItemCache provides a light, fast, caching wrapper
         /// around a function to generate a value with a provided
         /// function to test if the cache should be invalidated
-        /// before the each read
+        /// before each read
         /// </summary>
         /// <param name="generator"></param>
         /// <param name="cacheInvalidator"></param>
@@ -145,7 +157,7 @@ namespace PeanutButter.Utils
         {
             _generator = generator;
             _cacheInvalidator = cacheInvalidator;
-            TimeToLive = TimeSpan.MaxValue;
+            _timeToLive = () => TimeSpan.MaxValue;
         }
 
         /// <summary>
