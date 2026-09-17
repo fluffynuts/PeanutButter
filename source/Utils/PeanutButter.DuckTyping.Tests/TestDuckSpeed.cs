@@ -24,6 +24,7 @@ namespace PeanutButter.DuckTyping.Tests
 
         [Test]
         [Category("performance")]
+        [Explicit("speed tests are not unit tests")]
         public void TestSetTimed()
         {
             // Compares PB duck-typing with plain reflection and ImpromptuInterfaces (InvokeSet and using an ActLike<> invocation)

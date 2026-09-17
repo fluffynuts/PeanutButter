@@ -29,7 +29,6 @@ namespace PeanutButter.Utils.Dictionaries
             = new($"{typeof(MergeDictionary<,>)} is ALWAYS read-only");
 
         private readonly List<IDictionary<TKey, TValue>> _layers;
-
         /// <summary>
         /// Expose the first (or least-restrictive, for strings) key comparer
         /// </summary>
@@ -42,6 +41,7 @@ namespace PeanutButter.Utils.Dictionaries
             {
                 return FindLeastRestrictiveStringComparer() as IEqualityComparer<TKey>;
             }
+
             return _layers
                 .Select(l => GetPropertyValue(l, "Comparer") as IEqualityComparer<TKey>)
                 .FirstOrDefault();
@@ -52,13 +52,15 @@ namespace PeanutButter.Utils.Dictionaries
             return _layers
                 .Select(l => GetPropertyValue(l, "Comparer") as IEqualityComparer<string>)
                 .Where(c => c != null)
-                .Select(c => new
-                {
-                    Comparer = c,
-                    Rank = StringComparerRankings.TryGetValue(c, out var rank)
-                        ? rank
-                        : 99
-                })
+                .Select(
+                    c => new
+                    {
+                        Comparer = c,
+                        Rank = StringComparerRankings.TryGetValue(c, out var rank)
+                            ? rank
+                            : 99
+                    }
+                )
                 .OrderBy(o => o.Rank)
                 .FirstOrDefault()
                 ?.Comparer;
@@ -155,7 +157,8 @@ namespace PeanutButter.Utils.Dictionaries
         /// <returns>True if found, False if not</returns>
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
-            return _layers.Aggregate(false,
+            return _layers.Aggregate(
+                false,
                 (acc, cur) =>
                     acc || cur.Contains(item)
             );
@@ -193,7 +196,6 @@ namespace PeanutButter.Utils.Dictionaries
         /// Returns the count of distinct keys
         /// </summary>
         public int Count => _layers.SelectMany(kvp => kvp.Keys).Distinct().Count();
-
         /// <summary>
         /// Will return true: MergeDictionaries are read-only
         /// </summary>
@@ -246,6 +248,7 @@ namespace PeanutButter.Utils.Dictionaries
                     return true;
                 }
             }
+
             value = default(TValue);
             return false;
         }
@@ -266,13 +269,51 @@ namespace PeanutButter.Utils.Dictionaries
         /// <summary>
         /// Returns a collection of the distinct keys in all layers
         /// </summary>
-        public ICollection<TKey> Keys => _layers.SelectMany(l => l).Select(i => i.Key).Distinct().ToArray();
+        public ICollection<TKey> Keys => GenerateKeys();
+
+        private ICollection<TKey> GenerateKeys()
+        {
+            var result = new HashSet<TKey>();
+            var seenLayers = new List<IDictionary<TKey, TValue>>();
+            foreach (var layer in _layers)
+            {
+                var layerKeys = layer.Keys;
+                if (seenLayers.IsEmpty())
+                {
+                    result.AddRange(layerKeys);
+                    seenLayers.Add(layer);
+                    continue;
+                }
+
+                foreach (var key in layerKeys)
+                {
+                    var isAlreadyServed = seenLayers.Any(
+                        l => l.TryGetValue(key, out _)
+                    );
+                    if (isAlreadyServed)
+                    {
+                        // a previously-seen layer already will answer to this key
+                        // so we should skip it to prevent mentioning it twice
+                        // -> this can happen with a merged dictionary with
+                        //    underlying case-insensitive dictionaries and
+                        //    the same key with different casing between them
+                        continue;
+                    }
+
+                    result.Add(key);
+                }
+
+                seenLayers.Add(layer);
+            }
+
+            return result.ToArray();
+        }
 
         /// <summary>
         /// Returns a collection of ALL values in all layers
         /// </summary>
         public ICollection<TValue> Values => Keys.Select(k => this[k]).ToArray();
-        
+
         // Specialist methods
         /// <summary>
         /// Append a layer to the collection
@@ -288,6 +329,7 @@ namespace PeanutButter.Utils.Dictionaries
             {
                 return;
             }
+
             _layers.Add(layer);
         }
 

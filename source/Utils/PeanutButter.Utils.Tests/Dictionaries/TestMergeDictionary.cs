@@ -9,7 +9,6 @@ using static PeanutButter.Utils.PyLike;
 
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable TryCastAlwaysSucceeds
-
 namespace PeanutButter.Utils.Tests.Dictionaries
 {
     [TestFixture]
@@ -49,8 +48,14 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     var value1 = GetRandomString();
                     var key2 = GetAnother(key1);
                     var value2 = GetAnother(value1);
-                    var dict1 = new Dictionary<string, string>() { [key1] = value1 };
-                    var dict2 = new Dictionary<string, string>() { [key2] = value2 };
+                    var dict1 = new Dictionary<string, string>()
+                    {
+                        [key1] = value1
+                    };
+                    var dict2 = new Dictionary<string, string>()
+                    {
+                        [key2] = value2
+                    };
                     var sut = Create(dict1, dict2);
 
                     // Pre-assert
@@ -75,8 +80,14 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     var key = GetRandomString();
                     var value1 = GetRandomString();
                     var value2 = GetAnother(value1);
-                    var dict1 = new Dictionary<string, string>() { [key] = value1 };
-                    var dict2 = new Dictionary<string, string>() { [key] = value2 };
+                    var dict1 = new Dictionary<string, string>()
+                    {
+                        [key] = value1
+                    };
+                    var dict2 = new Dictionary<string, string>()
+                    {
+                        [key] = value2
+                    };
                     var sut = Create(dict1, dict2);
 
                     // Pre-assert
@@ -87,7 +98,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     // Assert
                     Expect(result).To.Equal(value1);
                 }
-                
+
                 [Test]
                 public void ShouldReturnValueFromFirstWhenCasingIsNotStrict()
                 {
@@ -95,8 +106,14 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     var key = GetRandomString();
                     var value1 = GetRandomString();
                     var value2 = GetAnother(value1);
-                    var dict1 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [key.ToRandomCase()] = value1 };
-                    var dict2 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [key.ToRandomCase()] = value2 };
+                    var dict1 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        [key.ToRandomCase()] = value1
+                    };
+                    var dict2 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        [key.ToRandomCase()] = value2
+                    };
                     var sut = Create(dict1, dict2);
 
                     // Pre-assert
@@ -158,7 +175,6 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             }
         }
 
-
         [TestFixture]
         public class ContainsKey
         {
@@ -169,7 +185,10 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 var key = GetRandomString();
                 var sut = Create(
                     new Dictionary<string, string>(),
-                    new Dictionary<string, string>() { [key] = GetRandomString() }
+                    new Dictionary<string, string>()
+                    {
+                        [key] = GetRandomString()
+                    }
                 );
 
                 // Pre-assert
@@ -210,6 +229,28 @@ namespace PeanutButter.Utils.Tests.Dictionaries
 
                 // Assert
                 Expect(result).To.Equal(2);
+            }
+
+            [Test]
+            public void ShouldMergeKeysWithDifferentCasingWhenUnderlyingDictionariesAreCaseInsenstitive()
+            {
+                // Arrange
+                var d1 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["Key"] = "value1"
+                };
+                var d2 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["key"] = "value2"
+                };
+                
+                // Act
+                var sut = Create(d1, d2);
+                
+                // Assert
+                Expect(sut.Keys)
+                    .To.Contain.Only(1)
+                    .Equal.To("Key");
             }
         }
 
@@ -848,7 +889,7 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                         ["c"] = "c"
                     };
                     var sut = Create(layer1);
-                    
+
                     // Act
                     (sut as MergeDictionary<string, string>).InsertLayer(layer2);
                     // Assert
@@ -882,7 +923,6 @@ namespace PeanutButter.Utils.Tests.Dictionaries
             }
         }
 
-
         public class SomeComparer : IEqualityComparer<int>
         {
             public bool Equals(int x, int y)
@@ -895,7 +935,6 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                 throw new NotImplementedException();
             }
         }
-
 
         private static IDictionary<TKey, TValue> Create<TKey, TValue>(
             params IDictionary<TKey, TValue>[] dictionaries

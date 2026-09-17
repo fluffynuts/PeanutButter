@@ -213,7 +213,7 @@ namespace PeanutButter.Utils.Dictionaries
             }
 
             _keyLookup = new Dictionary<string, string>(Comparer);
-            _actual.ForEach(kvp => _keyLookup.Add(kvp.Key, kvp.Key));
+            _actual.Keys.ForEach(k => _keyLookup.Add(k, k));
         }
     }
 }

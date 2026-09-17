@@ -4013,7 +4013,11 @@ public class TestDuckTypingExtensions
                 .To.Contain.Key("VALUE")
                 .With.Value("dict1 value");
             // Act
+            var result = merged.FuzzyDuckAs<ITest>();
+            
             // Assert
+            Expect(result.Value)
+                .To.Equal("dict1 value");
         }
     }
 
