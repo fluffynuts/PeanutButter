@@ -23,7 +23,7 @@
         <Optimize Condition=" '$(Optimize)' == '' ">false</Optimize>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="NSubstitute" Version="5.1.0"/>
+        <PackageReference Include="NSubstitute" Version="6.2.0" />
         <PackageReference Include="NUnit" Version="4.6.1" />
     </ItemGroup>
     <ItemGroup>

@@ -31,7 +31,6 @@ using static PeanutButter.RandomGenerators.RandomValueGen;
 // ReSharper disable UnassignedGetOnlyAutoProperty
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable CollectionNeverQueried.Global
-
 namespace PeanutButter.DuckTyping.Tests.Extensions;
 
 [TestFixture]
@@ -128,7 +127,6 @@ public class TestDuckTypingExtensions
         Expect(error)
             .To.Contain("Mismatched target accessors for Name").And("get -> get/set");
     }
-
 
     public class HasReadWriteNameAndId
     {
@@ -229,7 +227,6 @@ public class TestDuckTypingExtensions
         Expect(result)
             .To.Be.False();
     }
-
 
     [Test]
     public void DuckAs_OperatingOnNull_ShouldReturnNull()
@@ -335,7 +332,6 @@ public class TestDuckTypingExtensions
             .To.Be.True();
     }
 
-
     [Test]
     public void FuzzyDuckAs_OperatingOnObjectWhichFuzzyMatchesProperties_ShouldReturnFuzzyDuck()
     {
@@ -354,7 +350,6 @@ public class TestDuckTypingExtensions
         Expect(result)
             .Not.To.Be.Null();
     }
-
 
     [Test]
     public void FuzzyDuckAs_OperatingOnObjectWithFuzzyMatchingMethods_ShouldReturnFuzzyDuck()
@@ -431,7 +426,6 @@ public class TestDuckTypingExtensions
     {
         object Payload { get; }
     }
-
 
     [Test]
     public void DuckAs_WhenShouldNotBeAbleToDuckDueToAccessDifferences_ShouldNotDuckSubProp()
@@ -693,7 +687,6 @@ public class TestDuckTypingExtensions
             .To.Equal(newGuid);
     }
 
-
     public interface IHasAnActorId
     {
         Guid ActorId { get; }
@@ -802,7 +795,6 @@ public class TestDuckTypingExtensions
         public virtual string Name { get; set; }
     }
 
-
     public interface IStringCollection
     {
         string Moo { get; }
@@ -868,7 +860,6 @@ public class TestDuckTypingExtensions
         int Id { get; set; }
         IDictionaryInner Inner { get; set; }
     }
-
 
     [Test]
     public void
@@ -1079,7 +1070,6 @@ public class TestDuckTypingExtensions
             .To.Equal(expectedName);
     }
 
-
     [Test]
     public void
         CanFuzzyDuckAs_OperatingOnWouldBeAppropriateCaseSensitiveDictionary_ShouldReturnTrue()
@@ -1154,7 +1144,11 @@ public class TestDuckTypingExtensions
     public void DuckAs_IssueSeenInWildShouldNotHappen()
     {
         //--------------- Arrange -------------------
-        var instance = new ActivityParameters<string>(Guid.Empty, Guid.Empty, "foo");
+        var instance = new ActivityParameters<string>(
+            Guid.Empty,
+            Guid.Empty,
+            "foo"
+        );
 
         //--------------- Assume ----------------
 
@@ -1199,7 +1193,6 @@ public class TestDuckTypingExtensions
     {
         string[] Statuses { get; }
     }
-
 
     [Test]
     public void FuzzyDuckAs_ShouldBeAbleToDuckSimpleObjectWithStringArray()
@@ -1382,7 +1375,6 @@ public class TestDuckTypingExtensions
         Expect(attrib.Dialect)
             .To.Equal("Country");
     }
-
 
     [Test]
     public void FuzzyDuckAsNonGeneric_ShouldDuckWhenPossible()
@@ -1711,7 +1703,13 @@ public class TestDuckTypingExtensions
             Expect(result.Byte)
                 .To.Equal((byte)100);
             Expect(result.TheDate)
-                .To.Equal(new DateTime(2015, 1, 1));
+                .To.Equal(
+                    new DateTime(
+                        2015,
+                        1,
+                        1
+                    )
+                );
             Expect(result.TheTimeSpan)
                 .To.Be.Null();
         }
@@ -1770,8 +1768,8 @@ public class TestDuckTypingExtensions
         )
         {
             return (t1 == T1 || t1 == T2) &&
-                (t2 == T1 || t2 == T2) &&
-                t1 != t2;
+                   (t2 == T1 || t2 == T2) &&
+                   t1 != t2;
         }
 
         public bool IsInitialised => true;
@@ -1802,7 +1800,6 @@ public class TestDuckTypingExtensions
             throw;
         }
     }
-
 
     [Test]
     public void FailingWildDuck1()
@@ -1861,7 +1858,8 @@ public class TestDuckTypingExtensions
         // ReSharper disable once IsExpressionAlwaysTrue
         Expect(result is ITravelRequestDetails)
             .To.Be.True();
-        Expect(() =>
+        Expect(
+                () =>
                 {
                     result.Initiated = expectedDuck.Initiated;
                     result.DepartingFrom = expectedDuck.DepartingFrom;
@@ -1942,7 +1940,8 @@ public class TestDuckTypingExtensions
         //--------------- Assert -----------------------
         Expect(result)
             .Not.To.Be.Null();
-        Expect(() =>
+        Expect(
+                () =>
                 {
                     result.Initiated = expectedDuck.Initiated;
                     result.DepartingFrom = expectedDuck.DepartingFrom;
@@ -2059,7 +2058,6 @@ public class TestDuckTypingExtensions
         public ICollection<TValue> Values { get; }
     }
 
-
     [Test]
     public void FuzzyDuckOnDefaultDictionary_ShouldWork()
     {
@@ -2101,7 +2099,6 @@ public class TestDuckTypingExtensions
         Expect(result.Flag2)
             .To.Be.True();
     }
-
 
     public interface IConfig
     {
@@ -2334,11 +2331,9 @@ public class TestDuckTypingExtensions
     public class FeatureConfig
     {
         public Guid Id { get; set; }
-
         public FeatureSets FeatureSet { get; set; }
         public Dictionary<string, bool> Settings { get; set; }
     }
-
 
     public interface IExtendedConfig : IConfig
     {
@@ -2538,7 +2533,6 @@ public class TestDuckTypingExtensions
             }
         }
 
-
         [Test]
         public void
             DuckAs_OperatingOnNameValueCollection_WhenGivenKeyTransformFunctions_AndCanDuck_ShouldDuck()
@@ -2630,7 +2624,8 @@ public class TestDuckTypingExtensions
             // Pre-Assert
 
             // Act
-            Expect(() => data.FuzzyDuckAs<IConfig2>(
+            Expect(
+                    () => data.FuzzyDuckAs<IConfig2>(
                         s => "Config." + s,
                         s => s.RegexReplace("Config.", ""),
                         true
@@ -3533,7 +3528,8 @@ public class TestDuckTypingExtensions
             // Arrange
             var dict = new Dictionary<string, object>()
             {
-                ["Add"] = new Func<int, int, int>((
+                ["Add"] = new Func<int, int, int>(
+                    (
                         a,
                         b
                     ) => a + b
@@ -3555,7 +3551,8 @@ public class TestDuckTypingExtensions
             // Arrange
             var dict = new Dictionary<string, object>()
             {
-                ["Add"] = new Func<long, long, long>((
+                ["Add"] = new Func<long, long, long>(
+                    (
                         a,
                         b
                     ) => a + b
@@ -3769,8 +3766,9 @@ public class TestDuckTypingExtensions
         {
             // Arrange
             var actual = Substitute.For<IAddInts>()
-                .With(o => o.Add(Arg.Any<int>(), Arg.Any<int>())
-                    .Returns(ci => (int)ci.Args()[0] + (int)ci.Args()[1])
+                .With(
+                    o => o.Add(Arg.Any<int>(), Arg.Any<int>())
+                        .Returns(ci => (int)ci.Args()[0] + (int)ci.Args()[1])
                 );
             Expect(actual.Add(1, 2))
                 .To.Equal(3);
@@ -3905,7 +3903,6 @@ public class TestDuckTypingExtensions
                 .To.Equal(newId);
         }
 
-
         public interface ITypedPerson
         {
             int Id { get; set; }
@@ -3991,6 +3988,34 @@ public class TestDuckTypingExtensions
         }
     }
 
+    [TestFixture]
+    public class MixedCaseMergeDictionaryInput
+    {
+        public interface ITest
+        {
+            public string Value { get; set; }
+        }
+
+        [Test]
+        public void ShouldSelectFirstValue()
+        {
+            // Arrange
+            var dict1 = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["value"] = "dict1 value"
+            };
+            var dict2 = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Value"] = "dict2 value"
+            };
+            var merged = new MergeDictionary<string, object>(dict1, dict2) as IDictionary<string, object>;
+            Expect(merged)
+                .To.Contain.Key("VALUE")
+                .With.Value("dict1 value");
+            // Act
+            // Assert
+        }
+    }
 
     public class TravelRequestDetails : ITravelRequestDetails
     {

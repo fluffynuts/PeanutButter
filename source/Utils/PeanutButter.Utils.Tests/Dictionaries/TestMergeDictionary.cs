@@ -87,6 +87,30 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     // Assert
                     Expect(result).To.Equal(value1);
                 }
+                
+                [Test]
+                public void ShouldReturnValueFromFirstWhenCasingIsNotStrict()
+                {
+                    // Arrange
+                    var key = GetRandomString();
+                    var value1 = GetRandomString();
+                    var value2 = GetAnother(value1);
+                    var dict1 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [key.ToRandomCase()] = value1 };
+                    var dict2 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [key.ToRandomCase()] = value2 };
+                    var sut = Create(dict1, dict2);
+
+                    // Pre-assert
+
+                    // Act
+                    var result = sut[key];
+
+                    // Assert
+                    Expect(result)
+                        .To.Equal(value1);
+                    Expect(sut)
+                        .To.Contain.Key(key.ToRandomCase())
+                        .With.Value(value1);
+                }
             }
 
             [Test]

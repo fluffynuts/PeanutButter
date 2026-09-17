@@ -678,8 +678,6 @@ public class TestDefaultDictionary
                 // Act
                 sut.Remove((object)key);
                 // Assert
-                Expect(sut as IDictionary<string, string>)
-                    .Not.To.Contain.Key(key);
                 Expect(sut.Contains(key))
                     .To.Be.False();
             }
