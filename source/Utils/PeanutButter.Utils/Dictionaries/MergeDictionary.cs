@@ -123,7 +123,9 @@ namespace PeanutButter.Utils.Dictionaries
         /// <returns></returns>
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
-            return new GenericDictionaryEnumerator<TKey, TValue>(_layers.ToArray());
+            return new GenericDictionaryEnumerator<TKey, TValue>(
+                _layers.ToArray()
+            );
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -195,7 +197,8 @@ namespace PeanutButter.Utils.Dictionaries
         /// <summary>
         /// Returns the count of distinct keys
         /// </summary>
-        public int Count => _layers.SelectMany(kvp => kvp.Keys).Distinct().Count();
+        public int Count => GenerateKeys().Count;
+        
         /// <summary>
         /// Will return true: MergeDictionaries are read-only
         /// </summary>

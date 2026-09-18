@@ -12,7 +12,6 @@ namespace PeanutButter.Utils.Dictionaries
         private readonly IDictionary<TKey, TValue>[] _layers;
         private int _currentIndex;
         private IEnumerator<KeyValuePair<TKey, TValue>> _currentEnumerator;
-        private readonly HashSet<TKey> _seen = new HashSet<TKey>();
 
         public GenericDictionaryEnumerator(IDictionary<TKey, TValue>[] layers)
         {
@@ -25,8 +24,11 @@ namespace PeanutButter.Utils.Dictionaries
             do
             {
                 if (MoveCurrentNext())
+                {
                     return true;
+                }
             } while (SelectNext());
+
             return false;
         }
 
@@ -36,6 +38,7 @@ namespace PeanutButter.Utils.Dictionaries
             {
                 return false;
             }
+
             Select(_currentIndex + 1);
             return true;
         }
@@ -43,21 +46,29 @@ namespace PeanutButter.Utils.Dictionaries
         private bool MoveCurrentNext()
         {
             var moved = _currentEnumerator.MoveNext();
-            while (moved &&
-                   _seen.Contains(_currentEnumerator.Current.Key))
+            while (moved && AnyPreviousLayerHas(_currentEnumerator.Current.Key))
             {
                 moved = _currentEnumerator.MoveNext();
             }
-            if (moved)
-            {
-                _seen.Add(_currentEnumerator.Current.Key);
-            }
+
             return moved;
+        }
+
+        private bool AnyPreviousLayerHas(TKey currentKey)
+        {
+            for (var i = 0; i < _currentIndex; i++)
+            {
+                var layer = _layers[i];
+                if (layer.TryGetValue(currentKey, out _))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void Reset()
         {
-            _seen.Clear();
             Select(0);
         }
 
@@ -71,7 +82,6 @@ namespace PeanutButter.Utils.Dictionaries
         }
 
         public KeyValuePair<TKey, TValue> Current => _currentEnumerator.Current;
-
 
         public void Dispose()
         {

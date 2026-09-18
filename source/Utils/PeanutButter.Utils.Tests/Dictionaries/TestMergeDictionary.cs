@@ -127,6 +127,11 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     Expect(sut)
                         .To.Contain.Key(key.ToRandomCase())
                         .With.Value(value1);
+                    Expect(sut.Count)
+                        .To.Equal(1);
+                    var arr = sut.ToArray();
+                    Expect(arr)
+                        .To.Contain.Only(1).Item();
                 }
             }
 
