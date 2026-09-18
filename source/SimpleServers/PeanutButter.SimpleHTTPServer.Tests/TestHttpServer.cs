@@ -157,7 +157,7 @@ public class TestHttpServer
                 return null;
             }
         );
-        var client = new HttpClient();
+        using var client = new HttpClient();
         var response = await client.GetAsync(sut.GetFullUrlFor("/doc"));
         var raw = await response.Content.ReadAsStringAsync();
         var parsed = JsonConvert.DeserializeObject<Person>(raw);
@@ -330,7 +330,7 @@ public class TestHttpServer
             );
             // Pre-assert
             // Act
-            var client = new HttpClient();
+            using var client = new HttpClient();
             var message = new HttpRequestMessage(
                 new HttpMethod(method),
                 server.GetFullUrlFor(path)
@@ -386,7 +386,7 @@ public class TestHttpServer
             );
             // Pre-assert
             // Act
-            var client = new HttpClient();
+            using var client = new HttpClient();
             var message = new HttpRequestMessage(
                 new HttpMethod(method),
                 server.GetFullUrlFor(path)
@@ -1120,10 +1120,8 @@ public class TestHttpServer
                 };
             }
         );
-        var client = new HttpClient()
-        {
-            BaseAddress = new Uri(server.Instance.BaseUrl)
-        };
+        using var client = new HttpClient();
+        client.BaseAddress = new Uri(server.Instance.BaseUrl);
         // Pre-assert
         // Act
         var message = new HttpRequestMessage(HttpMethod.Get, "endpoint?param1=value1&param2=value2");
@@ -1252,7 +1250,7 @@ public class TestHttpServer
                 }
             );
             // Act
-            var client = new HttpClient();
+            using var client = new HttpClient();
             var res = client.Send(
                 new HttpRequestMessage()
                 {
@@ -1260,11 +1258,23 @@ public class TestHttpServer
                     RequestUri = new Uri(_server.GetFullUrlFor("/")),
                     Headers =
                     {
-                        {"host", $"localhost:{_server.Port}" },
-                        {"Accept", "application/vnd.elasticsearch+json;compatible-with=9" },
-                        {"User-Agent", "elasticsearch-net/9.2.1+475bdbf70f297c7c3af19063377d1b0bc4af43da (Linux Mint 22.3; .NET 8.0.31; Elastic.Clients.Elasticsearch)"},
-                        {"x-elastic-client-meta", "es=9.2.1,a=1,net=8.0.31,so=8.0.31,t=0.10.1+f868b89d951953ec6a60ea8b4cf87ec530fe92cf" },
-                        { "Accept-Encoding", "gzip, deflate" }
+                        {
+                            "host", $"localhost:{_server.Port}"
+                        },
+                        {
+                            "Accept", "application/vnd.elasticsearch+json;compatible-with=9"
+                        },
+                        {
+                            "User-Agent",
+                            "elasticsearch-net/9.2.1+475bdbf70f297c7c3af19063377d1b0bc4af43da (Linux Mint 22.3; .NET 8.0.31; Elastic.Clients.Elasticsearch)"
+                        },
+                        {
+                            "x-elastic-client-meta",
+                            "es=9.2.1,a=1,net=8.0.31,so=8.0.31,t=0.10.1+f868b89d951953ec6a60ea8b4cf87ec530fe92cf"
+                        },
+                        {
+                            "Accept-Encoding", "gzip, deflate"
+                        }
                     }
                 }
             );
@@ -1273,6 +1283,54 @@ public class TestHttpServer
             Expect(res.StatusCode)
                 .To.Equal(200);
         }
+    }
+
+    [Test]
+    public void ShouldPackageCookieHeadersOnProcessor()
+    {
+        // Arrange
+        using var lease = GlobalSetup.Pool.Borrow();
+        var server = lease.Instance;
+        var capturedCookies = new Dictionary<string, StringValues>();
+        var key1 = GetRandomString(10);
+        var value1 = GetRandomString(10);
+        var key2 = GetRandomString(10);
+        var value2 = GetRandomString(10);
+        
+        server.AddHandler(
+            (processor, stream) =>
+            {
+                capturedCookies = processor.Cookies;
+                processor.WriteOKStatusHeader();
+                processor.WriteConnectionClosesAfterCommsHeader();
+                processor.WriteEmptyLineToStream();
+                return HttpServerPipelineResult.HandledExclusively;
+            }
+        );
+        var baseUri = new Uri(server.BaseUrl);
+        // Act
+        var cookieContainer = new CookieContainer();
+        using var handler = new HttpClientHandler();
+        handler.CookieContainer = cookieContainer;
+        cookieContainer.Add(baseUri, new Cookie(key1, value1));
+        cookieContainer.Add(baseUri, new Cookie(key2, value2));
+        using var client = new HttpClient(handler);
+        var message = new HttpRequestMessage()
+        {
+            RequestUri = new Uri(server.BaseUrl),
+        };
+        client.Send(message);
+        
+        // Assert
+        var cap1 = capturedCookies[key1];
+        Expect(cap1)
+            .To.Equal(value1);
+        Expect(capturedCookies)
+            .To.Contain.Key(key1)
+            .With.Value(value1);
+        Expect(capturedCookies)
+            .To.Contain.Key(key2)
+            .With.Value(value2);
     }
 
     private static HttpServer Create(int? port = null)

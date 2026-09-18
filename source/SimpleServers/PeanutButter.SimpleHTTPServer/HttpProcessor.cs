@@ -20,8 +20,109 @@ using static PeanutButter.SimpleHTTPServer.HttpConstants;
 // ReSharper disable MemberCanBePrivate.Global
 
 // ReSharper disable InconsistentNaming
-
 namespace PeanutButter.SimpleHTTPServer;
+
+/// <summary>
+/// Mimics asp.net's StringValues without pulling in
+/// the dependency: stores one or more strings
+/// </summary>
+public class StringValues
+{
+    /// <summary>
+    /// All values stores in this instance
+    /// </summary>
+    public readonly List<string> Values = new();
+
+    internal StringValues(string value)
+    {
+        Values.Add(value);
+    }
+
+    internal StringValues(IEnumerable<string> values)
+    {
+        Values.AddRange(values);
+    }
+
+    internal void AddValue(string value)
+    {
+        Values.Add(value);
+    }
+
+    /// <summary>
+    /// Implicitly convert this instance to a string
+    /// </summary>
+    /// <param name="stringValues"></param>
+    /// <returns></returns>
+    public static implicit operator string(StringValues stringValues)
+    {
+        return stringValues.ToString();
+    }
+
+    /// <summary>
+    /// Implicitly convert a string to an instance of StringValues
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static implicit operator StringValues(string value)
+    {
+        return new(value);
+    }
+
+    /// <summary>
+    /// Overriding equality
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public override bool Equals(object obj)
+    {
+        if (obj is null)
+        {
+            return false;
+        }
+
+        if (obj is string str)
+        {
+            return str == ToString();
+        }
+
+        if (obj is StringValues sv)
+        {
+            if (sv.Values.Count != Values.Count)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < sv.Values.Count; i++)
+            {
+                if (sv.Values[i] != Values[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Override GetHashCode
+    /// </summary>
+    /// <returns></returns>
+    public override int GetHashCode()
+    {
+        return ToString().GetHashCode();
+    }
+
+    /// <summary>
+    /// Render all the values, comma-separated
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString()
+    {
+        return Values.JoinWith(",");
+    }
+}
 
 /// <summary>
 /// Processor for HTTP requests on top of the generic TCP processor
@@ -32,62 +133,126 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
     /// Action to use when attempting to log arbitrary data
     /// </summary>
     public Action<string> LogAction => Server.LogAction;
-
     /// <summary>
     /// Action to use when attempting to log requests
     /// </summary>
     public Action<RequestLogItem> RequestLogAction => Server.RequestLogAction;
-
     private const int BUF_SIZE = 4096;
-
     /// <summary>
     /// Provides access to the server associated with this processor
     /// </summary>
     public HttpServerBase Server { get; protected set; }
-
     private StreamWriter _outputStream;
-
     /// <summary>
     /// Method of the current request being processed
     /// </summary>
     public string Method { get; private set; }
-
     /// <summary>
     /// Full url for the request being processed
     /// </summary>
     public string FullUrl { get; private set; }
-
     /// <summary>
     /// The full path, including query, for the
     /// request being processed
     /// </summary>
     public string FullPath { get; private set; }
-
     /// <summary>
     /// Just the path for the request being processed
     /// </summary>
     public string Path { get; private set; }
-
     /// <summary>
     /// Protocol for the request being processed
     /// </summary>
     public string Protocol { get; private set; }
-
     /// <summary>
     /// Url parameters for the request being processed
     /// </summary>
     public Dictionary<string, string> UrlParameters { get; set; }
-
     /// <summary>
     /// Headers on the request being processed
     /// </summary>
     public Dictionary<string, string> HttpHeaders { get; private set; }
+    /// <summary>
+    /// Convenience mechanism to parse cookies from the headers
+    /// </summary>
+    public Dictionary<string, StringValues> Cookies =>
+        _cookies ??= GenerateCookiesDictionary();
+    private Dictionary<string, StringValues> _cookies;
+
+    private Dictionary<string, StringValues> GenerateCookiesDictionary()
+    {
+        var result = new Dictionary<string, StringValues>();
+        foreach (var header in HttpHeaders)
+        {
+            if (!header.Key.Equals("cookie", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var cookies = ParseCookieHeader(header.Value, result);
+            foreach (var kvp in cookies)
+            {
+                result[kvp.Key] = kvp.Value;
+            }
+        }
+
+        return result;
+    }
+
+    private static Dictionary<string, StringValues> ParseCookieHeader(
+        string header,
+        Dictionary<string, StringValues> existing
+    )
+    {
+        var result = new Dictionary<string, StringValues>(StringComparer.Ordinal);
+
+        if (string.IsNullOrWhiteSpace(header))
+        {
+            return result;
+        }
+
+        foreach (var pair in header.Split(';'))
+        {
+            var parts = pair.Split(
+                new[]
+                {
+                    '='
+                },
+                2
+            );
+
+            if (parts.Length != 2)
+            {
+                continue;
+            }
+
+            var name = parts[0].Trim();
+
+            if (name.Length == 0)
+            {
+                continue;
+            }
+
+            var cookieValue = parts[1].Trim().Trim('"');
+            if (existing.TryGetValue(name, out var sv))
+            {
+                sv.AddValue(cookieValue);
+                result[name] = sv;
+            }
+            else
+            {
+                result[name] = cookieValue;
+            }
+        }
+
+
+        return result;
+    }
 
     /// <summary>
     /// Maximum size, in bytes, to accept for a POST
     /// </summary>
     public long MaxPostSize { get; set; } = MAX_POST_SIZE;
-
 
     /// <inheritdoc />
     public HttpProcessor(
@@ -243,7 +408,12 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
         if (HttpHeaders.ContainsKey(Headers.CONTENT_LENGTH))
         {
             var contentLength = Convert.ToInt32(HttpHeaders[Headers.CONTENT_LENGTH]);
-            ReadBodyContent(stream, method, contentLength, ms);
+            ReadBodyContent(
+                stream,
+                method,
+                contentLength,
+                ms
+            );
         }
         else if (HttpHeaders.ContainsKey(Headers.TRANSFER_ENCODING))
         {
@@ -255,11 +425,19 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
                 );
             }
 
-            ReadChunked(stream, method, ms);
+            ReadChunked(
+                stream,
+                method,
+                ms
+            );
         }
 
         ParseFormElementsIfRequired(ms);
-        Server.HandleRequestWithBody(this, ms, method);
+        Server.HandleRequestWithBody(
+            this,
+            ms,
+            method
+        );
     }
 
     // see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding#chunked_encoding
@@ -293,14 +471,22 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
                 return;
             }
 
-            CopyBytes(stream, toRead, ms);
+            CopyBytes(
+                stream,
+                toRead,
+                ms
+            );
             ReadNewlineFromStream();
         }
 
         void ReadNewlineFromStream()
         {
             // skip the trailing \r\n
-            var eolRead = stream.Read(eol, 0, 2);
+            var eolRead = stream.Read(
+                eol,
+                0,
+                2
+            );
             if (eolRead != 2 || eol[0] != '\r' || eol[1] != '\n')
             {
                 Log(
@@ -324,7 +510,11 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
             );
         }
 
-        CopyBytes(stream, contentLength, ms);
+        CopyBytes(
+            stream,
+            contentLength,
+            ms
+        );
 
         ms.Seek(0, SeekOrigin.Begin);
     }
@@ -339,14 +529,22 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
         var toRead = howMany;
         while (toRead > 0)
         {
-            var numRead = source.Read(buf, 0, Math.Min(BUF_SIZE, toRead));
+            var numRead = source.Read(
+                buf,
+                0,
+                Math.Min(BUF_SIZE, toRead)
+            );
             if (numRead == 0)
             {
                 throw new Exception("client disconnected during post");
             }
 
             toRead -= numRead;
-            target.Write(buf, 0, numRead);
+            target.Write(
+                buf,
+                0,
+                numRead
+            );
         }
     }
 
@@ -436,7 +634,13 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
     /// <param name="value"></param>
     public void WriteHeader(string header, string value)
     {
-        WriteResponseLine(string.Join(": ", header, value));
+        WriteResponseLine(
+            string.Join(
+                ": ",
+                header,
+                value
+            )
+        );
     }
 
     /// <summary>
@@ -466,7 +670,13 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
     {
         var action = RequestLogAction;
         action?.Invoke(
-            new RequestLogItem(FullPath, code, Method, message, HttpHeaders)
+            new RequestLogItem(
+                FullPath,
+                code,
+                Method,
+                message,
+                HttpHeaders
+            )
         );
     }
 
@@ -480,7 +690,11 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
         try
         {
             _outputStream.Flush();
-            _outputStream.BaseStream.Write(data, 0, data.Length);
+            _outputStream.BaseStream.Write(
+                data,
+                0,
+                data.Length
+            );
             _outputStream.BaseStream.Flush();
         }
         catch (Exception ex)
@@ -520,7 +734,11 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
         string message
     )
     {
-        WriteFailure(code, message, null);
+        WriteFailure(
+            code,
+            message,
+            null
+        );
     }
 
     /// <summary>
@@ -535,7 +753,12 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
         string body
     )
     {
-        WriteFailure(code, message, body, "text/plain");
+        WriteFailure(
+            code,
+            message,
+            body,
+            "text/plain"
+        );
     }
 
     /// <summary>
