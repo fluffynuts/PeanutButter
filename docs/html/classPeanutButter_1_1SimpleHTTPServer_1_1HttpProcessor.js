@@ -24,6 +24,7 @@ var classPeanutButter_1_1SimpleHTTPServer_1_1HttpProcessor =
     [ "WriteResponseLine", "classPeanutButter_1_1SimpleHTTPServer_1_1HttpProcessor.html#a61ef30302a4fdb9b552487472a880359", null ],
     [ "WriteStatusHeader", "classPeanutButter_1_1SimpleHTTPServer_1_1HttpProcessor.html#a1182f840f958a5625b14ee605ad3465e", null ],
     [ "WriteSuccess", "classPeanutButter_1_1SimpleHTTPServer_1_1HttpProcessor.html#adaea572b8ce31b462194ced5c1046154", null ],
+    [ "Cookies", "classPeanutButter_1_1SimpleHTTPServer_1_1HttpProcessor.html#a0eb4f489886c09893d7f2d4ac502b52d", null ],
     [ "FormData", "classPeanutButter_1_1SimpleHTTPServer_1_1HttpProcessor.html#a1a577201eeddd89a1e15b260aece8623", null ],
     [ "FullPath", "classPeanutButter_1_1SimpleHTTPServer_1_1HttpProcessor.html#a938ba2cda7f1c04c01c03965ed6d1883", null ],
     [ "FullUrl", "classPeanutButter_1_1SimpleHTTPServer_1_1HttpProcessor.html#a1bb8086b3e143f552cf4ede58d865bf6", null ],

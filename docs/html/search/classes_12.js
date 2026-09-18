@@ -37,10 +37,11 @@ var searchData=
   ['stringmapderivativebuilder_3c_20querycollectionbuilder_2c_20iquerycollection_2c_20fakequerycollection_20_3e_34',['StringMapDerivativeBuilder&lt; QueryCollectionBuilder, IQueryCollection, FakeQueryCollection &gt;',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1StringMapDerivativeBuilder.html',1,'PeanutButter::TestUtils::AspNetCore::Builders']]],
   ['stringvaluemap_35',['StringValueMap',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1StringValueMap.html',1,'PeanutButter::TestUtils::AspNetCore::Fakes']]],
   ['stringvaluemapchangedeventargs_36',['StringValueMapChangedEventArgs',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Fakes_1_1StringValueMapChangedEventArgs.html',1,'PeanutButter::TestUtils::AspNetCore::Fakes']]],
-  ['stylebundlefacade_37',['StyleBundleFacade',['../classPeanutButter_1_1MVC_1_1StyleBundleFacade.html',1,'PeanutButter::MVC']]],
-  ['subscription_38',['Subscription',['../classPeanutButter_1_1TinyEventAggregator_1_1Subscription.html',1,'PeanutButter::TinyEventAggregator']]],
-  ['subscriptionschangedeventargs_39',['SubscriptionsChangedEventArgs',['../classPeanutButter_1_1TinyEventAggregator_1_1SubscriptionsChangedEventArgs.html',1,'PeanutButter::TinyEventAggregator']]],
-  ['subscriptiontoken_40',['SubscriptionToken',['../classPeanutButter_1_1TinyEventAggregator_1_1SubscriptionToken.html',1,'PeanutButter::TinyEventAggregator']]],
-  ['substituteextensions_41',['SubstituteExtensions',['../classPeanutButter_1_1TestUtils_1_1Generic_1_1SubstituteExtensions.html',1,'PeanutButter::TestUtils::Generic']]],
-  ['suppressedtextstatussteps_42',['SuppressedTextStatusSteps',['../classPeanutButter_1_1Utils_1_1SuppressedTextStatusSteps.html',1,'PeanutButter::Utils']]]
+  ['stringvalues_37',['StringValues',['../classPeanutButter_1_1SimpleHTTPServer_1_1StringValues.html',1,'PeanutButter::SimpleHTTPServer']]],
+  ['stylebundlefacade_38',['StyleBundleFacade',['../classPeanutButter_1_1MVC_1_1StyleBundleFacade.html',1,'PeanutButter::MVC']]],
+  ['subscription_39',['Subscription',['../classPeanutButter_1_1TinyEventAggregator_1_1Subscription.html',1,'PeanutButter::TinyEventAggregator']]],
+  ['subscriptionschangedeventargs_40',['SubscriptionsChangedEventArgs',['../classPeanutButter_1_1TinyEventAggregator_1_1SubscriptionsChangedEventArgs.html',1,'PeanutButter::TinyEventAggregator']]],
+  ['subscriptiontoken_41',['SubscriptionToken',['../classPeanutButter_1_1TinyEventAggregator_1_1SubscriptionToken.html',1,'PeanutButter::TinyEventAggregator']]],
+  ['substituteextensions_42',['SubstituteExtensions',['../classPeanutButter_1_1TestUtils_1_1Generic_1_1SubstituteExtensions.html',1,'PeanutButter::TestUtils::Generic']]],
+  ['suppressedtextstatussteps_43',['SuppressedTextStatusSteps',['../classPeanutButter_1_1Utils_1_1SuppressedTextStatusSteps.html',1,'PeanutButter::Utils']]]
 ];

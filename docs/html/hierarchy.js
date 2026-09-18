@@ -655,6 +655,7 @@ var hierarchy =
     [ "PeanutButter.TestUtils.AspNetCore.Builders.StringMapDerivativeBuilder< QueryCollectionBuilder, IQueryCollection, FakeQueryCollection >", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1StringMapDerivativeBuilder.html", [
       [ "PeanutButter.TestUtils.AspNetCore.Builders.QueryCollectionBuilder", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1QueryCollectionBuilder.html", null ]
     ] ],
+    [ "PeanutButter.SimpleHTTPServer.StringValues", "classPeanutButter_1_1SimpleHTTPServer_1_1StringValues.html", null ],
     [ "PeanutButter.TinyEventAggregator.Subscription< TPayload >", "classPeanutButter_1_1TinyEventAggregator_1_1Subscription.html", null ],
     [ "PeanutButter.TinyEventAggregator.SubscriptionsChangedEventArgs", "classPeanutButter_1_1TinyEventAggregator_1_1SubscriptionsChangedEventArgs.html", null ],
     [ "PeanutButter.TinyEventAggregator.SubscriptionToken", "classPeanutButter_1_1TinyEventAggregator_1_1SubscriptionToken.html", null ],

@@ -143,6 +143,7 @@ var annotated_dup =
         [ "IHttpServerFactory", "interfacePeanutButter_1_1SimpleHTTPServer_1_1IHttpServerFactory.html", null ],
         [ "RequestLogItem", "classPeanutButter_1_1SimpleHTTPServer_1_1RequestLogItem.html", "classPeanutButter_1_1SimpleHTTPServer_1_1RequestLogItem" ],
         [ "StreamExtensions", "classPeanutButter_1_1SimpleHTTPServer_1_1StreamExtensions.html", "classPeanutButter_1_1SimpleHTTPServer_1_1StreamExtensions" ],
+        [ "StringValues", "classPeanutButter_1_1SimpleHTTPServer_1_1StringValues.html", "classPeanutButter_1_1SimpleHTTPServer_1_1StringValues" ],
         [ "TcpClientExtensions", "classPeanutButter_1_1SimpleHTTPServer_1_1TcpClientExtensions.html", "classPeanutButter_1_1SimpleHTTPServer_1_1TcpClientExtensions" ],
         [ "TcpIoWrapper", "classPeanutButter_1_1SimpleHTTPServer_1_1TcpIoWrapper.html", "classPeanutButter_1_1SimpleHTTPServer_1_1TcpIoWrapper" ],
         [ "TcpServerProcessor", "classPeanutButter_1_1SimpleHTTPServer_1_1TcpServerProcessor.html", "classPeanutButter_1_1SimpleHTTPServer_1_1TcpServerProcessor" ]
