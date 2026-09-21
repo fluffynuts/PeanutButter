@@ -8,5 +8,8 @@ var classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ActionExecutingC
     [ "WithController< T >", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ActionExecutingContextBuilder.html#afdee34774378c57485e12df313f0b999", null ],
     [ "WithFilterMetadata", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ActionExecutingContextBuilder.html#a0e519f65c1d756317405306a9e8bb7ac", null ],
     [ "WithHeader", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ActionExecutingContextBuilder.html#a81a5201923d37331e0e3aad055d37389", null ],
+    [ "WithRequestMethod", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ActionExecutingContextBuilder.html#ac2796ac6a232942100f7ea2438464acf", null ],
+    [ "WithRequestMethod", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ActionExecutingContextBuilder.html#a90dbb230040dfbd33f9de1734c443280", null ],
+    [ "WithRequestMutator", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ActionExecutingContextBuilder.html#ac33ac4faf1788de00ab8edd48eb47022", null ],
     [ "WithRouteValue", "classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1ActionExecutingContextBuilder.html#aa873e681abfff759a2fb3622e4cd9480", null ]
 ];

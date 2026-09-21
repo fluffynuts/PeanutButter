@@ -1,5 +1,17 @@
 var NAVTREEINDEX24 =
 {
+"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html":[3,0,0,16,106],
+"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#a3a75ee292615b5ceb4e88b7586379bb8":[2,0,0,16,107,5],
+"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#a3a75ee292615b5ceb4e88b7586379bb8":[3,0,0,16,106,5],
+"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#a4d3cf7ff318c5418e6d4beab77ba1316":[2,0,0,16,107,1],
+"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#a4d3cf7ff318c5418e6d4beab77ba1316":[3,0,0,16,106,1],
+"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#a4f03d057fc829d391a973fb0765fe4de":[2,0,0,16,107,2],
+"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#a4f03d057fc829d391a973fb0765fe4de":[3,0,0,16,106,2],
+"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#aa64209648d42e2fd1b314061cdbfe42f":[2,0,0,16,107,7],
+"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#aa64209648d42e2fd1b314061cdbfe42f":[3,0,0,16,106,7],
+"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#aac53c594afd07fcec4a084f5a29b7c8f":[2,0,0,16,107,3],
+"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#aac53c594afd07fcec4a084f5a29b7c8f":[3,0,0,16,106,3],
+"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#adee376d0c786e061ce7a9757269c24f9":[3,0,0,16,106,4],
 "classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#adee376d0c786e061ce7a9757269c24f9":[2,0,0,16,107,4],
 "classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#aed8d8926c2769bce586d42f80eaec68e":[3,0,0,16,106,0],
 "classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html#aed8d8926c2769bce586d42f80eaec68e":[2,0,0,16,107,0],
@@ -237,17 +249,5 @@ var NAVTREEINDEX24 =
 "classPeanutButter_1_1Utils_1_1StringExtensions.html#aceb1a37833195173c1a79c3a97b8f38d":[3,0,0,16,109,8],
 "classPeanutButter_1_1Utils_1_1StringExtensions.html#acf0f46530e09d89f2871bbc95271ba50":[3,0,0,16,109,21],
 "classPeanutButter_1_1Utils_1_1StringExtensions.html#acf0f46530e09d89f2871bbc95271ba50":[2,0,0,16,110,21],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#ad1b6abf852e73311b8cf4f1d48c820ef":[2,0,0,16,110,78],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#ad1b6abf852e73311b8cf4f1d48c820ef":[3,0,0,16,109,78],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#ad2a82f90f3221a51df05c1d85ed39f50":[3,0,0,16,109,71],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#ad2a82f90f3221a51df05c1d85ed39f50":[2,0,0,16,110,71],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#ad329fc2ed8cd4a34b6a2f054e8381760":[2,0,0,16,110,95],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#ad329fc2ed8cd4a34b6a2f054e8381760":[3,0,0,16,109,95],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#ada21c2ed81ae297f20473af2a69c4a05":[3,0,0,16,109,19],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#ada21c2ed81ae297f20473af2a69c4a05":[2,0,0,16,110,19],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#adba036aad0ffa6c8939c6270100b2b43":[2,0,0,16,110,61],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#adba036aad0ffa6c8939c6270100b2b43":[3,0,0,16,109,61],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#ade45236f32029a04267d7e2d918157a3":[2,0,0,16,110,84],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#ade45236f32029a04267d7e2d918157a3":[3,0,0,16,109,84],
-"classPeanutButter_1_1Utils_1_1StringExtensions.html#ae015a8b31592df2eb620bc66a32924af":[3,0,0,16,109,10]
+"classPeanutButter_1_1Utils_1_1StringExtensions.html#ad1b6abf852e73311b8cf4f1d48c820ef":[2,0,0,16,110,78]
 };
