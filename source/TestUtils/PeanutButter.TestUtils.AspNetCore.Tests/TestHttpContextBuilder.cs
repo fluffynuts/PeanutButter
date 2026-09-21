@@ -467,7 +467,11 @@ public class TestHttpContextBuilder
                 HttpOnly = true,
             }
         );
-        var expected2 = new FakeCookie(key2, value2, new CookieOptions());
+        var expected2 = new FakeCookie(
+            key2,
+            value2,
+            new CookieOptions()
+        );
         // Act
         response.Headers["set-cookie"] = new StringValues(
             new[]
@@ -492,10 +496,18 @@ public class TestHttpContextBuilder
         // Arrange
         var key = GetRandomString();
         var value = GetRandomString();
-        var expected = new FakeCookie(key, value, new CookieOptions());
+        var expected = new FakeCookie(
+            key,
+            value,
+            new CookieOptions()
+        );
         var ctx = HttpContextBuilder.BuildDefault();
         // Act
-        ctx.Response.Cookies.Append(expected.Name, expected.Value, expected.Options);
+        ctx.Response.Cookies.Append(
+            expected.Name,
+            expected.Value,
+            expected.Options
+        );
         var result = FakeCookie.Parse(ctx.Response.Headers["set-cookie"].FirstOrDefault());
         // Assert
         Expect(result)
@@ -508,9 +520,17 @@ public class TestHttpContextBuilder
         // Arrange
         var key = GetRandomString();
         var value = GetRandomString();
-        var expected = new FakeCookie(key, value, new CookieOptions());
+        var expected = new FakeCookie(
+            key,
+            value,
+            new CookieOptions()
+        );
         var ctx = HttpContextBuilder.BuildDefault();
-        ctx.Response.Cookies.Append(expected.Name, expected.Value, expected.Options);
+        ctx.Response.Cookies.Append(
+            expected.Name,
+            expected.Value,
+            expected.Options
+        );
         // Act
         ctx.Response.Cookies.Delete(key);
         // Assert
@@ -1169,7 +1189,13 @@ public class TestHttpContextBuilder
         var v1 = new IdContainer(GetRandomInt(1));
         var k2 = GetAnother(k1);
         var v2 = GetRandomDate();
-        var k3 = GetAnother<string>(new[] { k1, k2 });
+        var k3 = GetAnother<string>(
+            new[]
+            {
+                k1,
+                k2
+            }
+        );
         var v3 = GetRandomWords();
         var items = new Dictionary<string, object>()
         {
@@ -1185,7 +1211,7 @@ public class TestHttpContextBuilder
         var result1 = ctx.Session.Read<IdContainer>(k1);
         var result2 = ctx.Session.Read<DateTime>(k2);
         var result3 = ctx.Session.GetString(k3);
-        
+
         Expect(result1)
             .To.Deep.Equal(v1);
         Expect(result2)
@@ -1210,6 +1236,22 @@ public class TestHttpContextBuilder
         {
         }
     }
+
+    [Test]
+    public void ShouldNotSetContentTypeOnGET()
+    {
+        // Arrange
+        // Act
+        var sut = HttpContextBuilder.Create()
+            .WithRequestCookie("a", "b")
+            .Build();
+
+        // Assert
+        Expect(sut.Request.Method)
+            .To.Equal(HttpMethods.Get);
+        Expect(sut.Request.Headers)
+            .Not.To.Contain.Key("Content-Type");
+    }
 }
 
 internal static class SessionExtensions
@@ -1223,6 +1265,7 @@ internal static class SessionExtensions
         {
             return default;
         }
+
         var str = session.GetString(key);
         if (str is null)
         {

@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Http;
 // ReSharper disable ConstantConditionalAccessQualifier
 // ReSharper disable ConstantNullCoalescingCondition
 // ReSharper disable MemberCanBePrivate.Global
-
 #if BUILD_PEANUTBUTTER_INTERNAL
 using Imported.PeanutButter.TestUtils.AspNetCore.Utils;
 using Imported.PeanutButter.Utils;
@@ -55,13 +54,10 @@ public
     public override HttpContext HttpContext =>
         // ReSharper disable once AssignNullToNotNullAttribute
         _httpContext ??= _httpContextAccessor?.Invoke();
-
     private HttpContext _httpContext;
     private Func<HttpContext> _httpContextAccessor;
-
     /// <inheritdoc />
     public override string Method { get; set; }
-
     /// <inheritdoc />
     public override string Scheme { get; set; }
 
@@ -91,10 +87,8 @@ public
 
     /// <inheritdoc />
     public override HostString Host { get; set; } = new("localhost");
-
     /// <inheritdoc />
     public override PathString PathBase { get; set; } = new("");
-
     /// <inheritdoc />
     public override PathString Path { get; set; } = new("/");
 
@@ -181,11 +175,9 @@ public
 
     /// <inheritdoc />
     public override string Protocol { get; set; }
-
     /// <inheritdoc />
     public override IHeaderDictionary Headers
         => EnsureContentTypeHeader(_headers ??= CreateHeaders());
-
     /// <inheritdoc />
     public override IRequestCookieCollection Cookies { get; set; }
         = new FakeRequestCookieCollection();
@@ -223,7 +215,6 @@ public
     }
 
     private Stream _body = new MemoryStream();
-
     /// <inheritdoc />
     public override bool HasFormContentType =>
         (Form?.Keys.Count ?? 0) > 0;
@@ -274,6 +265,11 @@ public
             return URLENCODED_FORM;
         }
 
+        if (_body is null)
+        {
+            return null;
+        }
+
         if ((_body?.Length ?? 0) == 0)
         {
             return DEFAULT_CONTENT_TYPE;
@@ -299,8 +295,34 @@ public
         return contentType;
     }
 
+    private static readonly HashSet<string> ContentlessRequestMethods = new(
+        [
+            HttpMethods.Get,
+            HttpMethods.Options,
+            HttpMethods.Head,
+            HttpMethods.Trace,
+            HttpMethods.Connect
+        ]
+    );
+
     private IHeaderDictionary EnsureContentTypeHeaderFor(string contentType, IHeaderDictionary dict)
     {
+        // Content-Type is only valid for a method which
+        // would have a body - GET, OPTIONS, TRACE, CONNECT, HEAD have
+        // no body (though technically, someone could set Content-Type
+        // on HEAD - and the RFCs actually point at Content-Type on the
+        // other verbs being useless rather than forbidden, but if you
+        // try to copy these headers to an HttpRequestMessage, you'd
+        // hit a wall
+        if (
+            ContentlessRequestMethods.Contains(Method) ||
+            string.IsNullOrWhiteSpace(contentType)
+        )
+        {
+            dict.Remove("Content-Type");
+            return dict;
+        }
+
         dict["Content-Type"] = contentType;
         return dict;
     }
