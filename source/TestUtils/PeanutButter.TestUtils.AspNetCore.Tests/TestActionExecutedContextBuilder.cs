@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Primitives;
-using PeanutButter.RandomGenerators;
 using PeanutButter.TestUtils.AspNetCore.Builders;
 
 namespace PeanutButter.TestUtils.AspNetCore.Tests;
@@ -15,7 +15,7 @@ public class TestActionExecutedContextBuilder
     public class DefaultBuild
     {
         [Test]
-        public void ShouldOnlyHaveContentTypeHeader()
+        public void ShouldOnlyHaveNoHeadersAndGETRequest()
         {
             // Arrange
             // Act
@@ -26,12 +26,9 @@ public class TestActionExecutedContextBuilder
             Expect(result.HttpContext.Request)
                 .Not.To.Be.Null();
             Expect(result.HttpContext.Request.Headers)
-                .To.Contain.Only(1).Item()
-                .And
-                .To.Contain.Exactly(1)
-                .Equal.To(
-                    DefaultContentTypeHeader
-                );
+                .To.Be.Empty();
+            Expect(result.HttpContext.Request.Method)
+                .To.Equal(HttpMethods.Get);
         }
 
         [Test]
@@ -66,10 +63,10 @@ public class TestActionExecutedContextBuilder
     public void ShouldBeAbleToSetHeaders()
     {
         // Arrange
-        var header1 = RandomValueGen.GetRandomString(10);
-        var value1 = RandomValueGen.GetRandomString();
-        var header2 = RandomValueGen.GetRandomString(10);
-        var value2 = RandomValueGen.GetRandomString();
+        var header1 = GetRandomString(10);
+        var value1 = GetRandomString();
+        var header2 = GetRandomString(10);
+        var value2 = GetRandomString();
         // Act
         var result = ActionExecutedContextBuilder.Create()
             .WithHeader(header1, value1)
@@ -78,16 +75,13 @@ public class TestActionExecutedContextBuilder
         // Assert
         var headers = result.HttpContext.Request.Headers;
         Expect(headers)
-            .To.Contain.Only(3).Items();
+            .To.Contain.Only(2).Items();
         Expect(headers)
             .To.Contain.Key(header1)
             .With.Value(value1);
         Expect(headers)
             .To.Contain.Key(header2)
             .With.Value(value2);
-        Expect(headers)
-            .To.Contain.Key("Content-Type")
-            .With.Value("text/plain");
     }
 
     [Test]

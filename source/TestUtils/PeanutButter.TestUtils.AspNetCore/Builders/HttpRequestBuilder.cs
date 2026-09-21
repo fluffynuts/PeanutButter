@@ -17,9 +17,9 @@ namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
 using PeanutButter.TestUtils.AspNetCore.Fakes;
 using PeanutButter.Utils;
 using static PeanutButter.RandomGenerators.RandomValueGen;
+
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
 // ReSharper disable ConstantConditionalAccessQualifier
-
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 #endif
 
@@ -309,7 +309,11 @@ public
     public HttpRequestBuilder WithBody(Stream body)
     {
         return With(
-            o => o.Body = body
+            o =>
+            {
+                o.Body = body;
+                ConvertToPostIfIsGet(o);
+            }
         );
     }
 
@@ -664,7 +668,11 @@ public
     public HttpRequestBuilder WithForm(IFormCollection formCollection)
     {
         return With(
-            o => o.Form = formCollection
+            o =>
+            {
+                o.Form = formCollection;
+                ConvertToPostIfIsGet(o);
+            }
         );
     }
 
@@ -680,8 +688,22 @@ public
     )
     {
         return With(
-            o => o.Form.As<FakeFormCollection>()[key] = value
+            o =>
+            {
+                o.Form.As<FakeFormCollection>()[key] = value;
+                ConvertToPostIfIsGet(o);
+            }
         );
+    }
+
+    private void ConvertToPostIfIsGet(
+        HttpRequest req
+    )
+    {
+        if (req.Method == HttpMethods.Get)
+        {
+            req.Method = HttpMethods.Post;
+        }
     }
 
     /// <summary>
@@ -796,7 +818,13 @@ public
     {
         return With(
             o => o.Form.Files.As<FakeFormFileCollection>()
-                .Add(new FakeFormFile(content, name, fileName))
+                .Add(
+                    new FakeFormFile(
+                        content,
+                        name,
+                        fileName
+                    )
+                )
         );
     }
 

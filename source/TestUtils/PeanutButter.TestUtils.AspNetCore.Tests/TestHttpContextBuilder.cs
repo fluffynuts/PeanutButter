@@ -597,6 +597,7 @@ public class TestHttpContextBuilder
             // Arrange
             var expected = GetRandomString();
             var ctx = HttpContextBuilder.Create()
+                .WithRequestMethod(HttpMethods.Post)
                 .WithRequestContentType(expected)
                 .Build();
             // Act

@@ -129,11 +129,10 @@ public class TestHttpRequestBuilder
             // Act
             var result = BuildDefault();
             // Assert
+            Expect(result.Method)
+                .To.Equal(HttpMethods.Get);
             Expect(result.Headers)
-                .To.Contain.Only(1).Item();
-            Expect(result.Headers)
-                .To.Contain.Key("Content-Type")
-                .With.Value("text/plain");
+                .To.Be.Empty();
         }
 
         [Test]
@@ -439,11 +438,10 @@ public class TestHttpRequestBuilder
             .WithNoHeaders()
             .Build();
         // Assert
+        Expect(result.Method)
+            .To.Equal(HttpMethods.Get);
         Expect(result.Headers)
-            .To.Contain.Only(1).Item();
-        Expect(result.Headers)
-            .To.Contain.Key("Content-Type")
-            .With.Value("text/plain");
+            .To.Be.Empty();
     }
 
     [Test]
@@ -462,11 +460,10 @@ public class TestHttpRequestBuilder
             .Build();
         // Assert
         var headers = result.Headers;
+        Expect(result.Method)
+            .To.Equal(HttpMethods.Get);
         Expect(headers)
-            .To.Contain.Only(3).Items();
-        Expect(headers)
-            .To.Contain.Key("Content-Type")
-            .With.Value("text/plain");
+            .To.Contain.Only(2).Items();
         Expect(headers)
             .To.Contain.Key("X-HeaderA")
             .With.Value("foo");
@@ -779,7 +776,11 @@ public class TestHttpRequestBuilder
                 .To.Equal(Encoding.UTF8.GetBytes(content));
 
             var sut = HttpRequestBuilder.Create()
-                .WithFormFile(content, name, fileName)
+                .WithFormFile(
+                    content,
+                    name,
+                    fileName
+                )
                 .Build();
             // Act
             var result = sut.Form.Files[name];
@@ -966,6 +967,7 @@ public class TestHttpRequestBuilder
                     // Arrange
                     var expected = "application/x-www-form-urlencoded";
                     var req = HttpRequestBuilder.Create()
+                        .WithMethod(HttpMethods.Post)
                         .WithFormField("foo", "bar")
                         .Build();
                     // Act
@@ -987,8 +989,13 @@ public class TestHttpRequestBuilder
                         // Arrange
                         var expected = "multipart/form-data";
                         var req = HttpRequestBuilder.Create()
+                            .WithMethod(HttpMethods.Post)
                             .WithFormField("a", "b")
-                            .WithFormFile("content", "imported-data", "the-file.txt")
+                            .WithFormFile(
+                                "content",
+                                "imported-data",
+                                "the-file.txt"
+                            )
                             .Build();
                         Expect(req.Form.Files)
                             .Not.To.Be.Empty();
@@ -1005,14 +1012,15 @@ public class TestHttpRequestBuilder
             }
 
             [TestFixture]
-            public class AndHaveBody
+            public class AndHaveStringBody
             {
                 [Test]
-                public void ShouldAssumeJson1()
+                public void ShouldAssumeJson()
                 {
                     // Arrange
                     var expected = "application/json";
                     var req = HttpRequestBuilder.Create()
+                        .WithMethod(GetRandomFrom([HttpMethods.Post, HttpMethods.Put, HttpMethods.Patch]))
                         .WithBody(
                             JsonSerializer.Serialize(
                                 new
@@ -1021,30 +1029,6 @@ public class TestHttpRequestBuilder
                                     Name = "Bob"
                                 }
                             )
-                        )
-                        .Build();
-                    // Act
-                    var result = req.ContentType;
-                    // Assert
-                    Expect(result)
-                        .To.Equal(expected);
-                    Expect(req.Headers)
-                        .To.Contain.Key("Content-Type")
-                        .With.Value(expected);
-                }
-
-                [Test]
-                public void ShouldAssumeJson2()
-                {
-                    // Arrange
-                    var expected = "application/json";
-                    var req = HttpRequestBuilder.Create()
-                        .WithJsonBody(
-                            new
-                            {
-                                Id = 1,
-                                Name = "Bob"
-                            }
                         )
                         .Build();
                     // Act
@@ -1074,6 +1058,7 @@ public class TestHttpRequestBuilder
                         // Arrange
                         var expected = GetRandomString();
                         var req = HttpRequestBuilder.Create()
+                            .WithMethod(HttpMethods.Post)
                             .WithBody(
                                 JsonSerializer.Serialize(
                                     new
@@ -1104,6 +1089,7 @@ public class TestHttpRequestBuilder
                         // Arrange
                         var expected = GetRandomString();
                         var req = HttpRequestBuilder.Create()
+                            .WithMethod(HttpMethods.Post)
                             .WithHeader("Content-Type", expected)
                             .WithBody(
                                 JsonSerializer.Serialize(

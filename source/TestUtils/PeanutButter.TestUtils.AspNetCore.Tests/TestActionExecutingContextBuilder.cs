@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Primitives;
@@ -25,10 +26,7 @@ public class TestActionExecutingContextBuilder
             Expect(result.HttpContext.Request)
                 .Not.To.Be.Null();
             Expect(result.HttpContext.Request.Headers)
-                .To.Contain.Only(1)
-                .Equal.To(
-                    DefaultContentTypeHeader
-                );
+                .To.Be.Empty();
         }
 
         [Test]
@@ -80,6 +78,7 @@ public class TestActionExecutingContextBuilder
         var value2 = GetRandomString();
         // Act
         var result = ActionExecutingContextBuilder.Create()
+            .WithRequestMethod(HttpMethod.Post)
             .WithHeader(header1, value1)
             .WithHeader(header2, value2)
             .Build();

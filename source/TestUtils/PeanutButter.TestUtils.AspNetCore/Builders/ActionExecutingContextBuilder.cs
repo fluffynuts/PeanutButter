@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -6,12 +8,12 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 
 // ReSharper disable ClassNeverInstantiated.Global
-
 #if BUILD_PEANUTBUTTER_INTERNAL
 using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
 namespace Imported.PeanutButter.TestUtils.AspNetCore.Builders;
 #else
 using PeanutButter.TestUtils.AspNetCore.Fakes;
+
 namespace PeanutButter.TestUtils.AspNetCore.Builders;
 #endif
 
@@ -168,10 +170,51 @@ public
         }
     }
 
+    private readonly List<Action<HttpRequest>> _requestMutators = new();
+
+    /// <summary>
+    /// General request mutations
+    /// </summary>
+    /// <param name="mutator"></param>
+    /// <returns></returns>
+    public ActionExecutingContextBuilder WithRequestMutator(
+        Action<HttpRequest> mutator
+    )
+    {
+        _requestMutators.Add(mutator);
+        return this;
+    }
+
+    /// <summary>
+    /// Set the request method
+    /// </summary>
+    /// <param name="method"></param>
+    /// <returns></returns>
+    public ActionExecutingContextBuilder WithRequestMethod(
+        HttpMethod method
+    )
+    {
+        return WithRequestMethod(method.Method);
+    }
+
+    /// <summary>
+    /// Set the request method
+    /// </summary>
+    /// <param name="method"></param>
+    /// <returns></returns>
+    public ActionExecutingContextBuilder WithRequestMethod(
+        string method
+    )
+    {
+        return WithRequestMutator(req => req.Method = method);
+    }
+
     private ActionContext GenerateDefaultActionContext()
     {
         return new ActionContext(
-            _httpContext ?? HttpContextBuilder.BuildDefault(),
+            _httpContext ?? HttpContextBuilder.Create()
+                .WithRequestMutators(_requestMutators)
+                .Build(),
             _routeData ?? new RouteData(),
             _actionDescriptor ?? new ActionDescriptor()
         );

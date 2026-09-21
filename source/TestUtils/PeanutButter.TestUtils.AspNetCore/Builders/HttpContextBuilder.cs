@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Web;
@@ -11,7 +12,6 @@ using Microsoft.AspNetCore.Http.Features;
 
 // ReSharper disable ConstantConditionalAccessQualifier
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
-
 #if BUILD_PEANUTBUTTER_INTERNAL
 using Imported.PeanutButter.TestUtils.AspNetCore.Fakes;
 using static Imported.PeanutButter.RandomGenerators.RandomValueGen;
@@ -356,7 +356,13 @@ public
                 var request = o.As<FakeHttpRequest>();
                 var form = request.Form.As<FakeFormCollection>();
                 var files = form.Files.As<FakeFormFileCollection>();
-                files.Add(new FakeFormFile(content, name, fileName));
+                files.Add(
+                    new FakeFormFile(
+                        content,
+                        name,
+                        fileName
+                    )
+                );
             }
         );
     }
@@ -456,6 +462,26 @@ public
         return With(
             o => mutator(o.Request)
         );
+    }
+
+    /// <summary>
+    /// Provide multiple request mutators at once
+    /// </summary>
+    /// <param name="mutators"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithRequestMutators(
+        IEnumerable<Action<HttpRequest>> mutators
+    )
+    {
+        if (mutators is not null)
+        {
+            foreach (var mutator in mutators)
+            {
+                WithRequestMutator(mutator);
+            }
+        }
+
+        return this;
     }
 
     /// <summary>
@@ -703,6 +729,34 @@ via builder methods. If you're providing your own RequestServices, you'll have t
     {
         return WithRequestMutator(
             req => req.ContentType = contentType
+        );
+    }
+
+    /// <summary>
+    /// Sets the request method
+    /// </summary>
+    /// <param name="method"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithRequestMethod(
+        string method
+    )
+    {
+        return WithRequestMutator(
+            req => req.Method = method
+        );
+    }
+
+    /// <summary>
+    /// Sets the request method
+    /// </summary>
+    /// <param name="method"></param>
+    /// <returns></returns>
+    public HttpContextBuilder WithRequestMethod(
+        HttpMethod method
+    )
+    {
+        return WithRequestMutator(
+            req => req.Method = method.Method
         );
     }
 
