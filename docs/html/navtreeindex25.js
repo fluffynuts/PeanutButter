@@ -1,5 +1,7 @@
 var NAVTREEINDEX25 =
 {
+"classPeanutButter_1_1Utils_1_1StringExtensions.html#acf0f46530e09d89f2871bbc95271ba50":[2,0,0,16,110,21],
+"classPeanutButter_1_1Utils_1_1StringExtensions.html#ad1b6abf852e73311b8cf4f1d48c820ef":[2,0,0,16,110,78],
 "classPeanutButter_1_1Utils_1_1StringExtensions.html#ad1b6abf852e73311b8cf4f1d48c820ef":[3,0,0,16,109,78],
 "classPeanutButter_1_1Utils_1_1StringExtensions.html#ad2a82f90f3221a51df05c1d85ed39f50":[3,0,0,16,109,71],
 "classPeanutButter_1_1Utils_1_1StringExtensions.html#ad2a82f90f3221a51df05c1d85ed39f50":[2,0,0,16,110,71],
@@ -247,7 +249,5 @@ var NAVTREEINDEX25 =
 "classPeanutButter_1_1Utils_1_1TypeExtensions.html#ab3881b803daa74ecf7bccfd9d524b783":[2,0,0,16,118,45],
 "classPeanutButter_1_1Utils_1_1TypeExtensions.html#ab889f9147e225e2c91dfcd4da9d6f58d":[3,0,0,16,117,80],
 "classPeanutButter_1_1Utils_1_1TypeExtensions.html#ab889f9147e225e2c91dfcd4da9d6f58d":[2,0,0,16,118,80],
-"classPeanutButter_1_1Utils_1_1TypeExtensions.html#ac10dd3f04958ea8d101cf889df8ad5c0":[2,0,0,16,118,42],
-"classPeanutButter_1_1Utils_1_1TypeExtensions.html#ac10dd3f04958ea8d101cf889df8ad5c0":[3,0,0,16,117,42],
-"classPeanutButter_1_1Utils_1_1TypeExtensions.html#ac6d3c9126ff61068c384c3e394bbbae4":[2,0,0,16,118,68]
+"classPeanutButter_1_1Utils_1_1TypeExtensions.html#ac10dd3f04958ea8d101cf889df8ad5c0":[2,0,0,16,118,42]
 };

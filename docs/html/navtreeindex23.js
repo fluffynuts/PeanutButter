@@ -1,5 +1,7 @@
 var NAVTREEINDEX23 =
 {
+"classPeanutButter_1_1Utils_1_1PyLike.html#aba1a4d6cc13dd3321230b44be3c7d0e2":[2,0,0,16,90,1],
+"classPeanutButter_1_1Utils_1_1PyLike.html#ac1edeaf9f76b634e5a657d947323923c":[3,0,0,16,89,5],
 "classPeanutButter_1_1Utils_1_1PyLike.html#ac1edeaf9f76b634e5a657d947323923c":[2,0,0,16,90,5],
 "classPeanutButter_1_1Utils_1_1PyLike.html#ac6ec903dc52b5f4b60add0d028047c67":[3,0,0,16,89,2],
 "classPeanutButter_1_1Utils_1_1PyLike.html#ac6ec903dc52b5f4b60add0d028047c67":[2,0,0,16,90,2],
@@ -247,7 +249,5 @@ var NAVTREEINDEX23 =
 "classPeanutButter_1_1Utils_1_1SlidingWindowEstimatedTimeRemainingExtensions.html#a67e4dc12eca6c19395cbb12907581cb8":[3,0,0,16,105,0],
 "classPeanutButter_1_1Utils_1_1SlidingWindowEstimatedTimeRemainingExtensions.html#a9bf604ea402db28ee122dcfb486594a0":[3,0,0,16,105,2],
 "classPeanutButter_1_1Utils_1_1SlidingWindowEstimatedTimeRemainingExtensions.html#a9bf604ea402db28ee122dcfb486594a0":[2,0,0,16,106,2],
-"classPeanutButter_1_1Utils_1_1SlidingWindowEstimatedTimeRemainingExtensions.html#af664e6117be1d336789ef9d12474ff7a":[3,0,0,16,105,1],
-"classPeanutButter_1_1Utils_1_1SlidingWindowEstimatedTimeRemainingExtensions.html#af664e6117be1d336789ef9d12474ff7a":[2,0,0,16,106,1],
-"classPeanutButter_1_1Utils_1_1SlidingWindowRateExtensions.html":[2,0,0,16,107]
+"classPeanutButter_1_1Utils_1_1SlidingWindowEstimatedTimeRemainingExtensions.html#af664e6117be1d336789ef9d12474ff7a":[3,0,0,16,105,1]
 };
