@@ -167,6 +167,7 @@ public
     /// <param name="accessor"></param>
     public void SetRequestAccessor(Func<HttpRequest> accessor)
     {
+        _request = null; // reset so it will be re-evaluated
         _requestAccessor = accessor;
     }
 

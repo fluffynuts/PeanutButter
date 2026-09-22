@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Mvc;
@@ -94,6 +96,29 @@ public class TestControllerContextBuilder
         Expect(result.HttpContext.Request.Headers)
             .To.Contain.Key(key)
             .With.Value(value);
+    }
+
+    [Test]
+    public void ShouldBeAbleToSetFullRequest()
+    {
+        // Arrange
+        var headers = GetRandom<Dictionary<string, string>>();
+        var url = GetRandomHttpsUrlWithPath();
+        var req = HttpRequestBuilder.Create()
+            .WithUrl(url)
+            .WithHeaders(headers)
+            .Build();
+        
+        // Act
+        var sut = ControllerContextBuilder.Create()
+            .WithRequest(req)
+            .Build();
+        
+        // Assert
+        Expect(sut.HttpContext.Request.Headers.ToDictionary())
+            .To.Deep.Equal(headers);
+        Expect(sut.HttpContext.Request.FullUrl().ToString().ToLower())
+            .To.Equal(url.ToLower());
     }
 
     public class MyController : ControllerBase

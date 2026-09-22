@@ -254,4 +254,13 @@ public
             }
         );
     }
+
+    /// <summary>
+    /// remove me
+    /// </summary>
+    /// <returns></returns>
+    public override ControllerContext Build()
+    {
+        return base.Build();
+    }
 }
