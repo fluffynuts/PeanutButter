@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Threading;
 
 // ReSharper disable MemberCanBePrivate.Global
-
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils;
 #else
@@ -18,7 +17,7 @@ namespace PeanutButter.Utils;
 #if BUILD_PEANUTBUTTER_INTERNAL
 internal
 #else
-    public
+public
 #endif
     static class ExtensionsForIEnumerables
 {
@@ -484,7 +483,6 @@ internal
     private const string DEFAULT_LIST_ITEM_MARKER = "- ";
     private const string DEFAULT_EMPTY_LIST_TEXT = "<empty>";
 
-
     /// <summary>
     /// Easy way to produce a text list from a collection of items with
     /// a provided item marker, eg if the item marker is '* '
@@ -587,7 +585,6 @@ internal
             DEFAULT_EMPTY_LIST_TEXT
         );
     }
-
 
     /// <summary>
     /// Produces a text list from the input, with the provided header and
@@ -878,7 +875,6 @@ internal
         /// Key of duplication
         /// </summary>
         public TKey Key { get; }
-
         /// <summary>
         /// Duplicated items matching this key
         /// </summary>
@@ -940,7 +936,7 @@ internal
                 .GetMethods(BindingFlags.Static | BindingFlags.Public)
                 .Where(
                     mi => mi.Name == "op_Implicit" &&
-                        mi.ReturnType == otherType
+                          mi.ReturnType == otherType
                 );
             foreach (var candidate in candidates)
             {
@@ -1000,7 +996,6 @@ internal
         IEnumerable<TRight> right,
         Func<TLeft, TRight, TResult> generator
     )
-
     {
         if (left is null || right is null)
         {
@@ -1172,7 +1167,6 @@ internal
             yield return item?.TrimEnd();
         }
     }
-
 
     /// <summary>
     /// Returns a copy of the input strings where
@@ -1454,13 +1448,13 @@ internal
         );
 
         return keysMatch &&
-            leftCount.Aggregate(
-                true,
-                (
-                    acc,
-                    cur
-                ) => acc && rightCount[cur.Key] == leftCount[cur.Key]
-            );
+               leftCount.Aggregate(
+                   true,
+                   (
+                       acc,
+                       cur
+                   ) => acc && rightCount[cur.Key] == leftCount[cur.Key]
+               );
     }
 
     /// <summary>
@@ -1474,7 +1468,7 @@ internal
         this IEnumerable<T> collection
     )
     {
-        return [..collection];
+        return [.. collection];
     }
 
     /// <summary>
@@ -1705,48 +1699,48 @@ internal
 
     // FIXME: find a way to make this build internal - PathType is a problem :|
 #if !BUILD_PEANUTBUTTER_INTERNAL
-        /// <summary>
-        /// Join the parts into a path for the current platform
-        /// </summary>
-        /// <param name="parts"></param>
-        /// <returns></returns>
-        public static string JoinPath(
-            this IEnumerable<string> parts
-        )
+    /// <summary>
+    /// Join the parts into a path for the current platform
+    /// </summary>
+    /// <param name="parts"></param>
+    /// <returns></returns>
+    public static string JoinPath(
+        this IEnumerable<string> parts
+    )
+    {
+        return parts.JoinPath(PathType.Auto);
+    }
+
+    /// <summary>
+    /// Join the parts into a path for the specified platform
+    /// </summary>
+    /// <param name="parts"></param>
+    /// <param name="pathType"></param>
+    /// <returns></returns>
+    public static string JoinPath(
+        this IEnumerable<string> parts,
+        PathType pathType
+    )
+    {
+        if (parts is null)
         {
-            return parts.JoinPath(PathType.Auto);
+            throw new ArgumentNullException(nameof(parts));
         }
 
-        /// <summary>
-        /// Join the parts into a path for the specified platform
-        /// </summary>
-        /// <param name="parts"></param>
-        /// <param name="pathType"></param>
-        /// <returns></returns>
-        public static string JoinPath(
-            this IEnumerable<string> parts,
-            PathType pathType
-        )
+        var delimiter = pathType switch
         {
-            if (parts is null)
-            {
-                throw new ArgumentNullException(nameof(parts));
-            }
-
-            var delimiter = pathType switch
-            {
-                PathType.Auto => Platform.PathDelimiter,
-                PathType.Windows => "\\",
-                PathType.Unix => "/",
-                _ => throw new NotImplementedException($"path type {pathType} is not catered for")
-            };
-            var normalised = parts.Select(
-                    p => p.SplitPath()
-                )
-                .SelectMany(o => o)
-                .ToArray();
-            return string.Join(delimiter, normalised);
-        }
+            PathType.Auto => Platform.PathDelimiter,
+            PathType.Windows => "\\",
+            PathType.Unix => "/",
+            _ => throw new NotImplementedException($"path type {pathType} is not catered for")
+        };
+        var normalised = parts.Select(
+                p => p.SplitPath()
+            )
+            .SelectMany(o => o)
+            .ToArray();
+        return string.Join(delimiter, normalised);
+    }
 #endif
 
     /// <summary>
@@ -2035,7 +2029,12 @@ internal
         return data.SeekOrDefault<T>(
             skip,
             predicate
-        ) ?? throw new ElementNotFoundException(data, skip, typeof(T), predicate);
+        ) ?? throw new ElementNotFoundException(
+            data,
+            skip,
+            typeof(T),
+            predicate
+        );
     }
 
     /// <summary>
@@ -2174,7 +2173,7 @@ internal
     /// <returns></returns>
     public static bool ContainsAllOf<T>(
         this IEnumerable<T> collection,
-        params T[] values
+        IEnumerable<T> values
     )
     {
         var lookup = collection.AsHashSet();
@@ -2187,6 +2186,24 @@ internal
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Returns true if the collection
+    /// contains ALL of the provided values
+    /// </summary>
+    /// <param name="collection"></param>
+    /// <param name="values"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static bool ContainsAllOf<T>(
+        this IEnumerable<T> collection,
+        params T[] values
+    )
+    {
+        return collection.ContainsAllOf(
+            values as IEnumerable<T>
+        );
     }
 
     /// <summary>
@@ -2388,7 +2405,7 @@ internal
 #if BUILD_PEANUTBUTTER_INTERNAL
 internal
 #else
-    public
+public
 #endif
     class ElementNotFoundException : Exception
 {

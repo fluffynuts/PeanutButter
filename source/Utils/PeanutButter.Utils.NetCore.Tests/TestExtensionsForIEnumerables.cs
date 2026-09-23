@@ -1234,7 +1234,6 @@ public class TestExtensionsForIEnumerables
             public class SomeType;
         }
 
-
         [TestFixture]
         public class WhenCollectionIsSufficient
         {
@@ -1264,7 +1263,6 @@ public class TestExtensionsForIEnumerables
         var reference = Assert.Throws<InvalidOperationException>(() => new int[0].First());
         return reference?.Message ?? throw new Exception("Message not retrieved");
     }
-
 
     private class ItemWithNullableId
     {
@@ -1313,7 +1311,6 @@ public class TestExtensionsForIEnumerables
             Expect(result)
                 .To.Equal(expected);
         }
-
 
         public class Thing;
 
@@ -1515,7 +1512,11 @@ public class TestExtensionsForIEnumerables
                 // Arrange
                 var input = new string[0];
                 // Act
-                var result = input.AsTextListWithHeader("items", "- ", "");
+                var result = input.AsTextListWithHeader(
+                    "items",
+                    "- ",
+                    ""
+                );
                 // Assert
                 Expect(result)
                     .To.Equal("");
@@ -1535,7 +1536,11 @@ public class TestExtensionsForIEnumerables
                 };
                 var expected = "items\n- cat";
                 // Act
-                var result = input.AsTextListWithHeader("items", "- ", "");
+                var result = input.AsTextListWithHeader(
+                    "items",
+                    "- ",
+                    ""
+                );
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
@@ -1557,7 +1562,11 @@ public class TestExtensionsForIEnumerables
                 };
                 var expected = "items\n- cat\n- dog\n- cow";
                 // Act
-                var result = input.AsTextListWithHeader("items", "- ", "");
+                var result = input.AsTextListWithHeader(
+                    "items",
+                    "- ",
+                    ""
+                );
                 // Assert
                 Expect(result)
                     .To.Equal(expected);
@@ -3304,8 +3313,8 @@ public class TestExtensionsForIEnumerables
                 )
                 {
                     return other is not null &&
-                        Route == other.Route &&
-                        Method == other.Method;
+                           Route == other.Route &&
+                           Method == other.Method;
                 }
 
                 public override int GetHashCode()
@@ -3900,7 +3909,13 @@ public class TestExtensionsForIEnumerables
         public void ShouldFindTheFirstMatchingItemOfThatTypeAfterTheSkip()
         {
             // Arrange
-            var items = ObjectArray(1, "aaa1", "aaa2", true, "aaa3");
+            var items = ObjectArray(
+                1,
+                "aaa1",
+                "aaa2",
+                true,
+                "aaa3"
+            );
             var skip = 2;
             var expected = "aaa3";
             // Act
@@ -3936,7 +3951,12 @@ public class TestExtensionsForIEnumerables
         public void ShouldThrowWhenNotFound()
         {
             // Arrange
-            var items = ObjectArray(1, true, 2, DateTime.Now);
+            var items = ObjectArray(
+                1,
+                true,
+                2,
+                DateTime.Now
+            );
             // Act
             Expect(() => items.Seek<string>())
                 .To.Throw<ElementNotFoundException>();
@@ -3950,7 +3970,12 @@ public class TestExtensionsForIEnumerables
             public void ShouldReturnTheDefaultValueWhenNotFound1()
             {
                 // Arrange
-                var items = ObjectArray(1, true, 2, DateTime.Now);
+                var items = ObjectArray(
+                    1,
+                    true,
+                    2,
+                    DateTime.Now
+                );
                 // Act
                 var result = items.SeekOrDefault<string>();
                 // Assert
@@ -3962,7 +3987,12 @@ public class TestExtensionsForIEnumerables
             public void ShouldReturnTheDefaultValueWhenNotFound2()
             {
                 // Arrange
-                var items = ObjectArray("1", true, "2", DateTime.Now);
+                var items = ObjectArray(
+                    "1",
+                    true,
+                    "2",
+                    DateTime.Now
+                );
                 // Act
                 var result = items.SeekOrDefault<int>();
                 // Assert
@@ -3995,10 +4025,18 @@ public class TestExtensionsForIEnumerables
                 // Arrange
                 var hashset = GetRandomArray(() => GetRandomString(20, 30), 5)
                     .AsHashSet();
-                var toAdd = GetRandomArray(() => GetRandomString(20, 30), 3, 3);
+                var toAdd = GetRandomArray(
+                    () => GetRandomString(20, 30),
+                    3,
+                    3
+                );
 
                 // Act
-                hashset.AddRange(toAdd[0], toAdd[1], toAdd[2]);
+                hashset.AddRange(
+                    toAdd[0],
+                    toAdd[1],
+                    toAdd[2]
+                );
                 // Assert
                 Expect(hashset)
                     .To.Contain.All.Of(toAdd);
@@ -4022,7 +4060,11 @@ public class TestExtensionsForIEnumerables
                         3
                     };
                     // Act
-                    var result = collection.ContainsAllOf(4, 5, 6);
+                    var result = collection.ContainsAllOf(
+                        4,
+                        5,
+                        6
+                    );
                     // Assert
                     Expect(result)
                         .To.Be.False();
@@ -4043,7 +4085,11 @@ public class TestExtensionsForIEnumerables
                         3
                     };
                     // Act
-                    var result = collection.ContainsAllOf(1, 2, 4);
+                    var result = collection.ContainsAllOf(
+                        1,
+                        2,
+                        4
+                    );
                     // Assert
                     Expect(result)
                         .To.Be.False();
@@ -4097,6 +4143,31 @@ public class TestExtensionsForIEnumerables
 
                     // Act
                     var result = collection.ContainsAllOf(test);
+                    // Assert
+                    Expect(result)
+                        .To.Be.True();
+                }
+
+                [Test]
+                public void ShouldReturnTrueForDictionary()
+                {
+                    // Arrange
+                    var keys = GetRandomDistinctArray<string>(3, 3);
+                    var values = GetRandomDistinctArray<string>(3, 3);
+                    var superset = new Dictionary<string, string>()
+                    {
+                        [keys[0]] = values[0],
+                        [keys[1]] = values[1],
+                        [keys[2]] = values[2]
+                    };
+                    var subset = new Dictionary<string, string>()
+                    {
+                        [keys[0]] = values[0],
+                        [keys[2]] = values[2]
+                    };
+
+                    // Act
+                    var result = superset.ContainsAllOf(subset);
                     // Assert
                     Expect(result)
                         .To.Be.True();
