@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -119,6 +120,29 @@ public class TestControllerContextBuilder
             .To.Deep.Equal(headers);
         Expect(sut.HttpContext.Request.FullUrl().ToString().ToLower())
             .To.Equal(url.ToLower());
+    }
+
+    [Test]
+    public void ShouldNotClobberRequestHeaders()
+    {
+        // Arrange
+        var headers = GetRandom<Dictionary<string, string>>();
+        Expect(headers)
+            .Not.To.Be.Empty();
+        var req = HttpRequestBuilder.Create()
+            .WithMethod(HttpMethod.Get)
+            .WithRandomUrl()
+            .WithHeaders(headers)
+            .Build();
+        var ctx = ControllerContextBuilder.Create()
+            .WithRequest(req)
+            .Build();
+
+        // Act
+        Expect(ctx.HttpContext.Request.Headers.ToDictionary())
+            .To.Equal(headers);
+
+        // Assert
     }
 
     public class MyController : ControllerBase
