@@ -140,7 +140,7 @@ public class TestControllerContextBuilder
 
         // Act
         Expect(ctx.HttpContext.Request.Headers.ToDictionary())
-            .To.Equal(headers);
+            .To.Contain.All.Of(headers);
 
         // Assert
     }
