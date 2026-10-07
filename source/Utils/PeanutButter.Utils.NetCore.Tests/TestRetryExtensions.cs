@@ -457,7 +457,7 @@ public class TestRetryExtensions
                                         TimeSpan.FromMilliseconds(100),
                                         TimeSpan.FromMilliseconds(200),
                                         TimeSpan.FromMilliseconds(300),
-                                        TimeSpan.FromMilliseconds(400)
+                                        TimeSpan.FromMilliseconds(800)
                                     ]
                                 );
                             }
@@ -472,7 +472,7 @@ public class TestRetryExtensions
                         600,
                         () => "should have exhausted the first three delays"
                     ).And.To.Be.Less.Than(
-                        1400,
+                        1300,
                         () => "should not have hit the final delay"
                     );
             }
