@@ -29,7 +29,7 @@ var searchData=
   ['environmentvariables_26',['EnvironmentVariables',['../classPeanutButter_1_1TempDb_1_1MySql_1_1Base_1_1EnvironmentVariables.html',1,'PeanutButter::TempDb::MySql::Base']]],
   ['envvar_27',['EnvVar',['../classPeanutButter_1_1Utils_1_1InvalidEnvironmentVariableValue.html#aec13c49bc05f658756f68452df82afc9',1,'PeanutButter::Utils::InvalidEnvironmentVariableValue']]],
   ['eol_28',['Eol',['../namespacePeanutButter_1_1Utils.html#a358591e690eb63883915056166e7dfc5',1,'PeanutButter::Utils']]],
-  ['equals_29',['Equals',['../classPeanutButter_1_1SimpleHTTPServer_1_1StringValues.html#ab8ec1232a30fb0a309e4c1d67e666b51',1,'PeanutButter::SimpleHTTPServer::StringValues']]],
+  ['equals_29',['Equals',['../classPeanutButter_1_1SimpleHTTPServer_1_1Strings.html#a2cd4d4277b0c811f90300e04bc556068',1,'PeanutButter::SimpleHTTPServer::Strings']]],
   ['equalsoneof_30',['EqualsOneOf',['../classPeanutButter_1_1Utils_1_1StringExtensions.html#ab0851ce4cef66d0775fb1151a6992b51',1,'PeanutButter::Utils::StringExtensions']]],
   ['errorhandlerresult_31',['ErrorHandlerResult',['../namespacePeanutButter_1_1Utils.html#aaa4e6a84ec28f31001fca2b8bde5c00f',1,'PeanutButter::Utils']]],
   ['errorif_32',['ErrorIf',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1Builder.html#abe5873fd31295a9d48bcbb9594926c71',1,'PeanutButter::TestUtils::AspNetCore::Builders::Builder']]],

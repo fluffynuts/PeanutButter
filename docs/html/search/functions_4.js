@@ -10,7 +10,7 @@ var searchData=
   ['enumerablewrapper_7',['enumerablewrapper',['../classPeanutButter_1_1Utils_1_1EnumerableWrapper.html#a065cd7aaf141d8b7c87b4150741bb41c',1,'PeanutButter.Utils.EnumerableWrapper.EnumerableWrapper(object toWrap)'],['../classPeanutButter_1_1Utils_1_1EnumerableWrapper.html#a065cd7aaf141d8b7c87b4150741bb41c',1,'PeanutButter.Utils.EnumerableWrapper.EnumerableWrapper(object toWrap)']]],
   ['enumeratefiles_8',['EnumerateFiles',['../classPeanutButter_1_1Utils_1_1SafeWalk.html#ace586d6d56d809cc19b90548f2bff0de',1,'PeanutButter::Utils::SafeWalk']]],
   ['enumeratorwrapper_9',['EnumeratorWrapper',['../classPeanutButter_1_1Utils_1_1EnumeratorWrapper.html#a7638891681199c0bb099a711b6597ede',1,'PeanutButter::Utils::EnumeratorWrapper']]],
-  ['equals_10',['Equals',['../classPeanutButter_1_1SimpleHTTPServer_1_1StringValues.html#ab8ec1232a30fb0a309e4c1d67e666b51',1,'PeanutButter::SimpleHTTPServer::StringValues']]],
+  ['equals_10',['Equals',['../classPeanutButter_1_1SimpleHTTPServer_1_1Strings.html#a2cd4d4277b0c811f90300e04bc556068',1,'PeanutButter::SimpleHTTPServer::Strings']]],
   ['equalsoneof_11',['EqualsOneOf',['../classPeanutButter_1_1Utils_1_1StringExtensions.html#ab0851ce4cef66d0775fb1151a6992b51',1,'PeanutButter::Utils::StringExtensions']]],
   ['errorif_12',['ErrorIf',['../classPeanutButter_1_1TestUtils_1_1AspNetCore_1_1Builders_1_1Builder.html#abe5873fd31295a9d48bcbb9594926c71',1,'PeanutButter::TestUtils::AspNetCore::Builders::Builder']]],
   ['errors_3c_20t_20_3e_13',['Errors&lt; T &gt;',['../classPeanutButter_1_1Utils_1_1WorkResultExtensions.html#a091e2ee0a00f6e448ea8d15cbe731356',1,'PeanutButter::Utils::WorkResultExtensions']]],
