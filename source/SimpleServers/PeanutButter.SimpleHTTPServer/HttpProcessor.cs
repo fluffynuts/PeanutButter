@@ -23,108 +23,6 @@ using static PeanutButter.SimpleHTTPServer.HttpConstants;
 namespace PeanutButter.SimpleHTTPServer;
 
 /// <summary>
-/// Mimics asp.net's StringValues without pulling in
-/// the dependency: stores one or more strings
-/// </summary>
-public class StringValues
-{
-    /// <summary>
-    /// All values stores in this instance
-    /// </summary>
-    public readonly List<string> Values = new();
-
-    internal StringValues(string value)
-    {
-        Values.Add(value);
-    }
-
-    internal StringValues(IEnumerable<string> values)
-    {
-        Values.AddRange(values);
-    }
-
-    internal void AddValue(string value)
-    {
-        Values.Add(value);
-    }
-
-    /// <summary>
-    /// Implicitly convert this instance to a string
-    /// </summary>
-    /// <param name="stringValues"></param>
-    /// <returns></returns>
-    public static implicit operator string(StringValues stringValues)
-    {
-        return stringValues.ToString();
-    }
-
-    /// <summary>
-    /// Implicitly convert a string to an instance of StringValues
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    public static implicit operator StringValues(string value)
-    {
-        return new(value);
-    }
-
-    /// <summary>
-    /// Overriding equality
-    /// </summary>
-    /// <param name="obj"></param>
-    /// <returns></returns>
-    public override bool Equals(object obj)
-    {
-        if (obj is null)
-        {
-            return false;
-        }
-
-        if (obj is string str)
-        {
-            return str == ToString();
-        }
-
-        if (obj is StringValues sv)
-        {
-            if (sv.Values.Count != Values.Count)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < sv.Values.Count; i++)
-            {
-                if (sv.Values[i] != Values[i])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Override GetHashCode
-    /// </summary>
-    /// <returns></returns>
-    public override int GetHashCode()
-    {
-        return ToString().GetHashCode();
-    }
-
-    /// <summary>
-    /// Render all the values, comma-separated
-    /// </summary>
-    /// <returns></returns>
-    public override string ToString()
-    {
-        return Values.JoinWith(",");
-    }
-}
-
-/// <summary>
 /// Processor for HTTP requests on top of the generic TCP processor
 /// </summary>
 public class HttpProcessor : TcpServerProcessor, IProcessor
@@ -175,13 +73,13 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
     /// <summary>
     /// Convenience mechanism to parse cookies from the headers
     /// </summary>
-    public Dictionary<string, StringValues> Cookies =>
+    public Dictionary<string, Strings> Cookies =>
         _cookies ??= GenerateCookiesDictionary();
-    private Dictionary<string, StringValues> _cookies;
+    private Dictionary<string, Strings> _cookies;
 
-    private Dictionary<string, StringValues> GenerateCookiesDictionary()
+    private Dictionary<string, Strings> GenerateCookiesDictionary()
     {
-        var result = new Dictionary<string, StringValues>();
+        var result = new Dictionary<string, Strings>();
         foreach (var header in HttpHeaders)
         {
             if (!header.Key.Equals("cookie", StringComparison.OrdinalIgnoreCase))
@@ -199,12 +97,12 @@ public class HttpProcessor : TcpServerProcessor, IProcessor
         return result;
     }
 
-    private static Dictionary<string, StringValues> ParseCookieHeader(
+    private static Dictionary<string, Strings> ParseCookieHeader(
         string header,
-        Dictionary<string, StringValues> existing
+        Dictionary<string, Strings> existing
     )
     {
-        var result = new Dictionary<string, StringValues>(StringComparer.Ordinal);
+        var result = new Dictionary<string, Strings>(StringComparer.Ordinal);
 
         if (string.IsNullOrWhiteSpace(header))
         {

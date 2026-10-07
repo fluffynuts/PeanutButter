@@ -1291,7 +1291,7 @@ public class TestHttpServer
         // Arrange
         using var lease = GlobalSetup.Pool.Borrow();
         var server = lease.Instance;
-        var capturedCookies = new Dictionary<string, StringValues>();
+        var capturedCookies = new Dictionary<string, Strings>();
         var key1 = GetRandomString(10);
         var value1 = GetRandomString(10);
         var key2 = GetRandomString(10);
