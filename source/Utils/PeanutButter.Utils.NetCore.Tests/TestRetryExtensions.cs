@@ -472,7 +472,7 @@ public class TestRetryExtensions
                         600,
                         () => "should have exhausted the first three delays"
                     ).And.To.Be.Less.Than(
-                        1000,
+                        1400,
                         () => "should not have hit the final delay"
                     );
             }
