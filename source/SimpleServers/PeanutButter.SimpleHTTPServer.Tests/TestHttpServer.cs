@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Newtonsoft.Json;
@@ -1106,12 +1107,14 @@ public class TestHttpServer
         // Arrange
         using var server = GlobalSetup.Pool.Borrow();
         var capturedParams = new Dictionary<string, string>();
+        var barrier = new Barrier(2);
         server.Instance.AddJsonDocumentHandler(
             (processor, _) =>
             {
                 processor.UrlParameters.ForEach(
                     kvp => capturedParams.Add(kvp.Key, kvp.Value)
                 );
+                Task.Run(barrier.SignalAndWait);
                 return new[]
                 {
                     1,
@@ -1122,12 +1125,17 @@ public class TestHttpServer
         );
         using var client = new HttpClient();
         client.BaseAddress = new Uri(server.Instance.BaseUrl);
+        
         // Pre-assert
         // Act
         var message = new HttpRequestMessage(HttpMethod.Get, "endpoint?param1=value1&param2=value2");
         await client.SendAsync(message);
+        
         // Assert
-        Expect(capturedParams).Not.To.Be.Empty();
+        Expect(barrier.SignalAndWait(1000))
+            .To.Be.True();
+        Expect(capturedParams)
+            .Not.To.Be.Empty();
         Expect(capturedParams).To.Contain.Key("param1")
             .With.Value("value1");
         Expect(capturedParams).To.Contain.Key("param2")
