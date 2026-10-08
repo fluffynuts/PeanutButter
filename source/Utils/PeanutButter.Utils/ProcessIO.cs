@@ -12,7 +12,6 @@ using System.Threading;
 // ReSharper disable EventNeverSubscribedTo.Global
 
 // ReSharper disable InconsistentNaming
-
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils
 #else
@@ -33,27 +32,22 @@ namespace PeanutButter.Utils
         /// The process id
         /// </summary>
         int ProcessId { get; }
-
         /// <summary>
         /// True if the process started properly
         /// </summary>
         bool Started { get; }
-
         /// <summary>
         /// Set if the process didn't start properly, to the exception thrown
         /// </summary>
         Exception StartException { get; }
-
         /// <summary>
         /// Read lines from stdout until the process exits
         /// </summary>
         IEnumerable<string> StandardOutput { get; }
-
         /// <summary>
         /// Read lines from stderr until the process exits
         /// </summary>
         IEnumerable<string> StandardError { get; }
-
         /// <summary>
         /// Read the lines from stderr and stdout (until the process exits),
         /// interleaved (mostly in order, though some minor out-of-order
@@ -62,19 +56,16 @@ namespace PeanutButter.Utils
         /// dotnet Process objects
         /// </summary>
         IEnumerable<string> StandardOutputAndErrorInterleaved { get; }
-
         /// <summary>
         /// Read the lines captured thus far from stdout -
         /// does not wait for the process to complete
         /// </summary>
         IEnumerable<string> StandardOutputSnapshot { get; }
-
         /// <summary>
         /// Read the lines captured thus far from stderr -
         /// does not wait for the process to complete
         /// </summary>
         IEnumerable<string> StandardErrorSnapshot { get; }
-
         /// <summary>
         /// Read the lines captured thus far from stderr and stdout,
         /// interleaved (mostly in order, though some minor out-of-order
@@ -84,7 +75,6 @@ namespace PeanutButter.Utils
         /// - does not wait for the process to complete
         /// </summary>
         IEnumerable<string> StandardOutputAndErrorInterleavedSnapshot { get; }
-
         /// <summary>
         /// IO is buffered internally so you can start listening to it
         /// whenever you want, from the start - however, when the target
@@ -92,44 +82,36 @@ namespace PeanutButter.Utils
         /// to enforce a history limit to reduce memory usage
         /// </summary>
         int MaxBufferLines { get; set; }
-
         /// <summary>
         /// stdin for the process
         /// </summary>
         StreamWriter StandardInput { get; }
-
         /// <summary>
         /// Access to the underlying Process
         /// </summary>
         Process Process { get; }
-
         /// <summary>
         /// Provides access to the exit code of the process,
         /// waiting for it to complete if necessary
         /// </summary>
         int ExitCode { get; }
-
         /// <summary>
         /// Flag: true when the process has exited (or
         /// couldn't start up)
         /// </summary>
         bool HasExited { get; }
-
         /// <summary>
         /// The program started by this ProcessIO
         /// </summary>
         string Filename { get; }
-
         /// <summary>
         /// A copy of the commandline arguments to that program
         /// </summary>
         string[] Arguments { get; }
-
         /// <summary>
         /// The working directory in which the process was launched
         /// </summary>
         string WorkingDirectory { get; }
-
         /// <summary>
         /// Renders the commandline used to start this process
         /// </summary>
@@ -182,13 +164,11 @@ namespace PeanutButter.Utils
         /// will not be observed after the process has started
         /// </summary>
         public OutputModes OutputMode { get; }
-
         /// <summary>
         /// Raised when receiving data on stdout from
         /// the process
         /// </summary>
         public event EventHandler<string> OnStdOut;
-
         /// <summary>
         /// Raised when receiving data on stderr from
         /// the process
@@ -302,7 +282,7 @@ namespace PeanutButter.Utils
         /// <param name="receiver"></param>
         /// <returns></returns>
         IUnstartedProcessIO WithStdErrReceiver(Action<string> receiver);
-        
+
         /// <summary>
         /// Allows stdout and stderr to be passed through to the
         /// calling shell, effectively shorthand for
@@ -323,20 +303,15 @@ namespace PeanutButter.Utils
     {
         /// <inheritdoc />
         public string Filename { get; private set; }
-
         /// <inheritdoc />
         public string[] Arguments { get; private set; }
-
         /// <inheritdoc />
         public string WorkingDirectory { get; private set; }
-
         /// <inheritdoc />
         public int MaxBufferLines { get; set; } = int.MaxValue;
-
         /// <inheritdoc />
         public string Commandline =>
             _commandline ??= RenderCommandline();
-
         private string _commandline;
 
         /// <inheritdoc />
@@ -357,32 +332,25 @@ namespace PeanutButter.Utils
 
         /// <inheritdoc />
         public bool Started { get; private set; }
-
         /// <inheritdoc />
         public Exception StartException { get; private set; }
-
         /// <inheritdoc />
         public Process Process => _process;
-
         /// <inheritdoc />
         public OutputModes OutputMode
         {
             get;
             private set;
         }
-
         /// <inheritdoc />
         public event EventHandler<string> OnStdOut;
-
         /// <inheritdoc />
         public event EventHandler<string> OnStdErr;
-
         private Process _process;
         private bool _disposed;
         private ManualResetEventSlim _stdOutDataAvailable;
         private ManualResetEventSlim _stdErrDataAvailable;
         private ManualResetEventSlim _interleavedDataAvailable;
-
 
         /// <summary>
         /// Run the provided command, pipe output as it streams
@@ -395,7 +363,13 @@ namespace PeanutButter.Utils
         public ProcessIO(
             string filename,
             params string[] arguments
-        ) : this(OutputModes.BufferedCollections, null, null, filename, arguments)
+        ) : this(
+            OutputModes.BufferedCollections,
+            null,
+            null,
+            filename,
+            arguments
+        )
         {
         }
 
@@ -472,7 +446,6 @@ namespace PeanutButter.Utils
 
                 WorkingDirectory = workingDirectory;
             }
-
 
             /// <inheritdoc />
             // ReSharper disable once MemberHidesStaticFromOuterClass
@@ -580,7 +553,6 @@ namespace PeanutButter.Utils
                 args
             );
         }
-
 
         /// <summary>
         /// Starts a ProcessIO instance for the given filename and args in the current
@@ -930,7 +902,11 @@ namespace PeanutButter.Utils
         {
             var offset = 0;
             // ReSharper disable once PossibleMultipleEnumeration
-            if (HaveOutput(snapshotSource, matcher, ref offset))
+            if (HaveOutput(
+                    snapshotSource,
+                    matcher,
+                    ref offset
+                ))
             {
                 return true;
             }
@@ -944,7 +920,11 @@ namespace PeanutButter.Utils
                 if (ev.Wait(timeout))
                 {
                     // ReSharper disable once PossibleMultipleEnumeration
-                    if (HaveOutput(snapshotSource, matcher, ref offset))
+                    if (HaveOutput(
+                            snapshotSource,
+                            matcher,
+                            ref offset
+                        ))
                     {
                         return true;
                     }
@@ -962,7 +942,11 @@ namespace PeanutButter.Utils
             }
 
             // ReSharper disable once PossibleMultipleEnumeration
-            return HaveOutput(snapshotSource, matcher, ref offset);
+            return HaveOutput(
+                snapshotSource,
+                matcher,
+                ref offset
+            );
         }
 
         private bool HaveOutput(
@@ -978,24 +962,18 @@ namespace PeanutButter.Utils
         /// <inheritdoc />
         public IEnumerable<string> StandardOutput =>
             Enumerate(_stdOutBuffer, _stdOutDataAvailable);
-
         /// <inheritdoc />
         public IEnumerable<string> StandardOutputSnapshot =>
             EnumerateSnapshot(_stdOutBuffer);
-
         /// <inheritdoc />
         public IEnumerable<string> StandardError =>
             Enumerate(_stdErrBuffer, _stdErrDataAvailable);
-
         /// <inheritdoc />
         public IEnumerable<string> StandardErrorSnapshot =>
             EnumerateSnapshot(_stdErrBuffer);
-
-
         /// <inheritdoc />
         public IEnumerable<string> StandardOutputAndErrorInterleaved
             => Enumerate(_interleavedBuffer, _interleavedDataAvailable);
-
         /// <inheritdoc />
         public IEnumerable<string> StandardOutputAndErrorInterleavedSnapshot
             => EnumerateSnapshot(_interleavedBuffer);
@@ -1010,12 +988,16 @@ namespace PeanutButter.Utils
             }
         }
 
-
         private IEnumerable<string> Enumerate(
             ConcurrentQueue<string> data,
             ManualResetEventSlim available
         )
         {
+            if (HasExited)
+            {
+                _process.WaitForExit();
+            }
+
             var lineCount = 0;
             foreach (var line in ReadFromOffset(data, 0))
             {
@@ -1105,7 +1087,7 @@ namespace PeanutButter.Utils
                 try
                 {
                     return _disposed ||
-                        (_process?.HasExited ?? StartException is not null);
+                           (_process?.HasExited ?? StartException is not null);
                 }
                 catch
                 {
@@ -1260,7 +1242,6 @@ namespace PeanutButter.Utils
         /// The full commandline used when attempting to start the process
         /// </summary>
         public string Commandline { get; }
-
         /// <summary>
         /// Whatever IO could be captured from the process
         /// </summary>

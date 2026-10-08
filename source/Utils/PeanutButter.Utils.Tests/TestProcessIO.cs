@@ -243,7 +243,13 @@ public class TestProcessIO
             .To.Equal(
                 [
                     expected
-                ]
+                ],
+                () => new
+                {
+                    expected,
+                    envVar,
+                    script
+                }.Stringify()
             );
     }
 
@@ -459,19 +465,19 @@ public class TestProcessIO
             // Arrange
             using var tmpFile = new AutoTempFile(
                 """
-                (async function() {
-                    function sleep(ms) {
-                        return new Promise(resolve => setTimeout(resolve, ms));
-                    }
-                    console.log('stdout 1');
-                    console.error('stderr 1');
-                    console.error('stderr 2');
-                    console.log('stdout 2');
-                    await sleep(1000);
-                    console.log('stdout 3');
-                    console.error('stderr 4');
-                })();
-                """.TrimStart()
+                    (async function() {
+                        function sleep(ms) {
+                            return new Promise(resolve => setTimeout(resolve, ms));
+                        }
+                        console.log('stdout 1');
+                        console.error('stderr 1');
+                        console.error('stderr 2');
+                        console.log('stdout 2');
+                        await sleep(1000);
+                        console.log('stdout 3');
+                        console.error('stderr 4');
+                    })();
+                    """.TrimStart()
             );
             // Act
             using var io = ProcessIO
@@ -497,19 +503,19 @@ public class TestProcessIO
             // Arrange
             using var tmpFile = new AutoTempFile(
                 """
-                (async function() {
-                    function sleep(ms) {
-                        return new Promise(resolve => setTimeout(resolve, ms));
-                    }
-                    console.log('stdout 1');
-                    console.error('stderr 1');
-                    console.error('stderr 2');
-                    console.log('stdout 2');
-                    await sleep(1000);
-                    console.log('stdout 3');
-                    console.error('stderr 4');
-                })();
-                """.TrimStart()
+                    (async function() {
+                        function sleep(ms) {
+                            return new Promise(resolve => setTimeout(resolve, ms));
+                        }
+                        console.log('stdout 1');
+                        console.error('stderr 1');
+                        console.error('stderr 2');
+                        console.log('stdout 2');
+                        await sleep(1000);
+                        console.log('stdout 3');
+                        console.error('stderr 4');
+                    })();
+                    """.TrimStart()
             );
             // Act
             using var io = ProcessIO
@@ -535,33 +541,33 @@ public class TestProcessIO
             // Arrange
             using var tmpFile = new AutoTempFile(
                 """
-                (async function() {
-                    function sleep(ms) {
-                        return new Promise(resolve => setTimeout(resolve, ms));
-                    }
-                    async function giveIoAChanceToGetOutThere() {
-                        // because the io handlers are async, without a minor
-                        // wait, they may end up (slightly) out of order - which
-                        // probably doesn't matter for consumers, but consistently
-                        // breaks this test;
-                        await sleep(10);
-                    }
+                    (async function() {
+                        function sleep(ms) {
+                            return new Promise(resolve => setTimeout(resolve, ms));
+                        }
+                        async function giveIoAChanceToGetOutThere() {
+                            // because the io handlers are async, without a minor
+                            // wait, they may end up (slightly) out of order - which
+                            // probably doesn't matter for consumers, but consistently
+                            // breaks this test;
+                            await sleep(10);
+                        }
 
-                    console.log('stdout 1');
-                    await giveIoAChanceToGetOutThere()
-                    console.error('stderr 1');
-                    await giveIoAChanceToGetOutThere()
+                        console.log('stdout 1');
+                        await giveIoAChanceToGetOutThere()
+                        console.error('stderr 1');
+                        await giveIoAChanceToGetOutThere()
 
-                    console.error('stderr 2');
-                    await giveIoAChanceToGetOutThere()
-                    console.log('stdout 2');
+                        console.error('stderr 2');
+                        await giveIoAChanceToGetOutThere()
+                        console.log('stdout 2');
 
-                    await sleep(1000);
+                        await sleep(1000);
 
-                    console.log('stdout 3');
-                    console.error('stderr 4');
-                })();
-                """.TrimStart()
+                        console.log('stdout 3');
+                        console.error('stderr 4');
+                    })();
+                    """.TrimStart()
             );
             // Act
             using var io = ProcessIO
@@ -593,33 +599,33 @@ public class TestProcessIO
             // Arrange
             using var tmpFile = new AutoTempFile(
                 """
-                (async function() {
-                    function sleep(ms) {
-                        return new Promise(resolve => setTimeout(resolve, ms));
-                    }
-                    async function giveIoAChanceToGetOutThere() {
-                        // because the io handlers are async, without a minor
-                        // wait, they may end up (slightly) out of order - which
-                        // probably doesn't matter for consumers, but consistently
-                        // breaks this test;
-                        await sleep(10);
-                    }
+                    (async function() {
+                        function sleep(ms) {
+                            return new Promise(resolve => setTimeout(resolve, ms));
+                        }
+                        async function giveIoAChanceToGetOutThere() {
+                            // because the io handlers are async, without a minor
+                            // wait, they may end up (slightly) out of order - which
+                            // probably doesn't matter for consumers, but consistently
+                            // breaks this test;
+                            await sleep(10);
+                        }
 
-                    console.log('stdout 1');
-                    await giveIoAChanceToGetOutThere()
-                    console.error('stderr 1');
-                    await giveIoAChanceToGetOutThere()
+                        console.log('stdout 1');
+                        await giveIoAChanceToGetOutThere()
+                        console.error('stderr 1');
+                        await giveIoAChanceToGetOutThere()
 
-                    console.error('stderr 2');
-                    await giveIoAChanceToGetOutThere()
-                    console.log('stdout 2');
+                        console.error('stderr 2');
+                        await giveIoAChanceToGetOutThere()
+                        console.log('stdout 2');
 
-                    await sleep(1000);
+                        await sleep(1000);
 
-                    console.log('stdout 3');
-                    console.error('stderr 4');
-                })();
-                """.TrimStart()
+                        console.log('stdout 3');
+                        console.error('stderr 4');
+                    })();
+                    """.TrimStart()
             );
             // Act
             using var io = ProcessIO
@@ -652,33 +658,33 @@ public class TestProcessIO
             // Arrange
             using var tmpFile = new AutoTempFile(
                 """
-                (async function() {
-                    function sleep(ms) {
-                        return new Promise(resolve => setTimeout(resolve, ms));
-                    }
-                    async function giveIoAChanceToGetOutThere() {
-                        // because the io handlers are async, without a minor
-                        // wait, they may end up (slightly) out of order - which
-                        // probably doesn't matter for consumers, but consistently
-                        // breaks this test;
-                        await sleep(10);
-                    }
+                    (async function() {
+                        function sleep(ms) {
+                            return new Promise(resolve => setTimeout(resolve, ms));
+                        }
+                        async function giveIoAChanceToGetOutThere() {
+                            // because the io handlers are async, without a minor
+                            // wait, they may end up (slightly) out of order - which
+                            // probably doesn't matter for consumers, but consistently
+                            // breaks this test;
+                            await sleep(10);
+                        }
 
-                    console.log('stdout 1');
-                    await giveIoAChanceToGetOutThere()
-                    console.error('stderr 1');
-                    await giveIoAChanceToGetOutThere()
+                        console.log('stdout 1');
+                        await giveIoAChanceToGetOutThere()
+                        console.error('stderr 1');
+                        await giveIoAChanceToGetOutThere()
 
-                    console.error('stderr 2');
-                    await giveIoAChanceToGetOutThere()
-                    console.log('stdout 2');
+                        console.error('stderr 2');
+                        await giveIoAChanceToGetOutThere()
+                        console.log('stdout 2');
 
-                    await sleep(1000);
+                        await sleep(1000);
 
-                    console.log('stdout 3');
-                    console.error('stderr 4');
-                })();
-                """.TrimStart()
+                        console.log('stdout 3');
+                        console.error('stderr 4');
+                    })();
+                    """.TrimStart()
             );
             // Act
             using var io = ProcessIO
@@ -827,33 +833,33 @@ public class TestProcessIO
             // Arrange
             using var tmpFile = new AutoTempFile(
                 """
-                (async function() {
-                    function sleep(ms) {
-                        return new Promise(resolve => setTimeout(resolve, ms));
-                    }
-                    async function giveIoAChanceToGetOutThere() {
-                        // because the io handlers are async, without a minor
-                        // wait, they may end up (slightly) out of order - which
-                        // probably doesn't matter for consumers, but consistently
-                        // breaks this test;
-                        await sleep(10);
-                    }
+                    (async function() {
+                        function sleep(ms) {
+                            return new Promise(resolve => setTimeout(resolve, ms));
+                        }
+                        async function giveIoAChanceToGetOutThere() {
+                            // because the io handlers are async, without a minor
+                            // wait, they may end up (slightly) out of order - which
+                            // probably doesn't matter for consumers, but consistently
+                            // breaks this test;
+                            await sleep(10);
+                        }
 
-                    console.log('stdout 1');
-                    await giveIoAChanceToGetOutThere()
-                    console.error('stderr 1');
-                    await giveIoAChanceToGetOutThere()
+                        console.log('stdout 1');
+                        await giveIoAChanceToGetOutThere()
+                        console.error('stderr 1');
+                        await giveIoAChanceToGetOutThere()
 
-                    console.error('stderr 2');
-                    await giveIoAChanceToGetOutThere()
-                    console.log('stdout 2');
+                        console.error('stderr 2');
+                        await giveIoAChanceToGetOutThere()
+                        console.log('stdout 2');
 
-                    await sleep(4000);
+                        await sleep(4000);
 
-                    console.log('stdout 3');
-                    console.error('stderr 3');
-                })();
-                """.TrimStart()
+                        console.log('stdout 3');
+                        console.error('stderr 3');
+                    })();
+                    """.TrimStart()
             );
             // Act
             using var io = ProcessIO
@@ -892,34 +898,34 @@ public class TestProcessIO
             // Arrange
             using var tmpFile = new AutoTempFile(
                 """
-                (async function() {
-                    function sleep(ms) {
-                        return new Promise(resolve => setTimeout(resolve, ms));
-                    }
-                    async function giveIoAChanceToGetOutThere() {
-                        // because the io handlers are async, without a minor
-                        // wait, they may end up (slightly) out of order - which
-                        // probably doesn't matter for consumers, but consistently
-                        // breaks this test;
-                        await sleep(10);
-                    }
+                    (async function() {
+                        function sleep(ms) {
+                            return new Promise(resolve => setTimeout(resolve, ms));
+                        }
+                        async function giveIoAChanceToGetOutThere() {
+                            // because the io handlers are async, without a minor
+                            // wait, they may end up (slightly) out of order - which
+                            // probably doesn't matter for consumers, but consistently
+                            // breaks this test;
+                            await sleep(10);
+                        }
 
-                    console.log('stdout 1');
-                    await giveIoAChanceToGetOutThere()
-                    console.error('stderr 1');
-                    await giveIoAChanceToGetOutThere()
+                        console.log('stdout 1');
+                        await giveIoAChanceToGetOutThere()
+                        console.error('stderr 1');
+                        await giveIoAChanceToGetOutThere()
 
-                    console.error('stderr 2');
-                    await giveIoAChanceToGetOutThere()
-                    console.log('stdout 2');
+                        console.error('stderr 2');
+                        await giveIoAChanceToGetOutThere()
+                        console.log('stdout 2');
 
-                    await sleep(4000);
+                        await sleep(4000);
 
-                    console.log('stdout 3');
-                    console.error('stderr 4');
-                })();
+                        console.log('stdout 3');
+                        console.error('stderr 4');
+                    })();
 
-                """.TrimStart()
+                    """.TrimStart()
             );
             // Act
             using var io = ProcessIO
@@ -959,33 +965,33 @@ public class TestProcessIO
             // Arrange
             using var tmpFile = new AutoTempFile(
                 """
-                (async function() {
-                    function sleep(ms) {
-                        return new Promise(resolve => setTimeout(resolve, ms));
-                    }
-                    async function giveIoAChanceToGetOutThere() {
-                        // because the io handlers are async, without a minor
-                        // wait, they may end up (slightly) out of order - which
-                        // probably doesn't matter for consumers, but consistently
-                        // breaks this test;
-                        await sleep(10);
-                    }
+                    (async function() {
+                        function sleep(ms) {
+                            return new Promise(resolve => setTimeout(resolve, ms));
+                        }
+                        async function giveIoAChanceToGetOutThere() {
+                            // because the io handlers are async, without a minor
+                            // wait, they may end up (slightly) out of order - which
+                            // probably doesn't matter for consumers, but consistently
+                            // breaks this test;
+                            await sleep(10);
+                        }
 
-                    console.log('stdout 1');
-                    await giveIoAChanceToGetOutThere()
-                    console.error('stderr 1');
-                    await giveIoAChanceToGetOutThere()
+                        console.log('stdout 1');
+                        await giveIoAChanceToGetOutThere()
+                        console.error('stderr 1');
+                        await giveIoAChanceToGetOutThere()
 
-                    console.error('stderr 2');
-                    await giveIoAChanceToGetOutThere()
-                    console.log('stdout 2');
+                        console.error('stderr 2');
+                        await giveIoAChanceToGetOutThere()
+                        console.log('stdout 2');
 
-                    await sleep(2000);
+                        await sleep(2000);
 
-                    console.log('stdout 3');
-                    console.error('stderr 4');
-                })();
-                """.TrimStart()
+                        console.log('stdout 3');
+                        console.error('stderr 4');
+                    })();
+                    """.TrimStart()
             );
             // Act
             var stopwatch = new Stopwatch();
@@ -1096,6 +1102,10 @@ public static class ProcessIOExtensions
         string script
     )
     {
-        return unstarted.Start("node", "-e", script);
+        return unstarted.Start(
+            "node",
+            "-e",
+            script
+        );
     }
 }
