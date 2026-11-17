@@ -126,7 +126,8 @@ public
             obj,
             level,
             nullRepresentation ?? "null",
-            seenObjects
+            seenObjects,
+            DateTime.Now
         );
     }
 
@@ -373,9 +374,16 @@ public
         object obj,
         int level,
         string nullRepresentation,
-        HashSet<object> seen
+        HashSet<object> seen,
+        DateTime started
     )
     {
+        var runTime = DateTime.Now - started;
+        if (runTime.TotalSeconds > 1)
+        {
+            return $"... truncated: rendering has already taken over a second ...";
+        }
+
         var objType = obj?.GetType();
         if (objType is not null && !objType.IsPrimitiveOrImmutable())
         {
@@ -492,6 +500,7 @@ public
             .ToArray();
         var indentMinus1 = new string(' ', level * INDENT_SIZE);
         var indent = indentMinus1 + new string(' ', INDENT_SIZE);
+        var started = DateTime.Now;
         var joinWith = props.Aggregate(
                 new List<string>(),
                 (
@@ -524,7 +533,8 @@ public
                                     propValue,
                                     level + 1,
                                     nullRepresentation,
-                                    new HashSet<object>(seen)
+                                    new HashSet<object>(seen),
+                                    started
                                 )
                             )
                         );
@@ -540,7 +550,8 @@ public
                                     propValue,
                                     level + 1,
                                     nullRepresentation,
-                                    new HashSet<object>(seen)
+                                    new HashSet<object>(seen),
+                                    started
                                 )
                             )
                         );
