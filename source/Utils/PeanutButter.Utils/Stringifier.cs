@@ -121,7 +121,11 @@ internal
         );
     }
 
-    private const int MAX_STRINGIFY_DEPTH = 10;
+    /// <summary>
+    /// your output will contain "...truncated"
+    /// The max depth the stringifier will go to; after this,
+    /// </summary>
+    public const int MAX_STRINGIFY_DEPTH = 10;
     private const int INDENT_SIZE = 2;
 
     private static readonly Dictionary<Type, Func<object, string>> PrimitiveStringifiers
@@ -374,7 +378,7 @@ internal
 
         if (level >= MAX_STRINGIFY_DEPTH)
         {
-            return StringifyPrimitive(obj, level, nullRepresentation, seen);
+            return $"... truncated: max stringify depth of {MAX_STRINGIFY_DEPTH} reached ...";
         }
 
         var result = Strategies.Aggregate(

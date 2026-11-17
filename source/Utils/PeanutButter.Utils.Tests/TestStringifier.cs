@@ -31,6 +31,51 @@ public class TestStringifier
         Expect(result).To.Equal(expected);
     }
 
+    [TestCase(Stringifier.MAX_STRINGIFY_DEPTH)]
+    public void ShouldTruncateWhenDepthPassesThreshold_(
+        int maxDepth
+    )
+    {
+        // Arrange
+        var last = new Node("parent", null);
+        for (var i = 0; i < maxDepth; i++)
+        {
+            var child = new Node($"child-{i}", last);
+            last = child;
+        }
+
+        // Act
+        var result = last.Stringify();
+
+        // Assert
+        Expect(result)
+            .To.Contain("truncated");
+    }
+
+    [TestCase(Stringifier.MAX_STRINGIFY_DEPTH)]
+    public void ShouldNotTruncateWhenDepthWithinThreshold_(
+        int maxDepth
+    )
+    {
+        // Arrange
+        var last = new Node("parent", null);
+        // we have to back off from maxDepth by 2 because
+        // last is the root, one extra node above what's created
+        // below.
+        for (var i = 0; i < maxDepth - 2; i++)
+        {
+            var child = new Node($"child-{i}", last);
+            last = child;
+        }
+
+        // Act
+        var result = last.Stringify();
+
+        // Assert
+        Expect(result)
+            .Not.To.Contain("truncated");
+    }
+
     private static readonly Tuple<object, string>[] ComplexSource =
     [
         Tuple.Create(
@@ -196,6 +241,16 @@ public class TestStringifier
     {
         public Node Parent { get; set; }
         public string Name { get; set; }
+
+        public Node()
+        {
+        }
+
+        public Node(string name, Node parent)
+        {
+            Name = name;
+            Parent = parent;
+        }
     }
 
     [Timeout(2000)]
@@ -295,7 +350,6 @@ public class TestStringifier
     public class SkipOneProperty
     {
         public int Id { get; set; }
-
         [SkipStringify]
         public string Name { get; set; }
     }
