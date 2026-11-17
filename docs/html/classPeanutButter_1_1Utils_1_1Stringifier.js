@@ -5,5 +5,6 @@ var classPeanutButter_1_1Utils_1_1Stringifier =
     [ "Stringify", "classPeanutButter_1_1Utils_1_1Stringifier.html#a991563e798e3788c52315dd1fd049186", null ],
     [ "StringifyCollection< T >", "classPeanutButter_1_1Utils_1_1Stringifier.html#a5bf6c53cda33cffdcfdd68b3a5488c6d", null ],
     [ "DEFAULT_NULL_PLACEHOLDER", "classPeanutButter_1_1Utils_1_1Stringifier.html#aaf29a75dc2cd2bf09a7ce1f393dee296", null ],
+    [ "MAX_STRINGIFY_DEPTH", "classPeanutButter_1_1Utils_1_1Stringifier.html#aa4aa798e13e633de863878d2bd2fc563", null ],
     [ "SEEN_OBJECT_PLACEHOLDER", "classPeanutButter_1_1Utils_1_1Stringifier.html#a9e08e9a203d6a1b048897a6c74cb4ced", null ]
 ];
