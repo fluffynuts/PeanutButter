@@ -52,6 +52,27 @@ public class TestStringifier
             .To.Contain("truncated");
     }
 
+    [TestCase(Stringifier.MAX_OBJECTS)]
+    public void ShouldTruncateWhenMaxObjectsPassed_(
+        int maxObjects
+    )
+    {
+        // Arrange
+        var node = new Node("container", null);
+        for (var i = 0; i < maxObjects; i++)
+        {
+            var sibling = new Node($"sibling-{i}", null);
+            node.AddSibling(sibling);
+        }
+        
+        // Act
+        var result = node.Stringify();
+        
+        // Assert
+        Expect(result)
+            .To.Contain("truncated");
+    }
+
     [TestCase(Stringifier.MAX_STRINGIFY_DEPTH)]
     public void ShouldNotTruncateWhenDepthWithinThreshold_(
         int maxDepth
@@ -241,6 +262,7 @@ public class TestStringifier
     {
         public Node Parent { get; set; }
         public string Name { get; set; }
+        public Node[] Siblings { get; private set; } = [];
 
         public Node()
         {
@@ -250,6 +272,11 @@ public class TestStringifier
         {
             Name = name;
             Parent = parent;
+        }
+
+        public void AddSibling(Node other)
+        {
+            Siblings = Siblings.And(other);
         }
     }
 

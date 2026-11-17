@@ -8,7 +8,6 @@ using System.Xml.Linq;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable IntroduceOptionalParameters.Global
-
 #if BUILD_PEANUTBUTTER_INTERNAL
 namespace Imported.PeanutButter.Utils;
 #else
@@ -20,7 +19,7 @@ namespace PeanutButter.Utils;
 #if BUILD_PEANUTBUTTER_INTERNAL
 internal
 #else
-    public
+public
 #endif
     static class Stringifier
 {
@@ -40,7 +39,12 @@ internal
                 : $"\"{objs as string}\"";
         }
 
-        return StringifyCollectionInternal(objs, "null", 0, new HashSet<object>());
+        return StringifyCollectionInternal(
+            objs,
+            "null",
+            0,
+            new HashSet<object>()
+        );
     }
 
     private static string StringifyCollectionInternal<T>(
@@ -103,7 +107,12 @@ internal
         string nullRepresentation
     )
     {
-        return Stringify(obj, nullRepresentation, 0, new HashSet<object>());
+        return Stringify(
+            obj,
+            nullRepresentation,
+            0,
+            new HashSet<object>()
+        );
     }
 
     private static string Stringify(
@@ -126,6 +135,12 @@ internal
     /// The max depth the stringifier will go to; after this,
     /// </summary>
     public const int MAX_STRINGIFY_DEPTH = 10;
+
+    /// <summary>
+    /// Abort stringifying after seeing this many objects
+    /// </summary>
+    public const int MAX_OBJECTS = 512;
+
     private const int INDENT_SIZE = 2;
 
     private static readonly Dictionary<Type, Func<object, string>> PrimitiveStringifiers
@@ -236,7 +251,7 @@ internal
     )
     {
         var itemType = obj.GetType().TryGetEnumerableItemType() ??
-            throw new Exception($"{obj.GetType()} is not IEnumerable<T>");
+                       throw new Exception($"{obj.GetType()} is not IEnumerable<T>");
         var method = typeof(Stringifier)
             .GetMethod(nameof(StringifyCollectionInternal), BindingFlags.NonPublic | BindingFlags.Static);
         if (method == null)
@@ -282,7 +297,7 @@ internal
 #if NETSTANDARD
         return obj.GetType().GetTypeInfo().IsEnum;
 #else
-            return obj.GetType().IsEnum;
+        return obj.GetType().IsEnum;
 #endif
     }
 
@@ -343,7 +358,7 @@ internal
     )
     {
         return level >= MAX_STRINGIFY_DEPTH ||
-            Types.PrimitivesAndImmutables.Contains(obj.GetType());
+               Types.PrimitivesAndImmutables.Contains(obj.GetType());
     }
 
     private static bool Default(
@@ -381,23 +396,28 @@ internal
             return $"... truncated: max stringify depth of {MAX_STRINGIFY_DEPTH} reached ...";
         }
 
+        if (seen.Count >= MAX_OBJECTS)
+        {
+            return $"... truncated: max objects exceeds {MAX_OBJECTS} ...";
+        }
+
         var result = Strategies.Aggregate(
             null as string,
             (
                     acc,
                     cur
                 ) => acc ??
-                ApplyStrategy(
-                    cur.Item1,
-                    cur.Item2,
-                    obj,
-                    level,
-                    nullRepresentation,
-                    // create a copy of the seen collection
-                    // so that collision detection is for circular
-                    // references, not just repeated references
-                    new HashSet<object>(seen)
-                )
+                     ApplyStrategy(
+                         cur.Item1,
+                         cur.Item2,
+                         obj,
+                         level,
+                         nullRepresentation,
+                         // create a copy of the seen collection
+                         // so that collision detection is for circular
+                         // references, not just repeated references
+                         new HashSet<object>(seen)
+                     )
         );
         return result == EMPTY_OBJECT && HasCustomToString(obj)
             ? $"<< {obj} >>"
@@ -409,9 +429,10 @@ internal
         return CustomToStringCache.FindOrAdd(
             o?.GetType(),
             () => o?.GetType().GetMethods()
-                .Any(mi => mi.Name == nameof(ToString) &&
-                    mi.GetParameters().Length == 0 &&
-                    !BaseTypes.Contains(mi.DeclaringType)
+                .Any(
+                    mi => mi.Name == nameof(ToString) &&
+                          mi.GetParameters().Length == 0 &&
+                          !BaseTypes.Contains(mi.DeclaringType)
                 ) ?? false
         );
     }
@@ -443,7 +464,12 @@ internal
         {
             var isMatched = matcher(obj, level);
             return isMatched
-                ? strategy(obj, level, nullRepresentation, seen)
+                ? strategy(
+                    obj,
+                    level,
+                    nullRepresentation,
+                    seen
+                )
                 : null;
         }
         catch
@@ -451,7 +477,6 @@ internal
             return null;
         }
     }
-
 
     private static string StringifyJsonLike(
         object obj,
@@ -495,7 +520,12 @@ internal
                                 "",
                                 cur.Name,
                                 ": ",
-                                SafeStringifier(propValue, level + 1, nullRepresentation, new HashSet<object>(seen))
+                                SafeStringifier(
+                                    propValue,
+                                    level + 1,
+                                    nullRepresentation,
+                                    new HashSet<object>(seen)
+                                )
                             )
                         );
                     }
@@ -506,7 +536,12 @@ internal
                                 "",
                                 cur.Name,
                                 ": ",
-                                SafeStringifier(propValue, level + 1, nullRepresentation, new HashSet<object>(seen))
+                                SafeStringifier(
+                                    propValue,
+                                    level + 1,
+                                    nullRepresentation,
+                                    new HashSet<object>(seen)
+                                )
                             )
                         );
                     }
@@ -516,11 +551,11 @@ internal
             )
             .JoinWith($"\n{indent}");
         return ("{\n" +
-            string.Join(
-                $"\n{indent}",
-                $"{indent}{joinWith}"
-            ) +
-            $"\n{indentMinus1}}}").Compact();
+                string.Join(
+                    $"\n{indent}",
+                    $"{indent}{joinWith}"
+                ) +
+                $"\n{indentMinus1}}}").Compact();
     }
 
     private static string StringifyPrimitive(
@@ -582,6 +617,6 @@ internal
 #else
 public
 #endif
-class SkipStringifyAttribute : Attribute
+    class SkipStringifyAttribute : Attribute
 {
 }
