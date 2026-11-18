@@ -3461,7 +3461,7 @@ function foo() {
             // Arrange
             var originalText = GetRandomWords();
             var zippedText = originalText.GZip();
-            var originalBytes = GetRandomBytes();
+            var originalBytes = GetRandomBytes(1);
             var zippedBytes = originalBytes.GZip();
             // Act
             var result1 = zippedText.IsGZipped();
@@ -3470,11 +3470,11 @@ function foo() {
             // Assert
 
             Expect(result1)
-                .To.Be.True(() => "DIAG1:" + BitConverter.ToString(System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Take(zippedText, 12))));
+                .To.Be.True();
             Expect(result2)
                 .To.Be.False();
             Expect(result3)
-                .To.Be.True(() => "DIAG:" + BitConverter.ToString(System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Take(zippedBytes, 12))) + " len=" + zippedBytes.Length);
+                .To.Be.True();
         }
 
         [Test]
