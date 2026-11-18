@@ -720,7 +720,9 @@ public class TestStringExtensions
             Encoding.UTF8,
             Encoding.ASCII,
             Encoding.UTF32,
+#pragma warning disable SYSLIB0001
             Encoding.UTF7
+#pragma warning restore SYSLIB0001
         ];
 
         [TestCaseSource(nameof(Encodings))]
