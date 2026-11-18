@@ -29,17 +29,22 @@ public class TestStringifier
         var result = value.Stringify();
 
         //--------------- Assert -----------------------
-        Expect(result).To.Equal(expected);
+        Expect(result)
+            .To.Equal(expected);
     }
 
     [Test]
     public void ShouldTruncateWhenTooManySiblingObjectsOrDepthReached()
     {
         // Arrange
-        var document = new HtmlDocument();
-        document.LoadHtml(
-            "<div>" + string.Concat(Enumerable.Repeat("<span>a</span>", 3000)) + "<p>x</p></div>"
+        var spans = string.Concat(
+            Enumerable.Repeat(
+                "<span>a</span>",
+                3000
+            )
         );
+        var document = new HtmlDocument();
+        document.LoadHtml($"<div>{spans}<p>x</p></div>");
         var node = document.DocumentNode.SelectSingleNode("//p");
 
         // Act
@@ -59,10 +64,16 @@ public class TestStringifier
     )
     {
         // Arrange
-        var last = new Node("parent", null);
+        var last = new Node(
+            "parent",
+            null
+        );
         for (var i = 0; i < maxDepth; i++)
         {
-            var child = new Node($"child-{i}", last);
+            var child = new Node(
+                $"child-{i}",
+                last
+            );
             last = child;
         }
 
@@ -80,10 +91,16 @@ public class TestStringifier
     )
     {
         // Arrange
-        var node = new Node("container", null);
+        var node = new Node(
+            "container",
+            null
+        );
         for (var i = 0; i < maxObjects; i++)
         {
-            var sibling = new Node($"sibling-{i}", null);
+            var sibling = new Node(
+                $"sibling-{i}",
+                null
+            );
             node.AddSibling(sibling);
         }
         
@@ -101,13 +118,19 @@ public class TestStringifier
     )
     {
         // Arrange
-        var last = new Node("parent", null);
+        var last = new Node(
+            "parent",
+            null
+        );
         // we have to back off from maxDepth by 2 because
         // last is the root, one extra node above what's created
         // below.
         for (var i = 0; i < maxDepth - 2; i++)
         {
-            var child = new Node($"child-{i}", last);
+            var child = new Node(
+                $"child-{i}",
+                last
+            );
             last = child;
         }
 
@@ -161,7 +184,10 @@ public class TestStringifier
         var result = data.Item1.Stringify();
 
         //--------------- Assert -----------------------
-        Expect(result).To.Equal(data.Item2.TrimStart().Replace("\r", ""));
+        Expect(result)
+            .To.Equal(
+                data.Item2.TrimStart().Replace("\r", "")
+            );
     }
 
     [Test]
@@ -204,7 +230,8 @@ public class TestStringifier
         // Act
         var result = obj.Stringify();
         // Assert
-        Expect(result).To.Equal(expected);
+        Expect(result)
+            .To.Equal(expected);
     }
 
     [Test]
@@ -246,11 +273,14 @@ public class TestStringifier
         var utcResult = utc.Stringify();
         var unspecifiedResult = unspecified.Stringify();
         // Assert
-        Expect(localResult).To.Start.With(expectedPre)
+        Expect(localResult)
+            .To.Start.With(expectedPre)
             .And.End.With(" (Local)");
-        Expect(utcResult).To.Start.With(expectedPre)
+        Expect(utcResult)
+            .To.Start.With(expectedPre)
             .And.End.With(" (Utc)");
-        Expect(unspecifiedResult).To.Start.With(expectedPre)
+        Expect(unspecifiedResult)
+            .To.Start.With(expectedPre)
             .And.End.With(" (Unspecified)");
     }
 
@@ -264,7 +294,8 @@ public class TestStringifier
         // Act
         var result = doc.Stringify();
         // Assert
-        Expect(result.RegexReplace("\\s", "")).To.Equal(raw);
+        Expect(result.RegexReplace("\\s", ""))
+            .To.Equal(raw);
     }
 
     [Test]
@@ -277,7 +308,8 @@ public class TestStringifier
         // Act
         var result = el.Stringify();
         // Assert
-        Expect(result).To.Equal("<node>1</node>");
+        Expect(result)
+            .To.Equal("<node>1</node>");
     }
 
     public class Node
@@ -290,7 +322,10 @@ public class TestStringifier
         {
         }
 
-        public Node(string name, Node parent)
+        public Node(
+            string name,
+            Node parent
+        )
         {
             Name = name;
             Parent = parent;

@@ -86,7 +86,10 @@ public
 
         result.Add(" ]");
 
-        return string.Join("", result);
+        return string.Join(
+            "",
+            result
+        );
     }
 
     /// <summary>
@@ -98,7 +101,10 @@ public
         this object obj
     )
     {
-        return Stringify(obj, DEFAULT_NULL_PLACEHOLDER);
+        return Stringify(
+            obj,
+            DEFAULT_NULL_PLACEHOLDER
+        );
     }
 
     /// <summary>
@@ -189,16 +195,46 @@ public
     private static readonly Tuple<Func<object, int, bool>, Func<object, int, string, HashSet<object>, string>>[]
         Strategies =
         {
-            MakeStrategy(IsNull, PrintNull),
-            MakeStrategy(IsDateTime, StringifyDateTime),
-            MakeStrategy(IsPrimitive, StringifyPrimitive),
-            MakeStrategy(IsEnum, StringifyEnum),
-            MakeStrategy(IsType, StringifyType),
-            MakeStrategy(IsEnumerable, StringifyCollection),
-            MakeStrategy(IsXDocument, StringifyXDocument),
-            MakeStrategy(IsXElement, StringifyXElement),
-            MakeStrategy(Default, StringifyJsonLike),
-            MakeStrategy(LastPass, JustToStringIt)
+            MakeStrategy(
+                IsNull,
+                PrintNull
+            ),
+            MakeStrategy(
+                IsDateTime,
+                StringifyDateTime
+            ),
+            MakeStrategy(
+                IsPrimitive,
+                StringifyPrimitive
+            ),
+            MakeStrategy(
+                IsEnum,
+                StringifyEnum
+            ),
+            MakeStrategy(
+                IsType,
+                StringifyType
+            ),
+            MakeStrategy(
+                IsEnumerable,
+                StringifyCollection
+            ),
+            MakeStrategy(
+                IsXDocument,
+                StringifyXDocument
+            ),
+            MakeStrategy(
+                IsXElement,
+                StringifyXElement
+            ),
+            MakeStrategy(
+                Default,
+                StringifyJsonLike
+            ),
+            MakeStrategy(
+                LastPass,
+                JustToStringIt
+            )
         };
 
     private static string StringifyXElement(
@@ -284,7 +320,10 @@ public
         var itemType = obj.GetType().TryGetEnumerableItemType() ??
                        throw new Exception($"{obj.GetType()} is not IEnumerable<T>");
         var method = typeof(Stringifier)
-            .GetMethod(nameof(StringifyCollectionInternal), BindingFlags.NonPublic | BindingFlags.Static);
+            .GetMethod(
+                nameof(StringifyCollectionInternal),
+                BindingFlags.NonPublic | BindingFlags.Static
+            );
         if (method == null)
             throw new InvalidOperationException(
                 $"No non-public, static '{nameof(StringifyCollectionInternal)}' method found on {typeof(Stringifier).PrettyName()}"
@@ -380,7 +419,10 @@ public
         Func<object, int, string, HashSet<object>, string> writer
     )
     {
-        return Tuple.Create(matcher, writer);
+        return Tuple.Create(
+            matcher,
+            writer
+        );
     }
 
     private static bool IsPrimitive(
@@ -504,7 +546,10 @@ public
     {
         try
         {
-            var isMatched = matcher(obj, level);
+            var isMatched = matcher(
+                obj,
+                level
+            );
             return isMatched
                 ? strategy(
                     obj,
@@ -532,8 +577,14 @@ public
             .Where(pi => pi.GetCustomAttribute<SkipStringifyAttribute>() is null)
             .OrderBy(pi => pi.Name)
             .ToArray();
-        var indentMinus1 = new string(' ', level * INDENT_SIZE);
-        var indent = indentMinus1 + new string(' ', INDENT_SIZE);
+        var indentMinus1 = new string(
+            ' ',
+            level * INDENT_SIZE
+        );
+        var indent = indentMinus1 + new string(
+            ' ',
+            INDENT_SIZE
+        );
         var started = DateTime.Now;
         var joinWith = props.Aggregate(
                 new List<string>(),
