@@ -68,7 +68,7 @@ public
                 result.Add(", ");
             }
 
-            if (++idx > MAX_OBJECTS)
+            if (++idx >= MAX_OBJECTS || seenObjects.Count >= MAX_OBJECTS)
             {
                 result.Add(MAX_OBJECTS_TRUNCATION);
                 break;
@@ -170,7 +170,7 @@ public
     /// <summary>
     /// Abort stringifying after seeing this many objects
     /// </summary>
-    public const int MAX_OBJECTS = 512;
+    public const int MAX_OBJECTS = 64;
 
     private const int INDENT_SIZE = 2;
 
