@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using PeanutButter.SimpleHTTPServer;
@@ -88,9 +88,15 @@ namespace PeanutButter.Utils.Tests
                 using var server = new HttpServer();
                 server.ServeFile("/bin.dat", data);
                 // Act
-                var req = WebRequest.Create(server.GetFullUrlFor("/bin.dat"));
-                using var res = req.GetResponse();
-                using var stream = res.GetResponseStream();
+                using var client = new HttpClient();
+                using var res = client.Send(
+                    new HttpRequestMessage(
+                        HttpMethod.Get,
+                        server.GetFullUrlFor("/bin.dat")
+                    ),
+                    HttpCompletionOption.ResponseHeadersRead
+                );
+                using var stream = res.Content.ReadAsStream();
                 var firstRead = stream.Read(part1, 0, 1);
                 Expect(firstRead).To.Equal(1);
                 var remainder = stream.ReadAllBytes();
@@ -110,9 +116,15 @@ namespace PeanutButter.Utils.Tests
                 var path = $"/{GetRandomString(2)}";
                 server.ServeFile(path, expected);
                 // Act
-                var req = WebRequest.Create(server.GetFullUrlFor(path));
-                using var res = req.GetResponse();
-                using var stream = res.GetResponseStream();
+                using var client = new HttpClient();
+                using var res = client.Send(
+                    new HttpRequestMessage(
+                        HttpMethod.Get,
+                        server.GetFullUrlFor(path)
+                    ),
+                    HttpCompletionOption.ResponseHeadersRead
+                );
+                using var stream = res.Content.ReadAsStream();
                 var result = stream.ReadAllBytes();
                 // Assert
                 Expect(result).To.Equal(expected);
@@ -296,9 +308,12 @@ namespace PeanutButter.Utils.Tests
                 using var server = new HttpServer();
                 server.ServeFile("/bin.dat", data);
                 // Act
-                var req = WebRequest.Create(server.GetFullUrlFor("/bin.dat"));
-                using var res = await req.GetResponseAsync();
-                using var stream = res.GetResponseStream();
+                using var client = new HttpClient();
+                using var res = await client.GetAsync(
+                    server.GetFullUrlFor("/bin.dat"),
+                    HttpCompletionOption.ResponseHeadersRead
+                );
+                using var stream = await res.Content.ReadAsStreamAsync();
                 var firstRead = await stream.ReadAsync(part1, 0, 1);
                 Expect(firstRead).To.Equal(1);
                 var remainder = await stream.ReadAllBytesAsync();
@@ -318,9 +333,12 @@ namespace PeanutButter.Utils.Tests
                 var path = $"/{GetRandomString(2)}";
                 server.ServeFile(path, expected);
                 // Act
-                var req = WebRequest.Create(server.GetFullUrlFor(path));
-                using var res = await req.GetResponseAsync();
-                using var stream = res.GetResponseStream();
+                using var client = new HttpClient();
+                using var res = await client.GetAsync(
+                    server.GetFullUrlFor(path),
+                    HttpCompletionOption.ResponseHeadersRead
+                );
+                using var stream = await res.Content.ReadAsStreamAsync();
                 var result = await stream.ReadAllBytesAsync();
                 // Assert
                 Expect(result).To.Equal(expected);
@@ -758,7 +776,9 @@ namespace PeanutButter.Utils.Tests
             [
                 Encoding.UTF8,
                 Encoding.ASCII,
+#pragma warning disable SYSLIB0001
                 Encoding.UTF7
+#pragma warning restore SYSLIB0001
             ];
 
             [TestCaseSource(nameof(Encodings))]
@@ -848,7 +868,9 @@ namespace PeanutButter.Utils.Tests
             [
                 Encoding.UTF8,
                 Encoding.ASCII,
+#pragma warning disable SYSLIB0001
                 Encoding.UTF7
+#pragma warning restore SYSLIB0001
             ];
 
             [TestCaseSource(nameof(Encodings))]
