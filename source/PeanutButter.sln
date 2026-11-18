@@ -136,7 +136,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.TempDb.Runner.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.DuckTyping.Demo", "Utils\PeanutButter.DuckTyping.Demo\PeanutButter.DuckTyping.Demo.csproj", "{CE3C7905-572D-4832-B7B8-B45968630F15}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.DuckTyping.NetCore.Tests", "Utils\PeanutButter.DuckTyping.NetCore.Tests\PeanutButter.DuckTyping.NetCore.Tests.csproj", "{3C669B2C-5F89-461F-8187-7B5CCAA4EAC4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.DuckTyping.NetFX.Tests", "Utils\PeanutButter.DuckTyping.NetFX.Tests\PeanutButter.DuckTyping.NetFX.Tests.csproj", "{3C669B2C-5F89-461F-8187-7B5CCAA4EAC4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.Utils.NetCore.Tests", "Utils\PeanutButter.Utils.NetCore.Tests\PeanutButter.Utils.NetCore.Tests.csproj", "{212F8522-F02E-4E94-8954-98E92357D6B4}"
 EndProject
