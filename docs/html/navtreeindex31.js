@@ -1,5 +1,11 @@
 var NAVTREEINDEX31 =
 {
+"interfacePeanutButter_1_1WindowsServiceManagement_1_1IServiceControlInterface.html#ac891167e3a42fc900388d2b732b054b0":[2,0,0,17,1,2],
+"interfacePeanutButter_1_1WindowsServiceManagement_1_1IServiceControlInterface.html#acd116e1f5ea4b6e1ccb9cbdd6a4f10cb":[3,0,0,17,1,5],
+"interfacePeanutButter_1_1WindowsServiceManagement_1_1IServiceControlInterface.html#acd116e1f5ea4b6e1ccb9cbdd6a4f10cb":[2,0,0,17,1,5],
+"interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html":[2,0,0,17,2],
+"interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html":[3,0,0,17,2],
+"interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html#a1797969fbf996ed054f802314e685beb":[3,0,0,17,2,3],
 "interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html#a1797969fbf996ed054f802314e685beb":[2,0,0,17,2,3],
 "interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html#a1b33cf5e951538750625c9cf7313390a":[2,0,0,17,2,0],
 "interfacePeanutButter_1_1WindowsServiceManagement_1_1IWindowsServiceUtil.html#a1b33cf5e951538750625c9cf7313390a":[3,0,0,17,2,0],
@@ -243,8 +249,5 @@ var NAVTREEINDEX31 =
 "namespacePeanutButter_1_1WindowsServiceManagement_1_1Exceptions.html":[2,0,0,17,0],
 "namespacePeanutButter_1_1XmlUtils.html":[2,0,0,18],
 "namespacemembers.html":[2,1,0],
-"namespacemembers_enum.html":[2,1,2],
-"namespacemembers_func.html":[2,1,1],
-"namespaces.html":[2,0],
-"pages.html":[]
+"namespacemembers_enum.html":[2,1,2]
 };

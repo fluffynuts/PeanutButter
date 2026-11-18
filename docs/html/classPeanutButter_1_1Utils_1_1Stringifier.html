@@ -90,6 +90,7 @@ $(document).ready(function(){initNavTree('classPeanutButter_1_1Utils_1_1Stringif
 
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classPeanutButter_1_1Utils_1_1Stringifier-members.html">List of all members</a>  </div>
@@ -130,9 +131,21 @@ const int&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_STRINGIFY_DE
 <tr class="memdesc:aa4aa798e13e633de863878d2bd2fc563"><td class="mdescLeft">&#160;</td><td class="mdescRight">your output will contain "...truncated" The max depth the stringifier will go to; after this, <br /></td></tr>
 <tr class="separator:aa4aa798e13e633de863878d2bd2fc563"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2508fc95b4a2fb38c81ea169d3e9542b" id="r_a2508fc95b4a2fb38c81ea169d3e9542b"><td class="memItemLeft" align="right" valign="top"><a id="a2508fc95b4a2fb38c81ea169d3e9542b" name="a2508fc95b4a2fb38c81ea169d3e9542b"></a>
-const int&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_OBJECTS</b> = 512</td></tr>
-<tr class="memdesc:a2508fc95b4a2fb38c81ea169d3e9542b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abort stringifying after seeing this many objects. <br /></td></tr>
+const int&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_OBJECTS</b> = 32</td></tr>
+<tr class="memdesc:a2508fc95b4a2fb38c81ea169d3e9542b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Limits breadth and path length, not the total: a collection shows at most this many items (the rest are truncated), and rendering does not descend once this many objects are on the current path. Because each branch counts for itself, many branches can together render far more than this: see MAX_TOTAL_OBJECTS for the limit across the whole call. <br /></td></tr>
 <tr class="separator:a2508fc95b4a2fb38c81ea169d3e9542b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac84acc7982652e02a1656855c5202ad7" id="r_ac84acc7982652e02a1656855c5202ad7"><td class="memItemLeft" align="right" valign="top"><a id="ac84acc7982652e02a1656855c5202ad7" name="ac84acc7982652e02a1656855c5202ad7"></a>
+const int&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_TOTAL_OBJECTS</b> = 200</td></tr>
+<tr class="memdesc:ac84acc7982652e02a1656855c5202ad7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abort stringifying after rendering this many non-primitive objects in total, across the whole call. <br /></td></tr>
+<tr class="separator:ac84acc7982652e02a1656855c5202ad7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53c5a991b9be3aa3f501f93c9124662f" id="r_a53c5a991b9be3aa3f501f93c9124662f"><td class="memItemLeft" align="right" valign="top"><a id="a53c5a991b9be3aa3f501f93c9124662f" name="a53c5a991b9be3aa3f501f93c9124662f"></a>
+const int&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_STRING_LENGTH</b> = 128</td></tr>
+<tr class="memdesc:a53c5a991b9be3aa3f501f93c9124662f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Strings longer than this are truncated in the output. <br /></td></tr>
+<tr class="separator:a53c5a991b9be3aa3f501f93c9124662f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af367102696c319fa130d796a62757d28" id="r_af367102696c319fa130d796a62757d28"><td class="memItemLeft" align="right" valign="top"><a id="af367102696c319fa130d796a62757d28" name="af367102696c319fa130d796a62757d28"></a>
+const int&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_STRINGIFY_MILLISECONDS</b> = 1000</td></tr>
+<tr class="memdesc:af367102696c319fa130d796a62757d28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stringifying is abandoned (with what has been rendered so far kept) once it has run for this long. <br /></td></tr>
+<tr class="separator:af367102696c319fa130d796a62757d28"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides convenience functions to get reasonable string representations of objects and collections. </p>
