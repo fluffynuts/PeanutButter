@@ -71,17 +71,13 @@ public
 
             if (context.HasTimedOut())
             {
-                if (context.TryReportTimeout())
-                {
-                    result.Add(MAX_TIME_TRUNCATION);
-                }
-
+                result.Add(context.Truncated(MAX_TIME_TRUNCATION));
                 break;
             }
 
             if (++idx >= MAX_OBJECTS || seenObjects.Count >= MAX_OBJECTS)
             {
-                result.Add(MAX_OBJECTS_TRUNCATION);
+                result.Add(context.Truncated(MAX_OBJECTS_TRUNCATION));
                 break;
             }
 
@@ -169,7 +165,11 @@ public
     public const int MAX_STRINGIFY_DEPTH = 10;
 
     /// <summary>
-    /// Abort stringifying after seeing this many objects
+    /// Limits breadth and path length, not the total: a collection shows at
+    /// most this many items (the rest are truncated), and rendering does not
+    /// descend once this many objects are on the current path. Because each
+    /// branch counts for itself, many branches can together render far more
+    /// than this: see MAX_TOTAL_OBJECTS for the limit across the whole call.
     /// </summary>
     public const int MAX_OBJECTS = 32;
 
@@ -467,8 +467,9 @@ public
     
     private static readonly string MAX_DEPTH_TRUNCATION = $"<truncated: max depth of {MAX_STRINGIFY_DEPTH} reached>";
     private static readonly string MAX_OBJECTS_TRUNCATION = $"<truncated: more than {MAX_OBJECTS} objects>";
+    private const string SHORT_TRUNCATION = "<truncated>";
     private static readonly string MAX_TOTAL_OBJECTS_TRUNCATION = $"<truncated: more than {MAX_TOTAL_OBJECTS} objects in total>";
-    private static readonly string MAX_TIME_TRUNCATION = $"<truncated: stringification exceeded {MAX_STRINGIFY_MILLISECONDS / 1000d}s>";
+    private static readonly string MAX_TIME_TRUNCATION = $"<truncated: stringification exceeded {(MAX_STRINGIFY_MILLISECONDS / 1000d).ToString(CultureInfo.InvariantCulture)}s>";
 
     private static string SafeStringifier(
         object obj,
@@ -479,8 +480,7 @@ public
     {
         if (context.HasTimedOut())
         {
-            context.TryReportTimeout();
-            return MAX_TIME_TRUNCATION;
+            return context.Truncated(MAX_TIME_TRUNCATION);
         }
 
         var objType = obj?.GetType();
@@ -501,17 +501,17 @@ public
 
         if (level >= MAX_STRINGIFY_DEPTH)
         {
-            return MAX_DEPTH_TRUNCATION;
+            return context.Truncated(MAX_DEPTH_TRUNCATION);
         }
 
         if (seen.Count >= MAX_OBJECTS)
         {
-            return MAX_OBJECTS_TRUNCATION;
+            return context.Truncated(MAX_OBJECTS_TRUNCATION);
         }
 
         if (isComposite && !context.TryCountObject())
         {
-            return MAX_TOTAL_OBJECTS_TRUNCATION;
+            return context.Truncated(MAX_TOTAL_OBJECTS_TRUNCATION);
         }
 
         var result = Strategies.Aggregate(
@@ -619,11 +619,7 @@ public
         {
             if (context.HasTimedOut())
             {
-                if (context.TryReportTimeout())
-                {
-                    rendered.Add(MAX_TIME_TRUNCATION);
-                }
-
+                rendered.Add(context.Truncated(MAX_TIME_TRUNCATION));
                 break;
             }
 
@@ -683,7 +679,7 @@ public
         private readonly Func<long> _elapsedMilliseconds;
         private int _objectsCounted;
         private bool _timedOut;
-        private bool _timeoutReported;
+        private readonly HashSet<string> _truncationReasonsGiven = new();
 
         public StringifyContext(
             string nullRepresentation,
@@ -714,16 +710,16 @@ public
             return _timedOut;
         }
 
-        // the marker is only worth showing once: where the rendering stopped
-        public bool TryReportTimeout()
+        // the first time a reason is hit, it is spelled out; every later
+        // cut for the same reason is just marked, so that it's clear how much
+        // was skipped without repeating the explanation
+        public string Truncated(
+            string reason
+        )
         {
-            if (_timeoutReported)
-            {
-                return false;
-            }
-
-            _timeoutReported = true;
-            return true;
+            return _truncationReasonsGiven.Add(reason)
+                ? reason
+                : SHORT_TRUNCATION;
         }
 
         public bool TryCountObject()
