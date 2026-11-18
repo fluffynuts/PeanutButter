@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System;
 using System.Runtime.InteropServices;
-[assembly: InternalsVisibleTo("PeanutButter.WindowsServiceManagement.Tests")]
+[assembly: InternalsVisibleTo("PeanutButter.WindowsServiceManagement.NetFX.Tests")]
 
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable InconsistentNaming
