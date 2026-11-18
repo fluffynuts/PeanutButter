@@ -3470,11 +3470,11 @@ function foo() {
             // Assert
 
             Expect(result1)
-                .To.Be.True();
+                .To.Be.True(() => "DIAG1:" + BitConverter.ToString(System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Take(zippedText, 12))));
             Expect(result2)
                 .To.Be.False();
             Expect(result3)
-                .To.Be.True();
+                .To.Be.True(() => "DIAG:" + BitConverter.ToString(System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Take(zippedBytes, 12))) + " len=" + zippedBytes.Length);
         }
 
         [Test]
