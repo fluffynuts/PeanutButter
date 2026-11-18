@@ -79,6 +79,7 @@ namespace PeanutButter.Utils.Dictionaries
             lock (_actual)
             {
                 _actual.Clear();
+                _keys.Clear();
             }
         }
 

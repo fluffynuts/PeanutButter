@@ -388,7 +388,7 @@ public class TestProcessIO
     }
 
     [Test]
-    [Timeout(10000)]
+    [CancelAfter(10000)]
     public void ShouldNotHangWhenProcessOutputsALotOfDataOnStartup()
     {
         // Arrange
@@ -959,7 +959,7 @@ public class TestProcessIO
         }
 
         [Test]
-        [Timeout(10000)]
+        [CancelAfter(10000)]
         public void ShouldReturnFalseWhenProcessExitsWithoutTheRequiredMatcherBeingHit()
         {
             // Arrange

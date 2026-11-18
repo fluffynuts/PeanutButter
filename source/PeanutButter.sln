@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.RandomGenerato
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.MVC", "Utils\PeanutButter.MVC\PeanutButter.MVC.csproj", "{BB13BD1A-730D-43B0-82FE-738399D3D21A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.MVC.Tests", "Utils\PeanutButter.MVC.Tests\PeanutButter.MVC.Tests.csproj", "{FCA96984-2E9E-44CC-8038-BB3F171343CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.MVC.NetFX.Tests", "Utils\PeanutButter.MVC.NetFX.Tests\PeanutButter.MVC.NetFX.Tests.csproj", "{FCA96984-2E9E-44CC-8038-BB3F171343CF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.RandomGenerators.Tests", "TestUtils\PeanutButter.RandomGenerators.Tests\PeanutButter.RandomGenerators.Tests.csproj", "{3885D69D-15A3-4DAB-AC23-D292E1AB8128}"
 EndProject
@@ -39,7 +39,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.SimpleHTTPServ
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.SimpleTcpServer", "SimpleServers\PeanutButter.SimpleTcpServer\PeanutButter.SimpleTcpServer.csproj", "{A53A9B36-1307-4DC2-8BCF-DFA3087C62E8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.WindowsServiceManagement.Tests", "Win32Service\PeanutButter.WindowsServiceManagement.Tests\PeanutButter.WindowsServiceManagement.Tests.csproj", "{4E12F322-096E-4E42-BA86-4BDBC8492115}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.WindowsServiceManagement.NetFX.Tests", "Win32Service\PeanutButter.WindowsServiceManagement.NetFX.Tests\PeanutButter.WindowsServiceManagement.NetFX.Tests.csproj", "{4E12F322-096E-4E42-BA86-4BDBC8492115}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458} = {3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458}
 	EndProjectSection
@@ -64,7 +64,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.TestUtils.Gene
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestService", "Win32Service\TestService\TestService.csproj", "{3E03AC14-F3BE-4EFE-A37C-AE4B4DCFA458}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.ServiceShell.Tests", "Win32Service\PeanutButter.ServiceShell.Tests\PeanutButter.ServiceShell.Tests.csproj", "{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.ServiceShell.NetFX.Tests", "Win32Service\PeanutButter.ServiceShell.NetFX.Tests\PeanutButter.ServiceShell.NetFX.Tests.csproj", "{9DC70464-9FD9-4344-8161-B48A6F1F1BB1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NugetPackageVersionIncrementer", "NugetPackageVersionIncrementer\NugetPackageVersionIncrementer.csproj", "{D74720A9-686C-4A62-A57B-2CD085C3BE46}"
 EndProject
@@ -137,6 +137,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.DuckTyping.Demo", "Utils\PeanutButter.DuckTyping.Demo\PeanutButter.DuckTyping.Demo.csproj", "{CE3C7905-572D-4832-B7B8-B45968630F15}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.DuckTyping.NetFX.Tests", "Utils\PeanutButter.DuckTyping.NetFX.Tests\PeanutButter.DuckTyping.NetFX.Tests.csproj", "{3C669B2C-5F89-461F-8187-7B5CCAA4EAC4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.Utils.NetFX.Tests", "Utils\PeanutButter.Utils.NetFX.Tests\PeanutButter.Utils.NetFX.Tests.csproj", "{13EA4D79-5C94-4E2A-8276-16B48029EAD8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeanutButter.Utils.NetCore.Tests", "Utils\PeanutButter.Utils.NetCore.Tests\PeanutButter.Utils.NetCore.Tests.csproj", "{212F8522-F02E-4E94-8954-98E92357D6B4}"
 EndProject
@@ -845,6 +847,18 @@ Global
 		{3C669B2C-5F89-461F-8187-7B5CCAA4EAC4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3C669B2C-5F89-461F-8187-7B5CCAA4EAC4}.Release|x86.ActiveCfg = Release|Any CPU
 		{3C669B2C-5F89-461F-8187-7B5CCAA4EAC4}.Release|x86.Build.0 = Release|Any CPU
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8}.Debug|x86.Build.0 = Debug|Any CPU
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8}.Debug-X|Any CPU.ActiveCfg = Debug-X|Any CPU
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8}.Debug-X|Any CPU.Build.0 = Debug-X|Any CPU
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8}.Debug-X|x86.ActiveCfg = Debug-X|Any CPU
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8}.Debug-X|x86.Build.0 = Debug-X|Any CPU
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8}.Release|x86.ActiveCfg = Release|Any CPU
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8}.Release|x86.Build.0 = Release|Any CPU
 		{212F8522-F02E-4E94-8954-98E92357D6B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{212F8522-F02E-4E94-8954-98E92357D6B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{212F8522-F02E-4E94-8954-98E92357D6B4}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -1133,6 +1147,7 @@ Global
 		{763895F2-1249-4DD8-B95E-A5714D527D62} = {97A4C748-447E-4690-9E4C-6BC7CE5B3F70}
 		{CE3C7905-572D-4832-B7B8-B45968630F15} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{3C669B2C-5F89-461F-8187-7B5CCAA4EAC4} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
+		{13EA4D79-5C94-4E2A-8276-16B48029EAD8} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{212F8522-F02E-4E94-8954-98E92357D6B4} = {62FEA3E5-A1E5-470D-AF65-C3E7465AF046}
 		{AD1BFC51-23BF-4F0B-8AEF-F6407986D1A0} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}
 		{B7D68CF0-B27D-4DAA-B678-ED7C9F5FE224} = {F16ADAF9-3992-4A86-93DB-53813CF5434A}

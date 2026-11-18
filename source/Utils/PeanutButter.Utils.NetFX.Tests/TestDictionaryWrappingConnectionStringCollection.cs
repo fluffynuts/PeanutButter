@@ -4,7 +4,7 @@ using System.Linq;
 using PeanutButter.Utils.Dictionaries;
 using static PeanutButter.Utils.PyLike;
 
-namespace PeanutButter.Utils.Tests.Dictionaries;
+namespace PeanutButter.Utils.NetFX.Tests;
 
 [TestFixture]
 public class TestDictionaryWrappingConnectionStringCollection
