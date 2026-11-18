@@ -54,9 +54,39 @@ public
         HashSet<object> seenObjects
     )
     {
-        return objs == null
-            ? DEFAULT_NULL_PLACEHOLDER
-            : $"[ {string.Join(", ", objs.Select(o => Stringify(o, nullRepresentation, level, seenObjects)))} ]";
+        if (objs is null)
+        {
+            return DEFAULT_NULL_PLACEHOLDER;
+        }
+
+        var result = new List<string>(["[ "]);
+        var idx = 0;
+        foreach (var item in objs)
+        {
+            if (idx > 0)
+            {
+                result.Add(", ");
+            }
+
+            if (++idx > MAX_OBJECTS)
+            {
+                result.Add(MAX_OBJECTS_TRUNCATION);
+                break;
+            }
+
+            result.Add(
+                Stringify(
+                    item,
+                    nullRepresentation,
+                    level,
+                    seenObjects
+                )
+            );
+        }
+
+        result.Add(" ]");
+
+        return string.Join("", result);
     }
 
     /// <summary>
@@ -369,6 +399,10 @@ public
     {
         return true;
     }
+    
+    private static readonly string MAX_DEPTH_TRUNCATION = $"<truncated: max depth of {MAX_STRINGIFY_DEPTH} reached>";
+    private static readonly string MAX_OBJECTS_TRUNCATION = $"<truncated: more than {MAX_OBJECTS} objects>";
+    private static readonly string MAX_TIME_TRUNCATION = "<truncated: over 1s spent rendering>";
 
     private static string SafeStringifier(
         object obj,
@@ -381,7 +415,7 @@ public
         var runTime = DateTime.Now - started;
         if (runTime.TotalSeconds > 1)
         {
-            return $"... truncated: rendering has already taken over a second ...";
+            return MAX_TIME_TRUNCATION;
         }
 
         var objType = obj?.GetType();
@@ -401,12 +435,12 @@ public
 
         if (level >= MAX_STRINGIFY_DEPTH)
         {
-            return $"... truncated: max stringify depth of {MAX_STRINGIFY_DEPTH} reached ...";
+            return MAX_DEPTH_TRUNCATION;
         }
 
         if (seen.Count >= MAX_OBJECTS)
         {
-            return $"... truncated: max objects exceeds {MAX_OBJECTS} ...";
+            return MAX_OBJECTS_TRUNCATION;
         }
 
         var result = Strategies.Aggregate(

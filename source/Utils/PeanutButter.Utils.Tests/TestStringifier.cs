@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using HtmlAgilityPack;
 
 namespace PeanutButter.Utils.Tests;
 
@@ -29,6 +30,27 @@ public class TestStringifier
 
         //--------------- Assert -----------------------
         Expect(result).To.Equal(expected);
+    }
+
+    [Test]
+    public void ShouldTruncateWhenTooManySiblingObjectsOrDepthReached()
+    {
+        // Arrange
+        var document = new HtmlDocument();
+        document.LoadHtml(
+            "<div>" + string.Concat(Enumerable.Repeat("<span>a</span>", 3000)) + "<p>x</p></div>"
+        );
+        var node = document.DocumentNode.SelectSingleNode("//p");
+
+        // Act
+        var result = node.Stringify();
+        
+        // Assert
+        Console.WriteLine(result);
+        Expect(result)
+            .To.Contain("<truncated: max depth");
+        Expect(result)
+            .To.Contain("truncated: more than");
     }
 
     [TestCase(Stringifier.MAX_STRINGIFY_DEPTH)]
