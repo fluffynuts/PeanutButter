@@ -170,7 +170,7 @@ public
     /// <summary>
     /// Abort stringifying after seeing this many objects
     /// </summary>
-    public const int MAX_OBJECTS = 64;
+    public const int MAX_OBJECTS = 32;
 
     private const int INDENT_SIZE = 2;
 
