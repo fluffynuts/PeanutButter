@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -41,7 +42,7 @@ public
 
         return StringifyCollectionInternal(
             objs,
-            "null",
+            new StringifyContext(DEFAULT_NULL_PLACEHOLDER),
             0,
             new HashSet<object>()
         );
@@ -49,7 +50,7 @@ public
 
     private static string StringifyCollectionInternal<T>(
         IEnumerable<T> objs,
-        string nullRepresentation,
+        StringifyContext context,
         int level,
         HashSet<object> seenObjects
     )
@@ -68,17 +69,23 @@ public
                 result.Add(", ");
             }
 
+            if (context.HasTimedOut())
+            {
+                result.Add(context.Truncated(MAX_TIME_TRUNCATION));
+                break;
+            }
+
             if (++idx >= MAX_OBJECTS || seenObjects.Count >= MAX_OBJECTS)
             {
-                result.Add(MAX_OBJECTS_TRUNCATION);
+                result.Add(context.Truncated(MAX_OBJECTS_TRUNCATION));
                 break;
             }
 
             result.Add(
-                Stringify(
+                SafeStringifier(
                     item,
-                    nullRepresentation,
                     level,
+                    context,
                     seenObjects
                 )
             );
@@ -86,7 +93,10 @@ public
 
         result.Add(" ]");
 
-        return string.Join("", result);
+        return string.Join(
+            "",
+            result
+        );
     }
 
     /// <summary>
@@ -98,7 +108,10 @@ public
         this object obj
     )
     {
-        return Stringify(obj, DEFAULT_NULL_PLACEHOLDER);
+        return Stringify(
+            obj,
+            DEFAULT_NULL_PLACEHOLDER
+        );
     }
 
     /// <summary>
@@ -137,27 +150,11 @@ public
         string nullRepresentation
     )
     {
-        return Stringify(
-            obj,
-            nullRepresentation,
-            0,
-            new HashSet<object>()
-        );
-    }
-
-    private static string Stringify(
-        object obj,
-        string nullRepresentation,
-        int level,
-        HashSet<object> seenObjects
-    )
-    {
         return SafeStringifier(
             obj,
-            level,
-            nullRepresentation ?? "null",
-            seenObjects,
-            DateTime.Now
+            0,
+            new StringifyContext(nullRepresentation),
+            new HashSet<object>()
         );
     }
 
@@ -168,43 +165,105 @@ public
     public const int MAX_STRINGIFY_DEPTH = 10;
 
     /// <summary>
-    /// Abort stringifying after seeing this many objects
+    /// Limits breadth and path length, not the total: a collection shows at
+    /// most this many items (the rest are truncated), and rendering does not
+    /// descend once this many objects are on the current path. Because each
+    /// branch counts for itself, many branches can together render far more
+    /// than this: see MAX_TOTAL_OBJECTS for the limit across the whole call.
     /// </summary>
     public const int MAX_OBJECTS = 32;
+
+    /// <summary>
+    /// Abort stringifying after rendering this many non-primitive
+    /// objects in total, across the whole call
+    /// </summary>
+    public const int MAX_TOTAL_OBJECTS = 200;
+
+    /// <summary>
+    /// Strings longer than this are truncated in the output
+    /// </summary>
+    public const int MAX_STRING_LENGTH = 128;
+
+    /// <summary>
+    /// Stringifying is abandoned (with what has been rendered so far
+    /// kept) once it has run for this long
+    /// </summary>
+    public const int MAX_STRINGIFY_MILLISECONDS = 1000;
+
+    internal static string StringifyWithClock(
+        object obj,
+        Func<long> elapsedMilliseconds
+    )
+    {
+        return SafeStringifier(
+            obj,
+            0,
+            new StringifyContext(
+                DEFAULT_NULL_PLACEHOLDER,
+                elapsedMilliseconds
+            ),
+            new HashSet<object>()
+        );
+    }
 
     private const int INDENT_SIZE = 2;
 
     private static readonly Dictionary<Type, Func<object, string>> PrimitiveStringifiers
         = new Dictionary<Type, Func<object, string>>()
         {
-            [typeof(string)] = o => $"\"{o}\"",
+            [typeof(string)] = o => StringifyString((string) o),
             [typeof(bool)] = o => o.ToString().ToLower()
         };
 
-    private static readonly string[] IgnoreAssembliesByName =
-    {
-        "mscorlib"
-    };
-
-    private static readonly Tuple<Func<object, int, bool>, Func<object, int, string, HashSet<object>, string>>[]
+    private static readonly Tuple<Func<object, int, bool>, Func<object, int, StringifyContext, HashSet<object>, string>>[]
         Strategies =
         {
-            MakeStrategy(IsNull, PrintNull),
-            MakeStrategy(IsDateTime, StringifyDateTime),
-            MakeStrategy(IsPrimitive, StringifyPrimitive),
-            MakeStrategy(IsEnum, StringifyEnum),
-            MakeStrategy(IsType, StringifyType),
-            MakeStrategy(IsEnumerable, StringifyCollection),
-            MakeStrategy(IsXDocument, StringifyXDocument),
-            MakeStrategy(IsXElement, StringifyXElement),
-            MakeStrategy(Default, StringifyJsonLike),
-            MakeStrategy(LastPass, JustToStringIt)
+            MakeStrategy(
+                IsNull,
+                PrintNull
+            ),
+            MakeStrategy(
+                IsDateTime,
+                StringifyDateTime
+            ),
+            MakeStrategy(
+                IsPrimitive,
+                StringifyPrimitive
+            ),
+            MakeStrategy(
+                IsEnum,
+                StringifyEnum
+            ),
+            MakeStrategy(
+                IsType,
+                StringifyType
+            ),
+            MakeStrategy(
+                IsEnumerable,
+                StringifyCollection
+            ),
+            MakeStrategy(
+                IsXDocument,
+                StringifyXDocument
+            ),
+            MakeStrategy(
+                IsXElement,
+                StringifyXElement
+            ),
+            MakeStrategy(
+                Default,
+                StringifyJsonLike
+            ),
+            MakeStrategy(
+                LastPass,
+                JustToStringIt
+            )
         };
 
     private static string StringifyXElement(
         object arg1,
         int arg2,
-        string arg3,
+        StringifyContext arg3,
         HashSet<object> seen
     )
     {
@@ -222,7 +281,7 @@ public
     private static string StringifyXDocument(
         object arg1,
         int arg2,
-        string arg3,
+        StringifyContext arg3,
         HashSet<object> seen
     )
     {
@@ -240,7 +299,7 @@ public
     private static string StringifyType(
         object obj,
         int level,
-        string nullRep,
+        StringifyContext context,
         HashSet<object> seen
     )
     {
@@ -258,7 +317,7 @@ public
     private static string StringifyDateTime(
         object obj,
         int level,
-        string nullRep,
+        StringifyContext context,
         HashSet<object> seen
     )
     {
@@ -277,14 +336,17 @@ public
     private static string StringifyCollection(
         object obj,
         int level,
-        string nullRep,
+        StringifyContext context,
         HashSet<object> seen
     )
     {
         var itemType = obj.GetType().TryGetEnumerableItemType() ??
                        throw new Exception($"{obj.GetType()} is not IEnumerable<T>");
         var method = typeof(Stringifier)
-            .GetMethod(nameof(StringifyCollectionInternal), BindingFlags.NonPublic | BindingFlags.Static);
+            .GetMethod(
+                nameof(StringifyCollectionInternal),
+                BindingFlags.NonPublic | BindingFlags.Static
+            );
         if (method == null)
             throw new InvalidOperationException(
                 $"No non-public, static '{nameof(StringifyCollectionInternal)}' method found on {typeof(Stringifier).PrettyName()}"
@@ -295,7 +357,7 @@ public
             new[]
             {
                 obj,
-                nullRep,
+                context,
                 level,
                 seen
             }
@@ -313,7 +375,7 @@ public
     private static string StringifyEnum(
         object obj,
         int level,
-        string nullRepresentation,
+        StringifyContext context,
         HashSet<object> seen
     )
     {
@@ -335,7 +397,7 @@ public
     private static string JustToStringIt(
         object obj,
         int level,
-        string nullRepresentation,
+        StringifyContext context,
         HashSet<object> seen
     )
     {
@@ -360,11 +422,11 @@ public
     private static string PrintNull(
         object obj,
         int level,
-        string nullRepresentation,
+        StringifyContext context,
         HashSet<object> seenObjects
     )
     {
-        return nullRepresentation;
+        return context.NullRepresentation;
     }
 
     private static bool IsNull(
@@ -375,12 +437,15 @@ public
         return obj == null;
     }
 
-    private static Tuple<Func<object, int, bool>, Func<object, int, string, HashSet<object>, string>> MakeStrategy(
+    private static Tuple<Func<object, int, bool>, Func<object, int, StringifyContext, HashSet<object>, string>> MakeStrategy(
         Func<object, int, bool> matcher,
-        Func<object, int, string, HashSet<object>, string> writer
+        Func<object, int, StringifyContext, HashSet<object>, string> writer
     )
     {
-        return Tuple.Create(matcher, writer);
+        return Tuple.Create(
+            matcher,
+            writer
+        );
     }
 
     private static bool IsPrimitive(
@@ -402,24 +467,25 @@ public
     
     private static readonly string MAX_DEPTH_TRUNCATION = $"<truncated: max depth of {MAX_STRINGIFY_DEPTH} reached>";
     private static readonly string MAX_OBJECTS_TRUNCATION = $"<truncated: more than {MAX_OBJECTS} objects>";
-    private static readonly string MAX_TIME_TRUNCATION = "<truncated: over 1s spent rendering>";
+    private const string SHORT_TRUNCATION = "<truncated>";
+    private static readonly string MAX_TOTAL_OBJECTS_TRUNCATION = $"<truncated: more than {MAX_TOTAL_OBJECTS} objects in total>";
+    private static readonly string MAX_TIME_TRUNCATION = $"<truncated: stringification exceeded {(MAX_STRINGIFY_MILLISECONDS / 1000d).ToString(CultureInfo.InvariantCulture)}s>";
 
     private static string SafeStringifier(
         object obj,
         int level,
-        string nullRepresentation,
-        HashSet<object> seen,
-        DateTime started
+        StringifyContext context,
+        HashSet<object> seen
     )
     {
-        var runTime = DateTime.Now - started;
-        if (runTime.TotalSeconds > 1)
+        if (context.HasTimedOut())
         {
-            return MAX_TIME_TRUNCATION;
+            return context.Truncated(MAX_TIME_TRUNCATION);
         }
 
         var objType = obj?.GetType();
-        if (objType is not null && !objType.IsPrimitiveOrImmutable())
+        var isComposite = objType is not null && !objType.IsPrimitiveOrImmutable();
+        if (isComposite)
         {
             if (seen.Contains(obj))
             {
@@ -435,12 +501,17 @@ public
 
         if (level >= MAX_STRINGIFY_DEPTH)
         {
-            return MAX_DEPTH_TRUNCATION;
+            return context.Truncated(MAX_DEPTH_TRUNCATION);
         }
 
         if (seen.Count >= MAX_OBJECTS)
         {
-            return MAX_OBJECTS_TRUNCATION;
+            return context.Truncated(MAX_OBJECTS_TRUNCATION);
+        }
+
+        if (isComposite && !context.TryCountObject())
+        {
+            return context.Truncated(MAX_TOTAL_OBJECTS_TRUNCATION);
         }
 
         var result = Strategies.Aggregate(
@@ -454,7 +525,7 @@ public
                          cur.Item2,
                          obj,
                          level,
-                         nullRepresentation,
+                         context,
                          // create a copy of the seen collection
                          // so that collision detection is for circular
                          // references, not just repeated references
@@ -495,21 +566,24 @@ public
 
     private static string ApplyStrategy(
         Func<object, int, bool> matcher,
-        Func<object, int, string, HashSet<object>, string> strategy,
+        Func<object, int, StringifyContext, HashSet<object>, string> strategy,
         object obj,
         int level,
-        string nullRepresentation,
+        StringifyContext context,
         HashSet<object> seen
     )
     {
         try
         {
-            var isMatched = matcher(obj, level);
+            var isMatched = matcher(
+                obj,
+                level
+            );
             return isMatched
                 ? strategy(
                     obj,
                     level,
-                    nullRepresentation,
+                    context,
                     seen
                 )
                 : null;
@@ -523,7 +597,7 @@ public
     private static string StringifyJsonLike(
         object obj,
         int level,
-        string nullRepresentation,
+        StringifyContext context,
         HashSet<object> seen
     )
     {
@@ -532,69 +606,40 @@ public
             .Where(pi => pi.GetCustomAttribute<SkipStringifyAttribute>() is null)
             .OrderBy(pi => pi.Name)
             .ToArray();
-        var indentMinus1 = new string(' ', level * INDENT_SIZE);
-        var indent = indentMinus1 + new string(' ', INDENT_SIZE);
-        var started = DateTime.Now;
-        var joinWith = props.Aggregate(
-                new List<string>(),
-                (
-                    acc,
-                    cur
-                ) =>
-                {
-                    var propValue = cur.GetValue(obj);
+        var indentMinus1 = new string(
+            ' ',
+            level * INDENT_SIZE
+        );
+        var indent = indentMinus1 + new string(
+            ' ',
+            INDENT_SIZE
+        );
+        var rendered = new List<string>();
+        foreach (var prop in props)
+        {
+            if (context.HasTimedOut())
+            {
+                rendered.Add(context.Truncated(MAX_TIME_TRUNCATION));
+                break;
+            }
 
-                    if (IgnoreAssembliesByName.Contains(
-#if NETSTANDARD
-                            cur.DeclaringType?.AssemblyQualifiedName?.Split(
-                                new[]
-                                {
-                                    ","
-                                },
-                                StringSplitOptions.RemoveEmptyEntries
-                            ).Skip(1).FirstOrDefault()
-#else
-                            cur.DeclaringType?.Assembly.GetName().Name
-#endif
-                        ))
-                    {
-                        acc.Add(
-                            string.Join(
-                                "",
-                                cur.Name,
-                                ": ",
-                                SafeStringifier(
-                                    propValue,
-                                    level + 1,
-                                    nullRepresentation,
-                                    new HashSet<object>(seen),
-                                    started
-                                )
-                            )
-                        );
-                    }
-                    else
-                    {
-                        acc.Add(
-                            string.Join(
-                                "",
-                                cur.Name,
-                                ": ",
-                                SafeStringifier(
-                                    propValue,
-                                    level + 1,
-                                    nullRepresentation,
-                                    new HashSet<object>(seen),
-                                    started
-                                )
-                            )
-                        );
-                    }
+            var propValue = prop.GetValue(obj);
+            rendered.Add(
+                string.Join(
+                    "",
+                    prop.Name,
+                    ": ",
+                    SafeStringifier(
+                        propValue,
+                        level + 1,
+                        context,
+                        new HashSet<object>(seen)
+                    )
+                )
+            );
+        }
 
-                    return acc;
-                }
-            )
-            .JoinWith($"\n{indent}");
+        var joinWith = rendered.JoinWith($"\n{indent}");
         return ("{\n" +
                 string.Join(
                     $"\n{indent}",
@@ -603,15 +648,95 @@ public
                 $"\n{indentMinus1}}}").Compact();
     }
 
+    private static string StringifyString(
+        string str
+    )
+    {
+        if (str.Length <= MAX_STRING_LENGTH)
+        {
+            return $"\"{str}\"";
+        }
+
+        var shown = MAX_STRING_LENGTH;
+        if (char.IsHighSurrogate(str[shown - 1]))
+        {
+            // don't cut a surrogate pair in half
+            shown--;
+        }
+
+        return $"\"{str.Substring(0, shown)}\"<truncated: showing {shown} of {str.Length} chars>";
+    }
+
+    /// <summary>
+    /// State shared by every step of a single Stringify call, so that
+    /// the limits which apply to the whole call (time, total objects)
+    /// are enforced across all of the stringification strategies
+    /// </summary>
+    private sealed class StringifyContext
+    {
+        public string NullRepresentation { get; }
+
+        private readonly Func<long> _elapsedMilliseconds;
+        private int _objectsCounted;
+        private bool _timedOut;
+        private readonly HashSet<string> _truncationReasonsGiven = new();
+
+        public StringifyContext(
+            string nullRepresentation,
+            Func<long> elapsedMilliseconds = null
+        )
+        {
+            NullRepresentation = nullRepresentation ?? DEFAULT_NULL_PLACEHOLDER;
+            if (elapsedMilliseconds is not null)
+            {
+                _elapsedMilliseconds = elapsedMilliseconds;
+                return;
+            }
+
+            var stopwatch = Stopwatch.StartNew();
+            _elapsedMilliseconds = () => stopwatch.ElapsedMilliseconds;
+        }
+
+        // once the time limit has been exceeded, it stays exceeded: every
+        // remaining step returns immediately, so the render unwinds quickly
+        public bool HasTimedOut()
+        {
+            if (_timedOut)
+            {
+                return true;
+            }
+
+            _timedOut = _elapsedMilliseconds() > MAX_STRINGIFY_MILLISECONDS;
+            return _timedOut;
+        }
+
+        // the first time a reason is hit, it is spelled out; every later
+        // cut for the same reason is just marked, so that it's clear how much
+        // was skipped without repeating the explanation
+        public string Truncated(
+            string reason
+        )
+        {
+            return _truncationReasonsGiven.Add(reason)
+                ? reason
+                : SHORT_TRUNCATION;
+        }
+
+        public bool TryCountObject()
+        {
+            return ++_objectsCounted <= MAX_TOTAL_OBJECTS;
+        }
+    }
+
     private static string StringifyPrimitive(
         object obj,
         int level,
-        string nullRep,
+        StringifyContext context,
         HashSet<object> seen
     )
     {
         if (obj == null)
-            return nullRep;
+            return context.NullRepresentation;
         return PrimitiveStringifiers.TryGetValue(obj.GetType(), out var strategy)
             ? strategy(obj)
             : obj.ToString();

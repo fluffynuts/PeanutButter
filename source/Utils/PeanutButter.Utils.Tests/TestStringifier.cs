@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using HtmlAgilityPack;
@@ -29,17 +30,22 @@ public class TestStringifier
         var result = value.Stringify();
 
         //--------------- Assert -----------------------
-        Expect(result).To.Equal(expected);
+        Expect(result)
+            .To.Equal(expected);
     }
 
     [Test]
     public void ShouldTruncateWhenTooManySiblingObjectsOrDepthReached()
     {
         // Arrange
-        var document = new HtmlDocument();
-        document.LoadHtml(
-            "<div>" + string.Concat(Enumerable.Repeat("<span>a</span>", 3000)) + "<p>x</p></div>"
+        var spans = string.Concat(
+            Enumerable.Repeat(
+                "<span>a</span>",
+                3000
+            )
         );
+        var document = new HtmlDocument();
+        document.LoadHtml($"<div>{spans}<p>x</p></div>");
         var node = document.DocumentNode.SelectSingleNode("//p");
 
         // Act
@@ -59,10 +65,16 @@ public class TestStringifier
     )
     {
         // Arrange
-        var last = new Node("parent", null);
+        var last = new Node(
+            "parent",
+            null
+        );
         for (var i = 0; i < maxDepth; i++)
         {
-            var child = new Node($"child-{i}", last);
+            var child = new Node(
+                $"child-{i}",
+                last
+            );
             last = child;
         }
 
@@ -80,10 +92,16 @@ public class TestStringifier
     )
     {
         // Arrange
-        var node = new Node("container", null);
+        var node = new Node(
+            "container",
+            null
+        );
         for (var i = 0; i < maxObjects; i++)
         {
-            var sibling = new Node($"sibling-{i}", null);
+            var sibling = new Node(
+                $"sibling-{i}",
+                null
+            );
             node.AddSibling(sibling);
         }
         
@@ -101,13 +119,19 @@ public class TestStringifier
     )
     {
         // Arrange
-        var last = new Node("parent", null);
+        var last = new Node(
+            "parent",
+            null
+        );
         // we have to back off from maxDepth by 2 because
         // last is the root, one extra node above what's created
         // below.
         for (var i = 0; i < maxDepth - 2; i++)
         {
-            var child = new Node($"child-{i}", last);
+            var child = new Node(
+                $"child-{i}",
+                last
+            );
             last = child;
         }
 
@@ -161,7 +185,10 @@ public class TestStringifier
         var result = data.Item1.Stringify();
 
         //--------------- Assert -----------------------
-        Expect(result).To.Equal(data.Item2.TrimStart().Replace("\r", ""));
+        Expect(result)
+            .To.Equal(
+                data.Item2.TrimStart().Replace("\r", "")
+            );
     }
 
     [Test]
@@ -204,7 +231,8 @@ public class TestStringifier
         // Act
         var result = obj.Stringify();
         // Assert
-        Expect(result).To.Equal(expected);
+        Expect(result)
+            .To.Equal(expected);
     }
 
     [Test]
@@ -246,11 +274,14 @@ public class TestStringifier
         var utcResult = utc.Stringify();
         var unspecifiedResult = unspecified.Stringify();
         // Assert
-        Expect(localResult).To.Start.With(expectedPre)
+        Expect(localResult)
+            .To.Start.With(expectedPre)
             .And.End.With(" (Local)");
-        Expect(utcResult).To.Start.With(expectedPre)
+        Expect(utcResult)
+            .To.Start.With(expectedPre)
             .And.End.With(" (Utc)");
-        Expect(unspecifiedResult).To.Start.With(expectedPre)
+        Expect(unspecifiedResult)
+            .To.Start.With(expectedPre)
             .And.End.With(" (Unspecified)");
     }
 
@@ -264,7 +295,8 @@ public class TestStringifier
         // Act
         var result = doc.Stringify();
         // Assert
-        Expect(result.RegexReplace("\\s", "")).To.Equal(raw);
+        Expect(result.RegexReplace("\\s", ""))
+            .To.Equal(raw);
     }
 
     [Test]
@@ -277,7 +309,545 @@ public class TestStringifier
         // Act
         var result = el.Stringify();
         // Assert
-        Expect(result).To.Equal("<node>1</node>");
+        Expect(result)
+            .To.Equal("<node>1</node>");
+    }
+
+    [TestFixture]
+    public class LimitingTotalObjectsRendered
+    {
+        private static readonly string TOTAL_OBJECTS_TRUNCATION =
+            $"<truncated: more than {Stringifier.MAX_TOTAL_OBJECTS} objects in total>";
+
+        [Test]
+        public void ShouldStopRenderingAfterMaxTotalObjectsAndSayWhy()
+        {
+            // Arrange
+            // 1 + 10 + 100 + 1000 nodes: no single collection, path or depth
+            // limit is hit, so only a limit on the total can bound this
+            var tree = Tree(
+                10,
+                3
+            );
+            // Act
+            var result = tree.Stringify();
+            // Assert
+            Expect(result)
+                .To.Contain(TOTAL_OBJECTS_TRUNCATION);
+            Expect(CountNodesRendered(result))
+                .To.Be.Less.Than(Stringifier.MAX_TOTAL_OBJECTS);
+        }
+
+        [Test]
+        public void ShouldSpellOutTheReasonOnce_ThenUseTheShortMarker()
+        {
+            // Arrange
+            var tree = Tree(
+                10,
+                3
+            );
+            // Act
+            var result = tree.Stringify();
+            // Assert
+            Expect(CountOccurrences(result, TOTAL_OBJECTS_TRUNCATION))
+                .To.Equal(1);
+            // the short marker shows that other collections were cut too
+            Expect(CountOccurrences(result, "<truncated>"))
+                .To.Be.Greater.Than(1);
+        }
+
+        [Test]
+        public void ShouldNotTruncateGraphsWithinTheTotalLimit()
+        {
+            // Arrange
+            var tree = Tree(
+                3,
+                2
+            );
+            // Act
+            var result = tree.Stringify();
+            // Assert
+            Expect(result)
+                .Not.To.Contain("truncated");
+            Expect(CountNodesRendered(result))
+                .To.Equal(13);
+        }
+
+        [Test]
+        public void ShouldBoundOutputForHugeHtmlNode()
+        {
+            // Arrange
+            var spans = string.Concat(
+                Enumerable.Repeat(
+                    "<span>a</span>",
+                    3000
+                )
+            );
+            var document = new HtmlDocument();
+            document.LoadHtml($"<div>{spans}<p>x</p></div>");
+            var node = document.DocumentNode.SelectSingleNode("//p");
+            // Act
+            var result = node.Stringify();
+            // Assert
+            // each rendered object has a bounded number of properties, each of
+            // which may be a string of at most MAX_STRING_LENGTH
+            Expect(result.Length)
+                .To.Be.Less.Than(Stringifier.MAX_TOTAL_OBJECTS * 2000);
+        }
+
+        [Test]
+        public void ShouldNameEachTruncationReasonOnlyOnce_ForHugeHtmlNode()
+        {
+            // Arrange
+            var spans = string.Concat(
+                Enumerable.Repeat(
+                    "<span>a</span>",
+                    3000
+                )
+            );
+            var document = new HtmlDocument();
+            document.LoadHtml($"<div>{spans}<p>x</p></div>");
+            var node = document.DocumentNode.SelectSingleNode("//p");
+            // Act
+            var result = node.Stringify();
+            // Assert
+            Expect(CountOccurrences(result, $"<truncated: max depth of {Stringifier.MAX_STRINGIFY_DEPTH} reached>"))
+                .To.Equal(1);
+            Expect(CountOccurrences(result, TOTAL_OBJECTS_TRUNCATION))
+                .To.Equal(1);
+            Expect(CountOccurrences(result, $"<truncated: more than {Stringifier.MAX_OBJECTS} objects>"))
+                .To.Be.Less.Than(2);
+            Expect(CountOccurrences(result, "<truncated>"))
+                .To.Be.Greater.Than(1);
+        }
+    }
+
+    [TestFixture]
+    public class LimitingTimeSpent
+    {
+        private const string TIME_TRUNCATION = "<truncated: stringification exceeded 1s>";
+
+        [Test]
+        public void ShouldNotStartReadingPropertiesOnceTheLimitHasPassed()
+        {
+            // Arrange
+            var clock = new SimulatedClock();
+            var tree = CostlyTree(
+                clock,
+                400,
+                3,
+                2
+            );
+            // Act
+            var result = Stringifier.StringifyWithClock(
+                tree,
+                () => clock.Now
+            );
+            // Assert
+            // reads start at 0ms, 400ms and 800ms: the last one crosses the limit,
+            // and a read already under way can't be interrupted, but none start after
+            Expect(clock.Reads)
+                .To.Equal(3);
+            Expect(result)
+                .To.Contain("root.0.0");
+            Expect(result)
+                .To.Contain("root.0.1");
+            Expect(result)
+                .Not.To.Contain("root.1");
+            Expect(result)
+                .To.Contain(TIME_TRUNCATION);
+        }
+
+        [Test]
+        public void ShouldKeepWhatWasRenderedOfACollectionAndMarkWhereItWasCut()
+        {
+            // Arrange
+            var clock = new SimulatedClock();
+            var items = Enumerable.Range(0, 10)
+                .Select(i => new CostlyNode(clock, 400, $"item-{i}"))
+                .ToList();
+            // Act
+            var result = Stringifier.StringifyWithClock(
+                items,
+                () => clock.Now
+            );
+            // Assert
+            Expect(clock.Reads)
+                .To.Equal(3);
+            Expect(result)
+                .To.Contain("item-0");
+            Expect(result)
+                .Not.To.Contain("item-9");
+            Expect(result)
+                .To.Contain(TIME_TRUNCATION);
+            // the collection itself was cut short too: that is shown
+            Expect(result)
+                .To.Contain("<truncated> ]");
+        }
+
+        [Test]
+        public void ShouldSpellOutTheReasonOnce_ThenUseTheShortMarkerForEveryOtherLevelCut()
+        {
+            // Arrange
+            var clock = new SimulatedClock();
+            var tree = CostlyTree(
+                clock,
+                400,
+                3,
+                2
+            );
+            // Act
+            var result = Stringifier.StringifyWithClock(
+                tree,
+                () => clock.Now
+            );
+            // Assert
+            Expect(CountOccurrences(result, TIME_TRUNCATION))
+                .To.Equal(1);
+            Expect(CountOccurrences(result, "<truncated>"))
+                .To.Be.Greater.Than(1);
+        }
+
+        [TestCase(100)]
+        [TestCase(250)]
+        [TestCase(400)]
+        [TestCase(700)]
+        [TestCase(1001)]
+        public void ShouldNeverLeaveADanglingSeparator_WhereverTheRenderIsCut(
+            int costPerRead
+        )
+        {
+            // Arrange
+            var clock = new SimulatedClock();
+            var items = Enumerable.Range(0, 10)
+                .Select(
+                    i => new CostlyNode(
+                        clock,
+                        costPerRead,
+                        $"item-{i}",
+                        [
+                            new CostlyNode(
+                                clock,
+                                costPerRead,
+                                $"item-{i}.child"
+                            )
+                        ]
+                    )
+                )
+                .ToList();
+            // Act
+            var result = Stringifier.StringifyWithClock(
+                items,
+                () => clock.Now
+            );
+            // Assert
+            Expect(result)
+                .To.Contain("truncated");
+            Expect(Regex.IsMatch(result, @",\s*\]"))
+                .To.Be.False();
+        }
+
+        [Test]
+        public void ShouldNotTruncateWhenWithinTheTimeLimit()
+        {
+            // Arrange
+            var tree = Tree(
+                3,
+                2
+            );
+            // Act
+            var result = Stringifier.StringifyWithClock(
+                tree,
+                () => Stringifier.MAX_STRINGIFY_MILLISECONDS
+            );
+            // Assert
+            Expect(result)
+                .Not.To.Contain("truncated");
+        }
+    }
+
+    [TestFixture]
+    public class RepresentingNulls
+    {
+        [Test]
+        public void ShouldUseTheProvidedRepresentationForANullObject()
+        {
+            // Arrange
+            // Act
+            var result = Stringifier.Stringify(
+                null,
+                "<nothing>"
+            );
+            // Assert
+            Expect(result)
+                .To.Equal("<nothing>");
+        }
+
+        [Test]
+        public void ShouldUseTheProvidedRepresentationForNestedNullProperties()
+        {
+            // Arrange
+            var input = new
+            {
+                Name = null as string,
+                Child = new
+                {
+                    Value = null as string
+                }
+            };
+            // Act
+            var result = Stringifier.Stringify(
+                input,
+                "<nothing>"
+            );
+            // Assert
+            Expect(result)
+                .To.Contain("Name: <nothing>");
+            Expect(result)
+                .To.Contain("Value: <nothing>");
+            Expect(result)
+                .Not.To.Contain("null");
+        }
+
+        [Test]
+        public void ShouldUseTheProvidedRepresentationForNullCollectionItems()
+        {
+            // Arrange
+            var input = new List<string>
+            {
+                null,
+                "x"
+            };
+            // Act
+            var result = Stringifier.Stringify(
+                input,
+                "<nothing>"
+            );
+            // Assert
+            Expect(result)
+                .To.Equal("[ <nothing>, \"x\" ]");
+        }
+
+        [Test]
+        public void ShouldFallBackToTheDefaultWhenTheRepresentationIsNull()
+        {
+            // Arrange
+            // Act
+            var result = Stringifier.Stringify(
+                null,
+                null
+            );
+            // Assert
+            Expect(result)
+                .To.Equal(Stringifier.DEFAULT_NULL_PLACEHOLDER);
+        }
+    }
+
+    [TestFixture]
+    public class LimitingStringLength
+    {
+        [Test]
+        public void ShouldNotTruncateStringAtTheLimit()
+        {
+            // Arrange
+            var input = new string(
+                'a',
+                Stringifier.MAX_STRING_LENGTH
+            );
+            // Act
+            var result = input.Stringify();
+            // Assert
+            Expect(result)
+                .To.Equal($"\"{input}\"");
+        }
+
+        [Test]
+        public void ShouldTruncateStringOverTheLimitAndSayHowMuchWasShown()
+        {
+            // Arrange
+            var input = new string(
+                'a',
+                Stringifier.MAX_STRING_LENGTH + 1
+            );
+            var shown = new string(
+                'a',
+                Stringifier.MAX_STRING_LENGTH
+            );
+            // Act
+            var result = input.Stringify();
+            // Assert
+            Expect(result)
+                .To.Equal(
+                    $"\"{shown}\"<truncated: showing {Stringifier.MAX_STRING_LENGTH} of {input.Length} chars>"
+                );
+        }
+
+        [Test]
+        public void ShouldTruncateLongStringPropertiesOfObjects()
+        {
+            // Arrange
+            var input = new
+            {
+                Text = new string(
+                    'b',
+                    300
+                )
+            };
+            // Act
+            var result = input.Stringify();
+            // Assert
+            Expect(result)
+                .To.Contain($"<truncated: showing {Stringifier.MAX_STRING_LENGTH} of 300 chars>");
+        }
+
+        [Test]
+        public void ShouldNotSplitASurrogatePairWhenTruncating()
+        {
+            // Arrange
+            var input = new string(
+                'a',
+                Stringifier.MAX_STRING_LENGTH - 1
+            ) + "\U0001F600" + "tail";
+            // Act
+            var result = input.Stringify();
+            // Assert
+            var loneHighSurrogates = result
+                .Where((c, i) => char.IsHighSurrogate(c) &&
+                    (i + 1 >= result.Length || !char.IsLowSurrogate(result[i + 1])))
+                .ToArray();
+            Expect(loneHighSurrogates)
+                .To.Be.Empty();
+            Expect(result)
+                .To.Contain("<truncated: showing");
+        }
+    }
+
+    private static Node Tree(
+        int branching,
+        int depth,
+        string name = "root"
+    )
+    {
+        var result = new Node(
+            name,
+            null
+        );
+        if (depth == 0)
+        {
+            return result;
+        }
+
+        for (var i = 0; i < branching; i++)
+        {
+            result.AddSibling(
+                Tree(
+                    branching,
+                    depth - 1,
+                    $"{name}.{i}"
+                )
+            );
+        }
+
+        return result;
+    }
+
+    private static int CountNodesRendered(
+        string stringified
+    )
+    {
+        return Regex.Matches(
+            stringified,
+            "Name: "
+        ).Count;
+    }
+
+    private static int CountOccurrences(
+        string haystack,
+        string needle
+    )
+    {
+        return Regex.Matches(
+            haystack,
+            Regex.Escape(needle)
+        ).Count;
+    }
+
+    private static CostlyNode CostlyTree(
+        SimulatedClock clock,
+        int cost,
+        int branching,
+        int depth,
+        string name = "root"
+    )
+    {
+        var children = depth == 0
+            ? []
+            : Enumerable.Range(0, branching)
+                .Select(
+                    i => CostlyTree(
+                        clock,
+                        cost,
+                        branching,
+                        depth - 1,
+                        $"{name}.{i}"
+                    )
+                )
+                .ToArray();
+        return new CostlyNode(
+            clock,
+            cost,
+            name,
+            children
+        );
+    }
+
+    public class SimulatedClock
+    {
+        public long Now { get; private set; }
+        public int Reads { get; private set; }
+
+        public void Spend(
+            int milliseconds
+        )
+        {
+            Now += milliseconds;
+            Reads++;
+        }
+    }
+
+    /// <summary>
+    /// A node whose Name takes a fixed amount of (simulated) time to read,
+    /// so time-limit tests say "after this much work" and not "after this many checks"
+    /// </summary>
+    public class CostlyNode
+    {
+        private readonly SimulatedClock _clock;
+        private readonly int _cost;
+        private readonly string _name;
+
+        public CostlyNode[] Children { get; }
+
+        public string Name
+        {
+            get
+            {
+                _clock.Spend(_cost);
+                return _name;
+            }
+        }
+
+        public CostlyNode(
+            SimulatedClock clock,
+            int cost,
+            string name,
+            CostlyNode[] children = null
+        )
+        {
+            _clock = clock;
+            _cost = cost;
+            _name = name;
+            Children = children ?? [];
+        }
     }
 
     public class Node
@@ -290,7 +860,10 @@ public class TestStringifier
         {
         }
 
-        public Node(string name, Node parent)
+        public Node(
+            string name,
+            Node parent
+        )
         {
             Name = name;
             Parent = parent;
