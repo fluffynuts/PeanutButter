@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Configuration;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -947,32 +946,6 @@ namespace PeanutButter.Utils.Tests.Dictionaries
                     var result1 = dataDict["id"];
                     dataDict["id"] = expected2;
                     var result2 = dataDict["id"];
-                    // Assert
-                    Expect(result1)
-                        .To.Equal(expected1);
-                    Expect(result2)
-                        .To.Equal(expected2);
-                }
-            }
-
-            [TestFixture]
-            public class WrappingConnectionStringSettingsCollection
-            {
-                [Test]
-                public void ShouldBeAbleToReadAndWriteValue()
-                {
-                    // Arrange
-                    var expected1 = GetRandomString();
-                    var expected2 = GetAnother(expected1);
-                    var wrapped = new ConnectionStringSettingsCollection
-                    {
-                        new ConnectionStringSettings("id", expected1)
-                    };
-                    var sut = Create(wrapped);
-                    // Act
-                    var result1 = sut["id"];
-                    sut["id"] = expected2;
-                    var result2 = sut["id"];
                     // Assert
                     Expect(result1)
                         .To.Equal(expected1);

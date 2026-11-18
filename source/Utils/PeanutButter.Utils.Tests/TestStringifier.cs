@@ -302,7 +302,7 @@ public class TestStringifier
         }
     }
 
-    [Timeout(2000)]
+    [CancelAfter(2000)]
     [Test]
     public void ShouldNeverGetInAnInfiniteLoop()
     {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Configuration;
 using NUnit.Framework;
 using PeanutButter.DuckTyping.Exceptions;
 using PeanutButter.DuckTyping.Extensions;
@@ -104,27 +103,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                     var src2 = new NameValueCollection()
                     {
                         {"Name", "Bob"}
-                    };
-
-                    // Pre-Assert
-
-                    // Act
-                    var result = new object[] {src1, src2}.CanMergeAs<IMerge1>();
-
-                    // Assert
-                    Expect(result).To.Be.True();
-                }
-
-                [Test]
-                public void OperatingOnMultiplesIncludingConnectionStringsCollection_WhenShouldPass_Does()
-                {
-                    // Arrange
-                    var src1 = new {Id = 1};
-                    var src2 = new ConnectionStringSettingsCollection
-                    {
-                        new ConnectionStringSettings(
-                            "Name", "Bob"
-                        )
                     };
 
                     // Pre-Assert
@@ -343,31 +321,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                         Expect(result.Id).To.Equal(expectedId);
                         Expect(result.Name).To.Equal(expectedName);
                     }
-
-                    [Test]
-                    public void ObjectAndConnectionStringCollection()
-                    {
-                        // Arrange
-                        var expectedName = GetRandomString();
-                        var expectedId = GetRandomInt();
-                        var first = new
-                        {
-                            Id = expectedId
-                        };
-                        var second = new ConnectionStringSettingsCollection()
-                        {
-                            new ConnectionStringSettings(
-                                "Name", expectedName
-                            )
-                        };
-                        // Pre-Assert
-                        // Act
-                        var result = new object[] { first, second }.MergeAs<IMerge1>();
-                        // Assert
-                        Expect(result).Not.To.Be.Null();
-                        Expect(result.Id).To.Equal(expectedId);
-                        Expect(result.Name).To.Equal(expectedName);
-                    }
                 }
             }
 
@@ -494,31 +447,6 @@ namespace PeanutButter.DuckTyping.Tests.Extensions
                         // Pre-Assert
                         // Act
                         var result = new object[] {first, second}.FuzzyMergeAs<IMerge1>();
-                        // Assert
-                        Expect(result).Not.To.Be.Null();
-                        Expect(result.Id).To.Equal(expectedId);
-                        Expect(result.Name).To.Equal(expectedName);
-                    }
-
-                    [Test]
-                    public void ObjectAndConnectionStringCollection()
-                    {
-                        // Arrange
-                        var expectedName = GetRandomString();
-                        var expectedId = GetRandomInt();
-                        var first = new
-                        {
-                            ID = expectedId
-                        };
-                        var second = new ConnectionStringSettingsCollection()
-                        {
-                            new ConnectionStringSettings(
-                                "name", expectedName
-                            )
-                        };
-                        // Pre-Assert
-                        // Act
-                        var result = new object[] { first, second }.FuzzyMergeAs<IMerge1>();
                         // Assert
                         Expect(result).Not.To.Be.Null();
                         Expect(result.Id).To.Equal(expectedId);

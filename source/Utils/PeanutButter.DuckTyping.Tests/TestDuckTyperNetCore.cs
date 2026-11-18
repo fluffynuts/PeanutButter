@@ -8,7 +8,7 @@ using PeanutButter.Utils;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
-namespace PeanutButter.DuckTyping.NetCore.Tests;
+namespace PeanutButter.DuckTyping.Tests;
 
 [TestFixture]
 public class TestDuckTyper

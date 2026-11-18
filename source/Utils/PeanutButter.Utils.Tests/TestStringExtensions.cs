@@ -720,7 +720,9 @@ public class TestStringExtensions
             Encoding.UTF8,
             Encoding.ASCII,
             Encoding.UTF32,
+#pragma warning disable SYSLIB0001
             Encoding.UTF7
+#pragma warning restore SYSLIB0001
         ];
 
         [TestCaseSource(nameof(Encodings))]
@@ -3461,7 +3463,7 @@ function foo() {
             // Arrange
             var originalText = GetRandomWords();
             var zippedText = originalText.GZip();
-            var originalBytes = GetRandomBytes();
+            var originalBytes = GetRandomBytes(1);
             var zippedBytes = originalBytes.GZip();
             // Act
             var result1 = zippedText.IsGZipped();
