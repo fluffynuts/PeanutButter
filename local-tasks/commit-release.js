@@ -1,8 +1,8 @@
 const gulp = requireModule("gulp-with-help"),
   gutil = requireModule("gulp-util"),
   editXml = require("gulp-edit-xml"),
-  Git = require("simple-git"),
-  git = new Git(),
+  { simpleGit } = require("simple-git"),
+  git = simpleGit(),
   containingFolder = "source/Utils/PeanutButter.Utils"; // track PB.Utils for tag version
 
 gulp.task("commit-release", () => {
